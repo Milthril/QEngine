@@ -37,8 +37,9 @@ void QRhiWindow::setDefaultSurfaceFormat(QSurfaceFormat format)
 	QSurfaceFormat::setDefaultFormat(format);
 }
 
-void QRhiWindow::waitExposed() const
+void QRhiWindow::showExposed()
 {
+	show();
 	while (!mRunning) {
 		QGuiApplication::processEvents();
 	}
@@ -82,14 +83,19 @@ void QRhiWindow::initInternal()
 		mRhi.reset(QRhi::create(QRhi::Metal, &params, rhiFlags));
 	}
 
-	mSwapChain.reset(mRhi->newSwapChain());
+	mSwapChain.reset(mRhi->newSwapChain(), [](QRhiSwapChain* res) {
+		res->destroy();
+	});
+
 	mDepthStencilFrameBuffer.reset(mRhi->newRenderBuffer(QRhiRenderBuffer::DepthStencil,
 								   QSize(), // no need to set the size here, due to UsedWithSwapChainOnly
 								   1,
 								   QRhiRenderBuffer::UsedWithSwapChainOnly));
 	mSwapChain->setWindow(this);
 	mSwapChain->setDepthStencil(mDepthStencilFrameBuffer.get());
-	mRenderPassDesciptor.reset(mSwapChain->newCompatibleRenderPassDescriptor());
+	mRenderPassDesciptor.reset(mSwapChain->newCompatibleRenderPassDescriptor(), [](QRhiRenderPassDescriptor* desc) {
+		desc->destroy();
+	});
 	mSwapChain->setRenderPassDescriptor(mRenderPassDesciptor.get());
 	resizeSwapChain();
 
@@ -131,23 +137,12 @@ void QRhiWindow::renderInternal()
 
 void QRhiWindow::resizeSwapChain()
 {
-	if (mHasSwapChain && mRootRenderer) {
-		//mRootRenderer->releaseSwapChainResources();
+	if (mHasSwapChain) {
 	}
+
 	mHasSwapChain = mSwapChain->createOrResize();
 	if (mRootRenderer) {
 		//mRootRenderer->initSwapChainResources();
-	}
-}
-
-void QRhiWindow::releaseSwapChain()
-{
-	if (mHasSwapChain) {
-		mHasSwapChain = false;
-		mSwapChain->destroy();
-		if (mRootRenderer) {
-			//mRootRenderer->releaseSwapChainResources();
-		}
 	}
 }
 
@@ -192,10 +187,9 @@ bool QRhiWindow::event(QEvent* e)
 	case QEvent::PlatformSurface:
 		// this is the proper time to tear down the swapchain (while the native window and surface are still around)
 		if (static_cast<QPlatformSurfaceEvent*>(e)->surfaceEventType() == QPlatformSurfaceEvent::SurfaceAboutToBeDestroyed) {
-			releaseSwapChain();
-			if (mRootRenderer) {
-			}
-			//mRootRenderer->releaseResources();
+			mSwapChain.reset();
+			mRhi.reset();
+			mHasSwapChain = false;
 		}
 
 		break;

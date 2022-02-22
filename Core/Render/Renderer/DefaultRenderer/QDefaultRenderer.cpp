@@ -7,7 +7,7 @@
 void QDefaultRenderer::render(QRhiCommandBuffer* buffer, QRhiRenderTarget* renderTarget, QRhiResourceUpdateBatch* batch)
 {
 	QSize size = renderTarget->pixelSize();
-	QMatrix4x4 VP = getClipMatrix()* getViewMatrix();
+	QMatrix4x4 VP = getClipMatrix() * getViewMatrix();
 	for (auto it : mProxyMap) {
 		it->updateResource(batch, VP);
 	}
@@ -40,7 +40,7 @@ std::shared_ptr<QRhiProxy> QDefaultRenderer::createSkeletonMeshProxy(std::shared
 
 std::shared_ptr<QRhiProxy> QDefaultRenderer::createText2DProxy(std::shared_ptr<QText2DComponent>)
 {
-	throw std::logic_error("The method or operation is not implemented.");
+	t
 }
 
 std::shared_ptr<QRhiProxy> QDefaultRenderer::createParticleProxy(std::shared_ptr<QParticleComponent>)

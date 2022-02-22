@@ -16,20 +16,7 @@ public:
 		QVector4D baseColor;
 	};
 	using Index = uint32_t;
-	enum Topology {		//图元拓扑结构
-		Triangles,
-		TriangleStrip,
-		TriangleFan,
-		Lines,
-		LineStrip,
-		Points
-	};
-
-	Topology topology() const;
-	void setTopology(Topology newTopology);
-
-private:
-	Topology mTopology;
+	using Topology = QRhiGraphicsPipeline::Topology;
 };
 
 #endif // QPrimitiveComponent_h__

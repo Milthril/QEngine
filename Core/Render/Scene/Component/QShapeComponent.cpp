@@ -43,3 +43,14 @@ void QShapeComponent::setBufferType(QRhiBuffer::Type val)
 {
 	mBufferType = val;
 }
+QShapeComponent::Topology QShapeComponent::topology() const
+{
+	return mTopology;
+}
+
+void QShapeComponent::setTopology(QShapeComponent::Topology newTopology)
+{
+	if (mTopology == newTopology)
+		return;
+	mTopology = newTopology;
+}

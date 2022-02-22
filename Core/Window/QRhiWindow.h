@@ -11,12 +11,11 @@ public:
 	QRhiWindow(QRhi::Implementation backend);
 	static void setDefaultSurfaceFormat(QSurfaceFormat format);
 	std::shared_ptr<QScene> scene() const { return mScene; }
-	void waitExposed() const;
+	void showExposed();
 private:
 	void initInternal();
 	void renderInternal();
 	void resizeSwapChain();
-	void releaseSwapChain();
 protected:
 	void exposeEvent(QExposeEvent*) override;
 	bool event(QEvent*) override;

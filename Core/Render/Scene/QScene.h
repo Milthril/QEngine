@@ -1,9 +1,7 @@
 #ifndef QScene_h__
 #define QScene_h__
 
-#include <QList>
 #include <QObject>
-#include <QVector3D>
 #include "QSceneComponent.h"
 
 class QLightComponent;
