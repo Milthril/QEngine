@@ -21,6 +21,9 @@ public:
 	void insertPrimitive(uint32_t index, std::shared_ptr<QPrimitiveComponent> component);
 	void removePrimitive(std::shared_ptr<QPrimitiveComponent> component);
 
+	void addLight(std::shared_ptr<QLightComponent> light);
+	void addPrimitive(std::shared_ptr<QPrimitiveComponent> component);
+
 	std::shared_ptr<QCameraComponent> getCamera() const;
 	void setCamera(std::shared_ptr<QCameraComponent> val);
 

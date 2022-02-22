@@ -6,7 +6,8 @@
 #include "private\qrhimetal_p.h"
 #include "private\qrhigles2_p.h"
 #include <QPlatformSurfaceEvent>
-#include "Render/Renderer/AdvanceRenderer/QAdvanceRenderer.h"
+#include "QGuiApplication"
+#include "Render/Renderer/DefaultRenderer/QDefaultRenderer.h"
 
 QRhiWindow::QRhiWindow(QRhi::Implementation backend)
 	: mBackend(backend)
@@ -34,6 +35,13 @@ QRhiWindow::QRhiWindow(QRhi::Implementation backend)
 void QRhiWindow::setDefaultSurfaceFormat(QSurfaceFormat format)
 {
 	QSurfaceFormat::setDefaultFormat(format);
+}
+
+void QRhiWindow::waitExposed() const
+{
+	while (!mRunning) {
+		QGuiApplication::processEvents();
+	}
 }
 
 void QRhiWindow::initInternal()
@@ -85,7 +93,8 @@ void QRhiWindow::initInternal()
 	mSwapChain->setRenderPassDescriptor(mRenderPassDesciptor.get());
 	resizeSwapChain();
 
-	mRootRenderer = std::make_shared<QAdvanceRenderer>(mRhi);
+	mRootRenderer = std::make_shared<QDefaultRenderer>(mRhi, mRenderPassDesciptor);
+	mRootRenderer->setScene(mScene);
 	if (mRootRenderer) {
 		//mRootRenderer->initResources();
 	}
@@ -93,6 +102,8 @@ void QRhiWindow::initInternal()
 
 void QRhiWindow::renderInternal()
 {
+	if (!isExposed())
+		return;
 	if (!mHasSwapChain)
 		return;
 	if (mSwapChain->currentPixelSize() != mSwapChain->surfacePixelSize()) {
@@ -112,10 +123,10 @@ void QRhiWindow::renderInternal()
 		return;
 	}
 	if (mRootRenderer) {
-		//QRhiRenderer::FrameContext ctx;
-		//mRootRenderer->startNextFrame(ctx);
+		mRootRenderer->render(mSwapChain->currentFrameCommandBuffer(), mSwapChain->currentFrameRenderTarget(), mRhi->nextResourceUpdateBatch());
 	}
 	mRhi->endFrame(mSwapChain.get());
+	requestUpdate();
 }
 
 void QRhiWindow::resizeSwapChain()
@@ -142,14 +153,15 @@ void QRhiWindow::releaseSwapChain()
 
 void QRhiWindow::exposeEvent(QExposeEvent*)
 {
-	if (isExposed() && !mRunning) {
-		mRunning = true;
-		initInternal();
+	if (isExposed()) {
+		if (!mRunning) {
+			mRunning = true;
+			initInternal();
+		}
 		resizeSwapChain();
 	}
 
 	const QSize surfaceSize = mHasSwapChain ? mSwapChain->surfacePixelSize() : QSize();
-
 	// stop pushing frames when not exposed (or size is 0)
 	if ((!isExposed() || (mHasSwapChain && surfaceSize.isEmpty())) && mRunning && !mNotExposed) {
 		qDebug("not exposed");

@@ -26,6 +26,16 @@ void QScene::removePrimitive(std::shared_ptr<QPrimitiveComponent> component)
 	}
 }
 
+void QScene::addLight(std::shared_ptr<QLightComponent> light)
+{
+	insertLight(mLightList.size(), light);
+}
+
+void QScene::addPrimitive(std::shared_ptr<QPrimitiveComponent> component)
+{
+	insertPrimitive(mPrimitiveList.size(), component);
+}
+
 std::shared_ptr<QCameraComponent> QScene::getCamera() const
 {
 	return mCamera;

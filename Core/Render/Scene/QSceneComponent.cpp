@@ -1,6 +1,17 @@
 #include "QSceneComponent.h"
 
-const QVector3D& QSceneComponent::position() const
+QMatrix4x4 QSceneComponent::calculateModelMatrix()
+{
+	QMatrix4x4 modelMatrix;
+	modelMatrix.translate(mPosition);
+	modelMatrix.rotate(mRotation.x(), 1, 0, 0);
+	modelMatrix.rotate(mRotation.y(), 0, 1, 0);
+	modelMatrix.rotate(mRotation.z(), 0, 0, 1);
+	modelMatrix.scale(mScale);
+	return modelMatrix;
+}
+
+const QVector3D& QSceneComponent::getPosition() const
 {
 	return mPosition;
 }
@@ -12,7 +23,7 @@ void QSceneComponent::setPosition(const QVector3D& newPosition)
 	mPosition = newPosition;
 }
 
-const QVector3D& QSceneComponent::rotation() const
+const QVector3D& QSceneComponent::getRotation() const
 {
 	return mRotation;
 }
@@ -24,7 +35,7 @@ void QSceneComponent::setRotation(const QVector3D& newRotation)
 	mRotation = newRotation;
 }
 
-const QVector3D& QSceneComponent::scale() const
+const QVector3D& QSceneComponent::getScale() const
 {
 	return mScale;
 }

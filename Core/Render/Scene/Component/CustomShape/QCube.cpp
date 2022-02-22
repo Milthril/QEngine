@@ -4,7 +4,7 @@ QCube::QCube()
 {
 	setTopology(QPrimitiveComponent::Triangles);
 
-	QVector3D position;
+	QVector3D getPosition;
 	QVector3D normal;
 	QVector3D tangent;
 	QVector3D bitangent;

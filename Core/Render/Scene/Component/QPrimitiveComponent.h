@@ -8,14 +8,14 @@ class QPrimitiveComponent :public QSceneComponent {
 		Q_PROPERTY(Topology topology READ topology WRITE setTopology)
 public:
 	struct Vertex {
-		QVector3D position;
+		QVector3D getPosition;
 		QVector3D normal;
 		QVector3D tangent;
 		QVector3D bitangent;
 		QVector2D texCoord;
 		QVector4D baseColor;
 	};
-
+	using Index = uint32_t;
 	enum Topology {		//图元拓扑结构
 		Triangles,
 		TriangleStrip,

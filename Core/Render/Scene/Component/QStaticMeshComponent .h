@@ -14,6 +14,9 @@ class QStaticMeshComponent :public QPrimitiveComponent {
 	struct QMaterial {
 		QImage diffuse;
 	};
+public:
+	QSceneComponent::Type type() override;
+
 };
 
 #endif // QStaticMeshComponent _h__

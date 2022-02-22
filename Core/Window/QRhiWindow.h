@@ -10,6 +10,8 @@ class QRhiWindow :public QWindow {
 public:
 	QRhiWindow(QRhi::Implementation backend);
 	static void setDefaultSurfaceFormat(QSurfaceFormat format);
+	std::shared_ptr<QScene> scene() const { return mScene; }
+	void waitExposed() const;
 private:
 	void initInternal();
 	void renderInternal();
@@ -18,7 +20,7 @@ private:
 protected:
 	void exposeEvent(QExposeEvent*) override;
 	bool event(QEvent*) override;
-public:
+private:
 	QRhi::Implementation mBackend;
 	std::shared_ptr<QRhi> mRhi;
 	std::shared_ptr<QRhiSwapChain> mSwapChain;

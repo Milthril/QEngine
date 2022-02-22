@@ -33,3 +33,13 @@ void QShapeComponent::setImages(const QVector<QImage>& newImages)
 		return;
 	mImages = newImages;
 }
+
+QRhiBuffer::Type QShapeComponent::bufferType() const
+{
+	return mBufferType;
+}
+
+void QShapeComponent::setBufferType(QRhiBuffer::Type val)
+{
+	mBufferType = val;
+}

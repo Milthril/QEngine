@@ -1,11 +1,14 @@
-#ifndef QAdvanceRenderer_h__
-#define QAdvanceRenderer_h__
+#ifndef QDefaultRenderer_h__
+#define QDefaultRenderer_h__
 
 #include "Render/Renderer/QSceneRenderer.h"
 
-class QAdvanceRenderer :public QSceneRenderer {
+class QDefaultRenderer :public QSceneRenderer {
 public:
-	QAdvanceRenderer(std::shared_ptr<QRhi> rhi, std::shared_ptr<QRhiRenderPassDescriptor> renderPassDescriptor) :QSceneRenderer(rhi, renderPassDescriptor) {}
+	QDefaultRenderer(std::shared_ptr<QRhi> rhi, std::shared_ptr<QRhiRenderPassDescriptor> renderPassDescriptor) :QSceneRenderer(rhi, renderPassDescriptor) {}
+
+	void render(QRhiCommandBuffer* buffer, QRhiRenderTarget* renderTarget, QRhiResourceUpdateBatch* batch) override;
+
 protected:
 
 	std::shared_ptr<QRhiProxy> createShapeProxy(std::shared_ptr<QShapeComponent>) override;
@@ -21,4 +24,4 @@ protected:
 	std::shared_ptr<QRhiProxy> createSkyBoxProxy(std::shared_ptr<QSkyBoxComponent>) override;
 };
 
-#endif // QAdvanceRenderer_h__
+#endif // QDefaultRenderer_h__
