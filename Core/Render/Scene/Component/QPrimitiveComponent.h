@@ -1,14 +1,11 @@
-#ifndef QPrimitiveComponent_h__
+ï»¿#ifndef QPrimitiveComponent_h__
 #define QPrimitiveComponent_h__
 
 #include "Render/Scene/QSceneComponent.h"
 
-const uint32_t QMATERIAL_DIFFUSE = 0;
-
-typedef QHash<uint32_t, QImage> QMaterial;
-
-class QPrimitiveComponent :public QVisibleComponent {
+class QPrimitiveComponent :public QSceneComponent {
 	Q_OBJECT
+		Q_PROPERTY(Topology topology READ topology WRITE setTopology)
 public:
 	struct Vertex {
 		QVector3D position;
@@ -19,7 +16,7 @@ public:
 		QVector4D baseColor;
 	};
 
-	enum Topology {		//Í¼ÔªÍØÆË½á¹¹
+	enum Topology {		//å›¾å…ƒæ‹“æ‰‘ç»“æž„
 		Triangles,
 		TriangleStrip,
 		TriangleFan,
@@ -27,15 +24,12 @@ public:
 		LineStrip,
 		Points
 	};
-	enum Type {
-		Static,			//¶¥µãÊý¾Ý²»»á¸üÐÂ
-		Dynamic			//¶¥µãÊý¾Ý½«Ã»Ö¡¶¼¸üÐÂ
-	};
+
+	Topology topology() const;
+	void setTopology(Topology newTopology);
 
 private:
 	Topology mTopology;
-	QVector<Vertex> mVertices;
-	QVector<uint32_t> mIndices;
 };
 
 #endif // QPrimitiveComponent_h__

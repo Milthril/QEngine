@@ -1,7 +1,7 @@
 #ifndef QDeferRenderer_h__
 #define QDeferRenderer_h__
 
-#include "..\QSceneRenderer.h"
+#include "Render/Renderer/QSceneRenderer.h"
 
 class QDeferRenderer :public QSceneRenderer {
 protected:
