@@ -1,6 +1,6 @@
 #include "QShapeComponent.h"
 
-const QVector<QPrimitiveComponent::Vertex>& QShapeComponent::vertices() const
+const QVector<QPrimitiveComponent::Vertex>& QShapeComponent::getVertices() const
 {
 	return mVertices;
 }
@@ -8,33 +8,31 @@ const QVector<QPrimitiveComponent::Vertex>& QShapeComponent::vertices() const
 void QShapeComponent::setVertices(const QVector<Vertex>& newVertices)
 {
 	mVertices = newVertices;
+	if (mBufferType == QRhiBuffer::Dynamic) {
+		bNeedUpdateVertex = true;
+	}
+	else {
+		bNeedResetProxy = true;
+	}
 }
 
-const QVector<uint32_t>& QShapeComponent::indices() const
+const QVector<uint32_t>& QShapeComponent::getIndices() const
 {
 	return mIndices;
 }
 
 void QShapeComponent::setIndices(const QVector<uint32_t>& newIndices)
 {
-	if (mIndices == newIndices)
-		return;
 	mIndices = newIndices;
+	if (mBufferType == QRhiBuffer::Dynamic) {
+		bNeedUpdateIndex = true;
+	}
+	else {
+		bNeedResetProxy = true;
+	}
 }
 
-const QVector<QImage>& QShapeComponent::images() const
-{
-	return mImages;
-}
-
-void QShapeComponent::setImages(const QVector<QImage>& newImages)
-{
-	if (mImages == newImages)
-		return;
-	mImages = newImages;
-}
-
-QRhiBuffer::Type QShapeComponent::bufferType() const
+QRhiBuffer::Type QShapeComponent::getBufferType() const
 {
 	return mBufferType;
 }
@@ -43,7 +41,52 @@ void QShapeComponent::setBufferType(QRhiBuffer::Type val)
 {
 	mBufferType = val;
 }
-QShapeComponent::Topology QShapeComponent::topology() const
+
+QColor QShapeComponent::getDefaultBaseColor() const
+{
+	return mDefaultBaseColor;
+}
+
+QVector4D QShapeComponent::getDefaultBaseColorVec4() const
+{
+	const QColor color = getDefaultBaseColor();
+	return QVector4D(color.redF(), color.greenF(), color.blueF(), color.alphaF());
+}
+
+void QShapeComponent::setDefaultBaseColor(QColor val)
+{
+	if (mDefaultBaseColor == val)
+		return;
+	mDefaultBaseColor = val;
+	for (auto& vertex : mVertices) {
+		vertex.baseColor = getDefaultBaseColorVec4();
+	}
+	if (mTexture.isNull()) {
+		bNeedUpdateVertex = true;
+	}
+	else {
+		mTexture = {};
+		bNeedResetProxy = true;
+	}
+}
+
+QImage QShapeComponent::getTexture() const
+{
+	return mTexture;
+}
+
+void QShapeComponent::setTexture(QImage val)
+{
+	if (!mTexture.isNull()) {
+		bNeedResetProxy = true;
+	}
+	else {
+		bNeedUpdateTexture = true;
+	}
+	mTexture = val;
+}
+
+QShapeComponent::Topology QShapeComponent::getTopology() const
 {
 	return mTopology;
 }

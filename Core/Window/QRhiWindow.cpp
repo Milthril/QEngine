@@ -101,9 +101,6 @@ void QRhiWindow::initInternal()
 
 	mRootRenderer = std::make_shared<QDefaultRenderer>(mRhi, mRenderPassDesciptor);
 	mRootRenderer->setScene(mScene);
-	if (mRootRenderer) {
-		//mRootRenderer->initResources();
-	}
 }
 
 void QRhiWindow::renderInternal()
@@ -112,10 +109,11 @@ void QRhiWindow::renderInternal()
 		return;
 	if (!mHasSwapChain)
 		return;
-	if (mSwapChain->currentPixelSize() != mSwapChain->surfacePixelSize()) {
+	if (mSwapChain->currentPixelSize() != mSwapChain->surfacePixelSize() || mNewlyExposed) {
 		resizeSwapChain();
 		if (!mHasSwapChain)
 			return;
+		mNewlyExposed = false;
 	}
 	QRhi::FrameOpResult ret = mRhi->beginFrame(mSwapChain.get());
 	if (ret == QRhi::FrameOpSwapChainOutOfDate) {
@@ -129,7 +127,7 @@ void QRhiWindow::renderInternal()
 		return;
 	}
 	if (mRootRenderer) {
-		mRootRenderer->render(mSwapChain->currentFrameCommandBuffer(), mSwapChain->currentFrameRenderTarget(), mRhi->nextResourceUpdateBatch());
+		mRootRenderer->renderInternal(mSwapChain->currentFrameCommandBuffer(), mSwapChain->currentFrameRenderTarget(), mRhi->nextResourceUpdateBatch());
 	}
 	mRhi->endFrame(mSwapChain.get());
 	requestUpdate();
@@ -142,7 +140,7 @@ void QRhiWindow::resizeSwapChain()
 
 	mHasSwapChain = mSwapChain->createOrResize();
 	if (mRootRenderer) {
-		//mRootRenderer->initSwapChainResources();
+		mRootRenderer->setRenderTargetSize(mSwapChain->currentPixelSize());
 	}
 }
 

@@ -2,58 +2,53 @@
 
 QCube::QCube()
 {
-	setTopology(QPrimitiveComponent::Triangles);
+	setTopology(QPrimitiveComponent::Topology::Triangles);
 
-	QVector3D getPosition;
-	QVector3D normal;
-	QVector3D tangent;
-	QVector3D bitangent;
-	QVector2D texCoord;
-	QVector4D baseColor;
+	QVector4D defaultColor = getDefaultBaseColorVec4();
 
-	QVector<Vertex> vertices = {
-		//position   normal  tangent  bitangent  texCoord  baseColor
-		Vertex{QVector3D(-1.0f,-1.0f,-1.0f),QVector3D(),QVector3D(),QVector3D(),QVector2D(0.0f, 1.0f),QVector4D()},
-		Vertex{QVector3D(-1.0f,-1.0f, 1.0f),QVector3D(),QVector3D(),QVector3D(),QVector2D(1.0f, 1.0f),QVector4D()},
-		Vertex{QVector3D(-1.0f, 1.0f, 1.0f),QVector3D(),QVector3D(),QVector3D(),QVector2D(1.0f, 0.0f),QVector4D()},
-		Vertex{QVector3D(-1.0f, 1.0f, 1.0f),QVector3D(),QVector3D(),QVector3D(),QVector2D(1.0f, 0.0f),QVector4D()},
-		Vertex{QVector3D(-1.0f, 1.0f,-1.0f),QVector3D(),QVector3D(),QVector3D(),QVector2D(0.0f, 0.0f),QVector4D()},
-		Vertex{QVector3D(-1.0f,-1.0f,-1.0f),QVector3D(),QVector3D(),QVector3D(),QVector2D(0.0f, 1.0f),QVector4D()},
+	QVector<Vertex> getVertices = {
+		//position					normal		tangent		bitangent   texCoord			baseColor
+		  Vertex{QVector3D(-1.0f,-1.0f,-1.0f),QVector3D(),QVector3D(),QVector3D(),QVector2D(0.0f, 1.0f),defaultColor},
+		  Vertex{QVector3D(-1.0f,-1.0f, 1.0f),QVector3D(),QVector3D(),QVector3D(),QVector2D(1.0f, 1.0f),defaultColor},
+		  Vertex{QVector3D(-1.0f, 1.0f, 1.0f),QVector3D(),QVector3D(),QVector3D(),QVector2D(1.0f, 0.0f),defaultColor},
+		  Vertex{QVector3D(-1.0f, 1.0f, 1.0f),QVector3D(),QVector3D(),QVector3D(),QVector2D(1.0f, 0.0f),defaultColor},
+		  Vertex{QVector3D(-1.0f, 1.0f,-1.0f),QVector3D(),QVector3D(),QVector3D(),QVector2D(0.0f, 0.0f),defaultColor},
+		  Vertex{QVector3D(-1.0f,-1.0f,-1.0f),QVector3D(),QVector3D(),QVector3D(),QVector2D(0.0f, 1.0f),defaultColor},
 
-		Vertex{QVector3D(-1.0f,-1.0f,-1.0f),QVector3D(),QVector3D(),QVector3D(),QVector2D(1.0f, 1.0f),QVector4D()},
-		Vertex{QVector3D(1.0f, 1.0f,-1.0f), QVector3D(),QVector3D(),QVector3D(),QVector2D(0.0f, 0.0f),QVector4D()},
-		Vertex{QVector3D(1.0f,-1.0f,-1.0f), QVector3D(),QVector3D(),QVector3D(),QVector2D(0.0f, 1.0f),QVector4D()},
-		Vertex{QVector3D(-1.0f,-1.0f,-1.0f),QVector3D(),QVector3D(),QVector3D(),QVector2D(1.0f, 1.0f),QVector4D()},
-		Vertex{QVector3D(-1.0f, 1.0f,-1.0f),QVector3D(),QVector3D(),QVector3D(),QVector2D(1.0f, 0.0f),QVector4D()},
-		Vertex{QVector3D(1.0f, 1.0f,-1.0f), QVector3D(),QVector3D(),QVector3D(),QVector2D(0.0f, 0.0f),QVector4D()},
+		  Vertex{QVector3D(-1.0f,-1.0f,-1.0f),QVector3D(),QVector3D(),QVector3D(),QVector2D(1.0f, 1.0f),defaultColor},
+		  Vertex{QVector3D(1.0f, 1.0f,-1.0f), QVector3D(),QVector3D(),QVector3D(),QVector2D(0.0f, 0.0f),defaultColor},
+		  Vertex{QVector3D(1.0f,-1.0f,-1.0f), QVector3D(),QVector3D(),QVector3D(),QVector2D(0.0f, 1.0f),defaultColor},
+		  Vertex{QVector3D(-1.0f,-1.0f,-1.0f),QVector3D(),QVector3D(),QVector3D(),QVector2D(1.0f, 1.0f),defaultColor},
+		  Vertex{QVector3D(-1.0f, 1.0f,-1.0f),QVector3D(),QVector3D(),QVector3D(),QVector2D(1.0f, 0.0f),defaultColor},
+		  Vertex{QVector3D(1.0f, 1.0f,-1.0f), QVector3D(),QVector3D(),QVector3D(),QVector2D(0.0f, 0.0f),defaultColor},
 
-		Vertex{QVector3D(-1.0f,-1.0f,-1.0f),QVector3D(),QVector3D(),QVector3D(),QVector2D(1.0f, 0.0f),QVector4D()},
-		Vertex{QVector3D(1.0f,-1.0f,-1.0f), QVector3D(),QVector3D(),QVector3D(),QVector2D(1.0f, 1.0f),QVector4D()},
-		Vertex{QVector3D(1.0f,-1.0f, 1.0f), QVector3D(),QVector3D(),QVector3D(),QVector2D(0.0f, 1.0f),QVector4D()},
-		Vertex{QVector3D(-1.0f,-1.0f,-1.0f),QVector3D(),QVector3D(),QVector3D(),QVector2D(1.0f, 0.0f),QVector4D()},
-		Vertex{QVector3D(1.0f,-1.0f, 1.0f), QVector3D(),QVector3D(),QVector3D(),QVector2D(0.0f, 1.0f),QVector4D()},
-		Vertex{QVector3D(-1.0f,-1.0f, 1.0f),QVector3D(),QVector3D(),QVector3D(),QVector2D(0.0f, 0.0f),QVector4D()},
+		  Vertex{QVector3D(-1.0f,-1.0f,-1.0f),QVector3D(),QVector3D(),QVector3D(),QVector2D(1.0f, 0.0f),defaultColor},
+		  Vertex{QVector3D(1.0f,-1.0f,-1.0f), QVector3D(),QVector3D(),QVector3D(),QVector2D(1.0f, 1.0f),defaultColor},
+		  Vertex{QVector3D(1.0f,-1.0f, 1.0f), QVector3D(),QVector3D(),QVector3D(),QVector2D(0.0f, 1.0f),defaultColor},
+		  Vertex{QVector3D(-1.0f,-1.0f,-1.0f),QVector3D(),QVector3D(),QVector3D(),QVector2D(1.0f, 0.0f),defaultColor},
+		  Vertex{QVector3D(1.0f,-1.0f, 1.0f), QVector3D(),QVector3D(),QVector3D(),QVector2D(0.0f, 1.0f),defaultColor},
+		  Vertex{QVector3D(-1.0f,-1.0f, 1.0f),QVector3D(),QVector3D(),QVector3D(),QVector2D(0.0f, 0.0f),defaultColor},
 
-		Vertex{QVector3D(-1.0f, 1.0f,-1.0f),QVector3D(),QVector3D(),QVector3D(),QVector2D(1.0f, 0.0f),QVector4D()},
-		Vertex{QVector3D(-1.0f, 1.0f, 1.0f),QVector3D(),QVector3D(),QVector3D(),QVector2D(0.0f, 0.0f),QVector4D()},
-		Vertex{QVector3D(1.0f, 1.0f, 1.0f), QVector3D(),QVector3D(),QVector3D(),QVector2D(0.0f, 1.0f),QVector4D()},
-		Vertex{QVector3D(-1.0f, 1.0f,-1.0f),QVector3D(),QVector3D(),QVector3D(),QVector2D(1.0f, 0.0f),QVector4D()},
-		Vertex{QVector3D(1.0f, 1.0f, 1.0f), QVector3D(),QVector3D(),QVector3D(),QVector2D(0.0f, 1.0f),QVector4D()},
-		Vertex{QVector3D(1.0f, 1.0f,-1.0f), QVector3D(),QVector3D(),QVector3D(),QVector2D(1.0f, 1.0f),QVector4D()},
+		  Vertex{QVector3D(-1.0f, 1.0f,-1.0f),QVector3D(),QVector3D(),QVector3D(),QVector2D(1.0f, 0.0f),defaultColor},
+		  Vertex{QVector3D(-1.0f, 1.0f, 1.0f),QVector3D(),QVector3D(),QVector3D(),QVector2D(0.0f, 0.0f),defaultColor},
+		  Vertex{QVector3D(1.0f, 1.0f, 1.0f), QVector3D(),QVector3D(),QVector3D(),QVector2D(0.0f, 1.0f),defaultColor},
+		  Vertex{QVector3D(-1.0f, 1.0f,-1.0f),QVector3D(),QVector3D(),QVector3D(),QVector2D(1.0f, 0.0f),defaultColor},
+		  Vertex{QVector3D(1.0f, 1.0f, 1.0f), QVector3D(),QVector3D(),QVector3D(),QVector2D(0.0f, 1.0f),defaultColor},
+		  Vertex{QVector3D(1.0f, 1.0f,-1.0f), QVector3D(),QVector3D(),QVector3D(),QVector2D(1.0f, 1.0f),defaultColor},
 
-		Vertex{QVector3D(1.0f, 1.0f,-1.0f),QVector3D(),QVector3D(),QVector3D(),QVector2D(1.0f, 0.0f),QVector4D()},
-		Vertex{QVector3D(1.0f, 1.0f, 1.0f),QVector3D(),QVector3D(),QVector3D(),QVector2D(0.0f, 0.0f),QVector4D()},
-		Vertex{QVector3D(1.0f,-1.0f, 1.0f),QVector3D(),QVector3D(),QVector3D(),QVector2D(0.0f, 1.0f),QVector4D()},
-		Vertex{QVector3D(1.0f,-1.0f, 1.0f),QVector3D(),QVector3D(),QVector3D(),QVector2D(0.0f, 1.0f),QVector4D()},
-		Vertex{QVector3D(1.0f,-1.0f,-1.0f),QVector3D(),QVector3D(),QVector3D(),QVector2D(1.0f, 1.0f),QVector4D()},
-		Vertex{QVector3D(1.0f, 1.0f,-1.0f),QVector3D(),QVector3D(),QVector3D(),QVector2D(1.0f, 0.0f),QVector4D()},
+		  Vertex{QVector3D(1.0f, 1.0f,-1.0f),QVector3D(),QVector3D(),QVector3D(),QVector2D(1.0f, 0.0f),defaultColor},
+		  Vertex{QVector3D(1.0f, 1.0f, 1.0f),QVector3D(),QVector3D(),QVector3D(),QVector2D(0.0f, 0.0f),defaultColor},
+		  Vertex{QVector3D(1.0f,-1.0f, 1.0f),QVector3D(),QVector3D(),QVector3D(),QVector2D(0.0f, 1.0f),defaultColor},
+		  Vertex{QVector3D(1.0f,-1.0f, 1.0f),QVector3D(),QVector3D(),QVector3D(),QVector2D(0.0f, 1.0f),defaultColor},
+		  Vertex{QVector3D(1.0f,-1.0f,-1.0f),QVector3D(),QVector3D(),QVector3D(),QVector2D(1.0f, 1.0f),defaultColor},
+		  Vertex{QVector3D(1.0f, 1.0f,-1.0f),QVector3D(),QVector3D(),QVector3D(),QVector2D(1.0f, 0.0f),defaultColor},
 
-		Vertex{QVector3D(-1.0f, 1.0f, 1.0f),QVector3D(),QVector3D(),QVector3D(),QVector2D(0.0f, 0.0f),QVector4D()},
-		Vertex{QVector3D(-1.0f,-1.0f, 1.0f),QVector3D(),QVector3D(),QVector3D(),QVector2D(0.0f, 1.0f),QVector4D()},
-		Vertex{QVector3D(1.0f, 1.0f, 1.0f), QVector3D(),QVector3D(),QVector3D(),QVector2D(1.0f, 0.0f),QVector4D()},
-		Vertex{QVector3D(-1.0f,-1.0f, 1.0f),QVector3D(),QVector3D(),QVector3D(),QVector2D(0.0f, 1.0f),QVector4D()},
-		Vertex{QVector3D(1.0f,-1.0f, 1.0f), QVector3D(),QVector3D(),QVector3D(),QVector2D(1.0f, 1.0f),QVector4D()},
-		Vertex{QVector3D(1.0f, 1.0f, 1.0f), QVector3D(),QVector3D(),QVector3D(),QVector2D(1.0f, 0.0f),QVector4D()},
+		  Vertex{QVector3D(-1.0f, 1.0f, 1.0f),QVector3D(),QVector3D(),QVector3D(),QVector2D(0.0f, 0.0f),defaultColor},
+		  Vertex{QVector3D(-1.0f,-1.0f, 1.0f),QVector3D(),QVector3D(),QVector3D(),QVector2D(0.0f, 1.0f),defaultColor},
+		  Vertex{QVector3D(1.0f, 1.0f, 1.0f), QVector3D(),QVector3D(),QVector3D(),QVector2D(1.0f, 0.0f),defaultColor},
+		  Vertex{QVector3D(-1.0f,-1.0f, 1.0f),QVector3D(),QVector3D(),QVector3D(),QVector2D(0.0f, 1.0f),defaultColor},
+		  Vertex{QVector3D(1.0f,-1.0f, 1.0f), QVector3D(),QVector3D(),QVector3D(),QVector2D(1.0f, 1.0f),defaultColor},
+		  Vertex{QVector3D(1.0f, 1.0f, 1.0f), QVector3D(),QVector3D(),QVector3D(),QVector2D(1.0f, 0.0f),defaultColor},
 	};
-	setVertices(vertices);
+	setVertices(getVertices);
 }

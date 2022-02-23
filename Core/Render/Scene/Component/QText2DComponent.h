@@ -10,9 +10,10 @@ public:
 	QSceneComponent::Type type() override {
 		return QSceneComponent::Text2D;
 	}
+	QString getText() const;
+	void setText(QString val);
 
-	QString getText() const { return text; }
-	void setText(QString val) { text = val; }
+	uint8_t hasNewText : 1;
 private:
 	QString text;
 };

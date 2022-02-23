@@ -5,10 +5,9 @@
 
 class QPrimitiveComponent :public QSceneComponent {
 	Q_OBJECT
-		Q_PROPERTY(Topology topology READ topology WRITE setTopology)
 public:
 	struct Vertex {
-		QVector3D getPosition;
+		QVector3D position;
 		QVector3D normal;
 		QVector3D tangent;
 		QVector3D bitangent;

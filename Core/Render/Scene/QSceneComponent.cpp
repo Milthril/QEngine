@@ -11,7 +11,7 @@ QMatrix4x4 QSceneComponent::calculateModelMatrix()
 	return modelMatrix;
 }
 
-const QVector3D& QSceneComponent::getPosition() const
+const QVector3D& QSceneComponent::position() const
 {
 	return mPosition;
 }

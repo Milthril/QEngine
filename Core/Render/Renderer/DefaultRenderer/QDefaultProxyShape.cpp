@@ -3,32 +3,44 @@
 #include "Render\Scene\Component\QPrimitiveComponent.h"
 #include "Render\Scene\Component\QShapeComponent.h"
 
-QDefaultProxyShape::QDefaultProxyShape(QDefaultRenderer* renderer, std::shared_ptr<QShapeComponent> shape) :mShape(shape)
+QDefaultProxyShape::QDefaultProxyShape(std::shared_ptr<QShapeComponent> shape) :mShape(shape)
 {
-	auto mRhi = renderer->Rhi();
-	QRhiBuffer* vbo = mRhi->newBuffer(shape->bufferType(), QRhiBuffer::VertexBuffer, sizeof(QPrimitiveComponent::Vertex) * shape->vertices().size());
-	Q_ASSERT(vbo->create());
-	mVertexBuffer.reset(vbo, [](QRhiBuffer* buffer) {
-		buffer->destroy();
-	});
+}
+
+void QDefaultProxyShape::recreateResource()
+{
 	QRhiBuffer* ubo = mRhi->newBuffer(QRhiBuffer::Type::Dynamic, QRhiBuffer::UniformBuffer, sizeof(QMatrix4x4));
 	Q_ASSERT(ubo->create());
 	mUniformBuffer.reset(ubo, [](QRhiBuffer* buffer) {
 		buffer->destroy();
 	});
 
-	const auto& indices = shape->indices();
-	if (!indices.isEmpty()) {
-		QRhiBuffer* ibo = mRhi->newBuffer(shape->bufferType(), QRhiBuffer::IndexBuffer, sizeof(QPrimitiveComponent::Index) * indices.size());
+	QRhiBuffer* vbo = mRhi->newBuffer(mShape->getBufferType(), QRhiBuffer::VertexBuffer, sizeof(QPrimitiveComponent::Vertex) * mShape->getVertices().size());
+	Q_ASSERT(vbo->create());
+	mVertexBuffer.reset(vbo, [](QRhiBuffer* buffer) {
+		buffer->destroy();
+	});
+	if (!mShape->getIndices().isEmpty()) {
+		QRhiBuffer* ibo = mRhi->newBuffer(mShape->getBufferType(), QRhiBuffer::IndexBuffer, sizeof(QPrimitiveComponent::Index) * mShape->getIndices().size());
 		Q_ASSERT(ibo->create());
 		mIndexBuffer.reset(ibo, [](QRhiBuffer* buffer) {
 			buffer->destroy();
 		});
 	}
+
+	QRhiSampler* sampler = mRhi->newSampler(QRhiSampler::Linear, QRhiSampler::Linear, QRhiSampler::None,
+							QRhiSampler::ClampToEdge, QRhiSampler::ClampToEdge);
+	sampler->create();
+	mSampler.reset(sampler, [](QRhiSampler* sampler) {
+		sampler->destroy();
+	});
 	QRhiGraphicsPipeline* pipeline = mRhi->newGraphicsPipeline();
 	QRhiGraphicsPipeline::TargetBlend blendState;
+	blendState.enable = true;
 	pipeline->setTargetBlends({ blendState });
-	pipeline->setTopology((QRhiGraphicsPipeline::Topology)shape->topology());
+	pipeline->setTopology(mShape->getTopology());
+	pipeline->setDepthTest(true);
+	pipeline->setDepthWrite(true);
 	QShaderBaker baker;
 	baker.setGeneratedShaderVariants({ QShader::StandardShader });
 	baker.setGeneratedShaders({
@@ -85,7 +97,7 @@ QDefaultProxyShape::QDefaultProxyShape(QDefaultRenderer* renderer, std::shared_p
 	inputLayout.setBindings({ sizeof(QPrimitiveComponent::Vertex) });
 
 	inputLayout.setAttributes({
-		{ 0, 0, QRhiVertexInputAttribute::Float3, offsetof(QPrimitiveComponent::Vertex,getPosition)},
+		{ 0, 0, QRhiVertexInputAttribute::Float3, offsetof(QPrimitiveComponent::Vertex,position)},
 		{ 0, 1, QRhiVertexInputAttribute::Float3, offsetof(QPrimitiveComponent::Vertex,normal)},
 		{ 0, 2, QRhiVertexInputAttribute::Float3, offsetof(QPrimitiveComponent::Vertex,tangent)},
 		{ 0, 3, QRhiVertexInputAttribute::Float3, offsetof(QPrimitiveComponent::Vertex,bitangent)},
@@ -104,7 +116,7 @@ QDefaultProxyShape::QDefaultProxyShape(QDefaultRenderer* renderer, std::shared_p
 
 	pipeline->setVertexInputLayout(inputLayout);
 	pipeline->setShaderResourceBindings(shaderBinding);
-	pipeline->setRenderPassDescriptor(renderer->RenderPassDescriptor().get());
+	pipeline->setRenderPassDescriptor(mRenderer->RenderPassDescriptor().get());
 	Q_ASSERT(pipeline->create());
 
 	mPipeline.reset(pipeline, [](QRhiGraphicsPipeline* pipline) {
@@ -112,21 +124,83 @@ QDefaultProxyShape::QDefaultProxyShape(QDefaultRenderer* renderer, std::shared_p
 	});
 }
 
-void QDefaultProxyShape::updateResource(QRhiResourceUpdateBatch* batch, QMatrix4x4 VP)
+void QDefaultProxyShape::uploadResource(QRhiResourceUpdateBatch* batch)
 {
-	if (!m_vbufReady) {
-		m_vbufReady = true;
-		batch->uploadStaticBuffer(mVertexBuffer.get(), mShape->vertices().constData());
+	if (mShape->getBufferType() == QRhiBuffer::Dynamic)
+		batch->updateDynamicBuffer(mVertexBuffer.get(), 0, sizeof(QPrimitiveComponent::Vertex) * mShape->getVertices().size(), mShape->getVertices().constData());
+	else
+		batch->uploadStaticBuffer(mVertexBuffer.get(), mShape->getVertices().constData());
+
+	if (mIndexBuffer) {
+		if (mShape->getBufferType() == QRhiBuffer::Dynamic)
+			batch->updateDynamicBuffer(mIndexBuffer.get(), 0, sizeof(QPrimitiveComponent::Index) * mShape->getIndices().size(), mShape->getIndices().constData());
+		else
+			batch->uploadStaticBuffer(mIndexBuffer.get(), mShape->getVertices().constData());
 	}
-	QMatrix4x4 MVP;
-	MVP = VP * mShape->calculateModelMatrix();
+}
+
+void QDefaultProxyShape::updateResource(QRhiResourceUpdateBatch* batch) {
+	if (mShape->bNeedUpdateVertex) {
+		mShape->bNeedUpdateVertex = false;
+		QRhiBuffer* vbo = mRhi->newBuffer(mShape->getBufferType(), QRhiBuffer::VertexBuffer, sizeof(QPrimitiveComponent::Vertex) * mShape->getVertices().size());
+		Q_ASSERT(vbo->create());
+		mVertexBuffer.reset(vbo, [](QRhiBuffer* buffer) {
+			buffer->destroy();
+		});
+		if (mShape->getBufferType() == QRhiBuffer::Dynamic)
+			batch->updateDynamicBuffer(mVertexBuffer.get(), 0, sizeof(QPrimitiveComponent::Vertex) * mShape->getVertices().size(), mShape->getVertices().constData());
+		else
+			batch->uploadStaticBuffer(mVertexBuffer.get(), mShape->getVertices().constData());
+	}
+	if (mShape->bNeedUpdateIndex) {
+		mShape->bNeedUpdateIndex = false;
+		QRhiBuffer* ibo = mRhi->newBuffer(mShape->getBufferType(), QRhiBuffer::IndexBuffer, sizeof(QPrimitiveComponent::Index) * mShape->getIndices().size());
+		Q_ASSERT(ibo->create());
+		mIndexBuffer.reset(ibo, [](QRhiBuffer* buffer) {
+			buffer->destroy();
+		});
+		if (mShape->getBufferType() == QRhiBuffer::Dynamic)
+			batch->updateDynamicBuffer(mIndexBuffer.get(), 0, sizeof(QPrimitiveComponent::Index) * mShape->getIndices().size(), mShape->getIndices().constData());
+		else
+			batch->uploadStaticBuffer(mIndexBuffer.get(), mShape->getVertices().constData());
+	}
+	//if (mShape->bNeedUpdateTexture) {
+	//	mShape->bNeedUpdateTexture = false;
+	//	QImage image = std::move(mShape->getTexture());
+	//	if (!image.isNull()) {
+	//		QRhiTexture* newTexture = mRhi->newTexture(QRhiTexture::RGBA8, image.size(), 1, QRhiTexture::UsedAsTransferSource);
+	//		newTexture->create();
+	//		mTexture.reset(newTexture, [](QRhiTexture* texture) {
+	//			texture->destroy();
+	//		});
+	//		mShaderResourceBinding->setBindings({
+	//			QRhiShaderResourceBinding::uniformBuffer(0,QRhiShaderResourceBinding::VertexStage,mUniformBuffer.get()),
+	//			QRhiShaderResourceBinding::sampledTexture(1,QRhiShaderResourceBinding::FragmentStage,mTexture.get(),mSampler.get())
+	//		});
+	//		mShaderResourceBinding->create();
+	//	}
+	//}
+	if (mShape->getTexture().isNull() && mTexture) {
+		mShaderResourceBinding->setBindings({
+			QRhiShaderResourceBinding::uniformBuffer(0,QRhiShaderResourceBinding::VertexStage,mUniformBuffer.get()),
+		});
+		mShaderResourceBinding->create();
+		mTexture.reset();
+	}
+
+	QMatrix4x4 MVP = mRenderer->getVP() * mShape->calculateModelMatrix();
 	batch->updateDynamicBuffer(mUniformBuffer.get(), 0, sizeof(QMatrix4x4), MVP.constData());
 }
 
-void QDefaultProxyShape::draw(QRhiCommandBuffer* cmdBuffer)
-{
-	const QRhiCommandBuffer::VertexInput VertexInput(mVertexBuffer.get(), 0);
+void QDefaultProxyShape::draw(QRhiCommandBuffer* cmdBuffer) {
 	cmdBuffer->setShaderResources();
-	cmdBuffer->setVertexInput(0, 1, &VertexInput);
-	cmdBuffer->draw(mShape->vertices().size());
+	const QRhiCommandBuffer::VertexInput VertexInput(mVertexBuffer.get(), 0);
+	if (mShape->getIndices().isEmpty()) {
+		cmdBuffer->setVertexInput(0, 1, &VertexInput);
+		cmdBuffer->draw(mShape->getVertices().size());
+	}
+	else {
+		cmdBuffer->setVertexInput(0, 1, &VertexInput, mIndexBuffer.get(), 0, QRhiCommandBuffer::IndexUInt32);
+		cmdBuffer->drawIndexed(mShape->getIndices().size());
+	}
 }

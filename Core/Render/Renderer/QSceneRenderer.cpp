@@ -7,6 +7,11 @@
 #include "Render/Scene/Component/QLightComponent.h"
 #include "Render/Scene/Component/QSkyBoxComponent.h"
 
+QSceneRenderer::QSceneRenderer(std::shared_ptr<QRhi> rhi, std::shared_ptr<QRhiRenderPassDescriptor> renderPassDescriptor) :mRhi(rhi), mRenderPassDescriptor(renderPassDescriptor)
+{
+	mClipMatrix = mRhi->clipSpaceCorrMatrix();
+}
+
 void QSceneRenderer::setScene(std::shared_ptr<QScene> scene)
 {
 	if (mScene) {
@@ -18,18 +23,48 @@ void QSceneRenderer::setScene(std::shared_ptr<QScene> scene)
 	connect(mScene.get(), &QScene::primitiveRemoved, this, &QSceneRenderer::onPrimitiveRemoved);
 }
 
+void QSceneRenderer::setRenderTargetSize(QSize size)
+{
+	mRTSize = size;
+	QMatrix4x4 ClipMatrix = mRhi->clipSpaceCorrMatrix();
+	ClipMatrix.perspective(45, size.width() / (float)size.height(), 0.01f, 1000.0f);
+	setClipMatrix(ClipMatrix);
+}
+
+void QSceneRenderer::renderInternal(QRhiCommandBuffer* buffer, QRhiRenderTarget* renderTarget, QRhiResourceUpdateBatch* batch)
+{
+	for (auto& it : mProxyUploadList) {
+		it->uploadResource(batch);
+	}
+	mProxyUploadList.clear();
+	for (auto& id : mProxyMap.keys()) {
+		auto& proxy = mProxyMap[id];
+		if (proxy->mComponent->bNeedResetProxy) {
+			resetPrimitiveProxy(std::dynamic_pointer_cast<QPrimitiveComponent>(proxy->mComponent));
+		}
+	}
+
+	render(buffer, renderTarget, batch);
+}
+
 QMatrix4x4 QSceneRenderer::getViewMatrix()
 {
 	if (mScene->mCamera) {
 		return QMatrix4x4();
 	}
 	QMatrix4x4 matrix;
+	matrix.lookAt(QVector3D(0, 0, 5), QVector3D(0, 0, 0), QVector3D(0, 1, 0));
 	return matrix;
 }
 
 QMatrix4x4 QSceneRenderer::getClipMatrix() const
 {
 	return mClipMatrix;
+}
+
+QMatrix4x4 QSceneRenderer::getVP()
+{
+	return getClipMatrix() * getViewMatrix();
 }
 
 void QSceneRenderer::setClipMatrix(QMatrix4x4 val)
@@ -39,7 +74,14 @@ void QSceneRenderer::setClipMatrix(QMatrix4x4 val)
 
 void QSceneRenderer::onPrimitiveInserted(uint32_t index, std::shared_ptr<QPrimitiveComponent> primitive)
 {
-	mProxyMap[primitive->componentId()] = createPrimitiveProxy(primitive);
+	std::shared_ptr<QRhiProxy> proxy = createPrimitiveProxy(primitive);
+	proxy->mComponent = primitive;
+	proxy->mRenderer = this;
+	proxy->mRhi = this->mRhi;
+	mProxyMap[primitive->componentId()] = proxy;	
+	primitive->bNeedResetProxy = false;
+	proxy->recreateResource();
+	mProxyUploadList << proxy;
 }
 
 void QSceneRenderer::onPrimitiveRemoved(std::shared_ptr<QPrimitiveComponent> primitive)
@@ -80,4 +122,15 @@ std::shared_ptr<QRhiProxy> QSceneRenderer::createPrimitiveProxy(std::shared_ptr<
 		break;
 	}
 	return nullptr;
+}
+
+void QSceneRenderer::resetPrimitiveProxy(std::shared_ptr<QPrimitiveComponent> component)
+{
+	std::shared_ptr<QRhiProxy> newProxy = createPrimitiveProxy(component);
+	newProxy->mComponent = component;
+	newProxy->mRenderer = this;
+	newProxy->mRhi = this->mRhi;
+	newProxy->recreateResource();
+	mProxyMap[component->componentId()] = newProxy;
+	mProxyUploadList << newProxy;
 }

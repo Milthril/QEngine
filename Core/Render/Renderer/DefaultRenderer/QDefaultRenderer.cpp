@@ -3,19 +3,18 @@
 #include "private\qshaderbaker_p.h"
 #include "QtTest\qtestcase.h"
 #include "QDefaultProxyShape.h"
+#include "QDefaultProxyText2D.h"
 
 void QDefaultRenderer::render(QRhiCommandBuffer* buffer, QRhiRenderTarget* renderTarget, QRhiResourceUpdateBatch* batch)
 {
 	QSize size = renderTarget->pixelSize();
-	QMatrix4x4 VP = getClipMatrix() * getViewMatrix();
 	for (auto it : mProxyMap) {
-		it->updateResource(batch, VP);
+		it->updateResource(batch);
 	}
 	buffer->beginPass(renderTarget, QColor::fromRgbF(0.4f, 0.7f, 0.0f, 1.0f), { 1.0f, 0 }, batch);
-
 	QRhiViewport viewport(0, 0, size.width(), size.height());
 
-	for (auto proxy : mProxyMap) {
+	for (auto& proxy : mProxyMap) {
 		buffer->setGraphicsPipeline(proxy->mPipeline.get());
 		buffer->setViewport(viewport);
 		proxy->draw(buffer);
@@ -25,7 +24,7 @@ void QDefaultRenderer::render(QRhiCommandBuffer* buffer, QRhiRenderTarget* rende
 
 std::shared_ptr<QRhiProxy> QDefaultRenderer::createShapeProxy(std::shared_ptr<QShapeComponent> shape)
 {
-	return std::make_shared<QDefaultProxyShape>(this, shape);
+	return std::make_shared<QDefaultProxyShape>(shape);
 }
 
 std::shared_ptr<QRhiProxy> QDefaultRenderer::createStaticMeshProxy(std::shared_ptr<QStaticMeshComponent>)
@@ -38,9 +37,9 @@ std::shared_ptr<QRhiProxy> QDefaultRenderer::createSkeletonMeshProxy(std::shared
 	throw std::logic_error("The method or operation is not implemented.");
 }
 
-std::shared_ptr<QRhiProxy> QDefaultRenderer::createText2DProxy(std::shared_ptr<QText2DComponent>)
+std::shared_ptr<QRhiProxy> QDefaultRenderer::createText2DProxy(std::shared_ptr<QText2DComponent> text)
 {
-	t
+	return std::make_shared<QDefaultProxyText2D>(text);
 }
 
 std::shared_ptr<QRhiProxy> QDefaultRenderer::createParticleProxy(std::shared_ptr<QParticleComponent>)
