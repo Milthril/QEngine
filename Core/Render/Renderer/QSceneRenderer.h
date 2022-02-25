@@ -29,7 +29,7 @@ public:
 class QSceneRenderer :public QObject {
 	Q_OBJECT
 public:
-	QSceneRenderer(std::shared_ptr<QRhi> rhi, std::shared_ptr<QRhiRenderPassDescriptor> renderPassDescriptor);
+	QSceneRenderer(std::shared_ptr<QRhi> rhi, int sampleCount, std::shared_ptr<QRhiRenderPassDescriptor> renderPassDescriptor);
 	void setScene(std::shared_ptr<QScene> scene);
 	std::shared_ptr<QScene> getScene() { return mScene; }
 	std::shared_ptr<QRhiRenderPassDescriptor> RenderPassDescriptor() const { return mRenderPassDescriptor; }
@@ -42,6 +42,7 @@ public:
 	QMatrix4x4 getClipMatrix() const;
 	QMatrix4x4 getVP();
 	void setClipMatrix(QMatrix4x4 val);
+	int getSampleCount() const { return mSampleCount; }
 private:
 	void onPrimitiveInserted(uint32_t index, std::shared_ptr<QPrimitiveComponent> primitive);
 	void onPrimitiveRemoved(std::shared_ptr<QPrimitiveComponent> primitive);
@@ -63,6 +64,7 @@ protected:
 	QList<std::shared_ptr<QRhiProxy>> mProxyUploadList;
 	QMatrix4x4 mClipMatrix;
 	QSize mRTSize;
+	int mSampleCount;
 };
 
 #endif // QSceneRenderer_h__

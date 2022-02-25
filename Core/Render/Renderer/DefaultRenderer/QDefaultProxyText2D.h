@@ -13,13 +13,9 @@ public:
 private:
 	std::shared_ptr<QText2DComponent> mText2D;
 	std::shared_ptr<QRhiBuffer> mVertexBuffer;
-	std::shared_ptr<QRhiTexture> mTexture;
-	std::shared_ptr<QRhiSampler> mSampler;
 	std::shared_ptr<QRhiBuffer> mUniformBuffer;
 	std::shared_ptr<QRhiShaderResourceBindings> mShaderResourceBinding;
 	bool mInit = false;
-	QImage mTextImage;
-
 protected:
 	void updateResource(QRhiResourceUpdateBatch* batch) override;
 	void draw(QRhiCommandBuffer* cmdBuffer) override;

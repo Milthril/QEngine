@@ -41,6 +41,7 @@ void QDefaultProxyShape::recreateResource()
 	pipeline->setTopology(mShape->getTopology());
 	pipeline->setDepthTest(true);
 	pipeline->setDepthWrite(true);
+	pipeline->setSampleCount(mRenderer->getSampleCount());
 	QShaderBaker baker;
 	baker.setGeneratedShaderVariants({ QShader::StandardShader });
 	baker.setGeneratedShaders({
@@ -126,15 +127,10 @@ void QDefaultProxyShape::recreateResource()
 
 void QDefaultProxyShape::uploadResource(QRhiResourceUpdateBatch* batch)
 {
-	if (mShape->getBufferType() == QRhiBuffer::Dynamic)
-		batch->updateDynamicBuffer(mVertexBuffer.get(), 0, sizeof(QPrimitiveComponent::Vertex) * mShape->getVertices().size(), mShape->getVertices().constData());
-	else
+	if (mShape->getBufferType() != QRhiBuffer::Dynamic)
 		batch->uploadStaticBuffer(mVertexBuffer.get(), mShape->getVertices().constData());
-
 	if (mIndexBuffer) {
-		if (mShape->getBufferType() == QRhiBuffer::Dynamic)
-			batch->updateDynamicBuffer(mIndexBuffer.get(), 0, sizeof(QPrimitiveComponent::Index) * mShape->getIndices().size(), mShape->getIndices().constData());
-		else
+		if (mShape->getBufferType() != QRhiBuffer::Dynamic)
 			batch->uploadStaticBuffer(mIndexBuffer.get(), mShape->getVertices().constData());
 	}
 }

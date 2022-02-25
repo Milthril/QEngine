@@ -11,7 +11,7 @@ void QDefaultRenderer::render(QRhiCommandBuffer* buffer, QRhiRenderTarget* rende
 	for (auto it : mProxyMap) {
 		it->updateResource(batch);
 	}
-	buffer->beginPass(renderTarget, QColor::fromRgbF(0.4f, 0.7f, 0.0f, 1.0f), { 1.0f, 0 }, batch);
+	buffer->beginPass(renderTarget, QColor::fromRgbF(0.0f, 0.0f, 0.0f, 0.0f), { 1.0f, 0 }, batch);
 	QRhiViewport viewport(0, 0, size.width(), size.height());
 
 	for (auto& proxy : mProxyMap) {

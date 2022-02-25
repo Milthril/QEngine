@@ -5,7 +5,7 @@
 
 class QDefaultRenderer :public QSceneRenderer {
 public:
-	QDefaultRenderer(std::shared_ptr<QRhi> rhi, std::shared_ptr<QRhiRenderPassDescriptor> renderPassDescriptor) :QSceneRenderer(rhi, renderPassDescriptor) {}
+	QDefaultRenderer(std::shared_ptr<QRhi> rhi, int sampleCount, std::shared_ptr<QRhiRenderPassDescriptor> renderPassDescriptor) :QSceneRenderer(rhi, sampleCount, renderPassDescriptor) {}
 
 	void render(QRhiCommandBuffer* buffer, QRhiRenderTarget* renderTarget, QRhiResourceUpdateBatch* batch) override;
 

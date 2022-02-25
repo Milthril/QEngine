@@ -7,7 +7,10 @@
 #include "Render/Scene/Component/QLightComponent.h"
 #include "Render/Scene/Component/QSkyBoxComponent.h"
 
-QSceneRenderer::QSceneRenderer(std::shared_ptr<QRhi> rhi, std::shared_ptr<QRhiRenderPassDescriptor> renderPassDescriptor) :mRhi(rhi), mRenderPassDescriptor(renderPassDescriptor)
+QSceneRenderer::QSceneRenderer(std::shared_ptr<QRhi> rhi, int sampleCount, std::shared_ptr<QRhiRenderPassDescriptor> renderPassDescriptor)
+	: mRhi(rhi)
+	, mSampleCount(sampleCount)
+	, mRenderPassDescriptor(renderPassDescriptor)
 {
 	mClipMatrix = mRhi->clipSpaceCorrMatrix();
 }
@@ -78,7 +81,7 @@ void QSceneRenderer::onPrimitiveInserted(uint32_t index, std::shared_ptr<QPrimit
 	proxy->mComponent = primitive;
 	proxy->mRenderer = this;
 	proxy->mRhi = this->mRhi;
-	mProxyMap[primitive->componentId()] = proxy;	
+	mProxyMap[primitive->componentId()] = proxy;
 	primitive->bNeedResetProxy = false;
 	proxy->recreateResource();
 	mProxyUploadList << proxy;

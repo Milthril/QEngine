@@ -5,7 +5,7 @@
 
 class QAdvanceRenderer :public QSceneRenderer {
 public:
-	QAdvanceRenderer(std::shared_ptr<QRhi> rhi, std::shared_ptr<QRhiRenderPassDescriptor> renderPassDescriptor) :QSceneRenderer(rhi, renderPassDescriptor) {}
+	QAdvanceRenderer(std::shared_ptr<QRhi> rhi, int sampleCount, std::shared_ptr<QRhiRenderPassDescriptor> renderPassDescriptor) :QSceneRenderer(rhi, sampleCount, renderPassDescriptor) {}
 protected:
 
 	std::shared_ptr<QRhiProxy> createShapeProxy(std::shared_ptr<QShapeComponent>) override;

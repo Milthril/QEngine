@@ -10,7 +10,6 @@ class QShapeComponent : public QPrimitiveComponent {
 		Q_PROPERTY(Topology topology READ getTopology WRITE setTopology)
 		Q_PROPERTY(QColor defaultBaseColor READ getDefaultBaseColor WRITE setDefaultBaseColor)
 		Q_PROPERTY(QImage texture READ getTexture WRITE setTexture)
-
 public:
 	const QVector<Vertex>& getVertices() const;
 	void setVertices(const QVector<Vertex>& newVertices);
@@ -48,3 +47,4 @@ private:
 };
 
 #endif // QShapeComponent_h__
+// git remote add origin http://git.xinyuanact.com/techR/axon/QEngine.git

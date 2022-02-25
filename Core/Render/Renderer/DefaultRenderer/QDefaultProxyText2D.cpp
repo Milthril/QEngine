@@ -40,6 +40,7 @@ QImage QDefaultProxyText2D::createTextImage(const QString& text, const QFont& fo
 			size.setHeight(size.height() + spacing + fontMetrics.height());;
 		}
 	}
+	auto it = fontPath.toFillPolygons();
 	QImage image(size, QImage::Format_ARGB32);
 	image.fill(Qt::transparent);
 	QPainter painter(&image);
@@ -70,6 +71,7 @@ void QDefaultProxyText2D::recreateResource()
 	pipeline->setDepthWrite(true);
 	pipeline->setTargetBlends({ blendState });
 	pipeline->setTopology(QRhiGraphicsPipeline::Topology::TriangleStrip);
+	pipeline->setSampleCount(mRenderer->getSampleCount());
 	QShaderBaker baker;
 	baker.setGeneratedShaderVariants({ QShader::StandardShader });
 	baker.setGeneratedShaders({
