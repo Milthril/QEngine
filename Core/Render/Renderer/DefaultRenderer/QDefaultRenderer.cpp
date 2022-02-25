@@ -3,7 +3,6 @@
 #include "private\qshaderbaker_p.h"
 #include "QtTest\qtestcase.h"
 #include "QDefaultProxyShape.h"
-#include "QDefaultProxyText2D.h"
 
 void QDefaultRenderer::render(QRhiCommandBuffer* buffer, QRhiRenderTarget* renderTarget, QRhiResourceUpdateBatch* batch)
 {
@@ -35,11 +34,6 @@ std::shared_ptr<QRhiProxy> QDefaultRenderer::createStaticMeshProxy(std::shared_p
 std::shared_ptr<QRhiProxy> QDefaultRenderer::createSkeletonMeshProxy(std::shared_ptr<QSkeletonMeshComponent>)
 {
 	throw std::logic_error("The method or operation is not implemented.");
-}
-
-std::shared_ptr<QRhiProxy> QDefaultRenderer::createText2DProxy(std::shared_ptr<QText2DComponent> text)
-{
-	return std::make_shared<QDefaultProxyText2D>(text);
 }
 
 std::shared_ptr<QRhiProxy> QDefaultRenderer::createParticleProxy(std::shared_ptr<QParticleComponent>)

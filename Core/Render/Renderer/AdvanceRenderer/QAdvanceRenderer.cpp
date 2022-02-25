@@ -18,11 +18,6 @@ std::shared_ptr<QRhiProxy> QAdvanceRenderer::createSkeletonMeshProxy(std::shared
 	throw std::logic_error("The method or operation is not implemented.");
 }
 
-std::shared_ptr<QRhiProxy> QAdvanceRenderer::createText2DProxy(std::shared_ptr<QText2DComponent>)
-{
-	throw std::logic_error("The method or operation is not implemented.");
-}
-
 std::shared_ptr<QRhiProxy> QAdvanceRenderer::createParticleProxy(std::shared_ptr<QParticleComponent>)
 {
 	throw std::logic_error("The method or operation is not implemented.");

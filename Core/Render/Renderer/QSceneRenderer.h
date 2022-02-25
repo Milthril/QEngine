@@ -8,7 +8,6 @@ class QPrimitiveComponent;
 class QShapeComponent;
 class QStaticMeshComponent;
 class QSkeletonMeshComponent;
-class QText2DComponent;
 class QParticleComponent;
 class QSkyBoxComponent;
 class QSceneRenderer;
@@ -53,7 +52,6 @@ protected:
 	virtual std::shared_ptr<QRhiProxy> createShapeProxy(std::shared_ptr<QShapeComponent>) = 0;
 	virtual std::shared_ptr<QRhiProxy> createStaticMeshProxy(std::shared_ptr<QStaticMeshComponent>) = 0;
 	virtual std::shared_ptr<QRhiProxy> createSkeletonMeshProxy(std::shared_ptr<QSkeletonMeshComponent>) = 0;
-	virtual std::shared_ptr<QRhiProxy> createText2DProxy(std::shared_ptr<QText2DComponent>) = 0;
 	virtual std::shared_ptr<QRhiProxy> createParticleProxy(std::shared_ptr<QParticleComponent>) = 0;
 	virtual std::shared_ptr<QRhiProxy> createSkyBoxProxy(std::shared_ptr<QSkyBoxComponent>) = 0;
 protected:

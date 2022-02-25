@@ -32,8 +32,8 @@ void QSphere::recreateVertexData()
 	float stackStep = M_PI / mStackCount;
 	float sectorAngle, stackAngle;
 	QVector4D defaultColor = getDefaultBaseColorVec4();
-	QVector<QSphere::Vertex> getVertices;
-	getVertices.resize((mStackCount + 1) * (getSectorCount() + 1));
+	QVector<QSphere::Vertex> vertices;
+	vertices.resize((mStackCount + 1) * (getSectorCount() + 1));
 	for (int i = 0; i <= mStackCount; ++i) {
 		stackAngle = M_PI / 2 - i * stackStep;        // starting from M_PI/2 to -M_PI/2
 		xy = radius * cosf(stackAngle);             // r * cos(u)
@@ -45,7 +45,7 @@ void QSphere::recreateVertexData()
 			x = xy * cosf(sectorAngle);             // r * cos(u) * cos(v)
 			y = xy * sinf(sectorAngle);             // r * cos(u) * sin(v)
 
-			QSphere::Vertex& vertex = getVertices[i * (getSectorCount() + 1) + j];
+			QSphere::Vertex& vertex = vertices[i * (getSectorCount() + 1) + j];
 			vertex.position = QVector3D(x, y, z);
 			vertex.normal = vertex.position;
 			vertex.texCoord = QVector2D((float)j / getSectorCount(), (float)i / mStackCount);
@@ -53,7 +53,7 @@ void QSphere::recreateVertexData()
 		}
 	}
 
-	QVector<QSphere::Index> getIndices;
+	QVector<QSphere::Index> indices;
 	int k1, k2;
 	for (int i = 0; i < mStackCount; ++i) {
 		k1 = i * (getSectorCount() + 1);     // beginning of current stack
@@ -64,19 +64,19 @@ void QSphere::recreateVertexData()
 			// k1 => k2 => k1+1
 			if (i != 0)
 			{
-				getIndices.push_back(k1);
-				getIndices.push_back(k2);
-				getIndices.push_back(k1 + 1);
+				indices.push_back(k1);
+				indices.push_back(k2);
+				indices.push_back(k1 + 1);
 			}
 			// k1+1 => k2 => k2+1
 			if (i != (mStackCount - 1))
 			{
-				getIndices.push_back(k1 + 1);
-				getIndices.push_back(k2);
-				getIndices.push_back(k2 + 1);
+				indices.push_back(k1 + 1);
+				indices.push_back(k2);
+				indices.push_back(k2 + 1);
 			}
 		}
 	}
-	setVertices(getVertices);
-	setIndices(getIndices);
+	setVertices(vertices);
+	setIndices(indices);
 }

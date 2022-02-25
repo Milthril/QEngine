@@ -11,7 +11,7 @@ public:
 	QRhiWindow(QRhi::Implementation backend);
 	static void setDefaultSurfaceFormat(QSurfaceFormat format);
 	std::shared_ptr<QScene> scene() const { return mScene; }
-	void showExposed();
+	void waitExposed();
 private:
 	void initInternal();
 	void renderInternal();

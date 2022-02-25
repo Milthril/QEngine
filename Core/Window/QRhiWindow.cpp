@@ -37,9 +37,8 @@ void QRhiWindow::setDefaultSurfaceFormat(QSurfaceFormat format)
 	QSurfaceFormat::setDefaultFormat(format);
 }
 
-void QRhiWindow::showExposed()
+void QRhiWindow::waitExposed()
 {
-	show();
 	while (!mRunning) {
 		QGuiApplication::processEvents();
 	}
@@ -86,20 +85,21 @@ void QRhiWindow::initInternal()
 	mSwapChain.reset(mRhi->newSwapChain(), [](QRhiSwapChain* res) {
 		res->destroy();
 	});
-
+	mSwapChain->setWindow(this);
+	mSwapChain->setSampleCount(8);
 	mDepthStencilFrameBuffer.reset(mRhi->newRenderBuffer(QRhiRenderBuffer::DepthStencil,
 								   QSize(), // no need to set the size here, due to UsedWithSwapChainOnly
-								   1,
+								   mSwapChain->sampleCount(),
 								   QRhiRenderBuffer::UsedWithSwapChainOnly));
-	mSwapChain->setWindow(this);
 	mSwapChain->setDepthStencil(mDepthStencilFrameBuffer.get());
+
 	mRenderPassDesciptor.reset(mSwapChain->newCompatibleRenderPassDescriptor(), [](QRhiRenderPassDescriptor* desc) {
 		desc->destroy();
 	});
 	mSwapChain->setRenderPassDescriptor(mRenderPassDesciptor.get());
 	resizeSwapChain();
 
-	mRootRenderer = std::make_shared<QDefaultRenderer>(mRhi, mRenderPassDesciptor);
+	mRootRenderer = std::make_shared<QDefaultRenderer>(mRhi, mSwapChain->sampleCount(), mRenderPassDesciptor);
 	mRootRenderer->setScene(mScene);
 }
 

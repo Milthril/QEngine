@@ -14,8 +14,6 @@ protected:
 
 	std::shared_ptr<QRhiProxy> createSkeletonMeshProxy(std::shared_ptr<QSkeletonMeshComponent>) override;
 
-	std::shared_ptr<QRhiProxy> createText2DProxy(std::shared_ptr<QText2DComponent>) override;
-
 	std::shared_ptr<QRhiProxy> createParticleProxy(std::shared_ptr<QParticleComponent>) override;
 
 	std::shared_ptr<QRhiProxy> createSkyBoxProxy(std::shared_ptr<QSkyBoxComponent>) override;

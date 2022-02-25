@@ -1,11 +1,12 @@
 #ifndef QEngine_h__
 #define QEngine_h__
 
-#include <QGuiApplication>
+#include <QApplication>
 #include "Render\Scene\QScene.h"
 #include "Window\QRhiWindow.h"
 
-class QEngine :public QGuiApplication
+
+class QEngine :public QApplication
 {
 public:
 	QEngine(int argc, char** argv);

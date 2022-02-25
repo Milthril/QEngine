@@ -3,7 +3,6 @@
 #include "Render/Scene/Component/QStaticMeshComponent .h"
 #include "Render/Scene/Component/QShapeComponent.h"
 #include "Render/Scene/Component/QSkeletonMeshComponent.h"
-#include "Render/Scene/Component/QText2DComponent.h"
 #include "Render/Scene/Component/QLightComponent.h"
 #include "Render/Scene/Component/QSkyBoxComponent.h"
 
@@ -113,9 +112,6 @@ std::shared_ptr<QRhiProxy> QSceneRenderer::createPrimitiveProxy(std::shared_ptr<
 		break;
 	case QSceneComponent::SkeletonMesh:
 		return createSkeletonMeshProxy(std::dynamic_pointer_cast<QSkeletonMeshComponent>(component));
-		break;
-	case QSceneComponent::Text2D:
-		return createText2DProxy(std::dynamic_pointer_cast<QText2DComponent>(component));
 		break;
 	case QSceneComponent::Particle:
 		return createParticleProxy(std::dynamic_pointer_cast<QParticleComponent>(component));
