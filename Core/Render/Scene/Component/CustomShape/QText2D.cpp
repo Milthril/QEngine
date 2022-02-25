@@ -86,6 +86,7 @@ void QText2D::recreateVertexData()
 	QVector<QText2D::Index> indices;
 	QFontMetrics fontMetrics(mFont);
 	QPainterPath fontPath;
+
 	QSize textSize;
 	if (mOrientation == Qt::Orientation::Horizontal) {
 		textSize = { 0,fontMetrics.height() };
@@ -114,29 +115,34 @@ void QText2D::recreateVertexData()
 
 	QText2D::Index offset = 0;
 	for (int i = 0; i < polygonList.size(); i++) {
-		polygonList[i].pop_back();
 		QVector<QPolygonF> singlePolygon;
-		singlePolygon << QPolygonF();
-		int index = 0;
+		int startIndex = 0;
 		for (int j = 0; j < polygonList[i].size(); j++) {
 			const QPointF& point = polygonList[i][j];
-			singlePolygon.back() << point;
 			QText2D::Vertex vertex;
 			vertex.position = QVector3D(point.x(), point.y(), 0);
 			vertex.baseColor << mColor;
 			vertices.push_back(vertex);
-			if (polygonList[i][index] == polygonList[i][j]
-				&& j != polygonList[i].size() - 1
-				&& j != 0) {
-				singlePolygon << QPolygonF();
+			if (polygonList[i][startIndex] == polygonList[i][j] && j != startIndex) {
+				if (!singlePolygon.isEmpty() && mapbox::detail::PolygonIsClockwise(singlePolygon.back())) {
+					auto localIndices = mapbox::earcut<QText2D::Index>(singlePolygon);
+					for (auto it : localIndices) {
+						indices << it + offset;
+					}
+					singlePolygon.clear();
+				}
+				offset += j - startIndex + 1;
+				singlePolygon << polygonList[i].mid(startIndex, j - startIndex);
+				startIndex = j + 1;
 			}
 		}
-		auto localIndices = mapbox::earcut<QText2D::Index>(singlePolygon);
-
-		for (auto it : localIndices) {
-			indices << it + offset;
+		if (!singlePolygon.isEmpty() && mapbox::detail::PolygonIsClockwise(singlePolygon.back())) {
+			auto localIndices = mapbox::earcut<QText2D::Index>(singlePolygon);
+			for (auto it : localIndices) {
+				indices << it + offset;
+			}
 		}
-		offset += polygonList[i].size();
+		offset = vertices.size();
 	}
 
 	for (auto& vertex : vertices) {

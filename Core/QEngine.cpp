@@ -26,7 +26,7 @@ void QEngine::execRealtime()
 	cube0->setScale(QVector3D(0.4, 0.4, 0.4));
 	sphere->setScale(QVector3D(0.4, 0.4, 0.4));
 
-	auto text = std::make_shared<QText2D>("a");
+	auto text = std::make_shared<QText2D>("ij");
 
 	//scene()->addPrimitive(sphere);
 	//scene()->addPrimitive(cube0);
@@ -38,8 +38,8 @@ void QEngine::execRealtime()
 		cube0->setRotation(QVector3D(1, 1, 1) * QTime::currentTime().msecsSinceStartOfDay() / 10.0f);
 		sphere->setRotation(QVector3D(1, 1, 1) * QTime::currentTime().msecsSinceStartOfDay() / 10.0f);
 		//text->setText(QTime::currentTime().toString());
-		text->setText(QString::fromLocal8Bit("ij"));
-		//text->setText(QString::fromLocal8Bit("ÄãºÃ°¡"));
+		text->setText(QString::fromLocal8Bit("abcdefghijklmnopqrstuvwxyz"));
+		//text->setText(QString::fromLocal8Bit("ij"));
 		mWindow->requestUpdate();
 	}
 }
