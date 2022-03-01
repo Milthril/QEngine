@@ -5,6 +5,7 @@
 #include "Render/Scene/Component/QSkeletonMeshComponent.h"
 #include "Render/Scene/Component/QLightComponent.h"
 #include "Render/Scene/Component/QSkyBoxComponent.h"
+#include "private/qshaderbaker_p.h"
 
 QSceneRenderer::QSceneRenderer(std::shared_ptr<QRhi> rhi, int sampleCount, std::shared_ptr<QRhiRenderPassDescriptor> renderPassDescriptor)
 	: mRhi(rhi)
@@ -45,7 +46,6 @@ void QSceneRenderer::renderInternal(QRhiCommandBuffer* buffer, QRhiRenderTarget*
 			resetPrimitiveProxy(std::dynamic_pointer_cast<QPrimitiveComponent>(proxy->mComponent));
 		}
 	}
-
 	render(buffer, renderTarget, batch);
 }
 
@@ -72,6 +72,24 @@ QMatrix4x4 QSceneRenderer::getVP()
 void QSceneRenderer::setClipMatrix(QMatrix4x4 val)
 {
 	mClipMatrix = val;
+}
+
+QShader QSceneRenderer::createShaderFromCode(QShader::Stage stage, const char* code)
+{
+	QShaderBaker baker;
+	baker.setGeneratedShaderVariants({ QShader::StandardShader });
+	baker.setGeneratedShaders({
+		QShaderBaker::GeneratedShader{QShader::Source::SpirvShader,QShaderVersion(100)},
+		QShaderBaker::GeneratedShader{QShader::Source::GlslShader,QShaderVersion(120)},
+		QShaderBaker::GeneratedShader{QShader::Source::MslShader,QShaderVersion(12)},
+		QShaderBaker::GeneratedShader{QShader::Source::HlslShader,QShaderVersion(50)},
+	});
+
+	baker.setSourceString(code, stage);
+	QShader shader = baker.bake();
+	if (!shader.isValid())
+		qFatal(baker.errorMessage().toLocal8Bit());
+	return shader;
 }
 
 void QSceneRenderer::onPrimitiveInserted(uint32_t index, std::shared_ptr<QPrimitiveComponent> primitive)

@@ -25,23 +25,36 @@ public:
 	std::shared_ptr<QSceneComponent> mComponent;
 };
 
+template<typename _Ty>
+class QRhiSPtr :public std::shared_ptr<_Ty> {
+public:
+	void reset(_Ty* res) noexcept {
+		std::shared_ptr<_Ty>::reset(res, [](_Ty* res) {
+			res->destroy();
+		});
+	}
+};
+
 class QSceneRenderer :public QObject {
 	Q_OBJECT
 public:
 	QSceneRenderer(std::shared_ptr<QRhi> rhi, int sampleCount, std::shared_ptr<QRhiRenderPassDescriptor> renderPassDescriptor);
 	void setScene(std::shared_ptr<QScene> scene);
+
 	std::shared_ptr<QScene> getScene() { return mScene; }
 	std::shared_ptr<QRhiRenderPassDescriptor> RenderPassDescriptor() const { return mRenderPassDescriptor; }
-	std::shared_ptr<QRhi> Rhi() const { return mRhi; }
+	std::shared_ptr<QRhi> getRhi() const { return mRhi; }
 
 	virtual void setRenderTargetSize(QSize size);
-	void renderInternal(QRhiCommandBuffer* buffer, QRhiRenderTarget* renderTarget, QRhiResourceUpdateBatch* batch);
-	virtual void render(QRhiCommandBuffer* buffer, QRhiRenderTarget* renderTarget, QRhiResourceUpdateBatch* batch) = 0;
+	void renderInternal(QRhiCommandBuffer* cmdBuffer, QRhiRenderTarget* renderTarget, QRhiResourceUpdateBatch* batch);
+	virtual void render(QRhiCommandBuffer* cmdBuffer, QRhiRenderTarget* renderTarget, QRhiResourceUpdateBatch* batch) = 0;
 	QMatrix4x4 getViewMatrix();
 	QMatrix4x4 getClipMatrix() const;
 	QMatrix4x4 getVP();
 	void setClipMatrix(QMatrix4x4 val);
 	int getSampleCount() const { return mSampleCount; }
+
+	static QShader createShaderFromCode(QShader::Stage stage, const char* code);
 private:
 	void onPrimitiveInserted(uint32_t index, std::shared_ptr<QPrimitiveComponent> primitive);
 	void onPrimitiveRemoved(std::shared_ptr<QPrimitiveComponent> primitive);
