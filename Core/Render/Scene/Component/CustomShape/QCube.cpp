@@ -4,7 +4,7 @@ QCube::QCube()
 {
 	setTopology(QPrimitiveComponent::Topology::Triangles);
 
-	QVector4D defaultColor = getDefaultBaseColorVec4();
+	QVector4D defaultColor(10, 10, 10, 1.0f);
 
 	QVector<Vertex> getVertices = {
 		//position					normal		tangent		bitangent   texCoord			baseColor

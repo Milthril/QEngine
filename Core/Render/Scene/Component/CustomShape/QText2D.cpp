@@ -4,7 +4,7 @@
 #include "QEarCut.h"
 
 QText2D::QText2D(QString text, QFont font, QColor color, Qt::Orientation o, uint32_t spacing)
-	:mText(text)
+	: mText(text)
 	, mFont(font)
 	, mColor(color)
 	, mOrientation(o)
@@ -104,49 +104,46 @@ void QText2D::recreateVertexData()
 		}
 	}
 
-	QList<QPolygonF> polygonList = fontPath.toFillPolygons();
-	for (auto it : polygonList) {
-		for (auto point : it) {
-			qDebug() << point.x() << point.y();
-		}
-		qDebug() << "----";
-	}
-	qDebug() << "----End";
+	const QList<QPolygonF>& polygonList = fontPath.toSubpathPolygons();
 
-	QText2D::Index offset = 0;
-	for (int i = 0; i < polygonList.size(); i++) {
-		QVector<QPolygonF> singlePolygon;
-		int startIndex = 0;
-		for (int j = 0; j < polygonList[i].size(); j++) {
-			const QPointF& point = polygonList[i][j];
-			QText2D::Vertex vertex;
-			vertex.position = QVector3D(point.x(), point.y(), 0);
-			vertex.baseColor << mColor;
-			vertices.push_back(vertex);
-			if (polygonList[i][startIndex] == polygonList[i][j] && j != startIndex) {
-				if (!singlePolygon.isEmpty() && mapbox::detail::PolygonIsClockwise(singlePolygon.back())) {
-					auto localIndices = mapbox::earcut<QText2D::Index>(singlePolygon);
-					for (auto it : localIndices) {
-						indices << it + offset;
-					}
-					singlePolygon.clear();
-				}
-				offset += j - startIndex + 1;
-				singlePolygon << polygonList[i].mid(startIndex, j - startIndex);
-				startIndex = j + 1;
+	QList<QList<QPolygonF>> polygons;
+	QList<QPolygonF> holes;
+
+	for (const auto& polygon : polygonList) {
+		if (mapbox::detail::PolygonIsClockwise(polygon)) {
+			polygons << QList<QPolygonF>{polygon};
+		}
+		else {
+			holes << polygon;
+		}
+	}
+	for (const auto& hole : holes) {
+		for (auto& polygon : polygons) {
+			if (polygon.first().containsPoint(hole.first(), Qt::FillRule::WindingFill)) {
+				polygon << hole;
 			}
 		}
-		if (!singlePolygon.isEmpty() && mapbox::detail::PolygonIsClockwise(singlePolygon.back())) {
-			auto localIndices = mapbox::earcut<QText2D::Index>(singlePolygon);
-			for (auto it : localIndices) {
-				indices << it + offset;
+	}
+	QText2D::Index offset = 0;
+	for (const auto& polygonSet : polygons) {
+		for (auto& polygon : polygonSet) {
+			for (auto& point : polygon) {
+				QText2D::Vertex vertex;
+				vertex.position = QVector3D(point.x(), point.y(), 0);
+				vertex.baseColor << mColor;
+				vertices.push_back(vertex);
 			}
+		}
+		auto localIndices = mapbox::earcut<QText2D::Index>(polygonSet);
+		for (auto it : localIndices) {
+			indices << it + offset;
 		}
 		offset = vertices.size();
 	}
 
 	for (auto& vertex : vertices) {
 		vertex.position.setY(textSize.height() - vertex.position.y());
+		vertex.position -= QVector3D(textSize.width() / 2.0f, textSize.height() / 2.0f, 0.0f);
 		vertex.position /= 9;
 	}
 
