@@ -117,7 +117,7 @@ void QDefaultProxyShape::recreateResource()
 
 	pipeline->setVertexInputLayout(inputLayout);
 	pipeline->setShaderResourceBindings(shaderBinding);
-	pipeline->setRenderPassDescriptor(mRenderer->RenderPassDescriptor().get());
+	pipeline->setRenderPassDescriptor(mRenderer->getRenderPassDescriptor().get());
 	Q_ASSERT(pipeline->create());
 
 	mPipeline.reset(pipeline, [](QRhiGraphicsPipeline* pipline) {

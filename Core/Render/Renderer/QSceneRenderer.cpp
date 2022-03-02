@@ -7,10 +7,10 @@
 #include "Render/Scene/Component/QSkyBoxComponent.h"
 #include "private/qshaderbaker_p.h"
 
-QSceneRenderer::QSceneRenderer(std::shared_ptr<QRhi> rhi, int sampleCount, std::shared_ptr<QRhiRenderPassDescriptor> renderPassDescriptor)
+QSceneRenderer::QSceneRenderer(std::shared_ptr<QRhi> rhi, int sampleCount, QRhiSPtr<QRhiRenderPassDescriptor> renderPassDescriptor)
 	: mRhi(rhi)
 	, mSampleCount(sampleCount)
-	, mRenderPassDescriptor(renderPassDescriptor)
+	, mRootRenderPassDescriptor(renderPassDescriptor)
 {
 	mClipMatrix = mRhi->clipSpaceCorrMatrix();
 }

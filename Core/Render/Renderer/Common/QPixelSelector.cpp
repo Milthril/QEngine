@@ -1,11 +1,12 @@
-#include "QFullSceneTexturePainter.h"
+#include "QPixelSelector.h"
 
-QFullSceneTexturePainter::QFullSceneTexturePainter(std::shared_ptr<QRhi> rhi)
-	:mRhi(rhi)
+QPixelSelector::QPixelSelector(std::shared_ptr<QRhi> rhi, QByteArray code)
+	: mRhi(rhi)
+	, mSelectCode(code)
 {
 }
 
-void QFullSceneTexturePainter::initRhiResource(QRhiRenderPassDescriptor* renderPassDesc, QRhiRenderTarget* renderTarget, QRhiSPtr<QRhiTexture> texture)
+void QPixelSelector::initRhiResource(QRhiRenderPassDescriptor* renderPassDesc, QRhiRenderTarget* renderTarget, QRhiSPtr<QRhiTexture> texture)
 {
 	mTexture = texture;
 	mSampler.reset(mRhi->newSampler(QRhiSampler::Linear,
@@ -31,13 +32,10 @@ void main() {
 )");
 
 	QShader fs = QSceneRenderer::createShaderFromCode(QShader::FragmentStage, R"(#version 450
-layout (binding = 0) uniform sampler2D samplerColor;
+layout (binding = 0) uniform sampler2D uTexture;
 layout (location = 0) in vec2 inUV;
 layout (location = 0) out vec4 outFragColor;
-void main() {
-	outFragColor = texture(samplerColor, inUV);
-}
-)");
+)" + mSelectCode);
 
 	mPipeline->setShaderStages({
 		{ QRhiShaderStage::Vertex, vs },
@@ -56,7 +54,7 @@ void main() {
 	mPipeline->create();
 }
 
-void QFullSceneTexturePainter::updateTexture(QRhiSPtr<QRhiTexture> texture)
+void QPixelSelector::updateTexture(QRhiSPtr<QRhiTexture> texture)
 {
 	mTexture = texture;
 	if (mBindings) {
@@ -68,7 +66,7 @@ void QFullSceneTexturePainter::updateTexture(QRhiSPtr<QRhiTexture> texture)
 	}
 }
 
-void QFullSceneTexturePainter::drawCommand(QRhiCommandBuffer* cmdBuffer, QRhiSPtr<QRhiTexture> texture, QRhiRenderTarget* renderTarget)
+void QPixelSelector::drawCommand(QRhiCommandBuffer* cmdBuffer, QRhiSPtr<QRhiTexture> texture, QRhiRenderTarget* renderTarget)
 {
 	auto it = renderTarget->renderPassDescriptor();
 	if (texture != mTexture) {

@@ -1,10 +1,11 @@
-#ifndef QFullSceneTexturePainter_h__
-#define QFullSceneTexturePainter_h__
+#ifndef QPixelSelector_h__
+#define QPixelSelector_h__
 
 #include "Render\Renderer\QSceneRenderer.h"
-class QFullSceneTexturePainter {
+
+class QPixelSelector {
 public:
-	QFullSceneTexturePainter(std::shared_ptr<QRhi> rhi);
+	QPixelSelector(std::shared_ptr<QRhi> rhi, QByteArray code);
 	void drawCommand(QRhiCommandBuffer* cmdBuffer, QRhiSPtr<QRhiTexture> texture, QRhiRenderTarget* renderTarget);
 protected:
 	void initRhiResource(QRhiRenderPassDescriptor* renderPassDesc, QRhiRenderTarget* renderTarget, QRhiSPtr<QRhiTexture> texture);
@@ -15,6 +16,7 @@ private:
 	QRhiSPtr<QRhiSampler> mSampler;
 	QRhiSPtr<QRhiShaderResourceBindings> mBindings;
 	QRhiSPtr<QRhiTexture> mTexture;
+	QByteArray mSelectCode;
 };
 
-#endif // QFullSceneTexturePainter_h__
+#endif // QPixelSelector_h__

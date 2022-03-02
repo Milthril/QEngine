@@ -38,11 +38,11 @@ public:
 class QSceneRenderer :public QObject {
 	Q_OBJECT
 public:
-	QSceneRenderer(std::shared_ptr<QRhi> rhi, int sampleCount, std::shared_ptr<QRhiRenderPassDescriptor> renderPassDescriptor);
+	QSceneRenderer(std::shared_ptr<QRhi> rhi, int sampleCount, QRhiSPtr<QRhiRenderPassDescriptor> renderPassDescriptor);
 	void setScene(std::shared_ptr<QScene> scene);
 
 	std::shared_ptr<QScene> getScene() { return mScene; }
-	std::shared_ptr<QRhiRenderPassDescriptor> RenderPassDescriptor() const { return mRenderPassDescriptor; }
+	virtual QRhiSPtr<QRhiRenderPassDescriptor> getRenderPassDescriptor() const { return mRootRenderPassDescriptor; }
 	std::shared_ptr<QRhi> getRhi() const { return mRhi; }
 
 	virtual void setRenderTargetSize(QSize size);
@@ -69,8 +69,8 @@ protected:
 	virtual std::shared_ptr<QRhiProxy> createSkyBoxProxy(std::shared_ptr<QSkyBoxComponent>) = 0;
 protected:
 	std::shared_ptr<QRhi> mRhi;
-	std::shared_ptr<QRhiRenderPassDescriptor> mRenderPassDescriptor;
 	std::shared_ptr<QScene> mScene;
+	QRhiSPtr<QRhiRenderPassDescriptor> mRootRenderPassDescriptor;
 	QHash<QSceneComponent::ComponentId, std::shared_ptr<QRhiProxy>> mProxyMap;
 	QList<std::shared_ptr<QRhiProxy>> mProxyUploadList;
 	QMatrix4x4 mClipMatrix;

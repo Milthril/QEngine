@@ -3,10 +3,9 @@
 #include "QPainterPath"
 #include "QEarCut.h"
 
-QText2D::QText2D(QString text, QFont font, QColor color, Qt::Orientation o, uint32_t spacing)
+QText2D::QText2D(QString text, QFont font, Qt::Orientation o, uint32_t spacing)
 	: mText(text)
 	, mFont(font)
-	, mColor(color)
 	, mOrientation(o)
 	, mSpacing(spacing)
 {
@@ -24,19 +23,6 @@ void QText2D::setText(QString val)
 {
 	if (val != mText) {
 		mText = val;
-		recreateVertexData();
-	}
-}
-
-QColor QText2D::getColor() const
-{
-	return mColor;
-}
-
-void QText2D::setColor(QColor val)
-{
-	if (mColor != val) {
-		mColor = val;
 		recreateVertexData();
 	}
 }
@@ -130,7 +116,7 @@ void QText2D::recreateVertexData()
 			for (auto& point : polygon) {
 				QText2D::Vertex vertex;
 				vertex.position = QVector3D(point.x(), point.y(), 0);
-				vertex.baseColor << mColor;
+				vertex.baseColor = getDefaultBaseColor();
 				vertices.push_back(vertex);
 			}
 		}

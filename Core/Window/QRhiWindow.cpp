@@ -82,9 +82,7 @@ void QRhiWindow::initInternal()
 		mRhi.reset(QRhi::create(QRhi::Metal, &params, rhiFlags));
 	}
 
-	mSwapChain.reset(mRhi->newSwapChain(), [](QRhiSwapChain* res) {
-		res->destroy();
-	});
+	mSwapChain.reset(mRhi->newSwapChain());
 	mSwapChain->setWindow(this);
 	mSwapChain->setSampleCount(8);
 	mDepthStencilFrameBuffer.reset(mRhi->newRenderBuffer(QRhiRenderBuffer::DepthStencil,
@@ -92,10 +90,7 @@ void QRhiWindow::initInternal()
 								   mSwapChain->sampleCount(),
 								   QRhiRenderBuffer::UsedWithSwapChainOnly));
 	mSwapChain->setDepthStencil(mDepthStencilFrameBuffer.get());
-
-	mRenderPassDesciptor.reset(mSwapChain->newCompatibleRenderPassDescriptor(), [](QRhiRenderPassDescriptor* desc) {
-		desc->destroy();
-	});
+	mRenderPassDesciptor.reset(mSwapChain->newCompatibleRenderPassDescriptor());
 	mSwapChain->setRenderPassDescriptor(mRenderPassDesciptor.get());
 	resizeSwapChain();
 
@@ -127,6 +122,7 @@ void QRhiWindow::renderInternal()
 		return;
 	}
 	if (mRootRenderer) {
+		mSwapChain->currentFrameRenderTarget()->setRenderPassDescriptor(mRenderPassDesciptor.get());
 		mRootRenderer->renderInternal(mSwapChain->currentFrameCommandBuffer(), mSwapChain->currentFrameRenderTarget(), mRhi->nextResourceUpdateBatch());
 	}
 	mRhi->endFrame(mSwapChain.get());
@@ -185,7 +181,7 @@ bool QRhiWindow::event(QEvent* e)
 	case QEvent::PlatformSurface:
 		// this is the proper time to tear down the swapchain (while the native window and surface are still around)
 		if (static_cast<QPlatformSurfaceEvent*>(e)->surfaceEventType() == QPlatformSurfaceEvent::SurfaceAboutToBeDestroyed) {
-			mSwapChain.reset();
+			mSwapChain.reset(nullptr);
 			mRhi.reset();
 			mHasSwapChain = false;
 		}

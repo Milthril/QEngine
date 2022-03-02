@@ -42,24 +42,18 @@ void QShapeComponent::setBufferType(QRhiBuffer::Type val)
 	mBufferType = val;
 }
 
-QColor QShapeComponent::getDefaultBaseColor() const
+QVector4D QShapeComponent::getDefaultBaseColor() const
 {
 	return mDefaultBaseColor;
 }
 
-QVector4D QShapeComponent::getDefaultBaseColorVec4() const
-{
-	const QColor color = getDefaultBaseColor();
-	return QVector4D(color.redF(), color.greenF(), color.blueF(), color.alphaF());
-}
-
-void QShapeComponent::setDefaultBaseColor(QColor val)
+void QShapeComponent::setDefaultBaseColor(QVector4D val)
 {
 	if (mDefaultBaseColor == val)
 		return;
 	mDefaultBaseColor = val;
 	for (auto& vertex : mVertices) {
-		vertex.baseColor = getDefaultBaseColorVec4();
+		vertex.baseColor = val;
 	}
 	if (mTexture.isNull()) {
 		bNeedUpdateVertex = true;

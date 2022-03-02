@@ -9,7 +9,7 @@
 
 QEngine::QEngine(int argc, char** argv)
 	: QApplication(argc, argv)
-	, mWindow(std::make_shared<QRhiWindow>(QRhi::Implementation::D3D11))
+	, mWindow(std::make_shared<QRhiWindow>(QRhi::Implementation::OpenGLES2))
 {
 }
 
@@ -18,28 +18,33 @@ void QEngine::execRealtime()
 	mWindow->show();
 	mWindow->waitExposed();
 
-	auto cube0 = std::make_shared<QCube>();
-	auto sphere = std::make_shared<QSphere>();
+	auto cube = std::make_shared<QCube>();
+	cube->setPosition(QVector3D(-0.8, 0.8, 0));
+	cube->setScale(QVector3D(0.4, 0.4, 0.4));
 
-	cube0->setPosition(QVector3D(-0.5, 0, 0));
-	sphere->setPosition(QVector3D(0.5, 0, 0));
-	cube0->setScale(QVector3D(0.4, 0.4, 0.4));
+	auto sphere = std::make_shared<QSphere>();
+	sphere->setPosition(QVector3D(0.8, 0.8, 0));
 	sphere->setScale(QVector3D(0.4, 0.4, 0.4));
 
-	//auto text = std::make_shared<QText2D>("ij");
+	auto text = std::make_shared<QText2D>("default");
+	text->setPosition(QVector3D(0, -0.8, 0));
 
 	scene()->addPrimitive(sphere);
-	scene()->addPrimitive(cube0);
-	//scene()->addPrimitive(text);
+	scene()->addPrimitive(cube);
+	scene()->addPrimitive(text);
 
 	while (true) {
 		QGuiApplication::processEvents();
-		cube0->setDefaultBaseColor(QColor(0,100,200));
-		cube0->setRotation(QVector3D(1, 1, 1) * QTime::currentTime().msecsSinceStartOfDay() / 10.0f);
-		sphere->setRotation(QVector3D(1, 1, 1) * QTime::currentTime().msecsSinceStartOfDay() / 10.0f);
-		//text->setText(QTime::currentTime().toString());
-		//text->setText(QString::fromLocal8Bit("abcdefghijklmnopqrstuvwxyz"));
-		//text->setText(QString::fromLocal8Bit("ij"));
+
+		float time = QTime::currentTime().msecsSinceStartOfDay();
+		cube->setDefaultBaseColor(QVector4D(0.1, 0.5, 0.9, 1) * (100 + 100 * qSin(time / 500)));
+		cube->setRotation(QVector3D(1, 1, 1) * time / 10.0f);
+
+		sphere->setDefaultBaseColor(QVector4D(0.8, 0.5, 0.4, 1) * (100 + 100 * qSin(time / 500)));
+
+		text->setText(QTime::currentTime().toString());
+		text->setDefaultBaseColor(QVector4D(0.5, 0.1, 0.8, 1) * (100 + 100 * qSin(time / 500)));
+
 		mWindow->requestUpdate();
 	}
 }

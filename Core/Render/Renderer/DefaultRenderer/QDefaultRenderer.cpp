@@ -4,12 +4,11 @@
 #include "QtTest\qtestcase.h"
 #include "QDefaultProxyShape.h"
 
-QDefaultRenderer::QDefaultRenderer(std::shared_ptr<QRhi> rhi, int sampleCount, std::shared_ptr<QRhiRenderPassDescriptor> renderPassDescriptor)
+QDefaultRenderer::QDefaultRenderer(std::shared_ptr<QRhi> rhi, int sampleCount, QRhiSPtr<QRhiRenderPassDescriptor> renderPassDescriptor)
 	:QSceneRenderer(rhi, sampleCount, renderPassDescriptor)
 {
-	mFSPainter.reset(new QFullSceneTexturePainter(rhi));
+	mBloomPainter.reset(new QBloomPainter(rhi));
 	createOrResizeRenderTarget({ 10,10 });
-	mFSPainter->initRhiResource(mRT.renderPassDesc, sampleCount);
 }
 
 void QDefaultRenderer::render(QRhiCommandBuffer* cmdBuffer, QRhiRenderTarget* renderTarget, QRhiResourceUpdateBatch* batch)
@@ -27,7 +26,12 @@ void QDefaultRenderer::render(QRhiCommandBuffer* cmdBuffer, QRhiRenderTarget* re
 		proxy->draw(cmdBuffer);
 	}
 	cmdBuffer->endPass();
-	mFSPainter->drawCommand(cmdBuffer, renderTarget);
+	mBloomPainter->drawCommand(cmdBuffer, mRT.colorAttachment, renderTarget);
+}
+
+QRhiSPtr<QRhiRenderPassDescriptor> QDefaultRenderer::getRenderPassDescriptor() const
+{
+	return mRT.renderPassDesc;
 }
 
 std::shared_ptr<QRhiProxy> QDefaultRenderer::createShapeProxy(std::shared_ptr<QShapeComponent> shape)
@@ -59,13 +63,25 @@ void QDefaultRenderer::createOrResizeRenderTarget(QSize size)
 {
 	if (mRT.colorAttachment && mRT.colorAttachment->pixelSize() == size)
 		return;
-	mRT.colorAttachment.reset(mRhi->newTexture(QRhiTexture::RGBA8, size, getSampleCount(), QRhiTexture::RenderTarget | QRhiTexture::UsedAsTransferSource));
+	mRT.colorAttachment.reset(mRhi->newTexture(QRhiTexture::RGBA32F, size, 1, QRhiTexture::RenderTarget | QRhiTexture::UsedAsTransferSource));
 	mRT.colorAttachment->create();
+	QRhiColorAttachment colorAttachment;
+	if (getSampleCount() > 1) {
+		mRT.msaaAttachment.reset(mRhi->newTexture(QRhiTexture::RGBA32F, size, getSampleCount(), QRhiTexture::RenderTarget | QRhiTexture::UsedAsTransferSource));
+		mRT.msaaAttachment->create();
+		colorAttachment.setTexture(mRT.msaaAttachment.get());
+		colorAttachment.setResolveTexture(mRT.colorAttachment.get());
+	}
+	else {
+		colorAttachment.setTexture(mRT.colorAttachment.get());
+	}
 	mRT.depthStencil.reset(mRhi->newRenderBuffer(QRhiRenderBuffer::DepthStencil, size, getSampleCount()));
 	mRT.depthStencil->create();
-	mRT.renderTarget.reset(mRhi->newTextureRenderTarget({ mRT.colorAttachment.get(),mRT.depthStencil.get() }));
+	QRhiTextureRenderTargetDescription RTDesc;
+	RTDesc.setColorAttachments({ colorAttachment });
+	RTDesc.setDepthStencilBuffer(mRT.depthStencil.get());
+	mRT.renderTarget.reset(mRhi->newTextureRenderTarget(RTDesc));
 	mRT.renderPassDesc.reset(mRT.renderTarget->newCompatibleRenderPassDescriptor());
 	mRT.renderTarget->setRenderPassDescriptor(mRT.renderPassDesc.get());
 	mRT.renderTarget->create();
-	mFSPainter->updateTexture(mRT.colorAttachment);
 }

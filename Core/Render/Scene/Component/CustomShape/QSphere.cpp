@@ -31,7 +31,7 @@ void QSphere::recreateVertexData()
 	float sectorStep = 2 * M_PI / getSectorCount();
 	float stackStep = M_PI / mStackCount;
 	float sectorAngle, stackAngle;
-	QVector4D defaultColor = getDefaultBaseColorVec4();
+	QVector4D defaultColor = getDefaultBaseColor();
 	QVector<QSphere::Vertex> vertices;
 	vertices.resize((mStackCount + 1) * (getSectorCount() + 1));
 	for (int i = 0; i <= mStackCount; ++i) {

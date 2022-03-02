@@ -22,9 +22,9 @@ protected:
 private:
 	QRhi::Implementation mBackend;
 	std::shared_ptr<QRhi> mRhi;
-	std::shared_ptr<QRhiSwapChain> mSwapChain;
-	std::shared_ptr<QRhiRenderBuffer> mDepthStencilFrameBuffer;
-	std::shared_ptr<QRhiRenderPassDescriptor> mRenderPassDesciptor;
+	QRhiSPtr<QRhiSwapChain> mSwapChain;
+	QRhiSPtr<QRhiRenderBuffer> mDepthStencilFrameBuffer;
+	QRhiSPtr<QRhiRenderPassDescriptor> mRenderPassDesciptor;
 	std::shared_ptr<QOffscreenSurface> mFallbackSurface;
 	std::shared_ptr<QSceneRenderer>  mRootRenderer;
 	std::shared_ptr<QScene> mScene;
