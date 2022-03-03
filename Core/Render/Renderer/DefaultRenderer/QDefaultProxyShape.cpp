@@ -3,37 +3,28 @@
 #include "Render\Scene\Component\QPrimitiveComponent.h"
 #include "Render\Scene\Component\QShapeComponent.h"
 
-QDefaultProxyShape::QDefaultProxyShape(std::shared_ptr<QShapeComponent> shape) :mShape(shape)
+QDefaultProxyShape::QDefaultProxyShape(std::shared_ptr<QShapeComponent> shape)
+	:mShape(shape)
 {
 }
 
 void QDefaultProxyShape::recreateResource()
 {
-	QRhiBuffer* ubo = mRhi->newBuffer(QRhiBuffer::Type::Dynamic, QRhiBuffer::UniformBuffer, sizeof(QMatrix4x4));
-	Q_ASSERT(ubo->create());
-	mUniformBuffer.reset(ubo, [](QRhiBuffer* buffer) {
-		buffer->destroy();
-	});
+	mUniformBuffer.reset(mRhi->newBuffer(QRhiBuffer::Type::Dynamic, QRhiBuffer::UniformBuffer, sizeof(QMatrix4x4)));
+	Q_ASSERT(mUniformBuffer->create());
 
-	QRhiBuffer* vbo = mRhi->newBuffer(mShape->getBufferType(), QRhiBuffer::VertexBuffer, sizeof(QPrimitiveComponent::Vertex) * mShape->getVertices().size());
-	Q_ASSERT(vbo->create());
-	mVertexBuffer.reset(vbo, [](QRhiBuffer* buffer) {
-		buffer->destroy();
-	});
+	mVertexBuffer.reset(mRhi->newBuffer(mShape->getBufferType(), QRhiBuffer::VertexBuffer, sizeof(QPrimitiveComponent::Vertex) * mShape->getVertices().size()));
+	Q_ASSERT(mVertexBuffer->create());
+
 	if (!mShape->getIndices().isEmpty()) {
-		QRhiBuffer* ibo = mRhi->newBuffer(mShape->getBufferType(), QRhiBuffer::IndexBuffer, sizeof(QPrimitiveComponent::Index) * mShape->getIndices().size());
-		Q_ASSERT(ibo->create());
-		mIndexBuffer.reset(ibo, [](QRhiBuffer* buffer) {
-			buffer->destroy();
-		});
+		mIndexBuffer.reset(mRhi->newBuffer(mShape->getBufferType(), QRhiBuffer::IndexBuffer, sizeof(QPrimitiveComponent::Index) * mShape->getIndices().size()));
+		Q_ASSERT(mIndexBuffer->create());
 	}
 
-	QRhiSampler* sampler = mRhi->newSampler(QRhiSampler::Linear, QRhiSampler::Linear, QRhiSampler::None,
-							QRhiSampler::ClampToEdge, QRhiSampler::ClampToEdge);
-	sampler->create();
-	mSampler.reset(sampler, [](QRhiSampler* sampler) {
-		sampler->destroy();
-	});
+	mSampler.reset(mRhi->newSampler(QRhiSampler::Linear, QRhiSampler::Linear, QRhiSampler::None,
+				   QRhiSampler::ClampToEdge, QRhiSampler::ClampToEdge));
+	mSampler->create();
+
 	QRhiGraphicsPipeline* pipeline = mRhi->newGraphicsPipeline();
 	QRhiGraphicsPipeline::TargetBlend blendState;
 	blendState.enable = true;
@@ -96,7 +87,6 @@ void QDefaultProxyShape::recreateResource()
 
 	QRhiVertexInputLayout inputLayout;
 	inputLayout.setBindings({ sizeof(QPrimitiveComponent::Vertex) });
-
 	inputLayout.setAttributes({
 		{ 0, 0, QRhiVertexInputAttribute::Float3, offsetof(QPrimitiveComponent::Vertex,position)},
 		{ 0, 1, QRhiVertexInputAttribute::Float3, offsetof(QPrimitiveComponent::Vertex,normal)},
@@ -105,21 +95,18 @@ void QDefaultProxyShape::recreateResource()
 		{ 0, 4, QRhiVertexInputAttribute::Float3, offsetof(QPrimitiveComponent::Vertex,texCoord)},
 		{ 0, 5, QRhiVertexInputAttribute::Float3, offsetof(QPrimitiveComponent::Vertex,baseColor)},
 	});
-
-	QRhiShaderResourceBindings* shaderBinding = mRhi->newShaderResourceBindings();
-	shaderBinding->setBindings({
-		QRhiShaderResourceBinding::uniformBuffer(0,QRhiShaderResourceBinding::VertexStage,ubo)
-	});
-	shaderBinding->create();
-	mShaderResourceBinding.reset(shaderBinding, [](QRhiShaderResourceBindings* binding) {
-		binding->destroy();
-	});
-
 	pipeline->setVertexInputLayout(inputLayout);
-	pipeline->setShaderResourceBindings(shaderBinding);
-	pipeline->setRenderPassDescriptor(mRenderer->getRenderPassDescriptor().get());
-	Q_ASSERT(pipeline->create());
 
+	mShaderResourceBinding.reset(mRhi->newShaderResourceBindings());
+	mShaderResourceBinding->setBindings({
+		QRhiShaderResourceBinding::uniformBuffer(0,QRhiShaderResourceBinding::VertexStage,mUniformBuffer.get())
+	});
+	mShaderResourceBinding->create();
+	pipeline->setShaderResourceBindings(mShaderResourceBinding.get());
+
+	pipeline->setRenderPassDescriptor(mRenderer->getRenderPassDescriptor().get());
+
+	Q_ASSERT(pipeline->create());
 	mPipeline.reset(pipeline, [](QRhiGraphicsPipeline* pipline) {
 		pipline->destroy();
 	});
@@ -138,11 +125,8 @@ void QDefaultProxyShape::uploadResource(QRhiResourceUpdateBatch* batch)
 void QDefaultProxyShape::updateResource(QRhiResourceUpdateBatch* batch) {
 	if (mShape->bNeedUpdateVertex) {
 		mShape->bNeedUpdateVertex = false;
-		QRhiBuffer* vbo = mRhi->newBuffer(mShape->getBufferType(), QRhiBuffer::VertexBuffer, sizeof(QPrimitiveComponent::Vertex) * mShape->getVertices().size());
-		Q_ASSERT(vbo->create());
-		mVertexBuffer.reset(vbo, [](QRhiBuffer* buffer) {
-			buffer->destroy();
-		});
+		mVertexBuffer.reset(mRhi->newBuffer(mShape->getBufferType(), QRhiBuffer::VertexBuffer, sizeof(QPrimitiveComponent::Vertex) * mShape->getVertices().size()));
+		Q_ASSERT(mVertexBuffer->create());
 		if (mShape->getBufferType() == QRhiBuffer::Dynamic)
 			batch->updateDynamicBuffer(mVertexBuffer.get(), 0, sizeof(QPrimitiveComponent::Vertex) * mShape->getVertices().size(), mShape->getVertices().constData());
 		else
@@ -150,11 +134,9 @@ void QDefaultProxyShape::updateResource(QRhiResourceUpdateBatch* batch) {
 	}
 	if (mShape->bNeedUpdateIndex) {
 		mShape->bNeedUpdateIndex = false;
-		QRhiBuffer* ibo = mRhi->newBuffer(mShape->getBufferType(), QRhiBuffer::IndexBuffer, sizeof(QPrimitiveComponent::Index) * mShape->getIndices().size());
-		Q_ASSERT(ibo->create());
-		mIndexBuffer.reset(ibo, [](QRhiBuffer* buffer) {
-			buffer->destroy();
-		});
+		mIndexBuffer.reset(mRhi->newBuffer(mShape->getBufferType(), QRhiBuffer::IndexBuffer, sizeof(QPrimitiveComponent::Index) * mShape->getIndices().size()));
+		Q_ASSERT(mIndexBuffer->create());
+
 		if (mShape->getBufferType() == QRhiBuffer::Dynamic)
 			batch->updateDynamicBuffer(mIndexBuffer.get(), 0, sizeof(QPrimitiveComponent::Index) * mShape->getIndices().size(), mShape->getIndices().constData());
 		else
@@ -181,7 +163,7 @@ void QDefaultProxyShape::updateResource(QRhiResourceUpdateBatch* batch) {
 			QRhiShaderResourceBinding::uniformBuffer(0,QRhiShaderResourceBinding::VertexStage,mUniformBuffer.get()),
 		});
 		mShaderResourceBinding->create();
-		mTexture.reset();
+		mTexture.reset(nullptr);
 	}
 
 	QMatrix4x4 MVP = mRenderer->getVP() * mShape->calculateModelMatrix();

@@ -6,15 +6,14 @@
 class QDefaultProxyShape :public QRhiProxy {
 public:
 	QDefaultProxyShape(std::shared_ptr<QShapeComponent> shape);
-
 private:
 	std::shared_ptr<QShapeComponent> mShape;
-	std::shared_ptr<QRhiBuffer> mVertexBuffer;
-	std::shared_ptr<QRhiBuffer> mIndexBuffer;
-	std::shared_ptr<QRhiBuffer> mUniformBuffer;
-	std::shared_ptr<QRhiTexture> mTexture;
-	std::shared_ptr<QRhiSampler> mSampler;
-	std::shared_ptr<QRhiShaderResourceBindings> mShaderResourceBinding;
+	QRhiSPtr<QRhiBuffer> mVertexBuffer;
+	QRhiSPtr<QRhiBuffer> mIndexBuffer;
+	QRhiSPtr<QRhiBuffer> mUniformBuffer;
+	QRhiSPtr<QRhiTexture> mTexture;
+	QRhiSPtr<QRhiSampler> mSampler;
+	QRhiSPtr<QRhiShaderResourceBindings> mShaderResourceBinding;
 protected:
 	void uploadResource(QRhiResourceUpdateBatch* batch) override;
 	void updateResource(QRhiResourceUpdateBatch* batch) override;

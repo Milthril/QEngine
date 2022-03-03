@@ -67,9 +67,9 @@ void QDefaultRenderer::createOrResizeRenderTarget(QSize size)
 	mRT.colorAttachment->create();
 	QRhiColorAttachment colorAttachment;
 	if (getSampleCount() > 1) {
-		mRT.msaaAttachment.reset(mRhi->newTexture(QRhiTexture::RGBA32F, size, getSampleCount(), QRhiTexture::RenderTarget | QRhiTexture::UsedAsTransferSource));
-		mRT.msaaAttachment->create();
-		colorAttachment.setTexture(mRT.msaaAttachment.get());
+		mRT.msaaBuffer.reset(mRhi->newRenderBuffer(QRhiRenderBuffer::Color, size, getSampleCount(), {}, QRhiTexture::RGBA32F));
+		mRT.msaaBuffer->create();
+		colorAttachment.setRenderBuffer(mRT.msaaBuffer.get());
 		colorAttachment.setResolveTexture(mRT.colorAttachment.get());
 	}
 	else {

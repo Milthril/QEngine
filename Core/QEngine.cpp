@@ -37,13 +37,13 @@ void QEngine::execRealtime()
 		QGuiApplication::processEvents();
 
 		float time = QTime::currentTime().msecsSinceStartOfDay();
-		cube->setDefaultBaseColor(QVector4D(0.1, 0.5, 0.9, 1) * (100 + 100 * qSin(time / 500)));
+		cube->setDefaultBaseColor(QVector4D(0.1, 0.5, 0.9, 1) * (20 + 20 * qSin(time / 400)));
 		cube->setRotation(QVector3D(1, 1, 1) * time / 10.0f);
 
-		sphere->setDefaultBaseColor(QVector4D(0.8, 0.5, 0.4, 1) * (100 + 100 * qSin(time / 500)));
+		sphere->setDefaultBaseColor(QVector4D(0.8, 0.5, 0.4, 1) * (20 + 20 * qSin(time / 500)));
 
 		text->setText(QTime::currentTime().toString());
-		text->setDefaultBaseColor(QVector4D(0.5, 0.1, 0.8, 1) * (100 + 100 * qSin(time / 500)));
+		text->setDefaultBaseColor(QVector4D(0.5, 0.1, 0.8, 1) * (20 + 20 * qSin(time / 600)));
 
 		mWindow->requestUpdate();
 	}

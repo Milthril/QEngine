@@ -1,11 +1,11 @@
-#include "QFullSceneTexturePainter.h"
+#include "QTexturePainter.h"
 
-QFullSceneTexturePainter::QFullSceneTexturePainter(std::shared_ptr<QRhi> rhi)
+QTexturePainter::QTexturePainter(std::shared_ptr<QRhi> rhi)
 	:mRhi(rhi)
 {
 }
 
-void QFullSceneTexturePainter::initRhiResource(QRhiRenderPassDescriptor* renderPassDesc, QRhiRenderTarget* renderTarget, QRhiSPtr<QRhiTexture> texture)
+void QTexturePainter::initRhiResource(QRhiRenderPassDescriptor* renderPassDesc, QRhiRenderTarget* renderTarget, QRhiSPtr<QRhiTexture> texture)
 {
 	mTexture = texture;
 	mSampler.reset(mRhi->newSampler(QRhiSampler::Linear,
@@ -20,22 +20,22 @@ void QFullSceneTexturePainter::initRhiResource(QRhiRenderPassDescriptor* renderP
 	mPipeline->setTargetBlends({ blendState });
 	mPipeline->setSampleCount(renderTarget->sampleCount());
 	QShader vs = QSceneRenderer::createShaderFromCode(QShader::VertexStage, R"(#version 450
-layout (location = 0) out vec2 outUV;
+layout (location = 0) out vec2 vUV;
 out gl_PerVertex{
 	vec4 gl_Position;
 };
 void main() {
-	outUV = vec2((gl_VertexIndex << 1) & 2, gl_VertexIndex & 2);
-	gl_Position = vec4(outUV * 2.0f - 1.0f, 0.0f, 1.0f);
+	vUV = vec2((gl_VertexIndex << 1) & 2, gl_VertexIndex & 2);
+	gl_Position = vec4(vUV * 2.0f - 1.0f, 0.0f, 1.0f);
 }
 )");
 
 	QShader fs = QSceneRenderer::createShaderFromCode(QShader::FragmentStage, R"(#version 450
 layout (binding = 0) uniform sampler2D samplerColor;
-layout (location = 0) in vec2 inUV;
+layout (location = 0) in vec2 vUV;
 layout (location = 0) out vec4 outFragColor;
 void main() {
-	outFragColor = texture(samplerColor, inUV);
+	outFragColor = texture(samplerColor, vUV);
 }
 )");
 
@@ -56,7 +56,7 @@ void main() {
 	mPipeline->create();
 }
 
-void QFullSceneTexturePainter::updateTexture(QRhiSPtr<QRhiTexture> texture)
+void QTexturePainter::updateTexture(QRhiSPtr<QRhiTexture> texture)
 {
 	mTexture = texture;
 	if (mBindings) {
@@ -68,7 +68,7 @@ void QFullSceneTexturePainter::updateTexture(QRhiSPtr<QRhiTexture> texture)
 	}
 }
 
-void QFullSceneTexturePainter::drawCommand(QRhiCommandBuffer* cmdBuffer, QRhiSPtr<QRhiTexture> texture, QRhiRenderTarget* renderTarget)
+void QTexturePainter::drawCommand(QRhiCommandBuffer* cmdBuffer, QRhiSPtr<QRhiTexture> texture, QRhiRenderTarget* renderTarget)
 {
 	auto it = renderTarget->renderPassDescriptor();
 	if (texture != mTexture) {

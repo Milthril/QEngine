@@ -21,19 +21,19 @@ void QPixelSelector::initRhiResource(QRhiRenderPassDescriptor* renderPassDesc, Q
 	mPipeline->setTargetBlends({ blendState });
 	mPipeline->setSampleCount(renderTarget->sampleCount());
 	QShader vs = QSceneRenderer::createShaderFromCode(QShader::VertexStage, R"(#version 450
-layout (location = 0) out vec2 outUV;
+layout (location = 0) out vec2 vUV;
 out gl_PerVertex{
 	vec4 gl_Position;
 };
 void main() {
-	outUV = vec2((gl_VertexIndex << 1) & 2, gl_VertexIndex & 2);
-	gl_Position = vec4(outUV * 2.0f - 1.0f, 0.0f, 1.0f);
+	vUV = vec2((gl_VertexIndex << 1) & 2, gl_VertexIndex & 2);
+	gl_Position = vec4(vUV * 2.0f - 1.0f, 0.0f, 1.0f);
 }
 )");
 
 	QShader fs = QSceneRenderer::createShaderFromCode(QShader::FragmentStage, R"(#version 450
 layout (binding = 0) uniform sampler2D uTexture;
-layout (location = 0) in vec2 inUV;
+layout (location = 0) in vec2 vUV;
 layout (location = 0) out vec4 outFragColor;
 )" + mSelectCode);
 

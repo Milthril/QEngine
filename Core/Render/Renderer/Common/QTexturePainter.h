@@ -1,10 +1,10 @@
-#ifndef QFullSceneTexturePainter_h__
-#define QFullSceneTexturePainter_h__
+#ifndef QTexturePainter_h__
+#define QTexturePainter_h__
 
 #include "Render\Renderer\QSceneRenderer.h"
-class QFullSceneTexturePainter {
+class QTexturePainter {
 public:
-	QFullSceneTexturePainter(std::shared_ptr<QRhi> rhi);
+	QTexturePainter(std::shared_ptr<QRhi> rhi);
 	void drawCommand(QRhiCommandBuffer* cmdBuffer, QRhiSPtr<QRhiTexture> texture, QRhiRenderTarget* renderTarget);
 protected:
 	void initRhiResource(QRhiRenderPassDescriptor* renderPassDesc, QRhiRenderTarget* renderTarget, QRhiSPtr<QRhiTexture> texture);
@@ -17,4 +17,4 @@ private:
 	QRhiSPtr<QRhiTexture> mTexture;
 };
 
-#endif // QFullSceneTexturePainter_h__
+#endif // QTexturePainter_h__

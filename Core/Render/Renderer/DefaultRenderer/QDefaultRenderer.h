@@ -2,7 +2,7 @@
 #define QDefaultRenderer_h__
 
 #include "Render/Renderer/QSceneRenderer.h"
-#include "../Common/QFullSceneTexturePainter.h"
+#include "../Common/QTexturePainter.h"
 #include "../Common/QBloomPainter.h"
 
 class QDefaultRenderer :public QSceneRenderer {
@@ -20,7 +20,7 @@ protected:
 private:
 	struct RTResource {
 		QRhiSPtr<QRhiTexture> colorAttachment;
-		QRhiSPtr<QRhiTexture> msaaAttachment;
+		QRhiSPtr<QRhiRenderBuffer> msaaBuffer;
 		QRhiSPtr<QRhiRenderBuffer> depthStencil;
 		QRhiSPtr<QRhiTextureRenderTarget> renderTarget;
 		QRhiSPtr<QRhiRenderPassDescriptor> renderPassDesc;

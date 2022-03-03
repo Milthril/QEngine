@@ -2,7 +2,7 @@
 #define QBloomPainter_h__
 
 #include "Render\Renderer\QSceneRenderer.h"
-#include "QFullSceneTexturePainter.h"
+#include "QTexturePainter.h"
 #include "QPixelSelector.h"
 
 class QBloomMeragePainter {
@@ -44,7 +44,7 @@ private:
 	QRhiSPtr<QRhiGraphicsPipeline> mPipelineV;
 	QRhiSPtr<QRhiShaderResourceBindings> mBindingsH;
 	QRhiSPtr<QRhiShaderResourceBindings> mBindingsV;
-	QFullSceneTexturePainter mWriteBackPainter;
+	QTexturePainter mWriteBackPainter;
 	QPixelSelector mPixelSelector;
 	QBloomMeragePainter mMeragePainter;
 

@@ -6,7 +6,7 @@ QBloomPainter::QBloomPainter(std::shared_ptr<QRhi> rhi)
 	, mMeragePainter(rhi)
 	, mPixelSelector(rhi, R"(
 void main() {
-	vec4 color = texture(uTexture, inUV);
+	vec4 color = texture(uTexture, vUV);
 	float value = max(max(color.r,color.g),color.b);
 	outFragColor = step(1.01f,value)*color;
 }
@@ -83,17 +83,17 @@ void QBloomPainter::initRhiResource()
 	mPipelineH->setTargetBlends({ blendState });
 	mPipelineH->setSampleCount(1);
 	QShader vs = QSceneRenderer::createShaderFromCode(QShader::VertexStage, R"(#version 450
-	layout (location = 0) out vec2 outUV;
+	layout (location = 0) out vec2 vUV;
 	out gl_PerVertex{
 		vec4 gl_Position;
 	};
 	void main() {
-		outUV = vec2((gl_VertexIndex << 1) & 2, gl_VertexIndex & 2);
-		gl_Position = vec4(outUV * 2.0f - 1.0f, 0.0f, 1.0f);
+		vUV = vec2((gl_VertexIndex << 1) & 2, gl_VertexIndex & 2);
+		gl_Position = vec4(vUV * 2.0f - 1.0f, 0.0f, 1.0f);
 	}
 	)");
 	QShader fsH = QSceneRenderer::createShaderFromCode(QShader::FragmentStage, R"(#version 450
-layout (location = 0) in vec2 inUV;
+layout (location = 0) in vec2 vUV;
 layout (location = 0) out vec4 outFragColor;
 layout (binding = 0) uniform sampler2D uTexture;
 
@@ -104,12 +104,12 @@ layout (binding = 1 ) uniform BloomState{
 
 void main(){
 	vec2 tex_offset = 1.0 / textureSize(uTexture, 0); // gets size of single texel
-	vec4 raw = texture(uTexture, inUV);
+	vec4 raw = texture(uTexture, vUV);
 	vec4 result = raw * bloomState.weight[0][0]; // current fragment's contribution
 	for(int i = 1; i < bloomState.size; ++i){
 		const float weight = bloomState.weight[i/4][i%4];
-		result += texture(uTexture, inUV + vec2(tex_offset.x * i, 0.0)) * weight;
-		result += texture(uTexture, inUV - vec2(tex_offset.x * i, 0.0)) * weight;
+		result += texture(uTexture, vUV + vec2(tex_offset.x * i, 0.0)) * weight;
+		result += texture(uTexture, vUV - vec2(tex_offset.x * i, 0.0)) * weight;
 	}
     outFragColor = result;
 }
@@ -137,7 +137,7 @@ void main(){
 	mPipelineV->setSampleCount(1);
 
 	QShader fsV = QSceneRenderer::createShaderFromCode(QShader::FragmentStage, R"(#version 450
-layout (location = 0) in vec2 inUV;
+layout (location = 0) in vec2 vUV;
 layout (location = 0) out vec4 outFragColor;
 layout (binding = 0) uniform sampler2D uTexture;
 
@@ -148,12 +148,12 @@ layout (binding = 1 ) uniform BloomState{
 
 void main(){
 	vec2 tex_offset = 1.0 / textureSize(uTexture, 0); // gets size of single texel
-	vec4 raw = texture(uTexture, inUV);
+	vec4 raw = texture(uTexture, vUV);
 	vec4 result = raw * bloomState.weight[0][0]; // current fragment's contribution
 	for(int i = 1; i < bloomState.size; ++i){
 		const float weight = bloomState.weight[i/4][i%4];
-		result += texture(uTexture, inUV + vec2(0.0,tex_offset.y * i)) * weight;
-		result += texture(uTexture, inUV - vec2(0.0,tex_offset.y * i)) * weight;
+		result += texture(uTexture, vUV + vec2(0.0,tex_offset.y * i)) * weight;
+		result += texture(uTexture, vUV - vec2(0.0,tex_offset.y * i)) * weight;
 	}
     outFragColor = result;
 }
@@ -230,24 +230,24 @@ void QBloomMeragePainter::initRhiResource(QRhiRenderPassDescriptor* renderPassDe
 	mPipeline->setTargetBlends({ blendState });
 	mPipeline->setSampleCount(renderTarget->sampleCount());
 	QShader vs = QSceneRenderer::createShaderFromCode(QShader::VertexStage, R"(#version 450
-layout (location = 0) out vec2 outUV;
+layout (location = 0) out vec2 vUV;
 out gl_PerVertex{
 	vec4 gl_Position;
 };
 void main() {
-	outUV = vec2((gl_VertexIndex << 1) & 2, gl_VertexIndex & 2);
-	gl_Position = vec4(outUV * 2.0f - 1.0f, 0.0f, 1.0f);
+	vUV = vec2((gl_VertexIndex << 1) & 2, gl_VertexIndex & 2);
+	gl_Position = vec4(vUV * 2.0f - 1.0f, 0.0f, 1.0f);
 }
 )");
 
 	QShader fs = QSceneRenderer::createShaderFromCode(QShader::FragmentStage, R"(#version 450
 layout (binding = 0) uniform sampler2D uSrcTexture;
 layout (binding = 1) uniform sampler2D uBloomTexture;
-layout (location = 0) in vec2 inUV;
+layout (location = 0) in vec2 vUV;
 layout (location = 0) out vec4 outFragColor;
 void main() {
-	vec4 srcColor = texture(uSrcTexture, inUV);
-	vec4 bloomColor = texture(uBloomTexture, inUV);
+	vec4 srcColor = texture(uSrcTexture, vUV);
+	vec4 bloomColor = texture(uBloomTexture, vUV);
 
 	float gamma = 1.0f;
 	vec3 mapped = vec3(1.0)-exp(-(srcColor.rgb+bloomColor.rgb));

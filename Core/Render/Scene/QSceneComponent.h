@@ -24,7 +24,6 @@ public:
 		Shape,
 		StaticMesh,
 		SkeletonMesh,
-		Text2D,
 		Light,
 		Particle,
 		SkyBox,

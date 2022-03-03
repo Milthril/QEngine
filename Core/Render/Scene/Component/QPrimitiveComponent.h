@@ -18,9 +18,5 @@ public:
 	using Topology = QRhiGraphicsPipeline::Topology;
 };
 
-/**
- *	用于将QColor转QVector4D
- */
-QVector4D operator<<(QVector4D& vec4, const QColor& color);
 
 #endif // QPrimitiveComponent_h__
