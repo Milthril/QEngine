@@ -34,19 +34,21 @@ void QSceneRenderer::setRenderTargetSize(QSize size)
 	setClipMatrix(ClipMatrix);
 }
 
-void QSceneRenderer::renderInternal(QRhiCommandBuffer* buffer, QRhiRenderTarget* renderTarget, QRhiResourceUpdateBatch* batch)
+void QSceneRenderer::renderInternal(QRhiCommandBuffer* buffer, QRhiRenderTarget* renderTarget)
 {
+	QRhiResourceUpdateBatch* batch = mRhi->nextResourceUpdateBatch();
 	for (auto& it : mProxyUploadList) {
 		it->uploadResource(batch);
 	}
 	mProxyUploadList.clear();
+	buffer->resourceUpdate(batch);
 	for (auto& id : mProxyMap.keys()) {
 		auto& proxy = mProxyMap[id];
 		if (proxy->mComponent->bNeedResetProxy) {
 			resetPrimitiveProxy(std::dynamic_pointer_cast<QPrimitiveComponent>(proxy->mComponent));
 		}
 	}
-	render(buffer, renderTarget, batch);
+	render(buffer, renderTarget);
 }
 
 QMatrix4x4 QSceneRenderer::getViewMatrix()
@@ -95,9 +97,6 @@ QShader QSceneRenderer::createShaderFromCode(QShader::Stage stage, const char* c
 void QSceneRenderer::onPrimitiveInserted(uint32_t index, std::shared_ptr<QPrimitiveComponent> primitive)
 {
 	std::shared_ptr<QRhiProxy> proxy = createPrimitiveProxy(primitive);
-	proxy->mComponent = primitive;
-	proxy->mRenderer = this;
-	proxy->mRhi = this->mRhi;
 	mProxyMap[primitive->componentId()] = proxy;
 	primitive->bNeedResetProxy = false;
 	proxy->recreateResource();
@@ -115,6 +114,9 @@ void QSceneRenderer::onLightChanged()
 
 std::shared_ptr<QRhiProxy> QSceneRenderer::createPrimitiveProxy(std::shared_ptr<QPrimitiveComponent> component)
 {
+	if (!component)
+		return nullptr;
+	std::shared_ptr<QRhiProxy> proxy;
 	switch (component->type())
 	{
 	default:
@@ -123,22 +125,25 @@ std::shared_ptr<QRhiProxy> QSceneRenderer::createPrimitiveProxy(std::shared_ptr<
 		return nullptr;
 		break;
 	case QSceneComponent::Shape:
-		return createShapeProxy(std::dynamic_pointer_cast<QShapeComponent>(component));
+		proxy = createShapeProxy(std::dynamic_pointer_cast<QShapeComponent>(component));
 		break;
 	case QSceneComponent::StaticMesh:
-		return createStaticMeshProxy(std::dynamic_pointer_cast<QStaticMeshComponent>(component));
+		proxy = createStaticMeshProxy(std::dynamic_pointer_cast<QStaticMeshComponent>(component));
 		break;
 	case QSceneComponent::SkeletonMesh:
-		return createSkeletonMeshProxy(std::dynamic_pointer_cast<QSkeletonMeshComponent>(component));
+		proxy = createSkeletonMeshProxy(std::dynamic_pointer_cast<QSkeletonMeshComponent>(component));
 		break;
 	case QSceneComponent::Particle:
-		return createParticleProxy(std::dynamic_pointer_cast<QParticleComponent>(component));
+		proxy = createParticleProxy(std::dynamic_pointer_cast<QParticleComponent>(component));
 		break;
 	case QSceneComponent::SkyBox:
-		return createSkyBoxProxy(std::dynamic_pointer_cast<QSkyBoxComponent>(component));
+		proxy = createSkyBoxProxy(std::dynamic_pointer_cast<QSkyBoxComponent>(component));
 		break;
 	}
-	return nullptr;
+	proxy->mRhi = mRhi;
+	proxy->mRenderer = this;
+	proxy->mComponent = component;
+	return proxy;
 }
 
 void QSceneRenderer::resetPrimitiveProxy(std::shared_ptr<QPrimitiveComponent> component)

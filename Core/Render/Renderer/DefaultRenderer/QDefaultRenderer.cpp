@@ -1,29 +1,31 @@
 #include "QDefaultRenderer.h"
 #include "Render\Scene\Component\QShapeComponent.h"
-#include "private\qshaderbaker_p.h"
+
 #include "QtTest\qtestcase.h"
 #include "QDefaultProxyShape.h"
+#include "QDefaultProxyParticle.h"
 
 QDefaultRenderer::QDefaultRenderer(std::shared_ptr<QRhi> rhi, int sampleCount, QRhiSPtr<QRhiRenderPassDescriptor> renderPassDescriptor)
 	:QSceneRenderer(rhi, sampleCount, renderPassDescriptor)
 {
 	mBloomPainter.reset(new QBloomPainter(rhi));
-	createOrResizeRenderTarget({ 10,10 });
 }
 
-void QDefaultRenderer::render(QRhiCommandBuffer* cmdBuffer, QRhiRenderTarget* renderTarget, QRhiResourceUpdateBatch* batch)
+void QDefaultRenderer::render(QRhiCommandBuffer* cmdBuffer, QRhiRenderTarget* renderTarget)
 {
 	QSize size = renderTarget->pixelSize();
 	createOrResizeRenderTarget(size);
-	for (auto it : mProxyMap) {
+	for (auto& it : mProxyMap) {
+		it->updatePrePass(cmdBuffer);
+	}
+	QRhiResourceUpdateBatch* batch = mRhi->nextResourceUpdateBatch();
+	for (auto& it : mProxyMap) {
 		it->updateResource(batch);
 	}
 	cmdBuffer->beginPass(mRT.renderTarget.get(), QColor::fromRgbF(0.0f, 0.0f, 0.0f, 0.0f), { 1.0f, 0 }, batch);
 	QRhiViewport viewport(0, 0, size.width(), size.height());
 	for (auto& proxy : mProxyMap) {
-		cmdBuffer->setGraphicsPipeline(proxy->mPipeline.get());
-		cmdBuffer->setViewport(viewport);
-		proxy->draw(cmdBuffer);
+		proxy->drawInPass(cmdBuffer, viewport);
 	}
 	cmdBuffer->endPass();
 	mBloomPainter->drawCommand(cmdBuffer, mRT.colorAttachment, renderTarget);
@@ -49,9 +51,9 @@ std::shared_ptr<QRhiProxy> QDefaultRenderer::createSkeletonMeshProxy(std::shared
 	throw std::logic_error("The method or operation is not implemented.");
 }
 
-std::shared_ptr<QRhiProxy> QDefaultRenderer::createParticleProxy(std::shared_ptr<QParticleComponent>)
+std::shared_ptr<QRhiProxy> QDefaultRenderer::createParticleProxy(std::shared_ptr<QParticleComponent> comp)
 {
-	throw std::logic_error("The method or operation is not implemented.");
+	return std::make_shared<QDefaultProxyParticle>(comp);
 }
 
 std::shared_ptr<QRhiProxy> QDefaultRenderer::createSkyBoxProxy(std::shared_ptr<QSkyBoxComponent>)

@@ -123,15 +123,17 @@ void QRhiWindow::renderInternal()
 	}
 	if (mRootRenderer) {
 		mSwapChain->currentFrameRenderTarget()->setRenderPassDescriptor(mRenderPassDesciptor.get());
-		mRootRenderer->renderInternal(mSwapChain->currentFrameCommandBuffer(), mSwapChain->currentFrameRenderTarget(), mRhi->nextResourceUpdateBatch());
+		mRootRenderer->renderInternal(mSwapChain->currentFrameCommandBuffer(), mSwapChain->currentFrameRenderTarget());
 	}
 	mRhi->endFrame(mSwapChain.get());
+	mRhi->finish();
 	requestUpdate();
 }
 
 void QRhiWindow::resizeSwapChain()
 {
 	if (mHasSwapChain) {
+		mRhi->finish();
 	}
 
 	mHasSwapChain = mSwapChain->createOrResize();

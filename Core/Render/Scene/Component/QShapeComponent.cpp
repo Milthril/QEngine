@@ -79,15 +79,3 @@ void QShapeComponent::setTexture(QImage val)
 	}
 	mTexture = val;
 }
-
-QShapeComponent::Topology QShapeComponent::getTopology() const
-{
-	return mTopology;
-}
-
-void QShapeComponent::setTopology(QShapeComponent::Topology newTopology)
-{
-	if (mTopology == newTopology)
-		return;
-	mTopology = newTopology;
-}

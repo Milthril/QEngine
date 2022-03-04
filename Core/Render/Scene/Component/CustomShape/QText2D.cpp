@@ -70,6 +70,7 @@ void QText2D::recreateVertexData()
 {
 	QVector<QText2D::Vertex> vertices;
 	QVector<QText2D::Index> indices;
+	mFont.setPixelSize(80);
 	QFontMetrics fontMetrics(mFont);
 	QPainterPath fontPath;
 
@@ -130,7 +131,7 @@ void QText2D::recreateVertexData()
 	for (auto& vertex : vertices) {
 		vertex.position.setY(textSize.height() - vertex.position.y());
 		vertex.position -= QVector3D(textSize.width() / 2.0f, textSize.height() / 2.0f, 0.0f);
-		vertex.position /= 9;
+		vertex.position /= mFont.pixelSize();
 	}
 
 	setVertices(vertices);

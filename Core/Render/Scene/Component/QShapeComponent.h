@@ -7,7 +7,6 @@ class QShapeComponent : public QPrimitiveComponent {
 	Q_OBJECT
 		Q_PROPERTY(QVector<Vertex> vertices READ getVertices WRITE setVertices)
 		Q_PROPERTY(QVector<uint32_t> indices READ getIndices WRITE setIndices)
-		Q_PROPERTY(Topology topology READ getTopology WRITE setTopology)
 		Q_PROPERTY(QVector4D defaultBaseColor READ getDefaultBaseColor WRITE setDefaultBaseColor)
 		Q_PROPERTY(QImage texture READ getTexture WRITE setTexture)
 public:
@@ -16,9 +15,6 @@ public:
 
 	const QVector<uint32_t>& getIndices() const;
 	void setIndices(const QVector<uint32_t>& newIndices);
-
-	Topology getTopology() const;
-	void setTopology(Topology newTopology);
 
 	QRhiBuffer::Type getBufferType() const;
 	void setBufferType(QRhiBuffer::Type val);
@@ -40,9 +36,8 @@ private:
 	QVector<Vertex> mVertices;
 	QVector<uint32_t> mIndices;
 	QImage mTexture;
-	QVector4D mDefaultBaseColor;
+	QVector4D mDefaultBaseColor = QVector4D(1.0f, 1.0f, 1.0f, 1.0f);
 	QRhiBuffer::Type mBufferType = QRhiBuffer::Type::Immutable;
-	Topology mTopology;
 };
 
 #endif // QShapeComponent_h__
