@@ -21,8 +21,8 @@ private:
 	QRhiSPtr<QRhiShaderResourceBindings> mMatrixBindings[2];
 	QRhiBufferReadbackResult mNumReader;
 	int mNumOfParticles = 0;
-	int mPreIndex = 0;
-	int mPostIndex = 1;
+	int mInputIndex = 0;
+	int mOutputIndex = 1;
 
 protected:
 	void recreateResource() override;
