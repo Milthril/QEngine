@@ -100,6 +100,7 @@ void QSceneRenderer::onPrimitiveInserted(uint32_t index, std::shared_ptr<QPrimit
 	mProxyMap[primitive->componentId()] = proxy;
 	primitive->bNeedResetProxy = false;
 	proxy->recreateResource();
+	proxy->recreatePipeline();
 	mProxyUploadList << proxy;
 }
 
@@ -153,6 +154,7 @@ void QSceneRenderer::resetPrimitiveProxy(std::shared_ptr<QPrimitiveComponent> co
 	newProxy->mRenderer = this;
 	newProxy->mRhi = this->mRhi;
 	newProxy->recreateResource();
+	newProxy->recreatePipeline();
 	mProxyMap[component->componentId()] = newProxy;
 	mProxyUploadList << newProxy;
 }

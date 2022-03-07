@@ -24,9 +24,16 @@ public:
 
 class QRhiProxy {
 public:
-	virtual void recreateResource() {}
-	virtual void uploadResource(QRhiResourceUpdateBatch* batch) {}
+	enum PipelineUsageFlag {
+		Normal = 1,
+		Instancing = 1 << 1,
+		Debug = 1 << 2,
+	};
+	Q_DECLARE_FLAGS(PipelineUsageFlags, PipelineUsageFlag);
 
+	virtual void recreateResource() {}
+	virtual void recreatePipeline(PipelineUsageFlags flags = PipelineUsageFlag::Normal) {}
+	virtual void uploadResource(QRhiResourceUpdateBatch* batch) {}
 	virtual void updateResource(QRhiResourceUpdateBatch* batch) {}
 	virtual void updatePrePass(QRhiCommandBuffer* cmdBuffer) {}
 	virtual void drawInPass(QRhiCommandBuffer* cmdBuffer, const QRhiViewport& viewport) {}

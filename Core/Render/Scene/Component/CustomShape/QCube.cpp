@@ -3,7 +3,7 @@
 QCube::QCube()
 {
 	setTopology(QPrimitiveComponent::Topology::Triangles);
-
+	setBufferType(QRhiBuffer::Dynamic);
 	QVector4D defaultColor = getDefaultBaseColor();
 
 	QVector<Vertex> getVertices = {

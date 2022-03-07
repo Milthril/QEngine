@@ -1,10 +1,5 @@
 #include "QShapeComponent.h"
 
-const QVector<QPrimitiveComponent::Vertex>& QShapeComponent::getVertices() const
-{
-	return mVertices;
-}
-
 void QShapeComponent::setVertices(const QVector<Vertex>& newVertices)
 {
 	mVertices = newVertices;
@@ -14,11 +9,6 @@ void QShapeComponent::setVertices(const QVector<Vertex>& newVertices)
 	else {
 		bNeedResetProxy = true;
 	}
-}
-
-const QVector<uint32_t>& QShapeComponent::getIndices() const
-{
-	return mIndices;
 }
 
 void QShapeComponent::setIndices(const QVector<uint32_t>& newIndices)

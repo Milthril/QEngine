@@ -1,6 +1,5 @@
 #include "QAdvanceRenderer.h"
 #include "Render\Scene\Component\QShapeComponent.h"
-#include "QtTest\qtestcase.h"
 
 std::shared_ptr<QRhiProxy> QAdvanceRenderer::createShapeProxy(std::shared_ptr<QShapeComponent> shape)
 {
