@@ -86,6 +86,7 @@ void QDefaultProxyParticle::recreatePipeline(PipelineUsageFlags flags /*= Pipeli
 								 0,scale.y,0,0,
 								 0,0,scale.z,0,
 								 0,0,0,1);
+
 	        vec2 X=vec2(sin(rotation.x),cos(rotation.x));
             vec2 Y=vec2(sin(rotation.y),cos(rotation.y));
             vec2 Z=vec2(sin(rotation.z),cos(rotation.z));

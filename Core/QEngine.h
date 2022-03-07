@@ -5,13 +5,15 @@
 #include "Render\Scene\QScene.h"
 #include "Window\QRhiWindow.h"
 
-
 class QEngine :public QApplication
 {
 public:
 	QEngine(int argc, char** argv);
-	void execRealtime();
 	std::shared_ptr<QScene> scene();
+	void execGame();
+protected:
+	virtual void onGameLoop();
+
 private:
 	std::shared_ptr<QRhiWindow> mWindow;
 };

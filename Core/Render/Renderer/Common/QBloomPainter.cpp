@@ -8,7 +8,7 @@ QBloomPainter::QBloomPainter(std::shared_ptr<QRhi> rhi)
 void main() {
 	vec4 color = texture(uTexture, vUV);
 	float value = max(max(color.r,color.g),color.b);
-	outFragColor = step(1.01f,value)*color;
+	outFragColor = (1-step(value,1.0f)) * color;
 }
 )")
 {

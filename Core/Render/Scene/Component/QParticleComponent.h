@@ -2,9 +2,8 @@
 #define QParticleComponent_h__
 
 #include "QPrimitiveComponent.h"
-#include "CustomShape\QCube.h"
 
-class  QParticleComponent :public QPrimitiveComponent {
+class QParticleComponent :public QPrimitiveComponent {
 	Q_OBJECT
 		Q_PROPERTY(QByteArray updater READ getUpdater WRITE setUpdater)
 		Q_PROPERTY(float lifetime READ getLifetime WRITE setLifetime)

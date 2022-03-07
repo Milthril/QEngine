@@ -1,4 +1,5 @@
 #include "QParticleComponent.h"
+#include "CustomShape\QCube.h"
 
 const char* UpdateShaderHeader = R"(
 #version 450

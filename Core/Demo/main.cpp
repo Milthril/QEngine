@@ -1,8 +1,7 @@
 #include <QGuiApplication>
-#include "Window\QRhiWindow.h"
-#include "QEngine.h"
+#include "MyGame.h"
 
 int main(int argc, char** argv) {
-	QEngine app(argc, argv);
-	app.execRealtime();
+	MyGame game(argc, argv);
+	game.execGame();
 }

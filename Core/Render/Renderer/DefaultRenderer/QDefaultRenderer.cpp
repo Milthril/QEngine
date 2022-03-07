@@ -14,6 +14,7 @@ QDefaultRenderer::QDefaultRenderer(std::shared_ptr<QRhi> rhi, int sampleCount, Q
 void QDefaultRenderer::render(QRhiCommandBuffer* cmdBuffer, QRhiRenderTarget* renderTarget)
 {
 	QSize size = renderTarget->pixelSize();
+
 	createOrResizeRenderTarget(size);
 	for (auto& it : mProxyMap) {
 		it->updatePrePass(cmdBuffer);
@@ -28,6 +29,7 @@ void QDefaultRenderer::render(QRhiCommandBuffer* cmdBuffer, QRhiRenderTarget* re
 		proxy->drawInPass(cmdBuffer, viewport);
 	}
 	cmdBuffer->endPass();
+
 	mBloomPainter->drawCommand(cmdBuffer, mRT.colorAttachment, renderTarget);
 }
 

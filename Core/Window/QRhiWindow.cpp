@@ -126,7 +126,7 @@ void QRhiWindow::renderInternal()
 		mRootRenderer->renderInternal(mSwapChain->currentFrameCommandBuffer(), mSwapChain->currentFrameRenderTarget());
 	}
 	mRhi->endFrame(mSwapChain.get());
-	mRhi->finish();
+
 	requestUpdate();
 }
 

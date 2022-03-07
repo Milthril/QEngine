@@ -1,5 +1,6 @@
 ﻿#ifndef QText2D_h__
 #define QText2D_h__
+
 #include "Render/Scene/Component//QShapeComponent.h"
 #include "QFont"
 

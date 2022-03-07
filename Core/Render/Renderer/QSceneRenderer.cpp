@@ -5,6 +5,7 @@
 #include "Render/Scene/Component/QSkeletonMeshComponent.h"
 #include "Render/Scene/Component/QLightComponent.h"
 #include "Render/Scene/Component/QSkyBoxComponent.h"
+#include "Render/Scene/Component/QParticleComponent.h"
 #include "private/qshaderbaker_p.h"
 
 QSceneRenderer::QSceneRenderer(std::shared_ptr<QRhi> rhi, int sampleCount, QRhiSPtr<QRhiRenderPassDescriptor> renderPassDescriptor)
