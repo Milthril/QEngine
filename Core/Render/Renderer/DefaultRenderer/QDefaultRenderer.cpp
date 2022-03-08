@@ -1,7 +1,5 @@
 #include "QDefaultRenderer.h"
 #include "Render\Scene\Component\QShapeComponent.h"
-
-#include "QtTest\qtestcase.h"
 #include "QDefaultProxyShape.h"
 #include "QDefaultProxyParticle.h"
 
