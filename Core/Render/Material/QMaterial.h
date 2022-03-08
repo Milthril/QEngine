@@ -5,23 +5,9 @@
 class QMaterial {
 	friend class QMaterialProxy;
 public:
+	QMaterial();
 	QByteArray getShadingCode() const { return mShadingCode; }
 	void setShadingCode(QByteArray val) { mShadingCode = val; }
-protected:
-	struct QParamDesc {
-		QString name;
-		uint32_t offsetInByte;
-		uint32_t sizeInByte;
-		uint32_t sizeInByteAligned;
-		int typeId;
-		bool needUpdate = false;
-	};
-
-	struct QTextureDesc {
-		QString name;
-		QImage image;
-		bool needUpdate = false;
-	};
 
 	template<typename _Ty>
 	void setParam(const QString& name, const _Ty& data) {
@@ -53,12 +39,29 @@ protected:
 	void addTextureSampler(const QString& name, const QImage& image);
 	void removeTextureSampler(const QString& name);
 protected:
+	struct QParamDesc {
+		QString name;
+		uint32_t offsetInByte;
+		uint32_t sizeInByte;
+		uint32_t sizeInByteAligned;
+		int typeId;
+		bool needUpdate = false;
+	};
+
+	struct QTextureDesc {
+		QString name;
+		QImage image;
+		bool needUpdate = false;
+	};
+
+	static QByteArray typeIdToShaderType(int typeId);
+
 	void addParam(const QString& name, void* data, uint16_t size, int typeId);
 	QVector<QParamDesc>::iterator getParamDesc(const QString& name);
 	QVector<QTextureDesc>::iterator getTextureDesc(const QString& name);
 protected:
 	QVector<QParamDesc> mParams;
-	QVector<uint8_t> mData;
+	QVector<int8_t> mData;
 	QVector<QTextureDesc> mTexture;
 	QByteArray mShadingCode;
 };

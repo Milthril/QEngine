@@ -39,7 +39,6 @@ QParticleComponent::QParticleComponent()
 {
 	setUpdater(UpdateShaderHeader);
 	auto it = std::make_shared<QCube>();
-	it->setDefaultBaseColor(QVector4D(1, 0, 0, 1));
 	mShape = it;
 }
 

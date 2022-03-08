@@ -2,6 +2,7 @@
 #define QDefaultProxyShape_h__
 
 #include "QDefaultRenderer.h"
+#include "Render\Material\QMaterialProxy.h"
 
 class QDefaultProxyShape :public QRhiProxy {
 public:
@@ -9,8 +10,8 @@ public:
 private:
 	std::shared_ptr<QShapeComponent> mShape;
 	QRhiSPtr<QRhiTexture> mTexture;
-	QRhiSPtr<QRhiSampler> mSampler;
 	QRhiSPtr<QRhiShaderResourceBindings> mShaderResourceBindings;
+	std::shared_ptr<QMaterialProxy> mMaterialProxy;
 protected:
 	void recreateResource() override;
 	void recreatePipeline(PipelineUsageFlags flags = PipelineUsageFlag::Normal) override;

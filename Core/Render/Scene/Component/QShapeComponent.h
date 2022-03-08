@@ -5,8 +5,6 @@
 
 class QShapeComponent : public QPrimitiveComponent {
 	Q_OBJECT
-		Q_PROPERTY(QVector4D defaultBaseColor READ getDefaultBaseColor WRITE setDefaultBaseColor)
-		Q_PROPERTY(QImage texture READ getTexture WRITE setTexture)
 public:
 	virtual void setVertices(const QVector<Vertex>& newVertices) override;
 
@@ -15,11 +13,8 @@ public:
 	QRhiBuffer::Type getBufferType() const;
 	void setBufferType(QRhiBuffer::Type val);
 
-	QVector4D getDefaultBaseColor() const;
-	void setDefaultBaseColor(QVector4D val);
-
-	QImage getTexture() const;
-	void setTexture(QImage val);
+	std::shared_ptr<QMaterial> getMaterial() const;
+	void setMaterial(std::shared_ptr<QMaterial> val);
 
 	QSceneComponent::Type type() override {
 		return QSceneComponent::Type::Shape;
@@ -28,9 +23,8 @@ public:
 	uint8_t bNeedUpdateIndex : 1 = 0;
 	uint8_t bNeedUpdateTexture : 1 = 0;
 private:
-	QImage mTexture;
-	QVector4D mDefaultBaseColor = QVector4D(1.0f, 1.0f, 1.0f, 1.0f);
 	QRhiBuffer::Type mBufferType = QRhiBuffer::Type::Immutable;
+	std::shared_ptr<QMaterial> mMaterial;
 };
 
 #endif // QShapeComponent_h__

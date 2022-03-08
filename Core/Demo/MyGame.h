@@ -10,14 +10,17 @@
 #include "Render\Scene\Component\QParticleComponent.h"
 #include "qrandom.h"
 #include <memory>
+#include "Render\Material\QMaterialBaseColor.h"
 
 class MyGame :public QEngine {
 public:
 	MyGame(int argc, char** argv);
-	std::shared_ptr<QCube> cube = std::make_shared<QCube>();
+
+	std::shared_ptr<QCube> cube;
 	std::shared_ptr<QParticleComponent> particles = std::make_shared<QParticleComponent>();
 	std::shared_ptr<QSphere> sphere = std::make_shared<QSphere>();
 	std::shared_ptr<QText2D> text = std::make_shared<QText2D>("default");
+	std::shared_ptr<QMaterial> material;
 	QRandomGenerator rand;
 protected:
 	void onGameLoop() override;

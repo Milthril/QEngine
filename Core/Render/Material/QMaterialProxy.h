@@ -15,8 +15,7 @@ public:
 	};
 	QMaterialProxy(QMaterial* material, std::shared_ptr<QRhi> rhi);
 	void recreateResource();
-	void uploadResource();
-	void updateResource();
+	void updateResource(QRhiResourceUpdateBatch* batch);
 	MaterialShaderInfo getMaterialShaderInfo(uint8_t bindingOffset = 0);
 protected:
 	QMaterial* mMaterial;

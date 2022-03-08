@@ -2,6 +2,7 @@
 #define QPrimitiveComponent_h__
 
 #include "Render/Scene/QSceneComponent.h"
+#include "Render/Material/QMaterial.h"
 
 class QPrimitiveComponent :public QSceneComponent {
 	Q_OBJECT
@@ -15,7 +16,6 @@ public:
 		QVector3D tangent;
 		QVector3D bitangent;
 		QVector2D texCoord;
-		QVector4D baseColor;
 	};
 	using Index = uint32_t;
 	using Topology = QRhiGraphicsPipeline::Topology;
@@ -28,6 +28,7 @@ public:
 
 	const QVector<Index>& getIndices() const;
 	virtual void setIndices(const QVector<Index>& newIndices);
+
 	void autoFillIndices();
 	uint32_t getIndexedCount();
 

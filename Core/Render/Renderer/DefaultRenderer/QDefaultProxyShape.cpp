@@ -21,9 +21,8 @@ void QDefaultProxyShape::recreateResource()
 	mIndexBuffer.reset(mRhi->newBuffer(mShape->getBufferType(), QRhiBuffer::IndexBuffer, sizeof(QPrimitiveComponent::Index) * mShape->getIndices().size()));
 	Q_ASSERT(mIndexBuffer->create());
 
-	mSampler.reset(mRhi->newSampler(QRhiSampler::Linear, QRhiSampler::Linear, QRhiSampler::None,
-				   QRhiSampler::ClampToEdge, QRhiSampler::ClampToEdge));
-	mSampler->create();
+	mMaterialProxy.reset(new QMaterialProxy(mShape->getMaterial().get(), mRhi));
+	mMaterialProxy->recreateResource();
 }
 
 void QDefaultProxyShape::recreatePipeline(PipelineUsageFlags flags /*= PipelineUsageFlag::Normal*/)
@@ -37,38 +36,6 @@ void QDefaultProxyShape::recreatePipeline(PipelineUsageFlags flags /*= PipelineU
 	mPipeline->setDepthWrite(true);
 	mPipeline->setSampleCount(mRenderer->getSampleCount());
 
-	QString vertexShaderCode = R"(#version 440
-	layout(location = 0) in vec3 position;
-	layout(location = 1) in vec3 normal;
-	layout(location = 2) in vec3 tangent;
-	layout(location = 3) in vec3 bitangent;
-	layout(location = 4) in vec2 texCoord;
-	layout(location = 5) in vec4 baseColor;
-	%1
-	layout(location = 0) out vec4 vBaseColor;
-
-	out gl_PerVertex{
-		vec4 gl_Position;
-	};
-
-	layout(std140,binding = 0) uniform buf{
-		mat4 mvp;
-	}ubuf;
-
-	void main(){
-		vBaseColor = baseColor;
-		gl_Position = ubuf.mvp * %2 vec4(position,1.0f);
-	}
-	)";
-
-	QString fragShaderCode = R"(#version 440
-	layout(location = 0) in vec4 vBaseColor;
-	layout(location = 0) out vec4 fragColor;
-	void main(){
-	    fragColor = vBaseColor;
-	}
-	)";
-
 	QVector<QRhiVertexInputBinding> inputBindings;
 	inputBindings << QRhiVertexInputBinding{ sizeof(QPrimitiveComponent::Vertex) };
 
@@ -79,15 +46,35 @@ void QDefaultProxyShape::recreatePipeline(PipelineUsageFlags flags /*= PipelineU
 	attributeList << QRhiVertexInputAttribute{ 0, 2, QRhiVertexInputAttribute::Float3, offsetof(QPrimitiveComponent::Vertex,tangent) };
 	attributeList << QRhiVertexInputAttribute{ 0, 3, QRhiVertexInputAttribute::Float3, offsetof(QPrimitiveComponent::Vertex,bitangent) };
 	attributeList << QRhiVertexInputAttribute{ 0, 4, QRhiVertexInputAttribute::Float3, offsetof(QPrimitiveComponent::Vertex,texCoord) };
-	attributeList << QRhiVertexInputAttribute{ 0, 5, QRhiVertexInputAttribute::Float3, offsetof(QPrimitiveComponent::Vertex,baseColor) };
+
+	QString vertexShaderCode = R"(#version 440
+	layout(location = 0) in vec3 position;
+	layout(location = 1) in vec3 normal;
+	layout(location = 2) in vec3 tangent;
+	layout(location = 3) in vec3 bitangent;
+	layout(location = 4) in vec2 texCoord;
+	%1
+
+	out gl_PerVertex{
+		vec4 gl_Position;
+	};
+
+	layout(std140,binding = 0) uniform buf{
+		mat4 mvp;
+	}ubuf;
+
+	void main(){
+		gl_Position = ubuf.mvp * %2 vec4(position,1.0f);
+	}
+	)";
 
 	if (flags.testFlag(QRhiProxy::Instancing)) {
 		inputBindings << QRhiVertexInputBinding{ sizeof(float) * 16 ,QRhiVertexInputBinding::PerInstance };
-		attributeList << QRhiVertexInputAttribute{ 1, 6, QRhiVertexInputAttribute::Float4, 0,0 };
-		attributeList << QRhiVertexInputAttribute{ 1, 7, QRhiVertexInputAttribute::Float4, 4 * sizeof(float),1 };
-		attributeList << QRhiVertexInputAttribute{ 1, 8, QRhiVertexInputAttribute::Float4, 8 * sizeof(float),2 };
-		attributeList << QRhiVertexInputAttribute{ 1, 9, QRhiVertexInputAttribute::Float4, 12 * sizeof(float),3 };
-		vertexShaderCode = vertexShaderCode.arg("layout(location = 6) in mat4 insMat;")
+		attributeList << QRhiVertexInputAttribute{ 1, 5, QRhiVertexInputAttribute::Float4, 0,0 };
+		attributeList << QRhiVertexInputAttribute{ 1, 6, QRhiVertexInputAttribute::Float4, 4 * sizeof(float),1 };
+		attributeList << QRhiVertexInputAttribute{ 1, 7, QRhiVertexInputAttribute::Float4, 8 * sizeof(float),2 };
+		attributeList << QRhiVertexInputAttribute{ 1, 8, QRhiVertexInputAttribute::Float4, 12 * sizeof(float),3 };
+		vertexShaderCode = vertexShaderCode.arg("layout(location = 5) in mat4 insMat;")
 			.arg("insMat*");
 	}
 	else {
@@ -101,8 +88,16 @@ void QDefaultProxyShape::recreatePipeline(PipelineUsageFlags flags /*= PipelineU
 	mPipeline->setVertexInputLayout(inputLayout);
 
 	QShader vs = QSceneRenderer::createShaderFromCode(QShader::Stage::VertexStage, vertexShaderCode.toLocal8Bit());
-	QShader fs = QSceneRenderer::createShaderFromCode(QShader::Stage::FragmentStage, fragShaderCode.toLocal8Bit());
 
+	const QMaterialProxy::MaterialShaderInfo& materialInfo = mMaterialProxy->getMaterialShaderInfo(1);;
+	QString fragShaderCode = QString(R"(#version 440
+	layout(location = 0) out vec4 FragColor;
+	%1
+	void main(){
+	    %2
+	}
+	)").arg(materialInfo.uniformCode, materialInfo.shadingCode);
+	QShader fs = QSceneRenderer::createShaderFromCode(QShader::Stage::FragmentStage, fragShaderCode.toLocal8Bit());
 	Q_ASSERT(fs.isValid());
 
 	mPipeline->setShaderStages({
@@ -111,10 +106,14 @@ void QDefaultProxyShape::recreatePipeline(PipelineUsageFlags flags /*= PipelineU
 	});
 
 	mShaderResourceBindings.reset(mRhi->newShaderResourceBindings());
-	mShaderResourceBindings->setBindings({
-		QRhiShaderResourceBinding::uniformBuffer(0,QRhiShaderResourceBinding::VertexStage,mUniformBuffer.get())
-	});
+
+	QVector<QRhiShaderResourceBinding> shaderBindings;
+	shaderBindings << QRhiShaderResourceBinding::uniformBuffer(0, QRhiShaderResourceBinding::VertexStage, mUniformBuffer.get());
+	shaderBindings << materialInfo.bindings;
+	mShaderResourceBindings->setBindings(shaderBindings.begin(), shaderBindings.end());
+
 	mShaderResourceBindings->create();
+
 	mPipeline->setShaderResourceBindings(mShaderResourceBindings.get());
 
 	mPipeline->setRenderPassDescriptor(mRenderer->getRenderPassDescriptor().get());
@@ -150,7 +149,7 @@ void QDefaultProxyShape::updateResource(QRhiResourceUpdateBatch* batch) {
 		else
 			batch->uploadStaticBuffer(mIndexBuffer.get(), mShape->getVertices().constData());
 	}
-
+	mMaterialProxy->updateResource(batch);
 	//if (mShape->bNeedUpdateTexture) {
 	//	mShape->bNeedUpdateTexture = false;
 	//	QImage image = std::move(mShape->getTexture());

@@ -117,7 +117,6 @@ void QText2D::recreateVertexData()
 			for (auto& point : polygon) {
 				QText2D::Vertex vertex;
 				vertex.position = QVector3D(point.x(), point.y(), 0);
-				vertex.baseColor = getDefaultBaseColor();
 				vertices.push_back(vertex);
 			}
 		}

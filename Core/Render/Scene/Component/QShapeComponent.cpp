@@ -32,40 +32,12 @@ void QShapeComponent::setBufferType(QRhiBuffer::Type val)
 	mBufferType = val;
 }
 
-QVector4D QShapeComponent::getDefaultBaseColor() const
+std::shared_ptr<QMaterial> QShapeComponent::getMaterial() const
 {
-	return mDefaultBaseColor;
+	return mMaterial;
 }
 
-void QShapeComponent::setDefaultBaseColor(QVector4D val)
+void QShapeComponent::setMaterial(std::shared_ptr<QMaterial> val)
 {
-	if (mDefaultBaseColor == val)
-		return;
-	mDefaultBaseColor = val;
-	for (auto& vertex : mVertices) {
-		vertex.baseColor = val;
-	}
-	if (mTexture.isNull()) {
-		bNeedUpdateVertex = true;
-	}
-	else {
-		mTexture = {};
-		bNeedResetProxy = true;
-	}
-}
-
-QImage QShapeComponent::getTexture() const
-{
-	return mTexture;
-}
-
-void QShapeComponent::setTexture(QImage val)
-{
-	if (!mTexture.isNull()) {
-		bNeedResetProxy = true;
-	}
-	else {
-		bNeedUpdateTexture = true;
-	}
-	mTexture = val;
+	mMaterial = val;
 }

@@ -6,7 +6,6 @@
 class QMaterialBaseColor :public QMaterial {
 public:
 	QMaterialBaseColor();
-private:
 	QVector4D getColor();
 	void setColor(QVector4D color);
 };

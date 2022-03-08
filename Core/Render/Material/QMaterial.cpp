@@ -1,5 +1,10 @@
 #include "QMaterial.h"
 
+QMaterial::QMaterial()
+{
+	mShadingCode = "FragColor = vec4(1);";
+}
+
 void QMaterial::addParamFloat(const QString& name, float var)
 {
 	addParam(name, static_cast<void*>(&var), sizeof(float), QMetaTypeId2<float>::qt_metatype_id());
@@ -51,6 +56,26 @@ void QMaterial::removeTextureSampler(const QString& name)
 {
 }
 
+QByteArray QMaterial::typeIdToShaderType(int typeId)
+{
+	switch (typeId)
+	{
+	case QMetaTypeId2<float>::qt_metatype_id():
+		return "float";
+	case QMetaTypeId2<QVector2D>::qt_metatype_id():
+		return "vec2";
+	case QMetaTypeId2<QVector3D>::qt_metatype_id():
+		return "vec3";
+	case QMetaTypeId2<QVector4D>::qt_metatype_id():
+		return "vec4";
+	case QMetaTypeId2<QMatrix4x4>::qt_metatype_id():
+		return "mat4";
+	default:
+		Q_ASSERT(false);
+		break;
+	}
+}
+
 void QMaterial::addParam(const QString& name, void* data, uint16_t size, int typeId)
 {
 	QParamDesc paramDesc;
@@ -60,8 +85,9 @@ void QMaterial::addParam(const QString& name, void* data, uint16_t size, int typ
 	paramDesc.sizeInByte = size;
 	paramDesc.sizeInByteAligned = (size + 15) & ~(15);	//Ê®Áù×Ö½Ú¶ÔÆë
 	paramDesc.needUpdate = true;
-	mData.resize(mData.size() + size);
+	mData.resize(mData.size() + paramDesc.sizeInByteAligned);
 	memcpy(mData.data() + paramDesc.offsetInByte, data, size);
+	mParams << paramDesc;
 }
 
 QVector<QMaterial::QParamDesc>::iterator QMaterial::getParamDesc(const QString& name)
