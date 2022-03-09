@@ -30,6 +30,7 @@ void QDefaultProxyShape::recreatePipeline(PipelineUsageFlags flags /*= PipelineU
 	mPipeline.reset(mRhi->newGraphicsPipeline());
 	QRhiGraphicsPipeline::TargetBlend blendState;
 	blendState.enable = true;
+	blendState.dstColor = QRhiGraphicsPipeline::OneMinusSrc1Alpha;
 	mPipeline->setTargetBlends({ blendState });
 	mPipeline->setTopology(mShape->getTopology());
 	mPipeline->setDepthTest(true);
@@ -166,13 +167,6 @@ void QDefaultProxyShape::updateResource(QRhiResourceUpdateBatch* batch) {
 	//		mShaderResourceBinding->create();
 	//	}
 	//}
-	if (mShape->getTexture().isNull() && mTexture) {
-		mShaderResourceBindings->setBindings({
-			QRhiShaderResourceBinding::uniformBuffer(0,QRhiShaderResourceBinding::VertexStage,mUniformBuffer.get()),
-		});
-		mShaderResourceBindings->create();
-		mTexture.reset(nullptr);
-	}
 
 	QMatrix4x4 MVP = mRenderer->getVP() * mShape->calculateModelMatrix();
 	batch->updateDynamicBuffer(mUniformBuffer.get(), 0, sizeof(QMatrix4x4), MVP.constData());

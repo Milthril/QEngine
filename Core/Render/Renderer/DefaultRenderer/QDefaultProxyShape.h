@@ -9,7 +9,6 @@ public:
 	QDefaultProxyShape(std::shared_ptr<QShapeComponent> shape);
 private:
 	std::shared_ptr<QShapeComponent> mShape;
-	QRhiSPtr<QRhiTexture> mTexture;
 	QRhiSPtr<QRhiShaderResourceBindings> mShaderResourceBindings;
 	std::shared_ptr<QMaterialProxy> mMaterialProxy;
 protected:
