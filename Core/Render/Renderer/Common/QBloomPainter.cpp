@@ -12,15 +12,15 @@ void main() {
 }
 )")
 {
-	setBloomSize(20);
+	setBloomSize(10);
 }
 
 void QBloomPainter::drawCommand(QRhiCommandBuffer* cmdBuffer, QRhiSPtr<QRhiTexture> inputTexture, QRhiRenderTarget* outputTarget) {
-	createOrResize(outputTarget->pixelSize());
+	QSize rSize = outputTarget->pixelSize() / 2;
+	createOrResize(rSize);
 	if (!mPipelineH) {
 		initRhiResource();
 	}
-
 	mPixelSelector.drawCommand(cmdBuffer, inputTexture, mBloomRT[0].renderTarget.get());
 	if (bNeedUpdateBloomState) {
 		QRhiResourceUpdateBatch* copyBatch = mRhi->nextResourceUpdateBatch();

@@ -11,10 +11,14 @@ public:
 	QSceneComponent::Type type() override { return QSceneComponent::SkyBox; }
 public:
 	QSkyBoxComponent(QImage texture = QImage());
-	QImage getSkyBoxImage()const;
+	const QImage& getSkyBoxImage()const;
 	void setSkyBoxImage(QImage val);
+	QSize getImageSize() const;
+	QSize getCubeFaceSize() const;
+	std::array<QImage, 6> getSubImageArray();
 private:
 	QImage mSkyBoxImage;
+	QSize mCubeFaceSize;
 };
 
 #endif // QSkyBoxComponent_h__

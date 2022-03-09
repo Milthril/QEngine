@@ -20,7 +20,7 @@ public:
 		mCamera = std::make_shared<QCameraComponent>();
 		mCamera->setupWindow(mWindow.get());
 		mSkyBox = std::make_shared<QSkyBoxComponent>();
-		mSkyBox->setSkyBoxImage(QImage(R"(D:\Qt\6.2.3\Src\qtbase\tests\manual\rhi\cubemap\c.png)"));
+		mSkyBox->setSkyBoxImage(QImage(R"(C:\Users\fuxinghao879\Desktop\QEngine\Core\Demo\sky.jpeg)"));
 		particles = std::make_shared<QParticleComponent>();
 		//scene()->addPrimitive(cube);
 		scene()->setCamera(mCamera);

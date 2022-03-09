@@ -54,8 +54,7 @@ QDefaultProxySkyBox::QDefaultProxySkyBox(std::shared_ptr<QSkyBoxComponent> skybo
 
 void QDefaultProxySkyBox::recreateResource()
 {
-	const QImage& image = mSkyBox->getSkyBoxImage();
-	mTexture.reset(mRhi->newTexture(QRhiTexture::RGBA8, image.size(), 1,
+	mTexture.reset(mRhi->newTexture(QRhiTexture::RGBA8, mSkyBox->getCubeFaceSize(), 1,
 				   QRhiTexture::CubeMap
 				   | QRhiTexture::MipMapped
 				   | QRhiTexture::UsedWithGenerateMips));
@@ -153,15 +152,21 @@ void QDefaultProxySkyBox::recreatePipeline(PipelineUsageFlags flags /*= Pipeline
 void QDefaultProxySkyBox::uploadResource(QRhiResourceUpdateBatch* batch)
 {
 	batch->uploadStaticBuffer(mVertexBuffer.get(), cubeData);
-	const QImage& image = mSkyBox->getSkyBoxImage();
-	QRhiTextureSubresourceUploadDescription subresDesc(image);
+
+	QRhiTextureSubresourceUploadDescription subresDesc[6];
+	auto imageArray = mSkyBox->getSubImageArray();
+
+	for (int i = 0; i < 6; i++) {
+		subresDesc[i].setImage(imageArray[i]);
+	}
+
 	QRhiTextureUploadDescription desc({
-										  { 0, 0, subresDesc },  // +X
-										  { 1, 0, subresDesc },  // -X
-										  { 2, 0, subresDesc },  // +Y
-										  { 3, 0, subresDesc },  // -Y
-										  { 4, 0, subresDesc },  // +Z
-										  { 5, 0, subresDesc }   // -Z
+										  { 0, 0, subresDesc[0] },  // +X
+										  { 1, 0, subresDesc[1] },  // -X
+										  { 2, 0, subresDesc[2] },  // +Y
+										  { 3, 0, subresDesc[3] },  // -Y
+										  { 4, 0, subresDesc[4] },  // +Z
+										  { 5, 0, subresDesc[5] }   // -Z
 									  });
 	batch->uploadTexture(mTexture.get(), desc);
 	batch->generateMips(mTexture.get());

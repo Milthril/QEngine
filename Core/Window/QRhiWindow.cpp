@@ -133,7 +133,6 @@ void QRhiWindow::renderInternal()
 		mTimer.restart();
 		mFrameCount = 0;
 	}
-	requestUpdate();
 }
 
 void QRhiWindow::resizeSwapChain()
