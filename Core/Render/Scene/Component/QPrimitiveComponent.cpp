@@ -29,6 +29,11 @@ void QPrimitiveComponent::autoFillIndices()
 	setIndices(indices);
 }
 
+uint32_t QPrimitiveComponent::getVertexCount()
+{
+	return mVertices.size();
+}
+
 uint32_t QPrimitiveComponent::getIndexedCount()
 {
 	return mIndices.size();

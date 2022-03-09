@@ -14,7 +14,7 @@ public:
 protected:
 	virtual void onGameLoop();
 
-private:
+protected:
 	std::shared_ptr<QRhiWindow> mWindow;
 };
 

@@ -2,6 +2,7 @@
 #define QShapeComponent_h__
 
 #include "QPrimitiveComponent.h"
+#include "Render\Material\QMaterialBaseColor.h"
 
 class QShapeComponent : public QPrimitiveComponent {
 	Q_OBJECT
@@ -24,7 +25,7 @@ public:
 	uint8_t bNeedUpdateTexture : 1 = 0;
 private:
 	QRhiBuffer::Type mBufferType = QRhiBuffer::Type::Immutable;
-	std::shared_ptr<QMaterial> mMaterial;
+	std::shared_ptr<QMaterial> mMaterial = std::make_shared<QMaterialBaseColor>();
 };
 
 #endif // QShapeComponent_h__

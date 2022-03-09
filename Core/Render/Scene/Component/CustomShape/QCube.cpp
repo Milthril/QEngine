@@ -3,7 +3,7 @@
 QCube::QCube()
 {
 	setTopology(QPrimitiveComponent::Topology::Triangles);
-	setBufferType(QRhiBuffer::Dynamic);
+	setBufferType(QRhiBuffer::Static);
 
 	QVector<Vertex> getVertices = {
 		//position					normal		tangent		bitangent   texCoord			baseColor

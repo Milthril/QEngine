@@ -3,23 +3,13 @@
 void QShapeComponent::setVertices(const QVector<Vertex>& newVertices)
 {
 	mVertices = newVertices;
-	if (mBufferType == QRhiBuffer::Dynamic) {
-		bNeedUpdateVertex = true;
-	}
-	else {
-		bNeedResetProxy = true;
-	}
+	bNeedUpdateVertex = true;
 }
 
 void QShapeComponent::setIndices(const QVector<uint32_t>& newIndices)
 {
 	mIndices = newIndices;
-	if (mBufferType == QRhiBuffer::Dynamic) {
-		bNeedUpdateIndex = true;
-	}
-	else {
-		bNeedResetProxy = true;
-	}
+	bNeedUpdateIndex = true;
 }
 
 QRhiBuffer::Type QShapeComponent::getBufferType() const

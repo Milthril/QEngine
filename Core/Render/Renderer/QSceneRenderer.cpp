@@ -6,6 +6,7 @@
 #include "Render/Scene/Component/QLightComponent.h"
 #include "Render/Scene/Component/QSkyBoxComponent.h"
 #include "Render/Scene/Component/QParticleComponent.h"
+#include "Render/Scene/Component/Camera/QCameraComponent.h"
 #include "private/qshaderbaker_p.h"
 
 QSceneRenderer::QSceneRenderer(std::shared_ptr<QRhi> rhi, int sampleCount, QRhiSPtr<QRhiRenderPassDescriptor> renderPassDescriptor)
@@ -13,7 +14,6 @@ QSceneRenderer::QSceneRenderer(std::shared_ptr<QRhi> rhi, int sampleCount, QRhiS
 	, mSampleCount(sampleCount)
 	, mRootRenderPassDescriptor(renderPassDescriptor)
 {
-	mClipMatrix = mRhi->clipSpaceCorrMatrix();
 }
 
 void QSceneRenderer::setScene(std::shared_ptr<QScene> scene)
@@ -30,51 +30,52 @@ void QSceneRenderer::setScene(std::shared_ptr<QScene> scene)
 void QSceneRenderer::setRenderTargetSize(QSize size)
 {
 	mRTSize = size;
-	QMatrix4x4 ClipMatrix = mRhi->clipSpaceCorrMatrix();
-	ClipMatrix.perspective(45, size.width() / (float)size.height(), 0.01f, 1000.0f);
-	setClipMatrix(ClipMatrix);
 }
 
 void QSceneRenderer::renderInternal(QRhiCommandBuffer* buffer, QRhiRenderTarget* renderTarget)
 {
 	QRhiResourceUpdateBatch* batch = mRhi->nextResourceUpdateBatch();
-	for (auto& it : mProxyUploadList) {
+
+	tryResetSkyBox(batch);
+
+	for (auto& it : mProxyUploadList)
 		it->uploadResource(batch);
-	}
 	mProxyUploadList.clear();
+
 	buffer->resourceUpdate(batch);
-	for (auto& id : mProxyMap.keys()) {
-		auto& proxy = mProxyMap[id];
+	for (auto& id : mPrimitiveProxyMap.keys()) {
+		auto& proxy = mPrimitiveProxyMap[id];
 		if (proxy->mComponent->bNeedResetProxy) {
 			resetPrimitiveProxy(std::dynamic_pointer_cast<QPrimitiveComponent>(proxy->mComponent));
 		}
 	}
+
 	render(buffer, renderTarget);
 }
 
 QMatrix4x4 QSceneRenderer::getViewMatrix()
 {
 	if (mScene->mCamera) {
-		return QMatrix4x4();
+		return mScene->mCamera->getMatrixView();
 	}
 	QMatrix4x4 matrix;
-	matrix.lookAt(QVector3D(0, 0, 5), QVector3D(0, 0, 0), QVector3D(0, 1, 0));
 	return matrix;
 }
 
 QMatrix4x4 QSceneRenderer::getClipMatrix() const
 {
-	return mClipMatrix;
+	if (mScene->mCamera); {
+		return mScene->mCamera->getMatrixClip();
+	}
+	return QMatrix4x4();
 }
 
 QMatrix4x4 QSceneRenderer::getVP()
 {
-	return getClipMatrix() * getViewMatrix();
-}
-
-void QSceneRenderer::setClipMatrix(QMatrix4x4 val)
-{
-	mClipMatrix = val;
+	if (mScene->mCamera); {
+		return mScene->mCamera->getMatrixVP();
+	}
+	return QMatrix4x4();
 }
 
 QShader QSceneRenderer::createShaderFromCode(QShader::Stage stage, const char* code)
@@ -98,7 +99,7 @@ QShader QSceneRenderer::createShaderFromCode(QShader::Stage stage, const char* c
 void QSceneRenderer::onPrimitiveInserted(uint32_t index, std::shared_ptr<QPrimitiveComponent> primitive)
 {
 	std::shared_ptr<QRhiProxy> proxy = createPrimitiveProxy(primitive);
-	mProxyMap[primitive->componentId()] = proxy;
+	mPrimitiveProxyMap[primitive->componentId()] = proxy;
 	primitive->bNeedResetProxy = false;
 	proxy->recreateResource();
 	proxy->recreatePipeline();
@@ -107,11 +108,29 @@ void QSceneRenderer::onPrimitiveInserted(uint32_t index, std::shared_ptr<QPrimit
 
 void QSceneRenderer::onPrimitiveRemoved(std::shared_ptr<QPrimitiveComponent> primitive)
 {
-	mProxyMap.remove(primitive->componentId());
+	mPrimitiveProxyMap.remove(primitive->componentId());
 }
 
 void QSceneRenderer::onLightChanged()
 {
+}
+
+void QSceneRenderer::onSkyBoxChanged()
+{
+	mSkyBoxProxy.reset();
+}
+
+void QSceneRenderer::tryResetSkyBox(QRhiResourceUpdateBatch* batch)
+{
+	if (!mSkyBoxProxy && mScene->getSkyBox()) {
+		mSkyBoxProxy = createSkyBoxProxy(mScene->getSkyBox());
+		mSkyBoxProxy->mRhi = mRhi;
+		mSkyBoxProxy->mRenderer = this;
+		mSkyBoxProxy->mComponent = mScene->getSkyBox();
+		mSkyBoxProxy->recreateResource();
+		mSkyBoxProxy->recreatePipeline();
+		mSkyBoxProxy->uploadResource(batch);
+	}
 }
 
 std::shared_ptr<QRhiProxy> QSceneRenderer::createPrimitiveProxy(std::shared_ptr<QPrimitiveComponent> component)
@@ -138,14 +157,11 @@ std::shared_ptr<QRhiProxy> QSceneRenderer::createPrimitiveProxy(std::shared_ptr<
 	case QSceneComponent::Particle:
 		proxy = createParticleProxy(std::dynamic_pointer_cast<QParticleComponent>(component));
 		break;
-	case QSceneComponent::SkyBox:
-		proxy = createSkyBoxProxy(std::dynamic_pointer_cast<QSkyBoxComponent>(component));
-		break;
 	}
 	proxy->mRhi = mRhi;
 	proxy->mRenderer = this;
 	proxy->mComponent = component;
-	return proxy;
+	return std::dynamic_pointer_cast<QRhiProxy>(proxy);
 }
 
 void QSceneRenderer::resetPrimitiveProxy(std::shared_ptr<QPrimitiveComponent> component)
@@ -156,6 +172,6 @@ void QSceneRenderer::resetPrimitiveProxy(std::shared_ptr<QPrimitiveComponent> co
 	newProxy->mRhi = this->mRhi;
 	newProxy->recreateResource();
 	newProxy->recreatePipeline();
-	mProxyMap[component->componentId()] = newProxy;
+	mPrimitiveProxyMap[component->componentId()] = newProxy;
 	mProxyUploadList << newProxy;
 }

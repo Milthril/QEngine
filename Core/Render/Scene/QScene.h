@@ -35,6 +35,7 @@ private:
 
 Q_SIGNALS:
 	void lightChanged();
+	void skyBoxChanged();
 	void primitiveInserted(int index, std::shared_ptr<QPrimitiveComponent>);
 	void primitiveRemoved(std::shared_ptr<QPrimitiveComponent>);
 };

@@ -182,5 +182,5 @@ void QDefaultProxyParticle::drawInPass(QRhiCommandBuffer* cmdBuffer, const QRhiV
 		{mMatrixBuffer.get(),0}
 	};
 	cmdBuffer->setVertexInput(0, 2, VertexInputs, mShapeProxy->mIndexBuffer.get(), 0, QRhiCommandBuffer::IndexUInt32);
-	cmdBuffer->drawIndexed(mShapeProxy->mComponent->getIndexedCount(), mNumOfParticles);
+	cmdBuffer->drawIndexed(mIndexBuffer->size() / sizeof(QPrimitiveComponent::Index), mNumOfParticles);
 }

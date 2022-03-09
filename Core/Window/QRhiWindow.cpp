@@ -127,19 +127,23 @@ void QRhiWindow::renderInternal()
 	}
 	mRhi->endFrame(mSwapChain.get());
 
+	mFrameCount += 1;
+	if (mTimer.elapsed() > 1000) {
+		qDebug("ca. %d fps", mFrameCount);
+		mTimer.restart();
+		mFrameCount = 0;
+	}
 	requestUpdate();
 }
 
 void QRhiWindow::resizeSwapChain()
 {
-	if (mHasSwapChain) {
-		mRhi->finish();
-	}
-
 	mHasSwapChain = mSwapChain->createOrResize();
 	if (mRootRenderer) {
 		mRootRenderer->setRenderTargetSize(mSwapChain->currentPixelSize());
 	}
+	mFrameCount = 0;
+	mTimer.restart();
 }
 
 void QRhiWindow::exposeEvent(QExposeEvent*)

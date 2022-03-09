@@ -1,4 +1,4 @@
-#ifndef QSceneRenderer_h__
+﻿#ifndef QSceneRenderer_h__
 #define QSceneRenderer_h__
 
 #include "Render/Scene/QScene.h"
@@ -11,8 +11,8 @@ class QSkeletonMeshComponent;
 class QParticleComponent;
 class QSkyBoxComponent;
 class QSceneRenderer;
-template<typename _Ty>
 
+template<typename _Ty>
 class QRhiSPtr :public std::shared_ptr<_Ty> {
 public:
 	void reset(_Ty* res) noexcept {
@@ -40,9 +40,8 @@ public:
 public:
 	QSceneRenderer* mRenderer;
 	std::shared_ptr<QRhi> mRhi;
-	std::shared_ptr<QPrimitiveComponent> mComponent;
+	std::shared_ptr<QSceneComponent> mComponent;
 	QRhiSPtr<QRhiGraphicsPipeline> mPipeline;
-
 	QRhiSPtr<QRhiBuffer> mUniformBuffer;
 	QRhiSPtr<QRhiBuffer> mVertexBuffer;
 	QRhiSPtr<QRhiBuffer> mIndexBuffer;
@@ -64,7 +63,6 @@ public:
 	QMatrix4x4 getViewMatrix();
 	QMatrix4x4 getClipMatrix() const;
 	QMatrix4x4 getVP();
-	void setClipMatrix(QMatrix4x4 val);
 	int getSampleCount() const { return mSampleCount; }
 
 	std::shared_ptr<QRhiProxy> createPrimitiveProxy(std::shared_ptr<QPrimitiveComponent> component);
@@ -73,7 +71,9 @@ private:
 	void onPrimitiveInserted(uint32_t index, std::shared_ptr<QPrimitiveComponent> primitive);
 	void onPrimitiveRemoved(std::shared_ptr<QPrimitiveComponent> primitive);
 	void onLightChanged();
+	void onSkyBoxChanged();
 
+	void tryResetSkyBox(QRhiResourceUpdateBatch* batch);
 	void resetPrimitiveProxy(std::shared_ptr<QPrimitiveComponent> component);
 	virtual std::shared_ptr<QRhiProxy> createShapeProxy(std::shared_ptr<QShapeComponent>) = 0;
 	virtual std::shared_ptr<QRhiProxy> createStaticMeshProxy(std::shared_ptr<QStaticMeshComponent>) = 0;
@@ -84,9 +84,12 @@ protected:
 	std::shared_ptr<QRhi> mRhi;
 	std::shared_ptr<QScene> mScene;
 	QRhiSPtr<QRhiRenderPassDescriptor> mRootRenderPassDescriptor;
-	QHash<QSceneComponent::ComponentId, std::shared_ptr<QRhiProxy>> mProxyMap;
+
+	QHash<QSceneComponent::ComponentId, std::shared_ptr<QRhiProxy>> mPrimitiveProxyMap;	//图元组件代理
+
 	QList<std::shared_ptr<QRhiProxy>> mProxyUploadList;
-	QMatrix4x4 mClipMatrix;
+	std::shared_ptr<QRhiProxy> mSkyBoxProxy;
+
 	QSize mRTSize;
 	int mSampleCount;
 };

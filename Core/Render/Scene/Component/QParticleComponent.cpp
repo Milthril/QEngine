@@ -1,4 +1,4 @@
-#include "QParticleComponent.h"
+ï»¿#include "QParticleComponent.h"
 #include "CustomShape\QCube.h"
 
 const char* UpdateShaderHeader = R"(
@@ -26,7 +26,7 @@ layout(std140,binding = 1) buffer OutputParticle{
 };
 
 void main(){
-    const uint index = gl_GlobalInvocationID.x ;								//¸ù¾İ¹¤×÷µ¥ÔªµÄÎ»ÖÃ»»Ëã³öÄÚ´æÉÏµÄË÷Òı
+    const uint index = gl_GlobalInvocationID.x ;								//æ ¹æ®å·¥ä½œå•å…ƒçš„ä½ç½®æ¢ç®—å‡ºå†…å­˜ä¸Šçš„ç´¢å¼•
     outputParticles[index].life = intputParticles[index].life + 0.01;
     outputParticles[index].position = intputParticles[index].position + intputParticles[index].velocity;
     outputParticles[index].velocity = intputParticles[index].velocity ;

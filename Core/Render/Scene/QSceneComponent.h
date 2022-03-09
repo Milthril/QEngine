@@ -7,14 +7,13 @@
 
 class QSceneComponent :public QObject {
 	Q_OBJECT
-		Q_PROPERTY(QVector3D position READ position WRITE setPosition)
-		Q_PROPERTY(QVector3D getRotation READ getRotation WRITE setRotation)
-		Q_PROPERTY(QVector3D getScale READ getScale WRITE setScale)
+		Q_PROPERTY(QVector3D Position READ getPosition WRITE setPosition)
+		Q_PROPERTY(QVector3D Rotation READ getRotation WRITE setRotation)
+		Q_PROPERTY(QVector3D Scale READ getScale WRITE setScale)
 public:
 	QSceneComponent() {
 		mId = IdCounter++;
 	}
-
 	using ComponentId = uint32_t;
 	QSceneComponent::ComponentId componentId() const { return mId; }
 
@@ -35,7 +34,7 @@ public:
 
 	QMatrix4x4 calculateModelMatrix();
 
-	const QVector3D& position() const;
+	const QVector3D& getPosition() const;
 	virtual void setPosition(const QVector3D& newPosition);
 	const QVector3D& getRotation() const;
 	virtual void setRotation(const QVector3D& newRotation);

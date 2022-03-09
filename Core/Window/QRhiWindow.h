@@ -28,6 +28,8 @@ private:
 	std::shared_ptr<QOffscreenSurface> mFallbackSurface;
 	std::shared_ptr<QSceneRenderer>  mRootRenderer;
 	std::shared_ptr<QScene> mScene;
+	QElapsedTimer mTimer;
+	int mFrameCount = 0;
 protected:
 	bool mRunning = false;
 	bool mNotExposed = false;

@@ -54,4 +54,5 @@ std::shared_ptr<QSkyBoxComponent> QScene::getSkyBox() const
 void QScene::setSkyBox(std::shared_ptr<QSkyBoxComponent> val)
 {
 	mSkyBox = val;
+	Q_EMIT skyBoxChanged();
 }

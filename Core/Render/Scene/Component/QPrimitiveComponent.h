@@ -30,6 +30,7 @@ public:
 	virtual void setIndices(const QVector<Index>& newIndices);
 
 	void autoFillIndices();
+	uint32_t getVertexCount();
 	uint32_t getIndexedCount();
 
 protected:

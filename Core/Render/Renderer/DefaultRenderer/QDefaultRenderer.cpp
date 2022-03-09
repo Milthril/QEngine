@@ -2,6 +2,7 @@
 #include "Render\Scene\Component\QShapeComponent.h"
 #include "QDefaultProxyShape.h"
 #include "QDefaultProxyParticle.h"
+#include "QDefaultProxySkyBox.h"
 
 QDefaultRenderer::QDefaultRenderer(std::shared_ptr<QRhi> rhi, int sampleCount, QRhiSPtr<QRhiRenderPassDescriptor> renderPassDescriptor)
 	:QSceneRenderer(rhi, sampleCount, renderPassDescriptor)
@@ -12,22 +13,27 @@ QDefaultRenderer::QDefaultRenderer(std::shared_ptr<QRhi> rhi, int sampleCount, Q
 void QDefaultRenderer::render(QRhiCommandBuffer* cmdBuffer, QRhiRenderTarget* renderTarget)
 {
 	QSize size = renderTarget->pixelSize();
-
 	createOrResizeRenderTarget(size);
-	for (auto& it : mProxyMap) {
+	for (auto& it : mPrimitiveProxyMap) {
 		it->updatePrePass(cmdBuffer);
 	}
 	QRhiResourceUpdateBatch* batch = mRhi->nextResourceUpdateBatch();
-	for (auto& it : mProxyMap) {
+	for (auto& it : mPrimitiveProxyMap) {
 		it->updateResource(batch);
 	}
+	if (mSkyBoxProxy) {
+		mSkyBoxProxy->updateResource(batch);
+	}
 	cmdBuffer->beginPass(mRT.renderTarget.get(), QColor::fromRgbF(0.0f, 0.0f, 0.0f, 0.0f), { 1.0f, 0 }, batch);
+
 	QRhiViewport viewport(0, 0, size.width(), size.height());
-	for (auto& proxy : mProxyMap) {
+	for (auto& proxy : mPrimitiveProxyMap) {
 		proxy->drawInPass(cmdBuffer, viewport);
 	}
+	if (mSkyBoxProxy) {
+		mSkyBoxProxy->drawInPass(cmdBuffer, viewport);
+	}
 	cmdBuffer->endPass();
-
 	mBloomPainter->drawCommand(cmdBuffer, mRT.colorAttachment, renderTarget);
 }
 
@@ -56,9 +62,9 @@ std::shared_ptr<QRhiProxy> QDefaultRenderer::createParticleProxy(std::shared_ptr
 	return std::make_shared<QDefaultProxyParticle>(comp);
 }
 
-std::shared_ptr<QRhiProxy> QDefaultRenderer::createSkyBoxProxy(std::shared_ptr<QSkyBoxComponent>)
+std::shared_ptr<QRhiProxy> QDefaultRenderer::createSkyBoxProxy(std::shared_ptr<QSkyBoxComponent> comp)
 {
-	throw std::logic_error("The method or operation is not implemented.");
+	return std::make_shared<QDefaultProxySkyBox>(comp);
 }
 
 void QDefaultRenderer::createOrResizeRenderTarget(QSize size)

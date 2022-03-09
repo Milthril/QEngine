@@ -1,8 +1,8 @@
 #include "QMaterialBaseColor.h"
 
-QMaterialBaseColor::QMaterialBaseColor()
+QMaterialBaseColor::QMaterialBaseColor(QVector4D color)
 {
-	addParamVec4("BaseColor", QVector4D(1, 0, 1, 1));
+	addParamVec4("BaseColor", color);
 	setShadingCode("FragColor = material.BaseColor;");
 }
 
