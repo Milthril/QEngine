@@ -1,7 +1,6 @@
 #ifndef QBloomPainter_h__
 #define QBloomPainter_h__
 
-#include "Render\Renderer\QSceneRenderer.h"
 #include "QTexturePainter.h"
 #include "QPixelSelector.h"
 

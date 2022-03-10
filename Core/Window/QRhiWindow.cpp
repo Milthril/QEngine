@@ -138,9 +138,6 @@ void QRhiWindow::renderInternal()
 void QRhiWindow::resizeSwapChain()
 {
 	mHasSwapChain = mSwapChain->createOrResize();
-	if (mRootRenderer) {
-		mRootRenderer->setRenderTargetSize(mSwapChain->currentPixelSize());
-	}
 	mFrameCount = 0;
 	mTimer.restart();
 }

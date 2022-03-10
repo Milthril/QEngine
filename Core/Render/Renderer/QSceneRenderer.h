@@ -2,7 +2,8 @@
 #define QSceneRenderer_h__
 
 #include "Render/Scene/QScene.h"
-#include <memory>
+#include "Common/QBloomPainter.h"
+#include "Common/QRhiInclude.h"
 
 class QPrimitiveComponent;
 class QStaticMeshComponent;
@@ -11,16 +12,6 @@ class QSkeletonMeshComponent;
 class QParticleComponent;
 class QSkyBoxComponent;
 class QSceneRenderer;
-
-template<typename _Ty>
-class QRhiSPtr :public std::shared_ptr<_Ty> {
-public:
-	void reset(_Ty* res) noexcept {
-		std::shared_ptr<_Ty>::reset(res, [](_Ty* res) {
-			res->destroy();
-		});
-	}
-};
 
 class QRhiProxy {
 public:
@@ -57,7 +48,6 @@ public:
 	virtual QRhiSPtr<QRhiRenderPassDescriptor> getRenderPassDescriptor() const { return mRootRenderPassDescriptor; }
 	std::shared_ptr<QRhi> getRhi() const { return mRhi; }
 
-	virtual void setRenderTargetSize(QSize size);
 	void renderInternal(QRhiCommandBuffer* cmdBuffer, QRhiRenderTarget* renderTarget);
 	virtual void render(QRhiCommandBuffer* cmdBuffer, QRhiRenderTarget* renderTarget) = 0;
 	QMatrix4x4 getViewMatrix();
@@ -81,15 +71,17 @@ private:
 	virtual std::shared_ptr<QRhiProxy> createSkyBoxProxy(std::shared_ptr<QSkyBoxComponent>) = 0;
 protected:
 	std::shared_ptr<QRhi> mRhi;
+
 	std::shared_ptr<QScene> mScene;
+
 	QRhiSPtr<QRhiRenderPassDescriptor> mRootRenderPassDescriptor;
 
 	QHash<QSceneComponent::ComponentId, std::shared_ptr<QRhiProxy>> mPrimitiveProxyMap;	//图元组件代理
-
 	QList<std::shared_ptr<QRhiProxy>> mProxyUploadList;
+
 	std::shared_ptr<QRhiProxy> mSkyBoxProxy;
 
-	QSize mRTSize;
+	std::shared_ptr<QBloomPainter> mBloomPainter;
 	int mSampleCount;
 };
 

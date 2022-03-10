@@ -1,4 +1,5 @@
 #include "QTexturePainter.h"
+#include "Render\Renderer\QSceneRenderer.h"
 
 QTexturePainter::QTexturePainter(std::shared_ptr<QRhi> rhi)
 	:mRhi(rhi)

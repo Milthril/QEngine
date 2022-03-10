@@ -1,4 +1,5 @@
 #include "QPixelSelector.h"
+#include "Render\Renderer\QSceneRenderer.h"
 
 QPixelSelector::QPixelSelector(std::shared_ptr<QRhi> rhi, QByteArray code)
 	: mRhi(rhi)

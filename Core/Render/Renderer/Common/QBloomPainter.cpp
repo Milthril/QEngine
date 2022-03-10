@@ -1,4 +1,5 @@
 #include "QBloomPainter.h"
+#include "Render\Renderer\QSceneRenderer.h"
 
 QBloomPainter::QBloomPainter(std::shared_ptr<QRhi> rhi)
 	: mRhi(rhi)

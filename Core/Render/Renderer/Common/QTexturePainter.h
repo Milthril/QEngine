@@ -1,7 +1,8 @@
 #ifndef QTexturePainter_h__
 #define QTexturePainter_h__
 
-#include "Render\Renderer\QSceneRenderer.h"
+#include "QRhiInclude.h"
+
 class QTexturePainter {
 public:
 	QTexturePainter(std::shared_ptr<QRhi> rhi);

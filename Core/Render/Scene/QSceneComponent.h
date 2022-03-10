@@ -3,7 +3,7 @@
 
 #include "QObject"
 #include "qvectornd.h"
-#include "private/qrhi_p.h"
+#include "QMatrix4x4"
 
 class QSceneComponent :public QObject {
 	friend class QSceneRenderer;

@@ -25,7 +25,6 @@ private:
 		QRhiSPtr<QRhiRenderPassDescriptor> renderPassDesc;
 	};
 	RTResource mRT;
-	std::shared_ptr<QBloomPainter> mBloomPainter;
 };
 
 #endif // QDefaultRenderer_h__

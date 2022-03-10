@@ -7,7 +7,6 @@
 QDefaultRenderer::QDefaultRenderer(std::shared_ptr<QRhi> rhi, int sampleCount, QRhiSPtr<QRhiRenderPassDescriptor> renderPassDescriptor)
 	:QSceneRenderer(rhi, sampleCount, renderPassDescriptor)
 {
-	mBloomPainter.reset(new QBloomPainter(rhi));
 }
 
 void QDefaultRenderer::render(QRhiCommandBuffer* cmdBuffer, QRhiRenderTarget* renderTarget)

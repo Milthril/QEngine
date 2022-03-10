@@ -12,6 +12,7 @@ QSceneRenderer::QSceneRenderer(std::shared_ptr<QRhi> rhi, int sampleCount, QRhiS
 	: mRhi(rhi)
 	, mSampleCount(sampleCount)
 	, mRootRenderPassDescriptor(renderPassDescriptor)
+	, mBloomPainter(new QBloomPainter(rhi))
 {
 }
 
@@ -24,11 +25,6 @@ void QSceneRenderer::setScene(std::shared_ptr<QScene> scene)
 	connect(mScene.get(), &QScene::lightChanged, this, &QSceneRenderer::onLightChanged);
 	connect(mScene.get(), &QScene::primitiveInserted, this, &QSceneRenderer::onPrimitiveInserted);
 	connect(mScene.get(), &QScene::primitiveRemoved, this, &QSceneRenderer::onPrimitiveRemoved);
-}
-
-void QSceneRenderer::setRenderTargetSize(QSize size)
-{
-	mRTSize = size;
 }
 
 void QSceneRenderer::renderInternal(QRhiCommandBuffer* buffer, QRhiRenderTarget* renderTarget)
