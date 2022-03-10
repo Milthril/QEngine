@@ -1,6 +1,6 @@
 #include "QDefaultRenderer.h"
-#include "Render\Scene\Component\QShapeComponent.h"
-#include "QDefaultProxyShape.h"
+#include "Render\Scene\Component\StaticMesh\QStaticMeshComponent.h"
+#include "QDefaultProxyStaticMesh.h"
 #include "QDefaultProxyParticle.h"
 #include "QDefaultProxySkyBox.h"
 
@@ -42,14 +42,9 @@ QRhiSPtr<QRhiRenderPassDescriptor> QDefaultRenderer::getRenderPassDescriptor() c
 	return mRT.renderPassDesc;
 }
 
-std::shared_ptr<QRhiProxy> QDefaultRenderer::createShapeProxy(std::shared_ptr<QShapeComponent> shape)
+std::shared_ptr<QRhiProxy> QDefaultRenderer::createStaticMeshProxy(std::shared_ptr<QStaticMeshComponent> comp)
 {
-	return std::make_shared<QDefaultProxyShape>(shape);
-}
-
-std::shared_ptr<QRhiProxy> QDefaultRenderer::createStaticMeshProxy(std::shared_ptr<QStaticMeshComponent>)
-{
-	throw std::logic_error("The method or operation is not implemented.");
+	return std::make_shared<QDefaultProxyStaticMesh>(comp);
 }
 
 std::shared_ptr<QRhiProxy> QDefaultRenderer::createSkeletonMeshProxy(std::shared_ptr<QSkeletonMeshComponent>)

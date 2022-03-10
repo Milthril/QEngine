@@ -1,9 +1,9 @@
 ﻿#ifndef QSphere_h__
 #define QSphere_h__
 
-#include "Render/Scene/Component//QShapeComponent.h"
+#include "Render/Scene/Component/StaticMesh/QStaticMeshComponent.h"
 
-class QSphere :public QShapeComponent {
+class QSphere :public QStaticMeshComponent {
 public:
 	QSphere();
 	int getStackCount() const;

@@ -1,7 +1,7 @@
 ﻿#ifndef QParticleComponent_h__
 #define QParticleComponent_h__
 
-#include "QPrimitiveComponent.h"
+#include "Render\Scene\Component\QPrimitiveComponent.h"
 
 class QParticleComponent :public QPrimitiveComponent {
 	Q_OBJECT
@@ -11,7 +11,7 @@ public:
 	QParticleComponent();
 
 	inline static const int PARTICLE_MAX_SIZE = 100000;
-	QSceneComponent::Type type() override {
+	QSceneComponent::ProxyType type() override {
 		return QSceneComponent::Particle;
 	}
 
@@ -33,8 +33,8 @@ public:
 	float getLifetime() const { return mLifetime; }
 	void setLifetime(float val) { mLifetime = val; }
 
-	std::shared_ptr<QPrimitiveComponent> getShape() const { return mShape; }
-	void setShape(std::shared_ptr<QPrimitiveComponent> val) { mShape = val; }
+	std::shared_ptr<QPrimitiveComponent> getStaticMesh() const { return mStaticMesh; }
+	void setStaticMesh(std::shared_ptr<QPrimitiveComponent> val) { mStaticMesh = val; }
 
 	void createPartilces(const QVector<Particle>& particles);
 	QVector<Particle> takeParticles();
@@ -46,7 +46,7 @@ public:
 private:
 	QByteArray mUpdater;
 	QVector<Particle> mParticlesPool;
-	std::shared_ptr<QPrimitiveComponent> mShape;
+	std::shared_ptr<QPrimitiveComponent> mStaticMesh;
 	float mLifetime = 2;
 };
 #endif // QParticleComponent_h__

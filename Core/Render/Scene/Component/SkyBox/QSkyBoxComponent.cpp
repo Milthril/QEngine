@@ -1,4 +1,4 @@
-#include "QSkyBoxComponent.h"
+ï»¿#include "QSkyBoxComponent.h"
 
 QSkyBoxComponent::QSkyBoxComponent(QImage texture /*= QImage()*/)
 {
@@ -35,7 +35,7 @@ std::array<QImage, 6> QSkyBoxComponent::getSubImageArray()
 {
 	auto it = mSkyBoxImage.format();
 	std::array<QImage, 6> imageList;
-	// ÒÀ´ÎÎª×óÓÒÉÏÏÂÇ°ºó
+	// ä¾æ¬¡ä¸ºå·¦å³ä¸Šä¸‹å‰å
 
 	imageList[0] = mSkyBoxImage.copy(QRect(QPoint(2 * mCubeFaceSize.width(), mCubeFaceSize.width()), mCubeFaceSize));
 	imageList[1] = mSkyBoxImage.copy(QRect(QPoint(0, mCubeFaceSize.width()), mCubeFaceSize));

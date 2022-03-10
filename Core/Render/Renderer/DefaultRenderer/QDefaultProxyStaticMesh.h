@@ -6,7 +6,7 @@
 
 class QDefaultProxyStaticMesh :public QRhiProxy {
 public:
-	QDefaultProxyStaticMesh(std::shared_ptr<QStaticMeshComponent> mesh);
+	QDefaultProxyStaticMesh(std::shared_ptr<QStaticMeshComponent> shape);
 private:
 	std::shared_ptr<QStaticMeshComponent> mStaticMesh;
 	QRhiSPtr<QRhiShaderResourceBindings> mShaderResourceBindings;

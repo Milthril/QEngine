@@ -1,6 +1,6 @@
 #include "QDefaultProxySkyBox.h"
 #include "Render\Scene\Component\QPrimitiveComponent.h"
-#include "Render\Scene\Component\QSkyBoxComponent.h"
+#include "Render\Scene\Component\SkyBox\QSkyBoxComponent.h"
 
 static float cubeData[] = { // Y up, front = CCW
 		// positions

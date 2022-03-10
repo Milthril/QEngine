@@ -1,5 +1,5 @@
 ﻿#include "QParticleComponent.h"
-#include "CustomShape\QCube.h"
+#include "Render/Scene/Component/StaticMesh/QCube.h"
 
 const char* UpdateShaderHeader = R"(
 #version 450
@@ -39,7 +39,7 @@ QParticleComponent::QParticleComponent()
 {
 	setUpdater(UpdateShaderHeader);
 	auto it = std::make_shared<QCube>();
-	mShape = it;
+	mStaticMesh = it;
 }
 
 QByteArray QParticleComponent::getUpdater() const
@@ -65,20 +65,20 @@ QVector<QParticleComponent::Particle> QParticleComponent::takeParticles()
 void QParticleComponent::setPosition(const QVector3D& newPosition)
 {
 	QPrimitiveComponent::setPosition(newPosition);
-	if (mShape)
-		mShape->setPosition(newPosition);
+	if (mStaticMesh)
+		mStaticMesh->setPosition(newPosition);
 }
 
 void QParticleComponent::setRotation(const QVector3D& newRotation)
 {
 	QPrimitiveComponent::setRotation(newRotation);
-	if (mShape)
-		mShape->setRotation(newRotation);
+	if (mStaticMesh)
+		mStaticMesh->setRotation(newRotation);
 }
 
 void QParticleComponent::setScale(const QVector3D& newScale)
 {
 	QPrimitiveComponent::setScale(newScale);
-	if (mShape)
-		mShape->setScale(newScale);
+	if (mStaticMesh)
+		mStaticMesh->setScale(newScale);
 }

@@ -1,11 +1,11 @@
 #ifndef QSkeletonMeshComponent_h__
 #define QSkeletonMeshComponent_h__
 
-#include "QPrimitiveComponent.h"
+#include "Render\Scene\Component\QPrimitiveComponent.h"
 
 class  QSkeletonMeshComponent :public QPrimitiveComponent {
 public:
-	QSceneComponent::Type type() override {
+	QSceneComponent::ProxyType type() override {
 		return QSceneComponent::SkeletonMesh;
 	}
 };

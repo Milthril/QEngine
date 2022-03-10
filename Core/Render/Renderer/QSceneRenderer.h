@@ -5,7 +5,7 @@
 #include <memory>
 
 class QPrimitiveComponent;
-class QShapeComponent;
+class QStaticMeshComponent;
 class QStaticMeshComponent;
 class QSkeletonMeshComponent;
 class QParticleComponent;
@@ -75,7 +75,6 @@ private:
 
 	void tryResetSkyBox(QRhiResourceUpdateBatch* batch);
 	void resetPrimitiveProxy(std::shared_ptr<QPrimitiveComponent> component);
-	virtual std::shared_ptr<QRhiProxy> createShapeProxy(std::shared_ptr<QShapeComponent>) = 0;
 	virtual std::shared_ptr<QRhiProxy> createStaticMeshProxy(std::shared_ptr<QStaticMeshComponent>) = 0;
 	virtual std::shared_ptr<QRhiProxy> createSkeletonMeshProxy(std::shared_ptr<QSkeletonMeshComponent>) = 0;
 	virtual std::shared_ptr<QRhiProxy> createParticleProxy(std::shared_ptr<QParticleComponent>) = 0;

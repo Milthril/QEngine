@@ -1,4 +1,4 @@
-#ifndef QCameraComponent_h__
+ï»¿#ifndef QCameraComponent_h__
 #define QCameraComponent_h__
 
 #include "Render/Scene/QSceneComponent.h"
@@ -28,7 +28,7 @@ private:
 	void calculateCameraDirection();
 	bool eventFilter(QObject* watched, QEvent* event) override;
 public:
-	QSceneComponent::Type type() override { return QSceneComponent::Type::Camera; }
+	QSceneComponent::ProxyType type() override { return QSceneComponent::ProxyType::Camera; }
 private:
 	QMatrix4x4 mViewMatrix;
 	QMatrix4x4 mClipMatrix;
@@ -43,11 +43,11 @@ private:
 	QVector3D mCameraUp;
 	QVector3D mCameraRight;
 
-	QSet<int> mKeySet;			 //¼ÇÂ¼µ±Ç°±»°´ÏÂ°´¼üµÄ¼¯ºÏ
-	float mDeltaTimeMs;			 //µ±Ç°Ö¡ÓëÉÏÒ»Ö¡µÄÊ±¼ä²î
-	float mLastFrameTimeMs;			 //ÉÏÒ»Ö¡µÄÊ±¼ä
-	float mRotationSpeed = 0.0005f;						//Êó±êÁéÃô¶È
-	float mMoveSpeed = 0.005f;									//¿ØÖÆÒÆ¶¯ËÙ¶È
+	QSet<int> mKeySet;			 //è®°å½•å½“å‰è¢«æŒ‰ä¸‹æŒ‰é”®çš„é›†åˆ
+	float mDeltaTimeMs;			 //å½“å‰å¸§ä¸ä¸Šä¸€å¸§çš„æ—¶é—´å·®
+	float mLastFrameTimeMs;			 //ä¸Šä¸€å¸§çš„æ—¶é—´
+	float mRotationSpeed = 0.0005f;						//é¼ æ ‡çµæ•åº¦
+	float mMoveSpeed = 0.005f;									//æ§åˆ¶ç§»åŠ¨é€Ÿåº¦
 };
 
 #endif // QCameraComponent_h__

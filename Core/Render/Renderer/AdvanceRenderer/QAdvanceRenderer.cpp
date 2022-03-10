@@ -1,12 +1,6 @@
 #include "QAdvanceRenderer.h"
-#include "Render\Scene\Component\QShapeComponent.h"
 
-std::shared_ptr<QRhiProxy> QAdvanceRenderer::createShapeProxy(std::shared_ptr<QShapeComponent> shape)
-{
-	throw std::logic_error("The method or operation is not implemented.");
-}
-
-std::shared_ptr<QRhiProxy> QAdvanceRenderer::createStaticMeshProxy(std::shared_ptr<QStaticMeshComponent>)
+std::shared_ptr<QRhiProxy> QAdvanceRenderer::createStaticMeshProxy(std::shared_ptr<QStaticMeshComponent> shape)
 {
 	throw std::logic_error("The method or operation is not implemented.");
 }

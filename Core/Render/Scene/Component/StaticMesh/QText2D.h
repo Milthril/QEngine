@@ -1,10 +1,10 @@
 ﻿#ifndef QText2D_h__
 #define QText2D_h__
 
-#include "Render/Scene/Component//QShapeComponent.h"
+#include "Render/Scene/Component/StaticMesh/QStaticMeshComponent.h"
 #include "QFont"
 
-class QText2D :public QShapeComponent {
+class QText2D :public QStaticMeshComponent {
 	Q_OBJECT
 		Q_PROPERTY(QString Text READ getText WRITE setText)
 		Q_PROPERTY(QFont Font READ getFont WRITE setFont)

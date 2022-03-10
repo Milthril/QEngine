@@ -11,6 +11,17 @@ QMatrix4x4 QSceneComponent::calculateModelMatrix()
 	return modelMatrix;
 }
 
+QMatrix4x4 QSceneComponent::calculateWorldMatrix()
+{
+	QMatrix4x4 matrix = calculateModelMatrix();
+	QSceneComponent* parent = mParent;
+	while (parent != nullptr) {
+		matrix = parent->calculateModelMatrix() * matrix;
+		parent = parent->mParent;
+	}
+	return matrix;
+}
+
 const QVector3D& QSceneComponent::getPosition() const
 {
 	return mPosition;
@@ -45,4 +56,23 @@ void QSceneComponent::setScale(const QVector3D& newScale)
 	if (mScale == newScale)
 		return;
 	mScale = newScale;
+}
+
+void QSceneComponent::addChild(std::shared_ptr<QSceneComponent> child)
+{
+	child->mParent = this;
+	mChildren << child;
+}
+
+void QSceneComponent::removeChild(std::shared_ptr<QSceneComponent> child)
+{
+	child->mParent = nullptr;
+	mChildren.removeOne(child);
+}
+
+void QSceneComponent::clear()
+{
+	for (auto& child : mChildren)
+		child->mParent = nullptr;
+	mChildren.clear();
 }

@@ -2,7 +2,7 @@
 #define QDefaultProxyParticle_h__
 
 #include "QDefaultRenderer.h"
-#include "Render\Scene\Component\QParticleComponent.h"
+#include "Render\Scene\Component\Particle\QParticleComponent.h"
 
 class QDefaultProxyParticle :public QRhiProxy {
 public:
@@ -36,7 +36,7 @@ protected:
 	void recreatePipeline(PipelineUsageFlags flags = PipelineUsageFlag::Normal) override;
 	void updatePrePass(QRhiCommandBuffer* cmdBuffer) override;
 	void drawInPass(QRhiCommandBuffer* cmdBuffer, const QRhiViewport& viewport) override;
-	std::shared_ptr<QRhiProxy> mShapeProxy;
+	std::shared_ptr<QRhiProxy> mStaticMeshProxy;
 };
 
 #endif // QDefaultProxyParticle_h__

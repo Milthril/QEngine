@@ -28,5 +28,10 @@ target_link_libraries(Core PRIVATE
     Qt${QT_VERSION_MAJOR}::CorePrivate 
     Qt${QT_VERSION_MAJOR}::OpenGLPrivate 
     Qt${QT_VERSION_MAJOR}::ShaderToolsPrivate
-    )
+    assimp::assimp
+)
 
+add_custom_command(TARGET Core PRE_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:assimp> $<TARGET_FILE_DIR:Core>
+    COMMAND_EXPAND_LISTS
+)
