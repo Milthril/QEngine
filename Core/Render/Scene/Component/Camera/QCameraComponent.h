@@ -46,8 +46,8 @@ private:
 	QSet<int> mKeySet;			 //记录当前被按下按键的集合
 	float mDeltaTimeMs;			 //当前帧与上一帧的时间差
 	float mLastFrameTimeMs;			 //上一帧的时间
-	float mRotationSpeed = 0.0005f;						//鼠标灵敏度
-	float mMoveSpeed = 0.005f;									//控制移动速度
+	float mRotationSpeed = 0.005f;						//鼠标灵敏度
+	float mMoveSpeed = 0.05f;									//控制移动速度
 };
 
 #endif // QCameraComponent_h__

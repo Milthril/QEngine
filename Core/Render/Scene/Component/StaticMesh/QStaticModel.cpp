@@ -3,6 +3,8 @@
 #include "assimp\postprocess.h"
 #include "assimp\scene.h"
 #include <QQueue>
+#include <QFileInfo>
+#include <QDir>
 
 QVector3D coveredAiVec3toQVec3(const aiVector3D& aiVec3) {
 	return QVector3D(aiVec3.x, aiVec3.y, aiVec3.z);
@@ -51,13 +53,27 @@ void QStaticModel::loadFromFile(const QString filePath)
 {
 	Assimp::Importer importer;
 	const aiScene* scene = importer.ReadFile(filePath.toUtf8().constData(), aiProcess_Triangulate | aiProcess_FlipUVs);
+	mMaterialList.resize(scene->mNumMaterials);
+	for (int i = 0; i < scene->mNumMaterials; i++) {
+		aiMaterial* material = scene->mMaterials[i];
+		mMaterialList[i] = std::make_shared<QMaterial>();
+		for (int j = 0; j < material->GetTextureCount(aiTextureType_DIFFUSE); j++) {
+			aiString path;
+			material->GetTexture(aiTextureType_DIFFUSE, j, &path);
+			mMaterialList[i]->addTextureSampler("Diffuse", QImage(QFileInfo(filePath).dir().filePath(path.C_Str())));
+		}
+		mMaterialList[i]->setShadingCode("FragColor = texture(Diffuse,vUV); ");
+	}
+
 	QQueue<QPair<aiNode*, aiMatrix4x4>> qNode;
 	qNode.push_back({ scene->mRootNode ,aiMatrix4x4() });
 	while (!qNode.isEmpty()) {
 		QPair<aiNode*, aiMatrix4x4> node = qNode.takeFirst();
 		for (unsigned int i = 0; i < node.first->mNumMeshes; i++) {
 			aiMesh* mesh = scene->mMeshes[node.first->mMeshes[i]];
-			addChild(createStaticMeshFromAssimpMesh(mesh, node.second));
+			std::shared_ptr<QStaticMeshComponent> staticMesh = createStaticMeshFromAssimpMesh(mesh, node.second);
+			staticMesh->setMaterial(mMaterialList[mesh->mMaterialIndex]);
+			addChild(staticMesh);
 		}
 		for (unsigned int i = 0; i < node.first->mNumChildren; i++) {
 			qNode.push_back({ node.first->mChildren[i] ,node.second * node.first->mChildren[i]->mTransformation });

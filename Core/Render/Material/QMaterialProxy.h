@@ -21,6 +21,7 @@ protected:
 	QMaterial* mMaterial;
 	std::shared_ptr<QRhi> mRhi;
 	QRhiSPtr<QRhiBuffer> mUniformBlock;
+	QRhiSPtr<QRhiSampler> mSampler;
 	QMap<QString, QRhiSPtr<QRhiTexture>> mTextureMap;
 };
 

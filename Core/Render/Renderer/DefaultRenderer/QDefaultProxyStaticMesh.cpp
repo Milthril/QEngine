@@ -52,12 +52,14 @@ void QDefaultProxyStaticMesh::recreatePipeline(PipelineUsageFlags flags /*= Pipe
 	attributeList << QRhiVertexInputAttribute{ 0, 4, QRhiVertexInputAttribute::Float3, offsetof(QStaticMeshComponent::Vertex,texCoord) };
 
 	QString vertexShaderCode = R"(#version 440
-	layout(location = 0) in vec3 position;
-	layout(location = 1) in vec3 normal;
-	layout(location = 2) in vec3 tangent;
-	layout(location = 3) in vec3 bitangent;
-	layout(location = 4) in vec2 texCoord;
+	layout(location = 0) in vec3 inPosition;
+	layout(location = 1) in vec3 inNormal;
+	layout(location = 2) in vec3 inTangent;
+	layout(location = 3) in vec3 inBitangent;
+	layout(location = 4) in vec2 inUV;
 	%1
+
+	layout(location = 0) out vec2 vUV;
 
 	out gl_PerVertex{
 		vec4 gl_Position;
@@ -66,9 +68,9 @@ void QDefaultProxyStaticMesh::recreatePipeline(PipelineUsageFlags flags /*= Pipe
 	layout(std140,binding = 0) uniform buf{
 		mat4 mvp;
 	}ubuf;
-
 	void main(){
-		gl_Position = ubuf.mvp * %2 vec4(position,1.0f);
+		vUV = inUV;
+		gl_Position = ubuf.mvp * %2 vec4(inPosition,1.0f);
 	}
 	)";
 
@@ -95,6 +97,7 @@ void QDefaultProxyStaticMesh::recreatePipeline(PipelineUsageFlags flags /*= Pipe
 
 	const QMaterialProxy::MaterialShaderInfo& materialInfo = mMaterialProxy->getMaterialShaderInfo(1);;
 	QString fragShaderCode = QString(R"(#version 440
+	layout(location = 0) in vec2 vUV;
 	layout(location = 0) out vec4 FragColor;
 	%1
 	void main(){

@@ -97,6 +97,9 @@ QShader QSceneRenderer::createShaderFromCode(QShader::Stage stage, const char* c
 
 void QSceneRenderer::onPrimitiveInserted(uint32_t index, std::shared_ptr<QPrimitiveComponent> primitive)
 {
+	for (auto& child : primitive->mChildren) {
+		onPrimitiveInserted(-1, std::dynamic_pointer_cast<QPrimitiveComponent>(child));
+	}
 	std::shared_ptr<QRhiProxy> proxy = createPrimitiveProxy(primitive);
 	if (!proxy)
 		return;
@@ -105,9 +108,6 @@ void QSceneRenderer::onPrimitiveInserted(uint32_t index, std::shared_ptr<QPrimit
 	proxy->recreateResource();
 	proxy->recreatePipeline();
 	mProxyUploadList << proxy;
-	for (auto& child : primitive->mChildren) {
-		onPrimitiveInserted(-1, std::dynamic_pointer_cast<QPrimitiveComponent>(child));
-	}
 }
 
 void QSceneRenderer::onPrimitiveRemoved(std::shared_ptr<QPrimitiveComponent> primitive)

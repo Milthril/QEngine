@@ -10,6 +10,7 @@ private:
 	QSceneComponent::ProxyType type() override {
 		return QSceneComponent::None;
 	}
+	QVector<std::shared_ptr<QMaterial>> mMaterialList;
 };
 
 #endif // QStaticModel_h__

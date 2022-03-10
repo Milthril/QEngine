@@ -1,4 +1,4 @@
-#include "QCameraComponent.h"
+ï»¿#include "QCameraComponent.h"
 #include "qevent.h"
 #include "QDateTime"
 #include "QApplication"
@@ -76,11 +76,11 @@ bool QCameraComponent::eventFilter(QObject* watched, QEvent* event)
 			setAspectRatio(mWindow->width() / (float)mWindow->height());
 			break;
 		case QEvent::MouseButtonPress:
-			mWindow->setCursor(Qt::BlankCursor);             //Òş²ØÊó±ê¹â±ê
-			QCursor::setPos(mWindow->geometry().center());   //½«Êó±êÒÆ¶¯´°¿ÚÖĞÑë
+			mWindow->setCursor(Qt::BlankCursor);             //éšè—é¼ æ ‡å…‰æ ‡
+			QCursor::setPos(mWindow->geometry().center());   //å°†é¼ æ ‡ç§»åŠ¨çª—å£ä¸­å¤®
 			break;
 		case QEvent::MouseButtonRelease:
-			mWindow->setCursor(Qt::ArrowCursor);             //ÏÔÊ¾Êó±ê¹â±ê
+			mWindow->setCursor(Qt::ArrowCursor);             //æ˜¾ç¤ºé¼ æ ‡å…‰æ ‡
 			break;
 
 		case QEvent::MouseMove: {
@@ -88,13 +88,13 @@ bool QCameraComponent::eventFilter(QObject* watched, QEvent* event)
 				QRect rect(0, 0, mWindow->width(), mWindow->height());
 				QMouseEvent* mouseEvent = static_cast<QMouseEvent*>(event);
 				float xoffset = mouseEvent->x() - rect.center().x();
-				float yoffset = mouseEvent->y() - rect.center().y(); // ×¢ÒâÕâÀïÊÇÏà·´µÄ£¬ÒòÎªy×ø±êÊÇ´Óµ×²¿Íù¶¥²¿ÒÀ´ÎÔö´óµÄ
+				float yoffset = mouseEvent->y() - rect.center().y(); // æ³¨æ„è¿™é‡Œæ˜¯ç›¸åçš„ï¼Œå› ä¸ºyåæ ‡æ˜¯ä»åº•éƒ¨å¾€é¡¶éƒ¨ä¾æ¬¡å¢å¤§çš„
 				xoffset *= mRotationSpeed;
 				yoffset *= mRotationSpeed;
 				float yaw = getYaw() - xoffset;
 				float pitch = getPitch() - yoffset;
 
-				if (pitch > 1.55f)         //½«¸©ÊÓ½ÇÏŞÖÆµ½[-89¡ã,89¡ã]£¬89¡ãÔ¼µÈÓÚ1.55
+				if (pitch > 1.55f)         //å°†ä¿¯è§†è§’é™åˆ¶åˆ°[-89Â°,89Â°]ï¼Œ89Â°çº¦ç­‰äº1.55
 					pitch = 1.55f;
 				if (pitch < -1.55f)
 					pitch = -1.55f;
@@ -103,7 +103,7 @@ bool QCameraComponent::eventFilter(QObject* watched, QEvent* event)
 				rotation.setY(yaw);
 				rotation.setX(pitch);
 				setRotation(rotation);
-				QCursor::setPos(mWindow->geometry().center());   //½«Êó±êÒÆ¶¯´°¿ÚÖĞÑë
+				QCursor::setPos(mWindow->geometry().center());   //å°†é¼ æ ‡ç§»åŠ¨çª—å£ä¸­å¤®
 			}
 			break;
 		}
@@ -122,22 +122,22 @@ bool QCameraComponent::eventFilter(QObject* watched, QEvent* event)
 		}
 		case QEvent::UpdateRequest: {
 			float time = QTime::currentTime().msecsSinceStartOfDay() / 1000.0;
-			mDeltaTimeMs = time - mLastFrameTimeMs;                           //ÔÚ´Ë´¦¸üĞÂÊ±¼ä²î
+			mDeltaTimeMs = time - mLastFrameTimeMs;                           //åœ¨æ­¤å¤„æ›´æ–°æ—¶é—´å·®
 			mLastFrameTimeMs = time;
 			if (!mKeySet.isEmpty()) {
 				QVector3D position = getPosition();
-				if (mKeySet.contains(Qt::Key_W))                           //Ç°
+				if (mKeySet.contains(Qt::Key_W))                           //å‰
 					position += mMoveSpeed * mCameraDirection;
-				if (mKeySet.contains(Qt::Key_S))                           //ºó
+				if (mKeySet.contains(Qt::Key_S))                           //å
 					position -= mMoveSpeed * mCameraDirection;
-				if (mKeySet.contains(Qt::Key_A))                           //×ó
+				if (mKeySet.contains(Qt::Key_A))                           //å·¦
 					position -= QVector3D::crossProduct(mCameraDirection, mCameraUp) * mMoveSpeed;
-				if (mKeySet.contains(Qt::Key_D))                           //ÓÒ
+				if (mKeySet.contains(Qt::Key_D))                           //å³
 					position += QVector3D::crossProduct(mCameraDirection, mCameraUp) * mMoveSpeed;
-				if (mKeySet.contains(Qt::Key_Space))                       //ÉÏ¸¡
-					position.setY(position.y() - mMoveSpeed);
-				if (mKeySet.contains(Qt::Key_Shift))                       //ÏÂ³Á
+				if (mKeySet.contains(Qt::Key_Space))                       //ä¸Šæµ®
 					position.setY(position.y() + mMoveSpeed);
+				if (mKeySet.contains(Qt::Key_Shift))                       //ä¸‹æ²‰
+					position.setY(position.y() - mMoveSpeed);
 				setPosition(position);
 			}
 			break;
@@ -179,5 +179,5 @@ void QCameraComponent::calculateCameraDirection()
 	mCameraDirection.setY(sin(getPitch()));
 	mCameraDirection.setZ(sin(getYaw()) * cos(getPitch()));
 	mCameraRight = QVector3D::crossProduct({ 0.0f,1.0f,0.0f }, mCameraDirection);
-	mCameraUp = QVector3D::crossProduct(mCameraRight, mCameraDirection);         //ÉãÏñ»úÉÏÏòÁ¿
+	mCameraUp = QVector3D::crossProduct(mCameraRight, mCameraDirection);         //æ‘„åƒæœºä¸Šå‘é‡
 }

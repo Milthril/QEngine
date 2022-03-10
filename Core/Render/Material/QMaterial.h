@@ -27,7 +27,6 @@ public:
 		}
 		return param;
 	}
-
 	void addParamFloat(const QString& name, float var);
 	void addParamVec2(const QString& name, QVector2D vec2);
 	void addParamVec3(const QString& name, QVector3D vec3);
@@ -44,19 +43,27 @@ protected:
 		uint32_t offsetInByte;
 		uint32_t sizeInByte;
 		uint32_t sizeInByteAligned;
-		int typeId;
 		bool needUpdate = false;
+		enum Type {
+			Float = 0,
+			Vec2,
+			Vec3,
+			Vec4,
+			Mat4,
+		}type;
+		QString getTypeName();
 	};
 
 	struct QTextureDesc {
 		QString name;
 		QImage image;
 		bool needUpdate = false;
+		enum Type {
+			Sampler2D = 0,
+			CubeMap,
+		};
 	};
-
-	static QByteArray typeIdToShaderType(int typeId);
-
-	void addParam(const QString& name, void* data, uint16_t size, int typeId);
+	void addParam(const QString& name, void* data, uint16_t size, QParamDesc::Type type);
 	QVector<QParamDesc>::iterator getParamDesc(const QString& name);
 	QVector<QTextureDesc>::iterator getTextureDesc(const QString& name);
 protected:

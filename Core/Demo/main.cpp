@@ -9,6 +9,7 @@
 #include "Render\Scene\Component\SkyBox\QSkyBoxComponent.h"
 #include "Render\Scene\Component\Camera\QCameraComponent.h"
 #include "qrandom.h"
+#include "Render\Scene\Component\StaticMesh\QStaticModel.h"
 
 class MyGame :public QEngine {
 public:
@@ -25,8 +26,19 @@ public:
 		scene()->addPrimitive(cube);
 		scene()->setCamera(mCamera);
 		scene()->setSkyBox(mSkyBox);
-	}
 
+		//for (int i = 0; i < 10; i++) {
+		//	for (int j = 0; j < 10; j++) {
+		//		auto element = std::make_shared<QCube>();
+		//		element->setPosition(QVector3D(i * 5, j * 5, 0));
+		//		scene()->addPrimitive(element);
+		//	}
+		//}
+		mStaticModel = std::make_shared<QStaticModel>();
+		mStaticModel->loadFromFile(R"(C:\Users\fuxinghao879\Desktop\QEngine\Core\Demo\Genji\Genji.FBX)");
+		scene()->addPrimitive(mStaticModel);
+	}
+	std::shared_ptr<QStaticModel> mStaticModel;
 	std::shared_ptr<QCameraComponent> mCamera;
 	std::shared_ptr<QCube> cube;
 	std::shared_ptr<QSkyBoxComponent> mSkyBox;

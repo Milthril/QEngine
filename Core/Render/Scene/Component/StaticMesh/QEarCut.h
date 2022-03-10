@@ -9,8 +9,6 @@
 #include <utility>
 #include <vector>
 
-namespace mapbox {
-namespace detail {
 template <typename N = uint32_t>
 class Earcut {
 public:
@@ -821,12 +819,10 @@ void Earcut<N>::removeNode(Node* p) {
 	if (p->prevZ) p->prevZ->nextZ = p->nextZ;
 	if (p->nextZ) p->nextZ->prevZ = p->prevZ;
 }
-}
 
 template <typename N = uint32_t, typename Polygon>
-QVector<N> earcut(const Polygon& poly) {
-	mapbox::detail::Earcut<N> earcut;
-	earcut(poly);
-	return std::move(earcut.indices);
-}
+QVector<N> QEarcut(const Polygon& poly) {
+	Earcut<N> QEarcut;
+	QEarcut(poly);
+	return std::move(QEarcut.indices);
 }

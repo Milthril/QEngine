@@ -97,7 +97,7 @@ void QText2D::recreateVertexData()
 	QList<QPolygonF> holes;
 
 	for (const auto& polygon : polygonList) {
-		if (mapbox::detail::PolygonIsClockwise(polygon)) {
+		if (PolygonIsClockwise(polygon)) {
 			polygons << QList<QPolygonF>{polygon};
 		}
 		else {
@@ -120,7 +120,7 @@ void QText2D::recreateVertexData()
 				vertices.push_back(vertex);
 			}
 		}
-		auto localIndices = mapbox::earcut<QText2D::Index>(polygonSet);
+		auto localIndices = QEarcut<QText2D::Index>(polygonSet);
 		for (auto it : localIndices) {
 			indices << it + offset;
 		}
