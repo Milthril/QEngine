@@ -12,7 +12,7 @@
 #include "Render\Scene\Component\StaticMesh\QText2D.h"
 
 const int CUBE_MAT_SIZE = 10;
-const int CUBE_MAT_SPACING= 5;
+const int CUBE_MAT_SPACING = 5;
 
 class MyGame :public QEngine {
 public:
@@ -32,7 +32,7 @@ public:
 		:QEngine(argc, argv){
 
 		mCamera = std::make_shared<QCameraComponent>();
-		mCamera->setupWindow(mWindow.get());		//将相机与窗口绑定
+		mCamera->setupWindow(mWindow.get());		//将相机与窗口绑定，使用WASD Shift 空格可进行移动，鼠标左键按住窗口可调整视角
 		scene()->setCamera(mCamera);				//设置场景相机
 
 		mSkyBox = std::make_shared<QSkyBoxComponent>();
@@ -68,8 +68,6 @@ public:
 		mStaticModel->loadFromFile(PROJECT_SOURCE_DIR"/Genji/Genji.FBX");
 		mStaticModel->setRotation(QVector3D(-90, 0, 0));
 		scene()->addPrimitive(mStaticModel);
-
-
 	}
 protected:
 	void onGameLoop() override
