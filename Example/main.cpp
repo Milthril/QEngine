@@ -11,52 +11,80 @@
 #include "Render\Scene\Component\StaticMesh\QStaticModel.h"
 #include "Render\Scene\Component\StaticMesh\QText2D.h"
 
+const int CUBE_MAT_SIZE = 10;
+const int CUBE_MAT_SPACING= 5;
+
 class MyGame :public QEngine {
 public:
+	std::shared_ptr<QCameraComponent> mCamera;
+	std::shared_ptr<QSkyBoxComponent> mSkyBox;
+
+	std::shared_ptr<QCube> mCube[CUBE_MAT_SIZE][CUBE_MAT_SIZE];
+	std::shared_ptr<QStaticModel> mStaticModel;
+	std::shared_ptr<QParticleComponent> mGPUParticles;
+	std::shared_ptr<QSphere> mSphere;
+	std::shared_ptr<QText2D> mText;
+	std::shared_ptr<QMaterial> mMaterial;
+
+	QRandomGenerator rand;
+
 	MyGame(int argc, char** argv)
-		:QEngine(argc, argv)
-	{
-		cube = std::make_shared<QCube>();
+		:QEngine(argc, argv){
+
 		mCamera = std::make_shared<QCameraComponent>();
-		mCamera->setupWindow(mWindow.get());
+		mCamera->setupWindow(mWindow.get());		//将相机与窗口绑定
+		scene()->setCamera(mCamera);				//设置场景相机
+
 		mSkyBox = std::make_shared<QSkyBoxComponent>();
 		mSkyBox->setSkyBoxImage(QImage(PROJECT_SOURCE_DIR"/sky.jpeg"));
-		particles = std::make_shared<QParticleComponent>();
-		scene()->addPrimitive(cube);
-		scene()->setCamera(mCamera);
 		scene()->setSkyBox(mSkyBox);
 
-		int size = 10;
-		int spacing = 5;
-		for (int i = 0; i < size; i++) {
-			for (int j = 0; j < size; j++) {
-				auto element = std::make_shared<QCube>();
-				element->setPosition(QVector3D( (i-size/2.0) * spacing, (j-size/2.0) * spacing, -10));
-				scene()->addPrimitive(element);
+		mGPUParticles = std::make_shared<QParticleComponent>();
+		mGPUParticles->setLifetime(2);
+		mGPUParticles->setStaticMesh(std::make_shared<QSphere>());
+		mGPUParticles->getStaticMesh()->setScale(QVector3D(0.05, 0.05, 0.05));
+
+		scene()->addPrimitive(mGPUParticles);
+
+		for (int i = 0; i < CUBE_MAT_SIZE; i++) {
+			for (int j = 0; j < CUBE_MAT_SIZE; j++) {
+				std::shared_ptr<QCube>& cube = mCube[i][j];
+				cube.reset(new QCube);
+				cube->setPosition(QVector3D((i - CUBE_MAT_SIZE / 2.0) * CUBE_MAT_SPACING, (j - CUBE_MAT_SIZE / 2.0) * CUBE_MAT_SPACING, -10));
+				scene()->addPrimitive(cube);
 			}
 		}
+
+		mText = std::make_shared<QText2D>("GPU Particles");
+		mMaterial = std::make_shared<QMaterial>();
+		mMaterial->addParamVec3("BaseColor", QVector3D(0.1, 0.5, 0.9));
+		mMaterial->setShadingCode("FragColor = vec4(material.BaseColor,1);");
+		mText->setMaterial(mMaterial);
+		mText->setPosition(QVector3D(0, -4, 0));
+		mText->setRotation(QVector3D(0, 180, 0));
+		scene()->addPrimitive(mText);
+
 		mStaticModel = std::make_shared<QStaticModel>();
 		mStaticModel->loadFromFile(PROJECT_SOURCE_DIR"/Genji/Genji.FBX");
 		mStaticModel->setRotation(QVector3D(-90, 0, 0));
 		scene()->addPrimitive(mStaticModel);
-	}
-	std::shared_ptr<QStaticModel> mStaticModel;
-	std::shared_ptr<QCameraComponent> mCamera;
-	std::shared_ptr<QCube> cube;
-	std::shared_ptr<QSkyBoxComponent> mSkyBox;
-	std::shared_ptr<QParticleComponent> particles;
-	std::shared_ptr<QSphere> sphere = std::make_shared<QSphere>();
-	std::shared_ptr<QText2D> text = std::make_shared<QText2D>("default");
 
-	std::shared_ptr<QMaterial> material;
-	QRandomGenerator rand;
+
+	}
 protected:
 	void onGameLoop() override
 	{
 		float time = QTime::currentTime().msecsSinceStartOfDay();
-		cube->getMaterial()->setParam<QVector4D>("BaseColor", QVector4D(1, 5, 9, 1));
-		cube->setRotation(QVector3D(1, 1, 1) * time / 10.0);
 
+		mMaterial->setParam<QVector3D>("BaseColor", QVector3D(0.1, 0.5, 0.9) * (sin(time / 1000) * 5 + 5));		//设置材质颜色
+		mText->setScale(QVector3D(1, 1, 1) * (5 + 4 * sin(time / 1000)));
+
+		QVector<QParticleComponent::Particle> particles(100);													//每帧发射100个粒子，后续可定义各类发射器
+		for (auto& particle : particles) {																		//通过QParticleComponent::setUpdater可设置GPU粒子的运动代码，从而实现各种力的作用效果
+			particle.position = QVector3D(rand.bounded(-10000,10000)/100.0, -200+rand.bounded(-10000, 10000) / 100.0 , rand.bounded(-10000, 10000) / 100.0).toVector4D();
+			particle.velocity = QVector3D(rand.bounded(-10000, 10000) / 100.0, 0.1, 0);
+		}
+		mGPUParticles->createPartilces(particles);
 	}
 };
 
