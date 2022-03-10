@@ -29,3 +29,4 @@ foreach(TARGET_ITEM ${3rdTarget})
 endforeach()
 
 add_subdirectory(Core)
+add_subdirectory(Example)

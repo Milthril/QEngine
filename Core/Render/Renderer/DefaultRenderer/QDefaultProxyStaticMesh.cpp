@@ -165,7 +165,7 @@ void QDefaultProxyStaticMesh::updateResource(QRhiResourceUpdateBatch* batch) {
 
 	mMaterialProxy->updateResource(batch);
 
-	QMatrix4x4 MVP = mRenderer->getVP() * mStaticMesh->calculateModelMatrix();
+	QMatrix4x4 MVP = mRenderer->getVP() * mStaticMesh->calculateWorldMatrix();
 	batch->updateDynamicBuffer(mUniformBuffer.get(), 0, sizeof(QMatrix4x4), MVP.constData());
 }
 

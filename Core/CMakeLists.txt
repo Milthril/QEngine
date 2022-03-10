@@ -14,15 +14,15 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 find_package(QT NAMES Qt6 Qt5 COMPONENTS Core Widgets ShaderTools REQUIRED)
 find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Core Widgets OpenGL ShaderTools REQUIRED)
 
-file(GLOB_RECURSE PROJECT_SOURCE FILES *.h  *.cpp)
+file(GLOB_RECURSE PROJECT_SOURCE FILES *.h *.cpp)
 
-add_executable(Core
+add_library(Core STATIC
     ${PROJECT_SOURCE}
 )
 
 source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES ${PROJECT_SOURCE})
 
-target_link_libraries(Core PRIVATE 
+target_link_libraries(Core PUBLIC 
     Qt${QT_VERSION_MAJOR}::Widgets 
     Qt${QT_VERSION_MAJOR}::WidgetsPrivate 
     Qt${QT_VERSION_MAJOR}::CorePrivate 
@@ -30,8 +30,5 @@ target_link_libraries(Core PRIVATE
     Qt${QT_VERSION_MAJOR}::ShaderToolsPrivate
     assimp::assimp
 )
+target_include_directories(Core PUBLIC  .)
 
-add_custom_command(TARGET Core PRE_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:assimp> $<TARGET_FILE_DIR:Core>
-    COMMAND_EXPAND_LISTS
-)

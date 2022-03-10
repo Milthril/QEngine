@@ -19,7 +19,7 @@ public:
 		}
 	}
 	template<typename _Ty>
-	const _Ty& getParam(const QString& name) {
+	 _Ty getParam(const QString& name) {
 		auto paramDescIter = getParamDesc(name);
 		_Ty param;
 		if (paramDescIter != mParams.end()) {
