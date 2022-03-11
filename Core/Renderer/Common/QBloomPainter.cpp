@@ -1,11 +1,10 @@
 #include "QBloomPainter.h"
 #include "Renderer\QSceneRenderer.h"
+#include "QEngine.h"
 
-QBloomPainter::QBloomPainter(std::shared_ptr<QRhi> rhi)
-	: mRhi(rhi)
-	, mWriteBackPainter(rhi)
-	, mMeragePainter(rhi)
-	, mPixelSelector(rhi, R"(
+QBloomPainter::QBloomPainter()
+	:  mMeragePainter()
+	, mPixelSelector(R"(
 void main() {
 	vec4 color = texture(uTexture, vUV);
 	float value = max(max(color.r,color.g),color.b);
@@ -24,7 +23,7 @@ void QBloomPainter::drawCommand(QRhiCommandBuffer* cmdBuffer, QRhiSPtr<QRhiTextu
 	}
 	mPixelSelector.drawCommand(cmdBuffer, inputTexture, mBloomRT[0].renderTarget.get());
 	if (bNeedUpdateBloomState.receive()) {
-		QRhiResourceUpdateBatch* copyBatch = mRhi->nextResourceUpdateBatch();
+		QRhiResourceUpdateBatch* copyBatch = RHI->nextResourceUpdateBatch();
 		copyBatch->updateDynamicBuffer(mUniformBuffer.get(), 0, sizeof(BloomState), &mBloomState);
 		cmdBuffer->resourceUpdate(copyBatch);
 	}
@@ -68,17 +67,17 @@ void QBloomPainter::setBloomSize(int size)
 
 void QBloomPainter::initRhiResource()
 {
-	mSampler.reset(mRhi->newSampler(QRhiSampler::Linear,
+	mSampler.reset(RHI->newSampler(QRhiSampler::Linear,
 				   QRhiSampler::Linear,
 				   QRhiSampler::None,
 				   QRhiSampler::ClampToEdge,
 				   QRhiSampler::ClampToEdge));
 	mSampler->create();
 
-	mUniformBuffer.reset(mRhi->newBuffer(QRhiBuffer::Dynamic, QRhiBuffer::UniformBuffer, sizeof(BloomState)));
+	mUniformBuffer.reset(RHI->newBuffer(QRhiBuffer::Dynamic, QRhiBuffer::UniformBuffer, sizeof(BloomState)));
 	mUniformBuffer->create();
 
-	mPipelineH.reset(mRhi->newGraphicsPipeline());
+	mPipelineH.reset(RHI->newGraphicsPipeline());
 	QRhiGraphicsPipeline::TargetBlend blendState;
 	blendState.enable = false;
 	mPipelineH->setTargetBlends({ blendState });
@@ -120,7 +119,7 @@ void main(){
 		{ QRhiShaderStage::Fragment, fsH }
 	});
 	QRhiVertexInputLayout inputLayout;
-	mBindingsH.reset(mRhi->newShaderResourceBindings());
+	mBindingsH.reset(RHI->newShaderResourceBindings());
 	mBindingsH->setBindings({
 		QRhiShaderResourceBinding::sampledTexture(0,QRhiShaderResourceBinding::FragmentStage,mBloomRT[0].colorAttachment.get(),mSampler.get()),
 		QRhiShaderResourceBinding::uniformBuffer(1,QRhiShaderResourceBinding::FragmentStage,mUniformBuffer.get())
@@ -133,7 +132,7 @@ void main(){
 
 	//-------------------------------------------------------------
 
-	mPipelineV.reset(mRhi->newGraphicsPipeline());
+	mPipelineV.reset(RHI->newGraphicsPipeline());
 	mPipelineV->setTargetBlends({ blendState });
 	mPipelineV->setSampleCount(1);
 
@@ -163,7 +162,7 @@ void main(){
 		{ QRhiShaderStage::Vertex, vs },
 		{ QRhiShaderStage::Fragment, fsV }
 	});
-	mBindingsV.reset(mRhi->newShaderResourceBindings());
+	mBindingsV.reset(RHI->newShaderResourceBindings());
 	mBindingsV->setBindings({
 		QRhiShaderResourceBinding::sampledTexture(0,QRhiShaderResourceBinding::FragmentStage,mBloomRT[1].colorAttachment.get(),mSampler.get()),
 		QRhiShaderResourceBinding::uniformBuffer(1,QRhiShaderResourceBinding::FragmentStage,mUniformBuffer.get())
@@ -180,9 +179,9 @@ void QBloomPainter::createOrResize(QSize size)
 	if (mBloomRT[0].colorAttachment && mBloomRT[0].colorAttachment->pixelSize() == size)
 		return;
 	for (int i = 0; i < 2; i++) {
-		mBloomRT[i].colorAttachment.reset(mRhi->newTexture(QRhiTexture::RGBA32F, size, 1, QRhiTexture::RenderTarget | QRhiTexture::UsedAsTransferSource));
+		mBloomRT[i].colorAttachment.reset(RHI->newTexture(QRhiTexture::RGBA32F, size, 1, QRhiTexture::RenderTarget | QRhiTexture::UsedAsTransferSource));
 		mBloomRT[i].colorAttachment->create();
-		mBloomRT[i].renderTarget.reset(mRhi->newTextureRenderTarget({ mBloomRT[i].colorAttachment.get() }));
+		mBloomRT[i].renderTarget.reset(RHI->newTextureRenderTarget({ mBloomRT[i].colorAttachment.get() }));
 	}
 	renderPassDesc.reset(mBloomRT[0].renderTarget->newCompatibleRenderPassDescriptor());
 
@@ -210,8 +209,7 @@ void QBloomPainter::createOrResize(QSize size)
 	}
 }
 
-QBloomMeragePainter::QBloomMeragePainter(std::shared_ptr<QRhi> rhi)
-	:mRhi(rhi)
+QBloomMeragePainter::QBloomMeragePainter()
 {
 }
 
@@ -219,13 +217,13 @@ void QBloomMeragePainter::initRhiResource(QRhiRenderPassDescriptor* renderPassDe
 {
 	mSrcTexture = src;
 	mBloomTexture = bloom;
-	mSampler.reset(mRhi->newSampler(QRhiSampler::Linear,
+	mSampler.reset(RHI->newSampler(QRhiSampler::Linear,
 				   QRhiSampler::Linear,
 				   QRhiSampler::None,
 				   QRhiSampler::ClampToEdge,
 				   QRhiSampler::ClampToEdge));
 	mSampler->create();
-	mPipeline.reset(mRhi->newGraphicsPipeline());
+	mPipeline.reset(RHI->newGraphicsPipeline());
 	QRhiGraphicsPipeline::TargetBlend blendState;
 	blendState.enable = true;
 	mPipeline->setTargetBlends({ blendState });
@@ -264,7 +262,7 @@ void main() {
 
 	QRhiVertexInputLayout inputLayout;
 
-	mBindings.reset(mRhi->newShaderResourceBindings());
+	mBindings.reset(RHI->newShaderResourceBindings());
 	mBindings->setBindings({
 		QRhiShaderResourceBinding::sampledTexture(0,QRhiShaderResourceBinding::FragmentStage,mSrcTexture.get(),mSampler.get()),
 		QRhiShaderResourceBinding::sampledTexture(1,QRhiShaderResourceBinding::FragmentStage,mBloomTexture.get(),mSampler.get())

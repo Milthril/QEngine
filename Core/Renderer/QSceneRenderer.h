@@ -30,7 +30,6 @@ public:
 	virtual void drawInPass(QRhiCommandBuffer* cmdBuffer, const QRhiViewport& viewport) {}
 public:
 	QSceneRenderer* mRenderer;
-	std::shared_ptr<QRhi> mRhi;
 	std::shared_ptr<QSceneComponent> mComponent;
 	QRhiSPtr<QRhiGraphicsPipeline> mPipeline;
 	QRhiSPtr<QRhiBuffer> mUniformBuffer;
@@ -41,12 +40,11 @@ public:
 class QSceneRenderer :public QObject {
 	Q_OBJECT
 public:
-	QSceneRenderer(std::shared_ptr<QRhi> rhi, int sampleCount, QRhiSPtr<QRhiRenderPassDescriptor> renderPassDescriptor);
+	QSceneRenderer(int sampleCount, QRhiSPtr<QRhiRenderPassDescriptor> renderPassDescriptor);
 	void setScene(std::shared_ptr<QScene> scene);
 
 	std::shared_ptr<QScene> getScene() { return mScene; }
 	virtual QRhiSPtr<QRhiRenderPassDescriptor> getRenderPassDescriptor() const { return mRootRenderPassDescriptor; }
-	std::shared_ptr<QRhi> getRhi() const { return mRhi; }
 
 	void renderInternal(QRhiCommandBuffer* cmdBuffer, QRhiRenderTarget* renderTarget);
 	virtual void render(QRhiCommandBuffer* cmdBuffer, QRhiRenderTarget* renderTarget) = 0;
@@ -71,7 +69,6 @@ private:
 	virtual std::shared_ptr<QRhiProxy> createParticleProxy(std::shared_ptr<QParticleComponent>) = 0;
 	virtual std::shared_ptr<QRhiProxy> createSkyBoxProxy(std::shared_ptr<QSkyBoxComponent>) = 0;
 protected:
-	std::shared_ptr<QRhi> mRhi;
 	std::shared_ptr<QScene> mScene;
 	QRhiSPtr<QRhiRenderPassDescriptor> mRootRenderPassDescriptor;
 

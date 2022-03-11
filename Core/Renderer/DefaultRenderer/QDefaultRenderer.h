@@ -7,7 +7,7 @@
 
 class QDefaultRenderer :public QSceneRenderer {
 public:
-	QDefaultRenderer(std::shared_ptr<QRhi> rhi, int sampleCount, QRhiSPtr<QRhiRenderPassDescriptor> renderPassDescriptor);
+	QDefaultRenderer(int sampleCount, QRhiSPtr<QRhiRenderPassDescriptor> renderPassDescriptor);
 	virtual void render(QRhiCommandBuffer* cmdBuffer, QRhiRenderTarget* renderTarget) override;
 protected:
 	std::shared_ptr<QRhiProxy> createStaticMeshProxy(std::shared_ptr<QStaticMeshComponent>) override;

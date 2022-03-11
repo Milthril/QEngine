@@ -13,7 +13,7 @@ public:
 		QByteArray uniformDefineCode;
 	};
 	QRhiUniformProxy(QRhiUniform* material);
-	void recreateResource(QRhi* rhi);
+	void recreateResource();
 	void updateResource(QRhiResourceUpdateBatch* batch);
 	UniformInfo getUniformInfo(uint8_t bindingOffset = 0, QRhiShaderResourceBinding::StageFlag stage = QRhiShaderResourceBinding::FragmentStage);
 protected:

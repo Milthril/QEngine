@@ -5,13 +5,12 @@
 
 class QPixelSelector {
 public:
-	QPixelSelector(std::shared_ptr<QRhi> rhi, QByteArray code);
+	QPixelSelector(QByteArray code);
 	void drawCommand(QRhiCommandBuffer* cmdBuffer, QRhiSPtr<QRhiTexture> texture, QRhiRenderTarget* renderTarget);
 protected:
 	void initRhiResource(QRhiRenderPassDescriptor* renderPassDesc, QRhiRenderTarget* renderTarget, QRhiSPtr<QRhiTexture> texture);
 	void updateTexture(QRhiSPtr<QRhiTexture> texture);
 private:
-	std::shared_ptr<QRhi> mRhi;
 	QRhiSPtr<QRhiGraphicsPipeline> mPipeline;
 	QRhiSPtr<QRhiSampler> mSampler;
 	QRhiSPtr<QRhiShaderResourceBindings> mBindings;

@@ -6,6 +6,7 @@
 #include "Renderer/DefaultRenderer/QDefaultRenderer.h"
 
 class QRhiWindow :public QWindow {
+	friend class QEngine;
 public:
 	QRhiWindow(QRhi::Implementation backend);
 	static void setDefaultSurfaceFormat(QSurfaceFormat format);

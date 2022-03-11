@@ -93,7 +93,7 @@ void QRhiWindow::initInternal()
 	mSwapChain->setRenderPassDescriptor(mRenderPassDesciptor.get());
 	resizeSwapChain();
 
-	mRootRenderer = std::make_shared<QDefaultRenderer>(mRhi, mSwapChain->sampleCount(), mRenderPassDesciptor);
+	mRootRenderer = std::make_shared<QDefaultRenderer>(mSwapChain->sampleCount(), mRenderPassDesciptor);
 	mRootRenderer->setScene(mScene);
 }
 
@@ -182,8 +182,6 @@ bool QRhiWindow::event(QEvent* e)
 	case QEvent::PlatformSurface:
 		// this is the proper time to tear down the swapchain (while the native window and surface are still around)
 		if (static_cast<QPlatformSurfaceEvent*>(e)->surfaceEventType() == QPlatformSurfaceEvent::SurfaceAboutToBeDestroyed) {
-			mSwapChain.reset(nullptr);
-			mRhi.reset();
 			mHasSwapChain = false;
 		}
 

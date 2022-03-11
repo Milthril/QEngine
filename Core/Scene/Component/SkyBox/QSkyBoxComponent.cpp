@@ -35,8 +35,8 @@ std::array<QImage, 6> QSkyBoxComponent::getSubImageArray()
 {
 	auto it = mSkyBoxImage.format();
 	std::array<QImage, 6> imageList;
-	// 依次为左右上下前后
 
+	// 依次为左右上下前后
 	imageList[0] = mSkyBoxImage.copy(QRect(QPoint(2 * mCubeFaceSize.width(), mCubeFaceSize.width()), mCubeFaceSize));
 	imageList[1] = mSkyBoxImage.copy(QRect(QPoint(0, mCubeFaceSize.width()), mCubeFaceSize));
 

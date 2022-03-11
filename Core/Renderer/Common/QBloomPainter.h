@@ -6,13 +6,12 @@
 
 class QBloomMeragePainter {
 public:
-	QBloomMeragePainter(std::shared_ptr<QRhi> rhi);
+	QBloomMeragePainter();
 	void drawCommand(QRhiCommandBuffer* cmdBuffer, QRhiSPtr<QRhiTexture> src, QRhiSPtr<QRhiTexture> bloom, QRhiRenderTarget* renderTarget);
 protected:
 	void initRhiResource(QRhiRenderPassDescriptor* renderPassDesc, QRhiRenderTarget* renderTarget, QRhiSPtr<QRhiTexture> src, QRhiSPtr<QRhiTexture> bloom);
 	void updateTexture(QRhiSPtr<QRhiTexture> src, QRhiSPtr<QRhiTexture> bloom);
 private:
-	std::shared_ptr<QRhi> mRhi;
 	QRhiSPtr<QRhiGraphicsPipeline> mPipeline;
 	QRhiSPtr<QRhiSampler> mSampler;
 	QRhiSPtr<QRhiShaderResourceBindings> mBindings;
@@ -22,14 +21,13 @@ private:
 
 class QBloomPainter {
 public:
-	QBloomPainter(std::shared_ptr<QRhi> rhi);
+	QBloomPainter();
 	void drawCommand(QRhiCommandBuffer* cmdBuffer, QRhiSPtr<QRhiTexture> inputTexture, QRhiRenderTarget* outputTarget);
 	void setBloomSize(int size);
 protected:
 	void initRhiResource();
 	void createOrResize(QSize size);
 private:
-	std::shared_ptr<QRhi> mRhi;
 	QRhiSPtr<QRhiSampler> mSampler;
 	QRhiSPtr<QRhiBuffer> mUniformBuffer;
 	struct BloomRT {
@@ -43,7 +41,6 @@ private:
 	QRhiSPtr<QRhiGraphicsPipeline> mPipelineV;
 	QRhiSPtr<QRhiShaderResourceBindings> mBindingsH;
 	QRhiSPtr<QRhiShaderResourceBindings> mBindingsV;
-	QTexturePainter mWriteBackPainter;
 	QPixelSelector mPixelSelector;
 	QBloomMeragePainter mMeragePainter;
 

@@ -1,17 +1,18 @@
 #include "QRhiUniformProxy.h"
 #include "QRhiUniform.h"
+#include "QEngine.h"
 
 QRhiUniformProxy::QRhiUniformProxy(QRhiUniform* material)
 	: mMaterial(material)
 {
 }
 
-void QRhiUniformProxy::recreateResource(QRhi* rhi)
+void QRhiUniformProxy::recreateResource()
 {
-	mUniformBlock.reset(rhi->newBuffer(QRhiBuffer::Type::Dynamic, QRhiBuffer::UniformBuffer, mMaterial->mData.size()));
+	mUniformBlock.reset(RHI->newBuffer(QRhiBuffer::Type::Dynamic, QRhiBuffer::UniformBuffer, mMaterial->mData.size()));
 	mUniformBlock->create();
 
-	mSampler.reset(rhi->newSampler(QRhiSampler::Linear,
+	mSampler.reset(RHI->newSampler(QRhiSampler::Linear,
 				   QRhiSampler::Linear,
 				   QRhiSampler::None,
 				   QRhiSampler::ClampToEdge,
@@ -21,7 +22,7 @@ void QRhiUniformProxy::recreateResource(QRhi* rhi)
 	mTextureMap.clear();
 	for (auto& texture : mMaterial->mTexture) {
 		QRhiSPtr<QRhiTexture> tex;
-		tex.reset(rhi->newTexture(QRhiTexture::RGBA8, texture.image.size(), 1));
+		tex.reset(RHI->newTexture(QRhiTexture::RGBA8, texture.image.size(), 1));
 		mTextureMap[texture.name] = tex;
 		tex->create();
 	}

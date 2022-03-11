@@ -1,6 +1,7 @@
 #include "QDefaultProxyStaticMesh.h"
 #include "Scene\Component\QPrimitiveComponent.h"
 #include "Scene\Component\StaticMesh\QStaticMeshComponent.h"
+#include "QEngine.h"
 
 QDefaultProxyStaticMesh::QDefaultProxyStaticMesh(std::shared_ptr<QStaticMeshComponent> mesh)
 	:mStaticMesh(mesh)
@@ -9,16 +10,16 @@ QDefaultProxyStaticMesh::QDefaultProxyStaticMesh(std::shared_ptr<QStaticMeshComp
 
 void QDefaultProxyStaticMesh::recreateResource()
 {
-	mUniformBuffer.reset(mRhi->newBuffer(QRhiBuffer::Type::Dynamic, QRhiBuffer::UniformBuffer, sizeof(QMatrix4x4)));
+	mUniformBuffer.reset(RHI->newBuffer(QRhiBuffer::Type::Dynamic, QRhiBuffer::UniformBuffer, sizeof(QMatrix4x4)));
 	Q_ASSERT(mUniformBuffer->create());
 
-	mVertexBuffer.reset(mRhi->newBuffer(mStaticMesh->getBufferType(), QRhiBuffer::VertexBuffer, sizeof(QStaticMeshComponent::Vertex) * mStaticMesh->getVertexCount()));
+	mVertexBuffer.reset(RHI->newBuffer(mStaticMesh->getBufferType(), QRhiBuffer::VertexBuffer, sizeof(QStaticMeshComponent::Vertex) * mStaticMesh->getVertexCount()));
 	Q_ASSERT(mVertexBuffer->create());
 
 	if (mStaticMesh->getIndexedCount() == 0) {
 		mStaticMesh->autoFillIndices();
 	}
-	mIndexBuffer.reset(mRhi->newBuffer(mStaticMesh->getBufferType(), QRhiBuffer::IndexBuffer, sizeof(QStaticMeshComponent::Index) * mStaticMesh->getIndexedCount()));
+	mIndexBuffer.reset(RHI->newBuffer(mStaticMesh->getBufferType(), QRhiBuffer::IndexBuffer, sizeof(QStaticMeshComponent::Index) * mStaticMesh->getIndexedCount()));
 	Q_ASSERT(mIndexBuffer->create());
 }
 
@@ -27,7 +28,7 @@ void QDefaultProxyStaticMesh::recreatePipeline(PipelineUsageFlags flags /*= Pipe
 	if (mStaticMesh->getVertexCount() == 0) {
 		return;
 	}
-	mPipeline.reset(mRhi->newGraphicsPipeline());
+	mPipeline.reset(RHI->newGraphicsPipeline());
 	QRhiGraphicsPipeline::TargetBlend blendState;
 	blendState.enable = false;
 
@@ -109,7 +110,7 @@ void QDefaultProxyStaticMesh::recreatePipeline(PipelineUsageFlags flags /*= Pipe
 		{ QRhiShaderStage::Fragment, fs }
 	});
 
-	mShaderResourceBindings.reset(mRhi->newShaderResourceBindings());
+	mShaderResourceBindings.reset(RHI->newShaderResourceBindings());
 
 	QVector<QRhiShaderResourceBinding> shaderBindings;
 	shaderBindings << QRhiShaderResourceBinding::uniformBuffer(0, QRhiShaderResourceBinding::VertexStage, mUniformBuffer.get());
@@ -138,7 +139,7 @@ void QDefaultProxyStaticMesh::uploadResource(QRhiResourceUpdateBatch* batch)
 void QDefaultProxyStaticMesh::updateResource(QRhiResourceUpdateBatch* batch) {
 	if (mStaticMesh->bNeedUpdateVertex.receive()) {
 		if (mStaticMesh->getBufferType() != QRhiBuffer::Dynamic || mVertexBuffer->size() != sizeof(QStaticMeshComponent::Vertex) * mStaticMesh->getVertices().size()) {
-			mVertexBuffer.reset(mRhi->newBuffer(mStaticMesh->getBufferType(), QRhiBuffer::VertexBuffer, sizeof(QStaticMeshComponent::Vertex) * mStaticMesh->getVertices().size()));
+			mVertexBuffer.reset(RHI->newBuffer(mStaticMesh->getBufferType(), QRhiBuffer::VertexBuffer, sizeof(QStaticMeshComponent::Vertex) * mStaticMesh->getVertices().size()));
 			Q_ASSERT(mVertexBuffer->create());
 		}
 		if (mStaticMesh->getBufferType() == QRhiBuffer::Dynamic)
@@ -148,7 +149,7 @@ void QDefaultProxyStaticMesh::updateResource(QRhiResourceUpdateBatch* batch) {
 	}
 	if (mStaticMesh->bNeedUpdateIndex.receive()) {
 		if (mStaticMesh->getBufferType() != QRhiBuffer::Dynamic || mIndexBuffer->size() != sizeof(QStaticMeshComponent::Index) * mStaticMesh->getIndices().size()) {
-			mIndexBuffer.reset(mRhi->newBuffer(mStaticMesh->getBufferType(), QRhiBuffer::IndexBuffer, sizeof(QStaticMeshComponent::Index) * mStaticMesh->getIndices().size()));
+			mIndexBuffer.reset(RHI->newBuffer(mStaticMesh->getBufferType(), QRhiBuffer::IndexBuffer, sizeof(QStaticMeshComponent::Index) * mStaticMesh->getIndices().size()));
 			Q_ASSERT(mIndexBuffer->create());
 		}
 

@@ -8,12 +8,12 @@
 #include "Scene/Component/Camera/QCameraComponent.h"
 #include "private/qshaderbaker_p.h"
 #include "RHI/QRhiUniformMgr.h"
+#include "QEngine.h"
 
-QSceneRenderer::QSceneRenderer(std::shared_ptr<QRhi> rhi, int sampleCount, QRhiSPtr<QRhiRenderPassDescriptor> renderPassDescriptor)
-	: mRhi(rhi)
-	, mSampleCount(sampleCount)
+QSceneRenderer::QSceneRenderer( int sampleCount, QRhiSPtr<QRhiRenderPassDescriptor> renderPassDescriptor)
+	: mSampleCount(sampleCount)
 	, mRootRenderPassDescriptor(renderPassDescriptor)
-	, mBloomPainter(new QBloomPainter(rhi))
+	, mBloomPainter(new QBloomPainter())
 {
 }
 
@@ -30,7 +30,7 @@ void QSceneRenderer::setScene(std::shared_ptr<QScene> scene)
 
 void QSceneRenderer::renderInternal(QRhiCommandBuffer* buffer, QRhiRenderTarget* renderTarget)
 {
-	QRhiResourceUpdateBatch* batch = mRhi->nextResourceUpdateBatch();
+	QRhiResourceUpdateBatch* batch = RHI->nextResourceUpdateBatch();
 	tryResetUniformProxy();
 	tryResetPrimitiveProxy();
 	tryResetSkyBox(batch);
@@ -118,7 +118,7 @@ void QSceneRenderer::tryResetUniformProxy()
 	for (auto& uniform : QRhiUniformMgr::instance()->mUniformMap) {
 		if (uniform->bNeedRecreate.receive()) {
 			const auto& proxy = uniform->getProxy();
-			proxy->recreateResource(mRhi.get());
+			proxy->recreateResource();
 		}
 	}
 }
@@ -127,7 +127,6 @@ void QSceneRenderer::tryResetSkyBox(QRhiResourceUpdateBatch* batch)
 {
 	if (!mSkyBoxProxy && mScene->getSkyBox()) {
 		mSkyBoxProxy = createSkyBoxProxy(mScene->getSkyBox());
-		mSkyBoxProxy->mRhi = mRhi;
 		mSkyBoxProxy->mRenderer = this;
 		mSkyBoxProxy->mComponent = mScene->getSkyBox();
 		mSkyBoxProxy->recreateResource();
@@ -170,7 +169,6 @@ std::shared_ptr<QRhiProxy> QSceneRenderer::createPrimitiveProxy(std::shared_ptr<
 		return nullptr;
 		break;
 	}
-	proxy->mRhi = mRhi;
 	proxy->mRenderer = this;
 	proxy->mComponent = component;
 	component->bNeedResetProxy.active();
@@ -182,7 +180,6 @@ void QSceneRenderer::resetPrimitiveProxy(std::shared_ptr<QPrimitiveComponent> co
 	std::shared_ptr<QRhiProxy> newProxy = createPrimitiveProxy(component);
 	newProxy->mComponent = component;
 	newProxy->mRenderer = this;
-	newProxy->mRhi = this->mRhi;
 	newProxy->recreateResource();
 	newProxy->recreatePipeline();
 	mPrimitiveProxyMap[component->componentId()] = newProxy;

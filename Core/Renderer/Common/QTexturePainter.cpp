@@ -1,21 +1,21 @@
 #include "QTexturePainter.h"
 #include "Renderer\QSceneRenderer.h"
+#include "QEngine.h"
 
-QTexturePainter::QTexturePainter(std::shared_ptr<QRhi> rhi)
-	:mRhi(rhi)
+QTexturePainter::QTexturePainter()
 {
 }
 
 void QTexturePainter::initRhiResource(QRhiRenderPassDescriptor* renderPassDesc, QRhiRenderTarget* renderTarget, QRhiSPtr<QRhiTexture> texture)
 {
 	mTexture = texture;
-	mSampler.reset(mRhi->newSampler(QRhiSampler::Linear,
+	mSampler.reset(RHI->newSampler(QRhiSampler::Linear,
 				   QRhiSampler::Linear,
 				   QRhiSampler::None,
 				   QRhiSampler::ClampToEdge,
 				   QRhiSampler::ClampToEdge));
 	mSampler->create();
-	mPipeline.reset(mRhi->newGraphicsPipeline());
+	mPipeline.reset(RHI->newGraphicsPipeline());
 	QRhiGraphicsPipeline::TargetBlend blendState;
 	blendState.enable = true;
 	mPipeline->setTargetBlends({ blendState });
@@ -46,7 +46,7 @@ void main() {
 	});
 	QRhiVertexInputLayout inputLayout;
 
-	mBindings.reset(mRhi->newShaderResourceBindings());
+	mBindings.reset(RHI->newShaderResourceBindings());
 	mBindings->setBindings({
 		QRhiShaderResourceBinding::sampledTexture(0,QRhiShaderResourceBinding::FragmentStage,mTexture.get(),mSampler.get())
 	});

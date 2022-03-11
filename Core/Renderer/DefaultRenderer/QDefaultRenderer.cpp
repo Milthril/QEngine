@@ -3,9 +3,10 @@
 #include "QDefaultProxyStaticMesh.h"
 #include "QDefaultProxyParticle.h"
 #include "QDefaultProxySkyBox.h"
+#include "QEngine.h"
 
-QDefaultRenderer::QDefaultRenderer(std::shared_ptr<QRhi> rhi, int sampleCount, QRhiSPtr<QRhiRenderPassDescriptor> renderPassDescriptor)
-	:QSceneRenderer(rhi, sampleCount, renderPassDescriptor)
+QDefaultRenderer::QDefaultRenderer(int sampleCount, QRhiSPtr<QRhiRenderPassDescriptor> renderPassDescriptor)
+	:QSceneRenderer(sampleCount, renderPassDescriptor)
 {
 }
 
@@ -16,7 +17,7 @@ void QDefaultRenderer::render(QRhiCommandBuffer* cmdBuffer, QRhiRenderTarget* re
 	for (auto& it : mPrimitiveProxyMap) {
 		it->updatePrePass(cmdBuffer);
 	}
-	QRhiResourceUpdateBatch* batch = mRhi->nextResourceUpdateBatch();
+	QRhiResourceUpdateBatch* batch = RHI->nextResourceUpdateBatch();
 	for (auto& it : mPrimitiveProxyMap) {
 		it->updateResource(batch);
 	}
@@ -65,11 +66,11 @@ void QDefaultRenderer::createOrResizeRenderTarget(QSize size)
 {
 	if (mRT.colorAttachment && mRT.colorAttachment->pixelSize() == size)
 		return;
-	mRT.colorAttachment.reset(mRhi->newTexture(QRhiTexture::RGBA32F, size, 1, QRhiTexture::RenderTarget | QRhiTexture::UsedAsTransferSource));
+	mRT.colorAttachment.reset(RHI->newTexture(QRhiTexture::RGBA32F, size, 1, QRhiTexture::RenderTarget | QRhiTexture::UsedAsTransferSource));
 	mRT.colorAttachment->create();
 	QRhiColorAttachment colorAttachment;
 	if (getSampleCount() > 1) {
-		mRT.msaaBuffer.reset(mRhi->newRenderBuffer(QRhiRenderBuffer::Color, size, getSampleCount(), {}, QRhiTexture::RGBA32F));
+		mRT.msaaBuffer.reset(RHI->newRenderBuffer(QRhiRenderBuffer::Color, size, getSampleCount(), {}, QRhiTexture::RGBA32F));
 		mRT.msaaBuffer->create();
 		colorAttachment.setRenderBuffer(mRT.msaaBuffer.get());
 		colorAttachment.setResolveTexture(mRT.colorAttachment.get());
@@ -77,12 +78,12 @@ void QDefaultRenderer::createOrResizeRenderTarget(QSize size)
 	else {
 		colorAttachment.setTexture(mRT.colorAttachment.get());
 	}
-	mRT.depthStencil.reset(mRhi->newRenderBuffer(QRhiRenderBuffer::DepthStencil, size, getSampleCount()));
+	mRT.depthStencil.reset(RHI->newRenderBuffer(QRhiRenderBuffer::DepthStencil, size, getSampleCount()));
 	mRT.depthStencil->create();
 	QRhiTextureRenderTargetDescription RTDesc;
 	RTDesc.setColorAttachments({ colorAttachment });
 	RTDesc.setDepthStencilBuffer(mRT.depthStencil.get());
-	mRT.renderTarget.reset(mRhi->newTextureRenderTarget(RTDesc));
+	mRT.renderTarget.reset(RHI->newTextureRenderTarget(RTDesc));
 	mRT.renderPassDesc.reset(mRT.renderTarget->newCompatibleRenderPassDescriptor());
 	mRT.renderTarget->setRenderPassDescriptor(mRT.renderPassDesc.get());
 	mRT.renderTarget->create();

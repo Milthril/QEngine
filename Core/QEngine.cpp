@@ -30,3 +30,8 @@ void QEngine::execGame()
 		mWindow->requestUpdate();
 	}
 }
+
+QRhi* QEngine::globalRHI()
+{
+	return mWindow->mRhi.get();
+}

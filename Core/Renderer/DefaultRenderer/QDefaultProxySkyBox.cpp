@@ -1,6 +1,7 @@
 #include "QDefaultProxySkyBox.h"
 #include "Scene\Component\QPrimitiveComponent.h"
 #include "Scene\Component\SkyBox\QSkyBoxComponent.h"
+#include "QEngine.h"
 
 static float cubeData[] = { // Y up, front = CCW
 		// positions
@@ -54,28 +55,28 @@ QDefaultProxySkyBox::QDefaultProxySkyBox(std::shared_ptr<QSkyBoxComponent> skybo
 
 void QDefaultProxySkyBox::recreateResource()
 {
-	mTexture.reset(mRhi->newTexture(QRhiTexture::RGBA8, mSkyBox->getCubeFaceSize(), 1,
+	mTexture.reset(RHI->newTexture(QRhiTexture::RGBA8, mSkyBox->getCubeFaceSize(), 1,
 				   QRhiTexture::CubeMap
 				   | QRhiTexture::MipMapped
 				   | QRhiTexture::UsedWithGenerateMips));
 	mTexture->create();
-	mSampler.reset(mRhi->newSampler(QRhiSampler::Linear,
+	mSampler.reset(RHI->newSampler(QRhiSampler::Linear,
 				   QRhiSampler::Linear,
 				   QRhiSampler::None,
 				   QRhiSampler::Repeat,
 				   QRhiSampler::Repeat));
 	mSampler->create();
 
-	mUniformBuffer.reset(mRhi->newBuffer(QRhiBuffer::Type::Dynamic, QRhiBuffer::UniformBuffer, sizeof(QMatrix4x4)));
+	mUniformBuffer.reset(RHI->newBuffer(QRhiBuffer::Type::Dynamic, QRhiBuffer::UniformBuffer, sizeof(QMatrix4x4)));
 	Q_ASSERT(mUniformBuffer->create());
 
-	mVertexBuffer.reset(mRhi->newBuffer(QRhiBuffer::Immutable, QRhiBuffer::VertexBuffer, sizeof(cubeData)));
+	mVertexBuffer.reset(RHI->newBuffer(QRhiBuffer::Immutable, QRhiBuffer::VertexBuffer, sizeof(cubeData)));
 	Q_ASSERT(mVertexBuffer->create());
 }
 
 void QDefaultProxySkyBox::recreatePipeline(PipelineUsageFlags flags /*= PipelineUsageFlag::Normal*/)
 {
-	mPipeline.reset(mRhi->newGraphicsPipeline());
+	mPipeline.reset(RHI->newGraphicsPipeline());
 	QRhiGraphicsPipeline::TargetBlend blendState;
 	blendState.enable = false;
 	mPipeline->setTargetBlends({ blendState });
@@ -133,7 +134,7 @@ void QDefaultProxySkyBox::recreatePipeline(PipelineUsageFlags flags /*= Pipeline
 		{ QRhiShaderStage::Fragment, fs }
 	});
 
-	mShaderResourceBindings.reset(mRhi->newShaderResourceBindings());
+	mShaderResourceBindings.reset(RHI->newShaderResourceBindings());
 
 	QVector<QRhiShaderResourceBinding> shaderBindings;
 	shaderBindings << QRhiShaderResourceBinding::uniformBuffer(0, QRhiShaderResourceBinding::VertexStage, mUniformBuffer.get());
