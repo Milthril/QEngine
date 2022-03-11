@@ -29,4 +29,5 @@ foreach(TARGET_ITEM ${3rdTarget})
 endforeach()
 
 add_subdirectory(Core)
+add_subdirectory(Editor)
 add_subdirectory(Example)

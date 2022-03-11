@@ -11,8 +11,8 @@ set(CMAKE_AUTOMOC ON)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-find_package(QT NAMES Qt6 Qt5 COMPONENTS Core Widgets ShaderTools REQUIRED)
-find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Core Widgets OpenGL ShaderTools REQUIRED)
+find_package(QT NAMES Qt6 Qt5 COMPONENTS Core Widgets ShaderTools Network REQUIRED)
+find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Core Widgets OpenGL ShaderTools Network REQUIRED)
 
 file(GLOB_RECURSE PROJECT_SOURCE FILES *.h *.cpp)
 
@@ -28,6 +28,7 @@ target_link_libraries(Core PUBLIC
     Qt${QT_VERSION_MAJOR}::CorePrivate 
     Qt${QT_VERSION_MAJOR}::OpenGLPrivate 
     Qt${QT_VERSION_MAJOR}::ShaderToolsPrivate
+    Qt${QT_VERSION_MAJOR}::Network
     assimp::assimp
 )
 target_include_directories(Core PUBLIC  .)
