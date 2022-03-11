@@ -1,1 +1,0 @@
-#include "Render\Scene\Component\QPrimitiveComponent.h"

@@ -2,8 +2,8 @@
 #define QEngine_h__
 
 #include <QApplication>
-#include "Render\Scene\QScene.h"
-#include "Render\RHI\QRhiWindow.h"
+#include "Scene\QScene.h"
+#include "RHI\QRhiWindow.h"
 
 #if defined(Engine)
 #undef Engine
