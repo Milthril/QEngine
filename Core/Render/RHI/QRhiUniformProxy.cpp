@@ -43,20 +43,21 @@ void QRhiUniformProxy::updateResource(QRhiResourceUpdateBatch* batch)
 	}
 }
 
-QRhiUniformProxy::UniformInfo QRhiUniformProxy::getUniformInfo(uint8_t bindingOffset /*= 0*/) {
+QRhiUniformProxy::UniformInfo QRhiUniformProxy::getUniformInfo(uint8_t bindingOffset /*= 0*/, QRhiShaderResourceBinding::StageFlag stage /*= QRhiShaderResourceBinding::FragmentStage*/)
+{
 	QRhiUniformProxy::UniformInfo info;
 	QString uniformCode;
 	if (!mMaterial->mParams.isEmpty()) {
-		info.bindings << QRhiShaderResourceBinding::uniformBuffer(bindingOffset, QRhiShaderResourceBinding::FragmentStage, mUniformBlock.get());
-		uniformCode = "layout(binding = " + QString::number(bindingOffset) + ") uniform MaterialInfo{ \n";
+		info.bindings << QRhiShaderResourceBinding::uniformBuffer(bindingOffset, stage, mUniformBlock.get());
+		uniformCode = "layout(binding = " + QString::number(bindingOffset) + ") uniform UniformBlock{ \n";
 		for (auto& param : mMaterial->mParams) {
 			uniformCode += QString("    %1 %2;\n").arg(param.getTypeName()).arg(param.name);
 		}
-		uniformCode += "}material;\n";
+		uniformCode += "}UBO;\n";
 		bindingOffset++;
 	}
 	for (auto& key : mTextureMap.keys()) {
-		info.bindings << QRhiShaderResourceBinding::sampledTexture(bindingOffset, QRhiShaderResourceBinding::FragmentStage, mTextureMap[key].get(), mSampler.get());
+		info.bindings << QRhiShaderResourceBinding::sampledTexture(bindingOffset, stage, mTextureMap[key].get(), mSampler.get());
 		uniformCode += QString("layout (binding = %1) uniform %2 %3;\n").arg(bindingOffset).arg("sampler2D").arg(key);
 		bindingOffset++;
 	}

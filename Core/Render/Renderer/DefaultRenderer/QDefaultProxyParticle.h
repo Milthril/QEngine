@@ -14,17 +14,14 @@ private:
 private:
 	std::shared_ptr<QParticleComponent> mParticle;
 
-	QRhiSPtr<QRhiBuffer> mParticlesBuffer[2];
+	QRhiSPtr<QRhiBuffer> mParticlesBuffer;
 	QRhiSPtr<QRhiComputePipeline> mComputePipeline;
-	QRhiSPtr<QRhiShaderResourceBindings> mComputeBindings[2];
+	QRhiSPtr<QRhiShaderResourceBindings> mComputeBindings;
 	QRhiSPtr<QRhiShaderResourceBindings> mShaderResourceBindings;
 
 	QRhiSPtr<QRhiBuffer> mMatrixBuffer;
 	QRhiSPtr<QRhiComputePipeline> mMatrixComputePipline;
-	QRhiSPtr<QRhiShaderResourceBindings> mMatrixBindings[2];
-
-	int mInputIndex = 0;
-	int mOutputIndex = 1;
+	QRhiSPtr<QRhiShaderResourceBindings> mMatrixBindings;
 
 	std::array<float, QParticleComponent::PARTICLE_MAX_SIZE> mAgePool = { 0 };
 	QList<uint32_t> mIndexPool;
