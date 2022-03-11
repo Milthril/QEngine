@@ -31,7 +31,6 @@ void QSceneRenderer::setScene(std::shared_ptr<QScene> scene)
 void QSceneRenderer::renderInternal(QRhiCommandBuffer* buffer, QRhiRenderTarget* renderTarget)
 {
 	QRhiResourceUpdateBatch* batch = mRhi->nextResourceUpdateBatch();
-
 	tryResetUniformProxy();
 	tryResetPrimitiveProxy();
 	tryResetSkyBox(batch);

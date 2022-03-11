@@ -1,14 +1,12 @@
 ﻿#include "QParticleComponent.h"
 #include "Render/Scene/Component/StaticMesh/QCube.h"
 
-const char* UpdateShaderHeader = R"(
-#version 450
+QString QParticleComponent::getParticleDefine() {
+	return  R"(
 #extension GL_ARB_separate_shader_objects : enable
 #define LOCAL_SIZE 256
 #define PARTICLE_MAX_SIZE 100000
-
 layout (local_size_x = LOCAL_SIZE) in;
-
 struct Particle {
 	vec3 position;
 	vec3 rotation;
@@ -16,40 +14,12 @@ struct Particle {
 	vec3 velocity;
 	float life;
 };
-
-layout(std140,binding = 0)  buffer InputParticle{
-    Particle intputParticles[PARTICLE_MAX_SIZE];
-};
-
-layout(std140,binding = 1) buffer OutputParticle{
-    Particle outputParticles[PARTICLE_MAX_SIZE];
-};
-
-void main(){
-    const uint index = gl_GlobalInvocationID.x ;								//根据工作单元的位置换算出内存上的索引
-    outputParticles[index].life = intputParticles[index].life + 0.01;
-    outputParticles[index].position = intputParticles[index].position + intputParticles[index].velocity;
-    outputParticles[index].velocity = intputParticles[index].velocity ;
-    outputParticles[index].scaling = intputParticles[index].scaling;
-    outputParticles[index].rotation = intputParticles[index].rotation;
-}
 )";
+}
 
 QParticleComponent::QParticleComponent()
 {
-	setUpdater(UpdateShaderHeader);
-	auto it = std::make_shared<QCube>();
-	mStaticMesh = it;
-}
-
-QByteArray QParticleComponent::getUpdater() const
-{
-	return mUpdater;
-}
-
-void QParticleComponent::setUpdater(QByteArray val)
-{
-	mUpdater = val;
+	mStaticMesh = std::make_shared<QCube>();
 }
 
 void QParticleComponent::createPartilces(const QVector<Particle>& particles)

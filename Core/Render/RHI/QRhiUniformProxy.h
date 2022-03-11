@@ -15,7 +15,7 @@ public:
 	QRhiUniformProxy(QRhiUniform* material);
 	void recreateResource(QRhi* rhi);
 	void updateResource(QRhiResourceUpdateBatch* batch);
-	UniformInfo getUniformInfo(uint8_t bindingOffset = 0);
+	UniformInfo getUniformInfo(uint8_t bindingOffset = 0, QRhiShaderResourceBinding::StageFlag stage = QRhiShaderResourceBinding::FragmentStage);
 protected:
 	QRhiUniform* mMaterial;
 	QRhiSPtr<QRhiBuffer> mUniformBlock;

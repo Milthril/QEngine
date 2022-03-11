@@ -10,10 +10,8 @@ QDefaultProxyParticle::QDefaultProxyParticle(std::shared_ptr<QParticleComponent>
 void QDefaultProxyParticle::recreateResource() {
 	mStaticMeshProxy = mRenderer->createPrimitiveProxy(mParticle->getStaticMesh());
 	mStaticMeshProxy->recreateResource();
-	for (int i = 0; i < std::size(mParticlesBuffer); i++) {
-		mParticlesBuffer[i].reset(mRhi->newBuffer(QRhiBuffer::Static, QRhiBuffer::UsageFlag::VertexBuffer | QRhiBuffer::UsageFlag::StorageBuffer, sizeof(QParticleComponent::ParticleBuffer)));
-		mParticlesBuffer[i]->create();
-	}
+	mParticlesBuffer.reset(mRhi->newBuffer(QRhiBuffer::Static, QRhiBuffer::UsageFlag::VertexBuffer | QRhiBuffer::UsageFlag::StorageBuffer, sizeof(QParticleComponent::ParticleBuffer)));
+	mParticlesBuffer->create();
 	mMatrixBuffer.reset(mRhi->newBuffer(QRhiBuffer::Static, QRhiBuffer::UsageFlag::VertexBuffer | QRhiBuffer::UsageFlag::StorageBuffer, sizeof(float) * 16 * QParticleComponent::PARTICLE_MAX_SIZE));
 	mMatrixBuffer->create();
 }
@@ -23,37 +21,44 @@ void QDefaultProxyParticle::recreatePipeline(PipelineUsageFlags flags /*= Pipeli
 	mStaticMeshProxy->recreatePipeline(flags | PipelineUsageFlag::Instancing);
 
 	mComputePipeline.reset(mRhi->newComputePipeline());
-	mComputeBindings[0].reset(mRhi->newShaderResourceBindings());
-	mComputeBindings[0]->setBindings({
-		QRhiShaderResourceBinding::bufferLoad(0, QRhiShaderResourceBinding::ComputeStage, mParticlesBuffer[0].get()),
-		QRhiShaderResourceBinding::bufferStore(1, QRhiShaderResourceBinding::ComputeStage, mParticlesBuffer[1].get()),
-	});
-	mComputeBindings[0]->create();
-	mComputeBindings[1].reset(mRhi->newShaderResourceBindings());
-	mComputeBindings[1]->setBindings({
-		QRhiShaderResourceBinding::bufferLoad(0, QRhiShaderResourceBinding::ComputeStage, mParticlesBuffer[1].get()),
-		QRhiShaderResourceBinding::bufferStore(1, QRhiShaderResourceBinding::ComputeStage, mParticlesBuffer[0].get()),
-	});
-	mComputeBindings[1]->create();
-	mComputePipeline->setShaderResourceBindings(mComputeBindings[0].get());
-	QShader computeUpdater = QSceneRenderer::createShaderFromCode(QShader::ComputeStage, mParticle->getUpdater());
+	mComputeBindings.reset(mRhi->newShaderResourceBindings());
+
+	QRhiUniformProxy::UniformInfo uniformInfo = mParticle->updater().getProxy()->getUniformInfo(1, QRhiShaderResourceBinding::ComputeStage);
+	QVector<QRhiShaderResourceBinding> shaderBindings;
+	shaderBindings << QRhiShaderResourceBinding::bufferLoadStore(0, QRhiShaderResourceBinding::ComputeStage, mParticlesBuffer.get());
+	shaderBindings << uniformInfo.bindings;
+	mComputeBindings->setBindings(shaderBindings.begin(), shaderBindings.end());
+	mComputeBindings->create();
+
+	mComputePipeline->setShaderResourceBindings(mComputeBindings.get());
+
+	QString particleRunCode = QString(R"(#version 450
+	%1
+	layout(std140,binding = 0) buffer ParticlesBuffer{
+		Particle particles[PARTICLE_MAX_SIZE];
+	};
+	%2
+
+	#define ID  gl_GlobalInvocationID.x
+	#define particle particles[ID]
+
+	void main(){
+		%3
+	}
+	)").arg(mParticle->getParticleDefine(), uniformInfo.uniformDefineCode, mParticle->updater().getUpdateCode());
+
+	QShader computeUpdater = QSceneRenderer::createShaderFromCode(QShader::ComputeStage, particleRunCode.toLocal8Bit());
 	mComputePipeline->setShaderStage({ QRhiShaderStage::Compute,computeUpdater });
 	Q_ASSERT(mComputePipeline->create());
 
 	mMatrixComputePipline.reset(mRhi->newComputePipeline());
-	mMatrixBindings[0].reset(mRhi->newShaderResourceBindings());
-	mMatrixBindings[0]->setBindings({
-		QRhiShaderResourceBinding::bufferLoad(0, QRhiShaderResourceBinding::ComputeStage, mParticlesBuffer[0].get()),
+	mMatrixBindings.reset(mRhi->newShaderResourceBindings());
+	mMatrixBindings->setBindings({
+		QRhiShaderResourceBinding::bufferLoad(0, QRhiShaderResourceBinding::ComputeStage, mParticlesBuffer.get()),
 		QRhiShaderResourceBinding::bufferStore(1, QRhiShaderResourceBinding::ComputeStage,mMatrixBuffer.get()),
 	});
-	mMatrixBindings[0]->create();
-	mMatrixBindings[1].reset(mRhi->newShaderResourceBindings());
-	mMatrixBindings[1]->setBindings({
-		QRhiShaderResourceBinding::bufferLoad(0, QRhiShaderResourceBinding::ComputeStage, mParticlesBuffer[1].get()),
-		QRhiShaderResourceBinding::bufferStore(1, QRhiShaderResourceBinding::ComputeStage,mMatrixBuffer.get()),
-	});
-	mMatrixBindings[1]->create();
-	mMatrixComputePipline->setShaderResourceBindings(mMatrixBindings[0].get());
+	mMatrixBindings->create();
+	mMatrixComputePipline->setShaderResourceBindings(mMatrixBindings.get());
 	QShader matrixCompute = QSceneRenderer::createShaderFromCode(QShader::ComputeStage, R"(
 		#version 450
 		#define LOCAL_SIZE 256
@@ -145,21 +150,20 @@ void QDefaultProxyParticle::updatePrePass(QRhiCommandBuffer* cmdBuffer)
 		for (int i = 0; i < incrememt; i++) {
 			uint32_t index = allocIndex();
 			mAgePool[index] = particles[i].life;
-			u->uploadStaticBuffer(mParticlesBuffer[mInputIndex].get(), sizeof(QParticleComponent::Particle) * index, sizeof(QParticleComponent::Particle), &particles[i]);
+			u->uploadStaticBuffer(mParticlesBuffer.get(), sizeof(QParticleComponent::Particle) * index, sizeof(QParticleComponent::Particle), &particles[i]);
 		}
 	}
 	cmdBuffer->beginComputePass(u);
 	cmdBuffer->setComputePipeline(mComputePipeline.get());
-	cmdBuffer->setShaderResources(mComputeBindings[mInputIndex].get());
+	cmdBuffer->setShaderResources(mComputeBindings.get());
 	cmdBuffer->dispatch(qCeil(mNumOfParticles / 256.0), 1, 1);
 	cmdBuffer->endComputePass();
 
 	cmdBuffer->beginComputePass();
 	cmdBuffer->setComputePipeline(mMatrixComputePipline.get());
-	cmdBuffer->setShaderResources(mMatrixBindings[mOutputIndex].get());
+	cmdBuffer->setShaderResources(mMatrixBindings.get());
 	cmdBuffer->dispatch(qCeil(mNumOfParticles / 256.0), 1, 1);
 	cmdBuffer->endComputePass();
-	qSwap(mInputIndex, mOutputIndex);
 }
 
 void QDefaultProxyParticle::drawInPass(QRhiCommandBuffer* cmdBuffer, const QRhiViewport& viewport) {

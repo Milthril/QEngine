@@ -2,10 +2,10 @@
 #define QParticleComponent_h__
 
 #include "Render\Scene\Component\QPrimitiveComponent.h"
+#include "QParticleUpdater.h"
 
 class QParticleComponent :public QPrimitiveComponent {
 	Q_OBJECT
-		Q_PROPERTY(QByteArray updater READ getUpdater WRITE setUpdater)
 		Q_PROPERTY(float lifetime READ getLifetime WRITE setLifetime)
 public:
 	QParticleComponent();
@@ -27,8 +27,8 @@ public:
 		Particle particles[PARTICLE_MAX_SIZE];
 	};
 
-	QByteArray getUpdater() const;
-	void setUpdater(QByteArray val);
+	QParticleUpdater& updater() { return mUpdater; }
+	void setUpdater(QParticleUpdater val) { mUpdater = val; }
 
 	float getLifetime() const { return mLifetime; }
 	void setLifetime(float val) { mLifetime = val; }
@@ -43,8 +43,9 @@ public:
 	virtual void setRotation(const QVector3D& newRotation) override;
 	virtual void setScale(const QVector3D& newScale) override;
 
+	static QString getParticleDefine();
 private:
-	QByteArray mUpdater;
+	QParticleUpdater mUpdater;
 	QVector<Particle> mParticlesPool;
 	std::shared_ptr<QPrimitiveComponent> mStaticMesh;
 	float mLifetime = 2;
