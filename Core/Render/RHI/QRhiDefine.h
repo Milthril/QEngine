@@ -3,6 +3,7 @@
 
 #include <memory>
 #include "private/qrhi_p.h"
+#include "Render\RHI\QRhiSignal.h"
 
 template<typename _Ty>
 class QRhiSPtr :public std::shared_ptr<_Ty> {

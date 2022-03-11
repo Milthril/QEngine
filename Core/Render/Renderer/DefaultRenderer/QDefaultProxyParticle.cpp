@@ -159,16 +159,6 @@ void QDefaultProxyParticle::updatePrePass(QRhiCommandBuffer* cmdBuffer)
 	cmdBuffer->setShaderResources(mMatrixBindings[mOutputIndex].get());
 	cmdBuffer->dispatch(qCeil(mNumOfParticles / 256.0), 1, 1);
 	cmdBuffer->endComputePass();
-
-	QRhiBufferReadbackResult* ret = new QRhiBufferReadbackResult;
-	ret->completed = [ret]() {
-		float buf[100][16];
-		memcpy(buf, ret->data.constData(), ret->data.size());
-	};
-
-	u->readBackBuffer(mMatrixBuffer.get(), 0, sizeof(float) * 16 * 100, ret);
-	mRhi->finish();
-
 	qSwap(mInputIndex, mOutputIndex);
 }
 

@@ -1,40 +1,47 @@
-﻿#include "QMaterial.h"
+﻿#include "QRhiUniform.h"
+#include "QRhiUniformMgr.h"
 
-QMaterial::QMaterial()
+QRhiUniform::QRhiUniform()
+	:mProxy(std::make_shared<QRhiUniformProxy>(this))
 {
-	mShadingCode = "FragColor = vec4(1);";
+	QRhiUniformMgr::instance()->AddUniform(this);
 }
 
-void QMaterial::addParamFloat(const QString& name, float var)
+QRhiUniform::~QRhiUniform()
+{
+	QRhiUniformMgr::instance()->RemoveUniform(this);
+}
+
+void QRhiUniform::addParamFloat(const QString& name, float var)
 {
 	addParam(name, static_cast<void*>(&var), sizeof(float), QParamDesc::Float);
 }
 
-void QMaterial::addParamVec2(const QString& name, QVector2D vec2)
+void QRhiUniform::addParamVec2(const QString& name, QVector2D vec2)
 {
 	addParam(name, static_cast<void*>(&vec2), sizeof(QVector2D), QParamDesc::Vec2);
 }
 
-void QMaterial::addParamVec3(const QString& name, QVector3D vec3)
+void QRhiUniform::addParamVec3(const QString& name, QVector3D vec3)
 {
 	addParam(name, static_cast<void*>(&vec3), sizeof(QVector3D), QParamDesc::Vec3);
 }
 
-void QMaterial::addParamVec4(const QString& name, QVector4D vec4)
+void QRhiUniform::addParamVec4(const QString& name, QVector4D vec4)
 {
 	addParam(name, static_cast<void*>(&vec4), sizeof(QVector4D), QParamDesc::Vec4);
 }
 
-void QMaterial::addParamMat4(const QString& name, QMatrix4x4 mat4)
+void QRhiUniform::addParamMat4(const QString& name, QMatrix4x4 mat4)
 {
 	addParam(name, static_cast<void*>(mat4.data()), sizeof(float) * 16, QParamDesc::Mat4);
 }
 
-void QMaterial::removeParam(const QString& name)
+void QRhiUniform::removeParam(const QString& name)
 {
 }
 
-void QMaterial::setTextureSampler(const QString& name, const QImage& image)
+void QRhiUniform::setTextureSampler(const QString& name, const QImage& image)
 {
 	auto textureIter = getTextureDesc(name);
 	if (textureIter != mTexture.end()) {
@@ -43,21 +50,22 @@ void QMaterial::setTextureSampler(const QString& name, const QImage& image)
 	}
 }
 
-void QMaterial::addTextureSampler(const QString& name, const QImage& image)
+void QRhiUniform::addTextureSampler(const QString& name, const QImage& image)
 {
-	QMaterial::QTextureDesc texture;
+	QRhiUniform::QTextureDesc texture;
 	texture.name = name;
 	texture.image = image.convertToFormat(QImage::Format::Format_RGBA8888);
 	auto it = image.format();
 	texture.needUpdate = true;
 	mTexture << texture;
+	bNeedRecreate = true;
 }
 
-void QMaterial::removeTextureSampler(const QString& name)
+void QRhiUniform::removeTextureSampler(const QString& name)
 {
 }
 
-void QMaterial::addParam(const QString& name, void* data, uint16_t size, QParamDesc::Type type)
+void QRhiUniform::addParam(const QString& name, void* data, uint16_t size, QParamDesc::Type type)
 {
 	QParamDesc paramDesc;
 	paramDesc.type = type;
@@ -69,9 +77,10 @@ void QMaterial::addParam(const QString& name, void* data, uint16_t size, QParamD
 	mData.resize(mData.size() + paramDesc.sizeInByteAligned);
 	memcpy(mData.data() + paramDesc.offsetInByte, data, size);
 	mParams << paramDesc;
+	bNeedRecreate = true;
 }
 
-QVector<QMaterial::QParamDesc>::iterator QMaterial::getParamDesc(const QString& name)
+QVector<QRhiUniform::QParamDesc>::iterator QRhiUniform::getParamDesc(const QString& name)
 {
 	for (auto it = mParams.begin(); it != mParams.end(); ++it) {
 		if (it->name == name) {
@@ -81,7 +90,7 @@ QVector<QMaterial::QParamDesc>::iterator QMaterial::getParamDesc(const QString& 
 	return mParams.end();
 }
 
-QVector<QMaterial::QTextureDesc>::iterator QMaterial::getTextureDesc(const QString& name)
+QVector<QRhiUniform::QTextureDesc>::iterator QRhiUniform::getTextureDesc(const QString& name)
 {
 	for (auto it = mTexture.begin(); it != mTexture.end(); ++it) {
 		if (it->name == name) {
@@ -91,19 +100,19 @@ QVector<QMaterial::QTextureDesc>::iterator QMaterial::getTextureDesc(const QStri
 	return mTexture.end();
 }
 
-QString QMaterial::QParamDesc::getTypeName()
+QString QRhiUniform::QParamDesc::getTypeName()
 {
 	switch (type)
 	{
-	case QMaterial::QParamDesc::Float:
+	case QRhiUniform::QParamDesc::Float:
 		return "float";
-	case QMaterial::QParamDesc::Vec2:
+	case QRhiUniform::QParamDesc::Vec2:
 		return "vec2";
-	case QMaterial::QParamDesc::Vec3:
+	case QRhiUniform::QParamDesc::Vec3:
 		return "vec3";
-	case QMaterial::QParamDesc::Vec4:
+	case QRhiUniform::QParamDesc::Vec4:
 		return "vec4";
-	case QMaterial::QParamDesc::Mat4:
+	case QRhiUniform::QParamDesc::Mat4:
 		return "mat4";
 		break;
 	default:

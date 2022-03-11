@@ -7,6 +7,7 @@
 #include "Render/Scene/Component/Particle/QParticleComponent.h"
 #include "Render/Scene/Component/Camera/QCameraComponent.h"
 #include "private/qshaderbaker_p.h"
+#include "Render/RHI/QRhiUniformMgr.h"
 
 QSceneRenderer::QSceneRenderer(std::shared_ptr<QRhi> rhi, int sampleCount, QRhiSPtr<QRhiRenderPassDescriptor> renderPassDescriptor)
 	: mRhi(rhi)
@@ -31,19 +32,15 @@ void QSceneRenderer::renderInternal(QRhiCommandBuffer* buffer, QRhiRenderTarget*
 {
 	QRhiResourceUpdateBatch* batch = mRhi->nextResourceUpdateBatch();
 
+	tryResetUniformProxy();
+	tryResetPrimitiveProxy();
 	tryResetSkyBox(batch);
-
 	for (auto& it : mProxyUploadList)
 		it->uploadResource(batch);
-	mProxyUploadList.clear();
 
+	mProxyUploadList.clear();
+	QRhiUniformMgr::instance()->update(batch);
 	buffer->resourceUpdate(batch);
-	for (auto& id : mPrimitiveProxyMap.keys()) {
-		auto& proxy = mPrimitiveProxyMap[id];
-		if (proxy->mComponent->bNeedResetProxy) {
-			resetPrimitiveProxy(std::dynamic_pointer_cast<QPrimitiveComponent>(proxy->mComponent));
-		}
-	}
 
 	render(buffer, renderTarget);
 }
@@ -100,9 +97,6 @@ void QSceneRenderer::onPrimitiveInserted(uint32_t index, std::shared_ptr<QPrimit
 	if (!proxy)
 		return;
 	mPrimitiveProxyMap[primitive->componentId()] = proxy;
-	primitive->bNeedResetProxy = false;
-	proxy->recreateResource();
-	proxy->recreatePipeline();
 	mProxyUploadList << proxy;
 }
 
@@ -120,6 +114,16 @@ void QSceneRenderer::onSkyBoxChanged()
 	mSkyBoxProxy.reset();
 }
 
+void QSceneRenderer::tryResetUniformProxy()
+{
+	for (auto& uniform : QRhiUniformMgr::instance()->mUniformMap) {
+		if (uniform->bNeedRecreate.receive()) {
+			const auto& proxy = uniform->getProxy();
+			proxy->recreateResource(mRhi.get());
+		}
+	}
+}
+
 void QSceneRenderer::tryResetSkyBox(QRhiResourceUpdateBatch* batch)
 {
 	if (!mSkyBoxProxy && mScene->getSkyBox()) {
@@ -130,6 +134,17 @@ void QSceneRenderer::tryResetSkyBox(QRhiResourceUpdateBatch* batch)
 		mSkyBoxProxy->recreateResource();
 		mSkyBoxProxy->recreatePipeline();
 		mSkyBoxProxy->uploadResource(batch);
+	}
+}
+
+void QSceneRenderer::tryResetPrimitiveProxy()
+{
+	for (auto& id : mPrimitiveProxyMap.keys()) {
+		auto& proxy = mPrimitiveProxyMap[id];
+		if (proxy->mComponent->bNeedResetProxy.receive()) {
+			proxy->recreateResource();
+			proxy->recreatePipeline();
+		}
 	}
 }
 
@@ -159,6 +174,7 @@ std::shared_ptr<QRhiProxy> QSceneRenderer::createPrimitiveProxy(std::shared_ptr<
 	proxy->mRhi = mRhi;
 	proxy->mRenderer = this;
 	proxy->mComponent = component;
+	component->bNeedResetProxy.active();
 	return std::dynamic_pointer_cast<QRhiProxy>(proxy);
 }
 

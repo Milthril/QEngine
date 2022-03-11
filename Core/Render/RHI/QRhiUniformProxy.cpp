@@ -1,19 +1,17 @@
-#include "QMaterialProxy.h"
-#include "QMaterial.h"
+#include "QRhiUniformProxy.h"
+#include "QRhiUniform.h"
 
-QMaterialProxy::QMaterialProxy(QMaterial* material, std::shared_ptr<QRhi> rhi)
+QRhiUniformProxy::QRhiUniformProxy(QRhiUniform* material)
 	: mMaterial(material)
-	, mRhi(rhi)
-
 {
 }
 
-void QMaterialProxy::recreateResource()
+void QRhiUniformProxy::recreateResource(QRhi* rhi)
 {
-	mUniformBlock.reset(mRhi->newBuffer(QRhiBuffer::Type::Dynamic, QRhiBuffer::UniformBuffer, mMaterial->mData.size()));
+	mUniformBlock.reset(rhi->newBuffer(QRhiBuffer::Type::Dynamic, QRhiBuffer::UniformBuffer, mMaterial->mData.size()));
 	mUniformBlock->create();
 
-	mSampler.reset(mRhi->newSampler(QRhiSampler::Linear,
+	mSampler.reset(rhi->newSampler(QRhiSampler::Linear,
 				   QRhiSampler::Linear,
 				   QRhiSampler::None,
 				   QRhiSampler::ClampToEdge,
@@ -23,13 +21,13 @@ void QMaterialProxy::recreateResource()
 	mTextureMap.clear();
 	for (auto& texture : mMaterial->mTexture) {
 		QRhiSPtr<QRhiTexture> tex;
-		tex.reset(mRhi->newTexture(QRhiTexture::RGBA8, texture.image.size(), 1));
+		tex.reset(rhi->newTexture(QRhiTexture::RGBA8, texture.image.size(), 1));
 		mTextureMap[texture.name] = tex;
 		tex->create();
 	}
 }
 
-void QMaterialProxy::updateResource(QRhiResourceUpdateBatch* batch)
+void QRhiUniformProxy::updateResource(QRhiResourceUpdateBatch* batch)
 {
 	for (auto& params : mMaterial->mParams) {
 		if (params.needUpdate) {
@@ -45,9 +43,8 @@ void QMaterialProxy::updateResource(QRhiResourceUpdateBatch* batch)
 	}
 }
 
-QMaterialProxy::MaterialShaderInfo QMaterialProxy::getMaterialShaderInfo(uint8_t bindingOffset /*= 0*/) {
-	QMaterialProxy::MaterialShaderInfo info;
-	
+QRhiUniformProxy::UniformInfo QRhiUniformProxy::getUniformInfo(uint8_t bindingOffset /*= 0*/) {
+	QRhiUniformProxy::UniformInfo info;
 	QString uniformCode;
 	if (!mMaterial->mParams.isEmpty()) {
 		info.bindings << QRhiShaderResourceBinding::uniformBuffer(bindingOffset, QRhiShaderResourceBinding::FragmentStage, mUniformBlock.get());
@@ -63,7 +60,6 @@ QMaterialProxy::MaterialShaderInfo QMaterialProxy::getMaterialShaderInfo(uint8_t
 		uniformCode += QString("layout (binding = %1) uniform %2 %3;\n").arg(bindingOffset).arg("sampler2D").arg(key);
 		bindingOffset++;
 	}
-	info.uniformCode = uniformCode.toLocal8Bit();
-	info.shadingCode = mMaterial->mShadingCode;
+	info.uniformDefineCode = uniformCode.toLocal8Bit();
 	return info;
 }

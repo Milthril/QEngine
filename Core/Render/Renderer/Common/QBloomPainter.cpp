@@ -23,7 +23,7 @@ void QBloomPainter::drawCommand(QRhiCommandBuffer* cmdBuffer, QRhiSPtr<QRhiTextu
 		initRhiResource();
 	}
 	mPixelSelector.drawCommand(cmdBuffer, inputTexture, mBloomRT[0].renderTarget.get());
-	if (bNeedUpdateBloomState) {
+	if (bNeedUpdateBloomState.receive()) {
 		QRhiResourceUpdateBatch* copyBatch = mRhi->nextResourceUpdateBatch();
 		copyBatch->updateDynamicBuffer(mUniformBuffer.get(), 0, sizeof(BloomState), &mBloomState);
 		cmdBuffer->resourceUpdate(copyBatch);

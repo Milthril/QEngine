@@ -53,7 +53,7 @@ private:
 		float weight[40] = { 0 };
 	}mBloomState;
 	int mBoommIter = 2;
-	uint8_t bNeedUpdateBloomState : 1 = false;
+	QRhiSignal bNeedUpdateBloomState;
 };
 
 #endif // QBloomPainter_h__

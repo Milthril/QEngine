@@ -2,7 +2,6 @@
 #define QDefaultProxySkyBox_h__
 
 #include "QDefaultRenderer.h"
-#include "Render\Material\QMaterialProxy.h"
 
 class QDefaultProxySkyBox :public QRhiProxy {
 public:

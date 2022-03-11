@@ -17,6 +17,11 @@ std::shared_ptr<QScene> QEngine::scene()
 	return mWindow->scene();
 }
 
+std::shared_ptr<QRhiWindow> QEngine::window()
+{
+	return mWindow;
+}
+
 void QEngine::execGame()
 {
 	while (true) {

@@ -1,13 +1,12 @@
+#include "private\qrhid3d11_p.h"
+#include "private\qrhigles2_p.h"
+#include "private\qrhimetal_p.h"
+#include "private\qrhivulkan_p.h"
+#include "QGuiApplication"
 #include "QRhiWindow.h"
 #include "QVulkanInstance"
-#include <QtGui/private/qrhinull_p.h>
-#include "private\qrhid3d11_p.h"
-#include "private\qrhivulkan_p.h"
-#include "private\qrhimetal_p.h"
-#include "private\qrhigles2_p.h"
 #include <QPlatformSurfaceEvent>
-#include "QGuiApplication"
-#include "Render/Renderer/DefaultRenderer/QDefaultRenderer.h"
+#include <QtGui/private/qrhinull_p.h>
 
 QRhiWindow::QRhiWindow(QRhi::Implementation backend)
 	: mBackend(backend)

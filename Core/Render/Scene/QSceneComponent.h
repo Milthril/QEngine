@@ -4,6 +4,7 @@
 #include "QObject"
 #include "qvectornd.h"
 #include "QMatrix4x4"
+#include "Render\RHI\QRhiSignal.h"
 
 class QSceneComponent :public QObject {
 	friend class QSceneRenderer;
@@ -28,9 +29,7 @@ public:
 		SkyBox,
 	};
 
-	uint8_t bVisiable : 1 = 0;
-	uint8_t bTranslucent : 1 = 0;
-	uint8_t bNeedResetProxy : 1 = 0;
+	QRhiSignal bNeedResetProxy;
 
 	QMatrix4x4 calculateModelMatrix();
 	QMatrix4x4 calculateWorldMatrix();

@@ -1,7 +1,7 @@
 #ifndef QTexturePainter_h__
 #define QTexturePainter_h__
 
-#include "QRhiInclude.h"
+#include "Render\RHI\QRhiDefine.h"
 
 class QTexturePainter {
 public:

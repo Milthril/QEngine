@@ -3,18 +3,23 @@
 
 #include <QApplication>
 #include "Render\Scene\QScene.h"
-#include "Window\QRhiWindow.h"
+#include "Render\RHI\QRhiWindow.h"
+
+#if defined(Engine)
+#undef Engine
+#endif
+#define Engine (static_cast<QEngine *>(QEngine::instance()))
 
 class QEngine :public QApplication
 {
 public:
 	QEngine(int argc, char** argv);
 	std::shared_ptr<QScene> scene();
+	std::shared_ptr<QRhiWindow> window();
 	void execGame();
 protected:
 	virtual void onGameLoop();
-
-protected:
+private:
 	std::shared_ptr<QRhiWindow> mWindow;
 };
 

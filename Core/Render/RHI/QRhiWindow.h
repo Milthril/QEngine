@@ -3,8 +3,7 @@
 
 #include <QWindow>
 #include <QOffscreenSurface>
-#include "private\qrhi_p.h"
-#include "Render\Renderer\QSceneRenderer.h"
+#include "Render/Renderer/DefaultRenderer/QDefaultRenderer.h"
 
 class QRhiWindow :public QWindow {
 public:

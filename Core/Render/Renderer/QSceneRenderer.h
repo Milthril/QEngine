@@ -3,7 +3,7 @@
 
 #include "Render/Scene/QScene.h"
 #include "Common/QBloomPainter.h"
-#include "Common/QRhiInclude.h"
+#include "Render/RHI/QRhiDefine.h"
 
 class QPrimitiveComponent;
 class QStaticMeshComponent;
@@ -62,7 +62,8 @@ private:
 	void onPrimitiveRemoved(std::shared_ptr<QPrimitiveComponent> primitive);
 	void onLightChanged();
 	void onSkyBoxChanged();
-
+	void tryResetUniformProxy();
+	void tryResetPrimitiveProxy();
 	void tryResetSkyBox(QRhiResourceUpdateBatch* batch);
 	void resetPrimitiveProxy(std::shared_ptr<QPrimitiveComponent> component);
 	virtual std::shared_ptr<QRhiProxy> createStaticMeshProxy(std::shared_ptr<QStaticMeshComponent>) = 0;
@@ -71,16 +72,12 @@ private:
 	virtual std::shared_ptr<QRhiProxy> createSkyBoxProxy(std::shared_ptr<QSkyBoxComponent>) = 0;
 protected:
 	std::shared_ptr<QRhi> mRhi;
-
 	std::shared_ptr<QScene> mScene;
-
 	QRhiSPtr<QRhiRenderPassDescriptor> mRootRenderPassDescriptor;
 
 	QHash<QSceneComponent::ComponentId, std::shared_ptr<QRhiProxy>> mPrimitiveProxyMap;	//图元组件代理
 	QList<std::shared_ptr<QRhiProxy>> mProxyUploadList;
-
 	std::shared_ptr<QRhiProxy> mSkyBoxProxy;
-
 	std::shared_ptr<QBloomPainter> mBloomPainter;
 	int mSampleCount;
 };

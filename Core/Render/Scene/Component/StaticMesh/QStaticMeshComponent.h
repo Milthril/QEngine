@@ -2,7 +2,6 @@
 #define QStaticMeshComponent_h__
 
 #include "Render\Scene\Component\QPrimitiveComponent.h"
-#include "Render\Material\QMaterialBaseColor.h"
 
 class QStaticMeshComponent : public QPrimitiveComponent {
 	Q_OBJECT
@@ -40,12 +39,12 @@ public:
 	QSceneComponent::ProxyType type() override {
 		return QSceneComponent::ProxyType::StaticMesh;
 	}
-	uint8_t bNeedUpdateVertex : 1 = 0;
-	uint8_t bNeedUpdateIndex : 1 = 0;
-	uint8_t bNeedUpdateTexture : 1 = 0;
+
+	QRhiSignal bNeedUpdateVertex;
+	QRhiSignal bNeedUpdateIndex;
 private:
 	QRhiBuffer::Type mBufferType = QRhiBuffer::Type::Immutable;
-	std::shared_ptr<QMaterial> mMaterial = std::make_shared<QMaterialBaseColor>();
+	std::shared_ptr<QMaterial> mMaterial = std::make_shared<QMaterial>();
 	Topology mTopology = Topology::Triangles;
 	QVector<Vertex> mVertices;
 	QVector<Index> mIndices;

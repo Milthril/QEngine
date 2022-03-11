@@ -1,7 +1,7 @@
 #ifndef QPixelSelector_h__
 #define QPixelSelector_h__
 
-#include "QRhiInclude.h"
+#include "Render\RHI\QRhiDefine.h"
 
 class QPixelSelector {
 public:

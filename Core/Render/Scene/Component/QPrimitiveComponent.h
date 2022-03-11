@@ -1,8 +1,9 @@
 ﻿#ifndef QPrimitiveComponent_h__
 #define QPrimitiveComponent_h__
 
-#include "Render/Scene/QSceneComponent.h"
-#include "Render/Material/QMaterial.h"
+#include "Render\Scene\QSceneComponent.h"
+#include "Render\RHI\QRhiDefine.h"
+#include "Render\Scene\Material\QMaterial.h"
 
 class QPrimitiveComponent :public QSceneComponent {
 	Q_OBJECT

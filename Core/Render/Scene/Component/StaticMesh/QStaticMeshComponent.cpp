@@ -3,13 +3,13 @@
 void QStaticMeshComponent::setVertices(const QVector<Vertex>& newVertices)
 {
 	mVertices = newVertices;
-	bNeedUpdateVertex = true;
+	bNeedUpdateVertex.active();
 }
 
 void QStaticMeshComponent::setIndices(const QVector<uint32_t>& newIndices)
 {
 	mIndices = newIndices;
-	bNeedUpdateIndex = true;
+	bNeedUpdateIndex.active();
 }
 
 QRhiBuffer::Type QStaticMeshComponent::getBufferType() const

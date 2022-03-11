@@ -1,14 +1,14 @@
-#ifndef QMaterial_h__
-#define QMaterial_h__
+#ifndef QRhiUniform_h__
+#define QRhiUniform_h__
+
 #include "private\qrhi_p.h"
+#include "QRhiUniformProxy.h"
 
-class QMaterial {
-	friend class QMaterialProxy;
+class QRhiUniform {
+	friend class QRhiUniformProxy;
 public:
-	QMaterial();
-	QByteArray getShadingCode() const { return mShadingCode; }
-	void setShadingCode(QByteArray val) { mShadingCode = val; }
-
+	QRhiUniform();
+	~QRhiUniform();
 	template<typename _Ty>
 	void setParam(const QString& name, const _Ty& data) {
 		auto paramDescIter = getParamDesc(name);
@@ -18,8 +18,9 @@ public:
 			paramDescIter->needUpdate = true;
 		}
 	}
+
 	template<typename _Ty>
-	 _Ty getParam(const QString& name) {
+	_Ty getParam(const QString& name) {
 		auto paramDescIter = getParamDesc(name);
 		_Ty param;
 		if (paramDescIter != mParams.end()) {
@@ -37,6 +38,9 @@ public:
 	void setTextureSampler(const QString& name, const QImage& image);
 	void addTextureSampler(const QString& name, const QImage& image);
 	void removeTextureSampler(const QString& name);
+
+	QRhiSignal bNeedRecreate;
+	std::shared_ptr<QRhiUniformProxy> getProxy() const { return mProxy; }
 protected:
 	struct QParamDesc {
 		QString name;
@@ -53,7 +57,6 @@ protected:
 		}type;
 		QString getTypeName();
 	};
-
 	struct QTextureDesc {
 		QString name;
 		QImage image;
@@ -70,7 +73,7 @@ protected:
 	QVector<QParamDesc> mParams;
 	QVector<int8_t> mData;
 	QVector<QTextureDesc> mTexture;
-	QByteArray mShadingCode;
+	std::shared_ptr<QRhiUniformProxy> mProxy;
 };
 
-#endif // QMaterial_h__
+#endif // QRhiUniform_h__
