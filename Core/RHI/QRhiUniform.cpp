@@ -2,8 +2,7 @@
 #include "QRhiUniformMgr.h"
 
 QRhiUniform::QRhiUniform()
-	:mProxy(std::make_shared<QRhiUniformProxy>(this))
-{
+	:mProxy(std::make_shared<QRhiUniformProxy>(this)){
 	QRhiUniformMgr::instance()->AddUniform(this);
 }
 

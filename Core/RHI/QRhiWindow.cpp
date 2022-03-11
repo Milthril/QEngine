@@ -184,7 +184,6 @@ bool QRhiWindow::event(QEvent* e)
 		if (static_cast<QPlatformSurfaceEvent*>(e)->surfaceEventType() == QPlatformSurfaceEvent::SurfaceAboutToBeDestroyed) {
 			mHasSwapChain = false;
 		}
-
 		break;
 
 	default:
