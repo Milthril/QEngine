@@ -11,6 +11,7 @@
 #include "Scene\Component\StaticMesh\QStaticModel.h"
 #include "Scene\Component\StaticMesh\QText2D.h"
 #include "Scene\Component\SkeletonMesh\QSkeletonMeshComponent.h"
+#include "Scene\Component\AssimpToolkit\MMDVmdParser.h"
 
 const int CUBE_MAT_SIZE = 10;
 const int CUBE_MAT_SPACING = 5;
@@ -75,8 +76,13 @@ public:
 		model->loadFromFile(PROJECT_SOURCE_DIR"/MMD/Girl.pmx");
 		scene()->addPrimitive(model);
 
-		mStaticModel = std::make_shared<QStaticModel>();
-		mStaticModel->loadFromFile(PROJECT_SOURCE_DIR"/MMD/Girl.pmx");
+		//mStaticModel = std::make_shared<QStaticModel>();
+		//mStaticModel->loadFromFile(PROJECT_SOURCE_DIR"/MMD/Girl.pmx");
+
+		//auto it = std::make_shared<QSkeletonModelComponent>();
+		//it->loadFromFile(PROJECT_SOURCE_DIR"/MMD/dance.vmd");
+		vmd::VmdMotion vmd;
+		vmd.LoadFromFile(PROJECT_SOURCE_DIR"/MMD/dance.vmd");
 		//mStaticModel->setRotation(QVector3D(-90, 0, 0));
 		//scene()->addPrimitive(mStaticModel);
 	}

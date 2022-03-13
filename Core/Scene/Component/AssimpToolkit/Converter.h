@@ -1,5 +1,6 @@
-﻿#ifndef AssimpToolkit_h__
-#define AssimpToolkit_h__
+﻿#ifndef Converter_h__
+#define Converter_h__
+
 
 #include "qvectornd.h"
 #include "assimp\vector3.h"
@@ -16,4 +17,6 @@ inline QMatrix4x4 converter(const aiMatrix4x4& aiMat4) {
 	return mat4;
 }
 
-#endif // AssimpToolkit_h__
+
+
+#endif // Converter_h__

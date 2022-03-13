@@ -6,7 +6,7 @@
 #include "QQueue"
 #include "QDir"
 #include "QSkeleton.h"
-#include "Scene\Component\AssimpToolkit.h"
+#include "Scene\Component\AssimpToolkit\Converter.h"
 
 QSkeletonMesh::QSkeletonMesh(QSkeletonModelComponent* model, aiMesh* mesh) 
 	:mModel(model)
@@ -56,6 +56,8 @@ void QSkeletonModelComponent::loadFromFile(const QString filePath)
 {
 	Assimp::Importer importer;
 	const aiScene* scene = importer.ReadFile(filePath.toUtf8().constData(), aiProcess_Triangulate | aiProcess_FlipUVs);
+	if (scene ==nullptr)
+		return;
 	mMaterialList.resize(scene->mNumMaterials);
 	for (int i = 0; i < scene->mNumMaterials; i++) {
 		aiMaterial* material = scene->mMaterials[i];

@@ -1,7 +1,7 @@
 #include "assimp\scene.h"
 #include "QSkeleton.h"
 #include "QSkeletonMeshComponent.h"
-#include "Scene\Component\AssimpToolkit.h"
+#include "Scene\Component\AssimpToolkit\Converter.h"
 #include "QQueue"
 
 QSkeleton::QSkeleton(QSkeletonModelComponent* model, aiNode* rootNode)

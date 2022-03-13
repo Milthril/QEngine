@@ -5,7 +5,7 @@
 #include <QQueue>
 #include <QFileInfo>
 #include <QDir>
-#include "Scene\Component\AssimpToolkit.h"
+#include "Scene\Component\AssimpToolkit\Converter.h"
 
 std::shared_ptr<QStaticMeshComponent> createStaticMeshFromAssimpMesh(aiMesh* mesh, aiMatrix4x4 matrix) {
 	std::shared_ptr<QStaticMeshComponent> staticMesh = std::make_shared<QStaticMeshComponent>();
