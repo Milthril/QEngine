@@ -36,17 +36,13 @@ QSkeletonMesh::QSkeletonMesh(QSkeletonModelComponent* model, aiMesh* mesh)
 	for (unsigned int i = 0; i < mesh->mNumBones; i++) {
 		for (unsigned int j = 0; j < mesh->mBones[i]->mNumWeights; j++) {
 			int vertexId = mesh->mBones[i]->mWeights[j].mVertexId;
-			int boneIndex = 0;
-			auto bone = mModel->getBoneNode(mesh->mBones[i]->mName.C_Str());
-			if (bone) {
-				boneIndex = bone->index;
-			}
+			auto bone = mModel->mSkeleton->addBoneNode(mesh->mBones[i]);
 			int slot = 0;
 			while (slot < std::size(mVertices[vertexId].boneIndex) && (mVertices[vertexId].boneWeight[slot] > 0.000001)) {
 				slot++;
 			}
 			if (slot < std::size(mVertices[vertexId].boneIndex)) {
-				mVertices[vertexId].boneIndex[slot] = boneIndex;
+				mVertices[vertexId].boneIndex[slot] = bone->index;
 				mVertices[vertexId].boneWeight[slot] = mesh->mBones[i]->mWeights[j].mWeight;;
 			}
 			else {
@@ -77,7 +73,7 @@ void QSkeletonModelComponent::loadFromFile(const QString filePath)
 			mMaterialList[i]->setShadingCode("FragColor = vec4(1.0); ");
 		}
 	}
-	mSkeleton.reset(new QSkeleton(this, scene->mRootNode));
+	mSkeleton.reset(new QSkeleton(this,scene->mRootNode));
 	mMeshes.clear();
 	QQueue<QPair<aiNode*, aiMatrix4x4>> qNode;
 	qNode.push_back({ scene->mRootNode ,aiMatrix4x4() });

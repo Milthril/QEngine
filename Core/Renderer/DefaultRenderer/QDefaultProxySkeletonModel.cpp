@@ -35,7 +35,7 @@ void QDefaultProxySkeletonModel::recreateResource()
 	mIndexBuffer.reset(RHI->newBuffer(QRhiBuffer::Type::Immutable, QRhiBuffer::IndexBuffer, sizeof(QSkeletonModelComponent::Index) * indexOffset));
 	Q_ASSERT(mIndexBuffer->create());
 
-	mUniformBuffer.reset(RHI->newBuffer(QRhiBuffer::Type::Dynamic, QRhiBuffer::UniformBuffer, sizeof(float) * 16 + mSkeletonModel->getPosesMatrix().size()* sizeof(QSkeleton::BoneMatrix)));
+	mUniformBuffer.reset(RHI->newBuffer(QRhiBuffer::Type::Dynamic, QRhiBuffer::UniformBuffer, sizeof(float) * 16 + mSkeletonModel->getSkeleton()->getBoneMatrix().size()* sizeof(QSkeleton::BoneMatrix)));
 	Q_ASSERT(mUniformBuffer->create());
 }
 
@@ -47,11 +47,13 @@ void QDefaultProxySkeletonModel::recreatePipeline(PipelineUsageFlags flags /*= P
 		pipeline.reset(RHI->newGraphicsPipeline());
 		QRhiGraphicsPipeline::TargetBlend blendState;
 		blendState.enable = false;
+
 		pipeline->setTargetBlends({ blendState });
 		pipeline->setTopology(QRhiGraphicsPipeline::Topology::Triangles);
 		pipeline->setDepthTest(true);
 		pipeline->setDepthWrite(true);
 		pipeline->setSampleCount(mRenderer->getSampleCount());
+
 		QVector<QRhiVertexInputBinding> inputBindings;
 		inputBindings << QRhiVertexInputBinding{ sizeof(QSkeletonModelComponent::Vertex) };
 		QVector<QRhiVertexInputAttribute> attributeList;
@@ -92,7 +94,7 @@ void QDefaultProxySkeletonModel::recreatePipeline(PipelineUsageFlags flags /*= P
 				vUV = inUV;
 				gl_Position = ubuf.mvp * BoneTransform * vec4(inPosition,1.0f);
 			}
-		)").arg(mSkeletonModel->getPosesMatrix().size());
+		)").arg(mSkeletonModel->getSkeleton()->getBoneMatrix().size());
 
 		QRhiVertexInputLayout inputLayout;
 		inputLayout.setBindings(inputBindings.begin(), inputBindings.end());
@@ -146,7 +148,8 @@ void QDefaultProxySkeletonModel::uploadResource(QRhiResourceUpdateBatch* batch)
 void QDefaultProxySkeletonModel::updateResource(QRhiResourceUpdateBatch* batch) {
 	QMatrix4x4 MVP = mRenderer->getVP() * mSkeletonModel->calculateWorldMatrix();
 	batch->updateDynamicBuffer(mUniformBuffer.get(), 0,sizeof(float) * 16, MVP.constData());
-	batch->updateDynamicBuffer(mUniformBuffer.get(), sizeof(float) * 16, sizeof(QSkeleton::BoneMatrix)* mSkeletonModel->getPosesMatrix().size(),  mSkeletonModel->getPosesMatrix().constData());
+	const auto& posesMatrix = mSkeletonModel->getSkeleton()->getPosesMatrix();
+	batch->updateDynamicBuffer(mUniformBuffer.get(), sizeof(float) * 16, sizeof(QSkeleton::BoneMatrix)* posesMatrix.size(),  posesMatrix.constData());
 }
 
 void QDefaultProxySkeletonModel::drawInPass(QRhiCommandBuffer* cmdBuffer, const QRhiViewport& viewport) {
