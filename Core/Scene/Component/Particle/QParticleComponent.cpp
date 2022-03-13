@@ -5,7 +5,7 @@ QString QParticleComponent::getParticleDefine() {
 	return  R"(
 #extension GL_ARB_separate_shader_objects : enable
 #define LOCAL_SIZE 256
-#define PARTICLE_MAX_SIZE 100000
+#define PARTICLE_MAX_SIZE 1000000
 layout (local_size_x = LOCAL_SIZE) in;
 struct Particle {
 	vec3 position;

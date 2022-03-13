@@ -4,6 +4,7 @@
 #include "QDefaultProxyParticle.h"
 #include "QDefaultProxySkyBox.h"
 #include "QEngine.h"
+#include "QDefaultProxySkeletonModel.h"
 
 QDefaultRenderer::QDefaultRenderer(int sampleCount, QRhiSPtr<QRhiRenderPassDescriptor> renderPassDescriptor)
 	:QSceneRenderer(sampleCount, renderPassDescriptor)
@@ -47,9 +48,9 @@ std::shared_ptr<QRhiProxy> QDefaultRenderer::createStaticMeshProxy(std::shared_p
 	return std::make_shared<QDefaultProxyStaticMesh>(comp);
 }
 
-std::shared_ptr<QRhiProxy> QDefaultRenderer::createSkeletonMeshProxy(std::shared_ptr<QSkeletonMeshComponent>)
+std::shared_ptr<QRhiProxy> QDefaultRenderer::createSkeletonMeshProxy(std::shared_ptr<QSkeletonModelComponent> comp)
 {
-	throw std::logic_error("The method or operation is not implemented.");
+	return std::make_shared<QDefaultProxySkeletonModel>(comp);
 }
 
 std::shared_ptr<QRhiProxy> QDefaultRenderer::createParticleProxy(std::shared_ptr<QParticleComponent> comp)

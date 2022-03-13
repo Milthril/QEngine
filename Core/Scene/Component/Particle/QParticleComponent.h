@@ -10,7 +10,7 @@ class QParticleComponent :public QPrimitiveComponent {
 public:
 	QParticleComponent();
 
-	inline static const int PARTICLE_MAX_SIZE = 100000;
+	inline static const int PARTICLE_MAX_SIZE = 1000000;
 	QSceneComponent::ProxyType type() override {
 		return QSceneComponent::Particle;
 	}

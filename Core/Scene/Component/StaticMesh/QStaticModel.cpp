@@ -5,37 +5,33 @@
 #include <QQueue>
 #include <QFileInfo>
 #include <QDir>
-
-QVector3D coveredAiVec3toQVec3(const aiVector3D& aiVec3) {
-	return QVector3D(aiVec3.x, aiVec3.y, aiVec3.z);
-}
+#include "Scene\Component\AssimpToolkit.h"
 
 std::shared_ptr<QStaticMeshComponent> createStaticMeshFromAssimpMesh(aiMesh* mesh, aiMatrix4x4 matrix) {
 	std::shared_ptr<QStaticMeshComponent> staticMesh = std::make_shared<QStaticMeshComponent>();
-
 	aiVector3D position;
 	aiVector3D roatation;
 	aiVector3D scale;
 	matrix.Decompose(scale, roatation, position);
 
-	staticMesh->setPosition(coveredAiVec3toQVec3(position));
-	staticMesh->setRotation(coveredAiVec3toQVec3(roatation));
-	staticMesh->setScale(coveredAiVec3toQVec3(scale));
+	staticMesh->setPosition(converter(position));
+	staticMesh->setRotation(converter(roatation));
+	staticMesh->setScale(converter(scale));
 
 	QVector<QStaticMeshComponent::Vertex> vertices(mesh->mNumVertices);
 	for (unsigned int i = 0; i < mesh->mNumVertices; i++) {
 		QStaticMeshComponent::Vertex& vertex = vertices[i];
-		vertex.position = coveredAiVec3toQVec3(mesh->mVertices[i]);
+		vertex.position = converter(mesh->mVertices[i]);
 		if (mesh->mNormals)
-			vertex.normal = coveredAiVec3toQVec3(mesh->mNormals[i]);
+			vertex.normal = converter(mesh->mNormals[i]);
 		if (mesh->mTextureCoords[0]) {
 			vertex.texCoord.setX(mesh->mTextureCoords[0][i].x);
 			vertex.texCoord.setY(mesh->mTextureCoords[0][i].y);
 		}
 		if (mesh->mTangents)
-			vertex.tangent = coveredAiVec3toQVec3(mesh->mTangents[i]);
+			vertex.tangent = converter(mesh->mTangents[i]);
 		if (mesh->mBitangents)
-			vertex.bitangent = coveredAiVec3toQVec3(mesh->mBitangents[i]);
+			vertex.bitangent = converter(mesh->mBitangents[i]);
 	}
 	staticMesh->setVertices(vertices);
 	QVector<QStaticMeshComponent::Index> indices;
@@ -57,12 +53,18 @@ void QStaticModel::loadFromFile(const QString filePath)
 	for (int i = 0; i < scene->mNumMaterials; i++) {
 		aiMaterial* material = scene->mMaterials[i];
 		mMaterialList[i] = std::make_shared<QMaterial>();
-		for (int j = 0; j < material->GetTextureCount(aiTextureType_DIFFUSE); j++) {
+		int diffuseCount = material->GetTextureCount(aiTextureType_DIFFUSE);
+		for (int j = 0; j < diffuseCount; j++) {
 			aiString path;
 			material->GetTexture(aiTextureType_DIFFUSE, j, &path);
 			mMaterialList[i]->addTextureSampler("Diffuse", QImage(QFileInfo(filePath).dir().filePath(path.C_Str())));
 		}
-		mMaterialList[i]->setShadingCode("FragColor = texture(Diffuse,vUV); ");
+		if (diffuseCount) {
+			mMaterialList[i]->setShadingCode("FragColor = texture(Diffuse,vUV); ");
+		}
+		else {
+			mMaterialList[i]->setShadingCode("FragColor = vec4(1.0); ");
+		}
 	}
 
 	QQueue<QPair<aiNode*, aiMatrix4x4>> qNode;

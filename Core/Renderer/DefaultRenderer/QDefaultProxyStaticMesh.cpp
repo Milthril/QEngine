@@ -116,7 +116,6 @@ void QDefaultProxyStaticMesh::recreatePipeline(PipelineUsageFlags flags /*= Pipe
 	shaderBindings << QRhiShaderResourceBinding::uniformBuffer(0, QRhiShaderResourceBinding::VertexStage, mUniformBuffer.get());
 	shaderBindings << materialInfo.bindings;
 	mShaderResourceBindings->setBindings(shaderBindings.begin(), shaderBindings.end());
-
 	mShaderResourceBindings->create();
 
 	mPipeline->setShaderResourceBindings(mShaderResourceBindings.get());

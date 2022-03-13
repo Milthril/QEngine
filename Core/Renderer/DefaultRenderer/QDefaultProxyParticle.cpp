@@ -63,7 +63,7 @@ void QDefaultProxyParticle::recreatePipeline(PipelineUsageFlags flags /*= Pipeli
 	QShader matrixCompute = QSceneRenderer::createShaderFromCode(QShader::ComputeStage, R"(
 		#version 450
 		#define LOCAL_SIZE 256
-		#define PARTICLE_MAX_SIZE 100000
+		#define PARTICLE_MAX_SIZE 1000000
 		layout (local_size_x = LOCAL_SIZE) in;
 		struct Particle {
 			vec3 position;
@@ -177,4 +177,5 @@ void QDefaultProxyParticle::drawInPass(QRhiCommandBuffer* cmdBuffer, const QRhiV
 	};
 	cmdBuffer->setVertexInput(0, 2, VertexInputs, mStaticMeshProxy->mIndexBuffer.get(), 0, QRhiCommandBuffer::IndexUInt32);
 	cmdBuffer->drawIndexed(mStaticMeshProxy->mIndexBuffer->size() / sizeof(QPrimitiveComponent::Index), mNumOfParticles);
+	qDebug() << mNumOfParticles;
 }

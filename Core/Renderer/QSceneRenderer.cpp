@@ -160,7 +160,7 @@ std::shared_ptr<QRhiProxy> QSceneRenderer::createPrimitiveProxy(std::shared_ptr<
 		proxy = createStaticMeshProxy(std::dynamic_pointer_cast<QStaticMeshComponent>(component));
 		break;
 	case QSceneComponent::SkeletonMesh:
-		proxy = createSkeletonMeshProxy(std::dynamic_pointer_cast<QSkeletonMeshComponent>(component));
+		proxy = createSkeletonMeshProxy(std::dynamic_pointer_cast<QSkeletonModelComponent>(component));
 		break;
 	case QSceneComponent::Particle:
 		proxy = createParticleProxy(std::dynamic_pointer_cast<QParticleComponent>(component));

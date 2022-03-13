@@ -5,7 +5,7 @@ std::shared_ptr<QRhiProxy> QAdvanceRenderer::createStaticMeshProxy(std::shared_p
 	throw std::logic_error("The method or operation is not implemented.");
 }
 
-std::shared_ptr<QRhiProxy> QAdvanceRenderer::createSkeletonMeshProxy(std::shared_ptr<QSkeletonMeshComponent>)
+std::shared_ptr<QRhiProxy> QAdvanceRenderer::createSkeletonMeshProxy(std::shared_ptr<QSkeletonModelComponent>)
 {
 	throw std::logic_error("The method or operation is not implemented.");
 }
