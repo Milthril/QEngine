@@ -15,6 +15,10 @@ add_executable(Editor
 )
 
 source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES ${PROJECT_SOURCE})
-target_link_libraries(Editor PUBLIC Core)
+target_link_libraries(Editor 
+    PUBLIC 
+    Core
+    kddockwidgets
+    )
 
 

@@ -91,6 +91,7 @@ void QSkeletonModelComponent::loadFromFile(const QString filePath)
 			qNode.push_back({ node.first->mChildren[i] ,node.second * node.first->mChildren[i]->mTransformation });
 		}
 	}
+	mSkeleton->showDefaultPoses();
 }
 
 std::shared_ptr<QSkeleton::BoneNode> QSkeletonModelComponent::getBoneNode(const QString& boneName)

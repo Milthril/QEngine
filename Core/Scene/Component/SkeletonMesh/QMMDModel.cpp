@@ -1,5 +1,5 @@
 #include "QMMDModel.h"
-#include "..\AssimpToolkit\MMDVmdParser.h"
+#include "Scene\Component\AssimpToolkit\MMDVmdParser.h"
 
 QVMDAnimation::QVMDAnimation(QSkeleton* skeleton)
 	:QSkeletonAnimation(skeleton)

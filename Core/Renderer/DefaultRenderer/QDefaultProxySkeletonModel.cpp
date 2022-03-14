@@ -35,7 +35,7 @@ void QDefaultProxySkeletonModel::recreateResource()
 	mIndexBuffer.reset(RHI->newBuffer(QRhiBuffer::Type::Immutable, QRhiBuffer::IndexBuffer, sizeof(QSkeletonModelComponent::Index) * indexOffset));
 	Q_ASSERT(mIndexBuffer->create());
 
-	mUniformBuffer.reset(RHI->newBuffer(QRhiBuffer::Type::Dynamic, QRhiBuffer::UniformBuffer, sizeof(float) * 16 + mSkeletonModel->getSkeleton()->getBoneMatrix().size()* sizeof(QSkeleton::BoneMatrix)));
+	mUniformBuffer.reset(RHI->newBuffer(QRhiBuffer::Type::Dynamic, QRhiBuffer::UniformBuffer, sizeof(float) * 16 + mSkeletonModel->getSkeleton()->getBoneMatrix().size() * sizeof(QSkeleton::Mat4)));
 	Q_ASSERT(mUniformBuffer->create());
 }
 
@@ -144,12 +144,12 @@ void QDefaultProxySkeletonModel::uploadResource(QRhiResourceUpdateBatch* batch)
 		batch->uploadStaticBuffer(mIndexBuffer.get(), sizeof(QSkeletonModelComponent::Index) * mMeshProxyList[i]->indexOffset, sizeof(QSkeletonModelComponent::Index) * mMeshProxyList[i]->indexRange, mMeshProxyList[i]->mesh->getIndices().data());
 	}
 }
-	
+
 void QDefaultProxySkeletonModel::updateResource(QRhiResourceUpdateBatch* batch) {
 	QMatrix4x4 MVP = mRenderer->getVP() * mSkeletonModel->calculateWorldMatrix();
-	batch->updateDynamicBuffer(mUniformBuffer.get(), 0,sizeof(float) * 16, MVP.constData());
-	const auto& posesMatrix = mSkeletonModel->getSkeleton()->getPosesMatrix();
-	batch->updateDynamicBuffer(mUniformBuffer.get(), sizeof(float) * 16, sizeof(QSkeleton::BoneMatrix)* posesMatrix.size(),  posesMatrix.constData());
+	batch->updateDynamicBuffer(mUniformBuffer.get(), 0, sizeof(float) * 16, MVP.constData());
+	const auto& posesMatrix = mSkeletonModel->getSkeleton()->getCurrentPosesMatrix();
+	batch->updateDynamicBuffer(mUniformBuffer.get(), sizeof(float) * 16, sizeof(QSkeleton::Mat4) * posesMatrix.size(), posesMatrix.constData());
 }
 
 void QDefaultProxySkeletonModel::drawInPass(QRhiCommandBuffer* cmdBuffer, const QRhiViewport& viewport) {

@@ -25,13 +25,16 @@ public:
 		uint16_t index;
 		QMatrix4x4 offsetMatrix;
 	};
+	using Mat4 = QGenericMatrix<4, 4, float>;
+	void showDefaultPoses();
+	QVector<QSkeleton::Mat4> getCurrentPosesMatrix() const;
+	void setCurrentPosesMatrix(QVector<QSkeleton::Mat4> val);
 
-	using BoneMatrix = QGenericMatrix<4, 4, float>;
 	std::shared_ptr<BoneNode> getBoneNode(const QString& name);
 	std::shared_ptr<BoneNode> addBoneNode(aiBone* bone);
-	const QVector<QSkeleton::BoneMatrix>& getBoneMatrix() const { return mBoneMatrix; }
-	QVector<QSkeleton::BoneMatrix> getPosesMatrix() const;
+	const QVector<QSkeleton::Mat4>& getBoneMatrix() const { return mBoneOffsetMatrix; }
 	void addAnimation(std::shared_ptr < QSkeletonAnimation > anim);
+	QVector<std::shared_ptr<QSkeletonAnimation>> getAnimations() const { return mAnimations; }
 private:
 	std::shared_ptr<ModelNode> processModelNode(aiNode* node);
 	void resolveAnimations(const aiScene* scene);
@@ -40,7 +43,8 @@ private:
 	QVector<std::shared_ptr<QSkeletonAnimation>> mAnimations;
 	std::shared_ptr<ModelNode> mRootNode;;
 	QHash<QString, std::shared_ptr<BoneNode>> mBoneMap;
-	QVector<BoneMatrix> mBoneMatrix;
+	QVector<Mat4> mBoneOffsetMatrix;
+	QVector<Mat4> mCurrentPosesMatrix;
 };
 
 #endif // QSkeleton_h__

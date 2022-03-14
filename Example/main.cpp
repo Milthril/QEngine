@@ -12,6 +12,7 @@
 #include "Scene\Component\StaticMesh\QText2D.h"
 #include "Scene\Component\SkeletonMesh\QSkeletonMeshComponent.h"
 #include "Scene\Component\AssimpToolkit\MMDVmdParser.h"
+#include "Scene\Component\SkeletonMesh\QMMDModel.h"
 
 const int CUBE_MAT_SIZE = 10;
 const int CUBE_MAT_SPACING = 5;
@@ -22,6 +23,7 @@ public:
 	std::shared_ptr<QSkyBoxComponent> mSkyBox;
 	std::shared_ptr<QCube> mCube[CUBE_MAT_SIZE][CUBE_MAT_SIZE];
 	std::shared_ptr<QStaticModel> mStaticModel;
+	std::shared_ptr<QSkeletonModelComponent> mSkeletonModel;
 	std::shared_ptr<QParticleComponent> mGPUParticles;
 	std::shared_ptr<QSphere> mSphere;
 	std::shared_ptr<QText2D> mText;
@@ -72,17 +74,20 @@ public:
 		//mText->setRotation(QVector3D(0, 180, 0));
 		//scene()->addPrimitive(mText);
 
-		auto model = std::make_shared<QSkeletonModelComponent>();
-		model->loadFromFile(PROJECT_SOURCE_DIR"/MMD/Girl.pmx");
-		scene()->addPrimitive(model);
+		//auto model = std::make_shared<QMMDModel>();
+		//model->loadFromFile(PROJECT_SOURCE_DIR"/MMD/Girl.pmx");
+		//model->attachVMDFile(PROJECT_SOURCE_DIR"/MMD/dance.vmd");
+		//scene()->addPrimitive(model);
+
+		mSkeletonModel = std::make_shared<QSkeletonModelComponent>();
+		mSkeletonModel->loadFromFile(PROJECT_SOURCE_DIR"/TEST.fbx");
+		scene()->addPrimitive(mSkeletonModel);
 
 		//mStaticModel = std::make_shared<QStaticModel>();
 		//mStaticModel->loadFromFile(PROJECT_SOURCE_DIR"/MMD/Girl.pmx");
 
 		//auto it = std::make_shared<QSkeletonModelComponent>();
 		//it->loadFromFile(PROJECT_SOURCE_DIR"/MMD/dance.vmd");
-		vmd::VmdMotion vmd;
-		vmd.LoadFromFile(PROJECT_SOURCE_DIR"/MMD/dance.vmd");
 		//mStaticModel->setRotation(QVector3D(-90, 0, 0));
 		//scene()->addPrimitive(mStaticModel);
 	}
@@ -90,7 +95,8 @@ protected:
 	void onGameLoop() override
 	{
 		float time = QTime::currentTime().msecsSinceStartOfDay();
-
+		auto anim = mSkeletonModel->getSkeleton()->getAnimations().first();
+		anim->show(fmod(time, anim->getDuration()));
 		//mMaterial->setParam<QVector3D>("BaseColor", QVector3D(0.1, 0.5, 0.9) * (sin(time / 1000) * 5 + 5));		//设置材质颜色
 		//mText->setScale(QVector3D(1, 1, 1) * (5 + 4 * sin(time / 1000)));										//RGB最大值超出1.0具有Bloom效果
 

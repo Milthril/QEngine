@@ -10,7 +10,12 @@ QVector3D interp(const QVector3D& start, const QVector3D& end, double factor)
 
 QSkeletonAnimation::QSkeletonAnimation(QSkeleton* skeleton)
 	: mSkeleton(skeleton) {
-	
+}
+
+void QSkeletonAnimation::show(const double& timeMs)
+{
+	QVector<QSkeleton::Mat4> matrix = calcBoneMatrix(timeMs);
+	mSkeleton->setCurrentPosesMatrix(matrix);
 }
 
 void QSkeletonAnimation::loadFromAssimp(aiAnimation* anim)
@@ -35,25 +40,24 @@ void QSkeletonAnimation::loadFromAssimp(aiAnimation* anim)
 	}
 }
 
-
-QVector<QSkeleton::BoneMatrix> QSkeletonAnimation::calcBoneMatrix(const double& timeMs)
+QVector<QSkeleton::Mat4> QSkeletonAnimation::calcBoneMatrix(const double& timeMs)
 {
-	QVector<QSkeleton::QSkeleton::BoneMatrix> matrix(mSkeleton->mBoneMatrix.size());
+	QVector<QSkeleton::QSkeleton::Mat4> matrix(mSkeleton->mBoneOffsetMatrix.size());
 	QQueue<QPair<std::shared_ptr<QSkeleton::ModelNode>, QMatrix4x4>> qNode;
 	qNode.push_back({ mSkeleton->mRootNode ,QMatrix4x4() });
 	while (!qNode.isEmpty()) {
 		QPair<std::shared_ptr<QSkeleton::ModelNode>, QMatrix4x4> node = qNode.takeFirst();
 		QMatrix4x4 nodeMat = node.first->localMatrix;
-		auto animNodeIter = mAnimNode.find(node.first->name);
-		if (animNodeIter != mAnimNode.end()) {
-			nodeMat = animNodeIter->getMatrix(timeMs);
-		}
-		QMatrix4x4 globalMatrix = node.second * nodeMat;
 
+		//auto animNodeIter = mAnimNode.find(node.first->name);
+		//if (animNodeIter != mAnimNode.end()) {
+		//	nodeMat = animNodeIter->getMatrix(timeMs);
+		//}
+		QMatrix4x4 globalMatrix = node.second * nodeMat;
 		auto boneIter = mSkeleton->mBoneMap.find(node.first->name);
 		if (boneIter != mSkeleton->mBoneMap.end()) {
 			const int& index = (*boneIter)->index;
-			matrix[index] = (globalMatrix * QMatrix4x4(mSkeleton->mBoneMatrix[index])).toGenericMatrix<4, 4>();
+			matrix[index] = (globalMatrix * QMatrix4x4(mSkeleton->mBoneOffsetMatrix[index])).toGenericMatrix<4, 4>();
 		}
 		for (unsigned int i = 0; i < node.first->children.size(); i++) {
 			qNode.push_back({ node.first->children[i] ,globalMatrix });
@@ -84,7 +88,7 @@ QMatrix4x4 QSkeletonAnimation::Node::getMatrix(const double& timeMs)
 		mat.rotate(QQuaternion::nlerp(startRotation.value(), endRotation.value(), factor).normalized());
 	}
 	else
-		mat.rotate(startRotation.value());
+		mat.rotate(startRotation.value().normalized());
 	//Àı∑≈≤Â÷µ
 	auto endScaling = scaling.upperBound(timeMs);
 	auto startScaling = endScaling == scaling.begin() ? endScaling : endScaling - 1;
