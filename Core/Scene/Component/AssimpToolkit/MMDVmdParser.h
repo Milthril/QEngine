@@ -59,7 +59,7 @@ namespace vmd
 		QString name;
 		int frame;
 		QVector3D position;
-		QVector4D orientation;
+		QQuaternion orientation;
 		char interpolation[4][4][4];
 
 		void Read(std::istream* stream)

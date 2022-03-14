@@ -3,12 +3,33 @@
 #include "QSkeletonMeshComponent.h"
 #include "Scene\Component\AssimpToolkit\Converter.h"
 #include "QQueue"
+#include "QSkeletonAnimation.h"
 
-QSkeleton::QSkeleton(QSkeletonModelComponent* model, aiNode* rootNode)
+QSkeleton::QSkeleton(QSkeletonModelComponent* model, const aiScene* scene)
 	: mModel(model)
-	, mRootNode(processModelNode(rootNode))
+	, mRootNode(processModelNode(scene->mRootNode))
 {
+	resolveAnimations(scene);
+}
 
+std::shared_ptr<QSkeleton::ModelNode> QSkeleton::processModelNode(aiNode* node)
+{
+	std::shared_ptr<QSkeleton::ModelNode> boneNode = std::make_shared<QSkeleton::ModelNode>();
+	boneNode->name = node->mName.C_Str();
+	boneNode->localMatrix = converter(node->mTransformation);
+	for (unsigned int i = 0; i < node->mNumChildren; i++) {
+		boneNode->children.push_back(processModelNode(node->mChildren[i]));
+	}
+	return boneNode;
+}
+
+void QSkeleton::resolveAnimations(const aiScene* scene)
+{
+	for (int i = 0; i < scene->mNumAnimations; i++) {
+		std::shared_ptr<QSkeletonAnimation> anim = std::make_shared<QSkeletonAnimation>(this);
+		anim->loadFromAssimp(scene->mAnimations[i]);
+		addAnimation(anim);
+	}
 }
 
 std::shared_ptr<QSkeleton::BoneNode> QSkeleton::getBoneNode(const QString& name)
@@ -16,11 +37,12 @@ std::shared_ptr<QSkeleton::BoneNode> QSkeleton::getBoneNode(const QString& name)
 	return mBoneMap.value(name);
 }
 
-std::shared_ptr<QSkeleton::BoneNode> QSkeleton::addBoneNode(aiBone* bone){
+std::shared_ptr<QSkeleton::BoneNode> QSkeleton::addBoneNode(aiBone* bone) {
 	if (mBoneMap.contains(bone->mName.C_Str()))
 		return mBoneMap[bone->mName.C_Str()];
 	std::shared_ptr<QSkeleton::BoneNode> boneNode = std::make_shared<QSkeleton::BoneNode>();
 	boneNode->name = bone->mName.C_Str();
+	qDebug() << boneNode->name;
 	boneNode->offsetMatrix = converter(bone->mOffsetMatrix);
 	boneNode->index = mBoneMatrix.size();
 	mBoneMatrix << boneNode->offsetMatrix.toGenericMatrix<4, 4>();
@@ -40,7 +62,7 @@ QVector<QSkeleton::QSkeleton::BoneMatrix> QSkeleton::getPosesMatrix() const
 		auto boneIter = mBoneMap.find(node.first->name);
 		if (boneIter != mBoneMap.end()) {
 			const int& index = (*boneIter)->index;
-			matrix[index] = (globalMatrix * QMatrix4x4(mBoneMatrix[index])).toGenericMatrix<4,4>();
+			matrix[index] = (globalMatrix * QMatrix4x4(mBoneMatrix[index])).toGenericMatrix<4, 4>();
 		}
 
 		for (unsigned int i = 0; i < node.first->children.size(); i++) {
@@ -50,16 +72,7 @@ QVector<QSkeleton::QSkeleton::BoneMatrix> QSkeleton::getPosesMatrix() const
 	return matrix;
 }
 
-std::shared_ptr<QSkeleton::ModelNode> QSkeleton::processModelNode(aiNode* node)
+void QSkeleton::addAnimation(std::shared_ptr < QSkeletonAnimation > anim)
 {
-	std::shared_ptr<QSkeleton::ModelNode> boneNode = std::make_shared<QSkeleton::ModelNode>();
-	boneNode->name = node->mName.C_Str();
-	boneNode->localMatrix = converter(node->mTransformation);
-	for (unsigned int i = 0; i < node->mNumChildren; i++) {
-		boneNode->children.push_back(processModelNode(node->mChildren[i]));
-	}
-	return boneNode;
+	mAnimations << anim;;
 }
-
-
-

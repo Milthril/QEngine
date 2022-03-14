@@ -25,10 +25,9 @@ public:
 		QVector4D boneWeight;
 	};
 	const QVector<std::shared_ptr<QSkeletonMesh>>& getMeshes() const { return mMeshes; }
-
 	std::shared_ptr<QSkeleton::BoneNode> getBoneNode(const QString& boneName);
 	std::shared_ptr<QSkeleton> getSkeleton() const { return mSkeleton; }
-private:
+protected:
 	std::shared_ptr<QSkeleton> mSkeleton;
 	QVector<std::shared_ptr<QSkeletonMesh>> mMeshes;
 	QVector<std::shared_ptr<QMaterial>> mMaterialList;

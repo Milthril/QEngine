@@ -8,7 +8,7 @@
 #include "QSkeleton.h"
 #include "Scene\Component\AssimpToolkit\Converter.h"
 
-QSkeletonMesh::QSkeletonMesh(QSkeletonModelComponent* model, aiMesh* mesh) 
+QSkeletonMesh::QSkeletonMesh(QSkeletonModelComponent* model, aiMesh* mesh)
 	:mModel(model)
 {
 	mVertices.resize(mesh->mNumVertices);
@@ -56,7 +56,7 @@ void QSkeletonModelComponent::loadFromFile(const QString filePath)
 {
 	Assimp::Importer importer;
 	const aiScene* scene = importer.ReadFile(filePath.toUtf8().constData(), aiProcess_Triangulate | aiProcess_FlipUVs);
-	if (scene ==nullptr)
+	if (scene == nullptr)
 		return;
 	mMaterialList.resize(scene->mNumMaterials);
 	for (int i = 0; i < scene->mNumMaterials; i++) {
@@ -75,7 +75,7 @@ void QSkeletonModelComponent::loadFromFile(const QString filePath)
 			mMaterialList[i]->setShadingCode("FragColor = vec4(1.0); ");
 		}
 	}
-	mSkeleton.reset(new QSkeleton(this,scene->mRootNode));
+	mSkeleton.reset(new QSkeleton(this, scene));
 	mMeshes.clear();
 	QQueue<QPair<aiNode*, aiMatrix4x4>> qNode;
 	qNode.push_back({ scene->mRootNode ,aiMatrix4x4() });
@@ -83,7 +83,7 @@ void QSkeletonModelComponent::loadFromFile(const QString filePath)
 		QPair<aiNode*, aiMatrix4x4> node = qNode.takeFirst();
 		for (unsigned int i = 0; i < node.first->mNumMeshes; i++) {
 			aiMesh* mesh = scene->mMeshes[node.first->mMeshes[i]];
-			std::shared_ptr<QSkeletonMesh> skeletonMesh = std::make_shared<QSkeletonMesh>(this,mesh);
+			std::shared_ptr<QSkeletonMesh> skeletonMesh = std::make_shared<QSkeletonMesh>(this, mesh);
 			skeletonMesh->setMaterial(mMaterialList[mesh->mMaterialIndex]);
 			mMeshes << skeletonMesh;
 		}
