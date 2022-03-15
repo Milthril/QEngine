@@ -35,7 +35,7 @@ void EditorAttributeMgr::initDefaultAttribute() {
 
 	mSaver.saveToFile(getLayoutDir().filePath("DefaultWindowLayout"));
 
-	writeFile(getStyleSheetDir().filePath("Light.qss"), R"(
+	writeFile(getStyleSheetDir().filePath("Dark.qss"), R"(
 
 QWidget{
 	font-family:Ebrima;
@@ -115,7 +115,7 @@ QMenu::item:selected,QMenuBar::item:selected {
 }
 )");
 
-	writeFile(getStyleSheetDir().filePath("Dark.qss"), R"(
+	writeFile(getStyleSheetDir().filePath("Light.qss"), R"(
 
 QWidget{
 	font-family:Ebrima;

@@ -65,8 +65,9 @@ void EditorWindow::createUI()
 
 	auto dockViewport = new KDDockWidgets::DockWidget("Viewport", KDDockWidgets::DockWidget::Option_None, layoutSaverOptions);
 	dockViewport->setAffinities(affinities());
-	dockViewport->setWidget(QWidget::createWindowContainer(Engine->window().get()));
-	dockViewport->setMinimumSize(400, 300);
+	auto viewportContainter = QWidget::createWindowContainer(Engine->window().get());
+	viewportContainter->setMinimumSize(400, 300);
+	dockViewport->setWidget(viewportContainter);
 	addDockWidget(dockViewport, KDDockWidgets::Location::Location_OnTop);
 }
 
