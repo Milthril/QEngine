@@ -5,6 +5,7 @@
 #include "QApplication"
 #include "QStyleFactory"
 #include "QEngine.h"
+#include "../DockWidget.h"
 
 EditorWindow::EditorWindow()
 	: KDDockWidgets::MainWindow("QEngine Editor")
@@ -12,6 +13,7 @@ EditorWindow::EditorWindow()
 	, mFile("File")
 	, mEdit("Edit")
 	, mWindow("Window")
+	, mSceneTreeWidget(Engine->scene())
 {
 	createUI();
 }
@@ -37,6 +39,8 @@ void EditorWindow::preInitConfig()
 
 void EditorWindow::createUI()
 {
+	mWindowLayoutMgr.initConfig();
+
 	menuBar()->addMenu(&mFile);
 	menuBar()->addMenu(&mEdit);
 	menuBar()->addMenu(&mWindow);
@@ -63,12 +67,22 @@ void EditorWindow::createUI()
 	dockAssetPanel->setWidget(&mAssetPanel);
 	addDockWidget(dockAssetPanel, KDDockWidgets::Location::Location_OnBottom);
 
+	auto dockScene = new KDDockWidgets::DockWidget("Scene", KDDockWidgets::DockWidget::Option_None, layoutSaverOptions);
+	dockScene->setAffinities(affinities());
+	dockScene->setWidget(&mSceneTreeWidget);
+	addDockWidget(dockScene, KDDockWidgets::Location::Location_OnTop);
+
+	auto dockProperty = new KDDockWidgets::DockWidget("Property", KDDockWidgets::DockWidget::Option_None, layoutSaverOptions);
+	dockProperty->setAffinities(affinities());
+	dockProperty->setWidget(&mPropertyPanel);
+	addDockWidget(dockProperty, KDDockWidgets::Location::Location_OnRight);
+
 	auto dockViewport = new KDDockWidgets::DockWidget("Viewport", KDDockWidgets::DockWidget::Option_None, layoutSaverOptions);
 	dockViewport->setAffinities(affinities());
+	addDockWidget(dockViewport, KDDockWidgets::Location::Location_OnRight, dockScene);
 	auto viewportContainter = QWidget::createWindowContainer(Engine->window().get());
 	viewportContainter->setMinimumSize(400, 300);
 	dockViewport->setWidget(viewportContainter);
-	addDockWidget(dockViewport, KDDockWidgets::Location::Location_OnTop);
 }
 
 void EditorWindow::connectUI()
@@ -77,5 +91,4 @@ void EditorWindow::connectUI()
 
 void EditorWindow::showEvent(QShowEvent* event)
 {
-	mWindowLayoutMgr.initConfig();
 }

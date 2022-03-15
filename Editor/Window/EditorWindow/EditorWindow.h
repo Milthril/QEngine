@@ -5,6 +5,8 @@
 #include "Widgets/AssetPanel/AssetPanel.h"
 #include "EditorAttributeMgr.h"
 #include <kddockwidgets/DockWidget.h>
+#include "Widgets/SceneTreeWidget/SceneTreeWidget.h"
+#include "Widgets/PropertyPanel/QPropertyPanel.h"
 
 class EditorWindow : public KDDockWidgets::MainWindow {
 	Q_OBJECT
@@ -16,6 +18,8 @@ protected:
 	void connectUI();
 	void showEvent(QShowEvent* event) override;
 private:
+	SceneTreeWidget mSceneTreeWidget;
+	QPropertyPanel mPropertyPanel;
 	AssetPanel mAssetPanel;
 	QMenu mFile;
 	QMenu mEdit;

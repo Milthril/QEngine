@@ -19,11 +19,6 @@ QPropertyPanel::QPropertyPanel(QObject* object /*= nullptr*/) {
 			/*show menu*/
 		}
 	});
-	setStyleSheet(
-		"QTreeView{"
-		" background-color: rgba(255,255,255,0);"
-		"}"
-	);
 }
 
 QObject* QPropertyPanel::getObject() const
@@ -63,7 +58,7 @@ void QPropertyPanel::updatePanel() {
 		return;
 	for (int i = object_->metaObject()->propertyOffset(); i < object_->metaObject()->propertyCount(); i++) {
 		QMetaProperty property = object_->metaObject()->property(i);
-		if(!property.isScriptable())
+		if (!property.isScriptable())
 			continue;
 		QPropertyItem* item = new QPropertyItem(object_, property);
 		item->setUp(this);
