@@ -1,4 +1,5 @@
 #include "QScene.h"
+#include "Component\QPrimitiveComponent.h"
 
 void QScene::insertLight(uint32_t index, std::shared_ptr<QLightComponent> light)
 {
@@ -13,15 +14,18 @@ void QScene::removeLight(std::shared_ptr<QLightComponent> light)
 	}
 }
 
-void QScene::insertPrimitive(uint32_t index, std::shared_ptr<QPrimitiveComponent> component)
+void QScene::insertPrimitive(uint32_t index, const QString& name, std::shared_ptr<QPrimitiveComponent> component)
 {
+	component->setObjectName(name);
 	mPrimitiveList.insert(index, component);
+	component->setParent(this);
 	Q_EMIT primitiveInserted(index, component);
 }
 
 void QScene::removePrimitive(std::shared_ptr<QPrimitiveComponent> component)
 {
 	if (mPrimitiveList.removeOne(component)) {
+		component->setParent(nullptr);
 		Q_EMIT primitiveRemoved(component);
 	}
 }
@@ -31,9 +35,9 @@ void QScene::addLight(std::shared_ptr<QLightComponent> light)
 	insertLight(mLightList.size(), light);
 }
 
-void QScene::addPrimitive(std::shared_ptr<QPrimitiveComponent> component)
+void QScene::addPrimitive(const QString& name, std::shared_ptr<QPrimitiveComponent> component)
 {
-	insertPrimitive(mPrimitiveList.size(), component);
+	insertPrimitive(mPrimitiveList.size(), name, component);
 }
 
 std::shared_ptr<QCameraComponent> QScene::getCamera() const

@@ -32,7 +32,6 @@ DoubleBox::DoubleBox(double value /*= 0*/, QString name, QWidget* parent /*= nul
 	numberEditer_->setFixedHeight(height());
 	numberEditer_->setFrame(QFrame::NoFrame);
 	numberEditer_->setValidator(new QDoubleValidator);
-	numberEditer_->setStyleSheet("background-color:transparent;");
 	numberEditer_->setAlignment(Qt::AlignLeft);
 	numberEditer_->setMinimumWidth(50);
 	setNumber(value);

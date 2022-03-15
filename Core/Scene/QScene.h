@@ -16,11 +16,11 @@ public:
 	void insertLight(uint32_t index, std::shared_ptr<QLightComponent> light);
 	void removeLight(std::shared_ptr<QLightComponent> light);
 
-	void insertPrimitive(uint32_t index, std::shared_ptr<QPrimitiveComponent> component);
+	void insertPrimitive(uint32_t index, const QString& name, std::shared_ptr<QPrimitiveComponent> component);
 	void removePrimitive(std::shared_ptr<QPrimitiveComponent> component);
 
 	void addLight(std::shared_ptr<QLightComponent> light);
-	void addPrimitive(std::shared_ptr<QPrimitiveComponent> component);
+	void addPrimitive(const QString& name, std::shared_ptr<QPrimitiveComponent> component);
 
 	std::shared_ptr<QCameraComponent> getCamera() const;
 	void setCamera(std::shared_ptr<QCameraComponent> val);
@@ -32,7 +32,6 @@ private:
 	QList<std::shared_ptr<QLightComponent>> mLightList;
 	std::shared_ptr<QSkyBoxComponent> mSkyBox;
 	std::shared_ptr<QCameraComponent> mCamera;
-
 Q_SIGNALS:
 	void lightChanged();
 	void skyBoxChanged();

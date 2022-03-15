@@ -5,9 +5,9 @@
 
 class QStaticMeshComponent : public QPrimitiveComponent {
 	Q_OBJECT
-		Q_PROPERTY(Topology topology READ getTopology WRITE setTopology)
-		Q_PROPERTY(QVector<Vertex> vertices READ getVertices WRITE setVertices)
-		Q_PROPERTY(QVector<uint32_t> indices READ getIndices WRITE setIndices)
+		Q_PROPERTY(Topology topology READ getTopology WRITE setTopology SCRIPTABLE false)
+		Q_PROPERTY(QVector<Vertex> vertices READ getVertices WRITE setVertices SCRIPTABLE false)
+		Q_PROPERTY(QVector<uint32_t> indices READ getIndices WRITE setIndices SCRIPTABLE false)
 public:
 	struct Vertex {
 		QVector3D position;

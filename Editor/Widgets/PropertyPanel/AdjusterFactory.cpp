@@ -60,6 +60,7 @@ public:
 void notifyValueChanged(QObject* object, QString propertyName, QVariant var) {
 	if (AdjusterFactory::isUpdating_)
 		return;
+	object->setProperty(propertyName.toLocal8Bit(), var);
 	//QVariant pre = object->property(propertyName.toLocal8Bit());
 	//if (QObject::undoStack_.count() != 0) {
 	//	PropertyAssignCommand* command = dynamic_cast<PropertyAssignCommand*>(const_cast<QUndoCommand*>(QObjectEx::undoStack_.command(QObjectEx::undoStack_.index() - 1)));

@@ -34,7 +34,6 @@ IntSlider::IntSlider(QBoundedInt number  /*= 0*/, QString name, QWidget* parent 
 	numberEditer_->setFixedHeight(height());
 	numberEditer_->setFrame(QFrame::NoFrame);
 	numberEditer_->setValidator(new QIntValidator);
-	numberEditer_->setStyleSheet("background-color:transparent;");
 	//numberEditer_->setAlignment(Qt::AlignRight);
 	setNumber(value_.number());
 	setEditEnabled(false);
@@ -149,7 +148,7 @@ void IntSlider::paintEvent(QPaintEvent* event)
 	painter.drawRoundedRect(rect(), 2, 2);
 
 	QRect slider = numberEditer_->geometry();
-	slider.setRight(slider.left() + slider.width() * ((value_.number()-value_.min()) / double(value_.max() - value_.min())));
+	slider.setRight(slider.left() + slider.width() * ((value_.number() - value_.min()) / double(value_.max() - value_.min())));
 	painter.setBrush(QColor(140, 140, 140));
 	painter.drawRoundedRect(slider, 2, 2);
 	QWidget::paintEvent(event);

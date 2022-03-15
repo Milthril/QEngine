@@ -6,7 +6,6 @@
 #include "Scene\Material\QMaterial.h"
 
 class QPrimitiveComponent :public QSceneComponent {
-	Q_OBJECT
 public:
 	using Index = uint32_t;
 	using Topology = QRhiGraphicsPipeline::Topology;

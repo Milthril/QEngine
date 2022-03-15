@@ -15,7 +15,6 @@ LineEdit::LineEdit(QString str)
 	lineEdit_->setFixedHeight(20);
 	lineEdit_->setText(str);
 	lineEdit_->setFrame(QFrame::NoFrame);
-	lineEdit_->setStyleSheet("background-color:transparent");
 	connect(lineEdit_, &QLineEdit::textChanged, this, [&](QString str) {
 		Q_EMIT valueChanged(str);
 	});

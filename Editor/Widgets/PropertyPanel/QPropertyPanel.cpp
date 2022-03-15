@@ -37,16 +37,18 @@ void setupItemInternal(QObject* object, QTreeWidgetItem* parentItem) {
 	if (object == nullptr)
 		return;
 
-	for (int i = object->metaObject()->propertyOffset(); i < object->metaObject()->propertyCount(); i++) {
+	for (int i = 0; i < object->metaObject()->propertyCount(); i++) {
 		QMetaProperty property = object->metaObject()->property(i);
-		QPropertyItem* item = new QPropertyItem(object, property);
-		item->setUp(parentItem);
+		if (property.isScriptable()) {
+			QPropertyItem* item = new QPropertyItem(object, property);
+			item->setUp(parentItem);
 
-		const QMetaObject* meta = property.metaType().metaObject();
-		if (meta != nullptr && meta->inherits(&QObject::staticMetaObject)) {
-			QObject* obj = property.read(object).value<QObject*>();
-			if (obj != nullptr) {
-				setupItemInternal(obj, item);
+			const QMetaObject* meta = property.metaType().metaObject();
+			if (meta != nullptr && meta->inherits(&QObject::staticMetaObject)) {
+				QObject* obj = property.read(object).value<QObject*>();
+				if (obj != nullptr) {
+					setupItemInternal(obj, item);
+				}
 			}
 		}
 	}
@@ -56,7 +58,7 @@ void QPropertyPanel::updatePanel() {
 	this->clear();
 	if (object_ == nullptr)
 		return;
-	for (int i = object_->metaObject()->propertyOffset(); i < object_->metaObject()->propertyCount(); i++) {
+	for (int i = 0; i < object_->metaObject()->propertyCount(); i++) {
 		QMetaProperty property = object_->metaObject()->property(i);
 		if (!property.isScriptable())
 			continue;

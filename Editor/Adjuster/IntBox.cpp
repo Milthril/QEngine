@@ -33,7 +33,6 @@ IntBox::IntBox(int value/*= 0*/, QString name, QWidget* parent /*= nullptr*/)
 	numberEditer_->setFixedHeight(height());
 	numberEditer_->setFrame(QFrame::NoFrame);
 	numberEditer_->setValidator(new QIntValidator);
-	numberEditer_->setStyleSheet("background-color:transparent;");
 	//numberEditer_->setAlignment(Qt::AlignRight);
 	setNumber(value);
 	setEditEnabled(false);

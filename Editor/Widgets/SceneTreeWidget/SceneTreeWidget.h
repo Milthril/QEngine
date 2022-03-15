@@ -5,13 +5,17 @@
 #include "Scene\QScene.h"
 
 class SceneTreeWidget :public QTreeWidget {
+	Q_OBJECT
 public:
 	SceneTreeWidget(std::shared_ptr<QScene> scene);
 private:
 	void createUI();
+	void updateUI();
 private:
 	std::shared_ptr<QScene> mScene;
-	std::shared_ptr<QTreeWidgetItem> mRoot;
+	QTreeWidgetItem* mRoot;
+Q_SIGNALS:
+	void objectChanged(QObject* obejct);
 };
 
 #endif // SceneTreeWidget_h__

@@ -44,7 +44,7 @@ public:
 				std::shared_ptr<QCube>& cube = mCube[i][j];
 				cube.reset(new QCube);
 				cube->setPosition(QVector3D((i - CUBE_MAT_SIZE / 2.0) * CUBE_MAT_SPACING, (j - CUBE_MAT_SIZE / 2.0) * CUBE_MAT_SPACING, -10));
-				scene()->addPrimitive(cube);
+				scene()->addPrimitive(QString("cube(%1,%2)").arg(i).arg(j), cube);
 			}
 		}
 
@@ -56,7 +56,7 @@ public:
 
 		mText->setPosition(QVector3D(0, -4, 0));
 		mText->setRotation(QVector3D(0, 180, 0));
-		scene()->addPrimitive(mText);
+		scene()->addPrimitive("text", mText);
 	}
 protected:
 	void update() override

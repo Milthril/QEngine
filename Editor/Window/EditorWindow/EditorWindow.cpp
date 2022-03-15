@@ -16,11 +16,13 @@ EditorWindow::EditorWindow()
 	, mSceneTreeWidget(Engine->scene())
 {
 	createUI();
+	connectUI();
 }
 
 void EditorWindow::preInitConfig()
 {
 	qApp->setStyle(QStyleFactory::create(QStringLiteral("Fusion")));
+
 	KDDockWidgets::Config::Flags flags = KDDockWidgets::Config::self().flags();
 	flags = flags
 		//| KDDockWidgets::Config::Flag_CloseOnlyCurrentTab
@@ -87,6 +89,7 @@ void EditorWindow::createUI()
 
 void EditorWindow::connectUI()
 {
+	connect(&mSceneTreeWidget, &SceneTreeWidget::objectChanged, &mPropertyPanel, &QPropertyPanel::setObject);
 }
 
 void EditorWindow::showEvent(QShowEvent* event)

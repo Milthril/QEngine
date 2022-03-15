@@ -53,12 +53,12 @@ void QText2D::setOrientation(Qt::Orientation val)
 	}
 }
 
-uint32_t QText2D::getSpacing() const
+double QText2D::getSpacing() const
 {
 	return mSpacing;
 }
 
-void QText2D::setSpacing(uint32_t val)
+void QText2D::setSpacing(double val)
 {
 	if (mSpacing != val) {
 		mSpacing = val;

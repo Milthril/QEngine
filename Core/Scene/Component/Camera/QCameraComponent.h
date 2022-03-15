@@ -6,6 +6,7 @@
 
 class QCameraComponent :public QSceneComponent {
 public:
+	QCameraComponent();
 	virtual QMatrix4x4 getViewMatrix();
 	float getYaw();
 	float getPitch();
@@ -46,8 +47,8 @@ private:
 	QSet<int> mKeySet;			 //记录当前被按下按键的集合
 	float mDeltaTimeMs;			 //当前帧与上一帧的时间差
 	float mLastFrameTimeMs;			 //上一帧的时间
-	float mRotationSpeed = 0.005f;						//鼠标灵敏度
-	float mMoveSpeed = 0.05f;									//控制移动速度
+	float mRotationSpeed = 0.003f;						//鼠标灵敏度
+	float mMoveSpeed = 0.1f;									//控制移动速度
 };
 
 #endif // QCameraComponent_h__

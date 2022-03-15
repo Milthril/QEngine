@@ -34,7 +34,6 @@ DoubleSlider::DoubleSlider(QBoundedDouble number  /*= 0*/, QString name, QWidget
 	numberEditer_->setFixedHeight(height());
 	numberEditer_->setFrame(QFrame::NoFrame);
 	numberEditer_->setValidator(new QDoubleValidator);
-	numberEditer_->setStyleSheet("background-color:transparent;");
 	//numberEditer_->setAlignment(Qt::AlignRight);
 	setNumber(value_.number());
 	setEditEnabled(false);

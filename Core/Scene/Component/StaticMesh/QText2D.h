@@ -9,7 +9,7 @@ class QText2D :public QStaticMeshComponent {
 		Q_PROPERTY(QString Text READ getText WRITE setText)
 		Q_PROPERTY(QFont Font READ getFont WRITE setFont)
 		Q_PROPERTY(Qt::Orientation Orientation READ getOrientation WRITE setOrientation)
-		Q_PROPERTY(uint32_t Spacing READ getSpacing WRITE setSpacing)
+		Q_PROPERTY(double Spacing READ getSpacing WRITE setSpacing)
 public:
 	QText2D(QString text, QFont font = QFont(), Qt::Orientation o = Qt::Horizontal, uint32_t spacing = 0);
 
@@ -22,14 +22,14 @@ public:
 	Qt::Orientation getOrientation() const;
 	void setOrientation(Qt::Orientation val);
 
-	uint32_t getSpacing() const;
-	void setSpacing(uint32_t val);
+	double getSpacing() const;
+	void setSpacing(double val);
 private:
 	void recreateVertexData();
 	QString mText;
 	QFont mFont;
 	Qt::Orientation mOrientation;
-	uint32_t mSpacing;
+	double mSpacing;
 };
 
 #endif // QText2D_h__

@@ -3,6 +3,11 @@
 #include "QDateTime"
 #include "QApplication"
 
+QCameraComponent::QCameraComponent()
+{
+	setRotation(QVector3D(0, M_PI_2, 0));
+}
+
 QMatrix4x4 QCameraComponent::getViewMatrix()
 {
 	return mViewMatrix;
@@ -63,11 +68,14 @@ void QCameraComponent::setupWindow(QWindow* window)
 	if (mWindow) {
 		mWindow->installEventFilter(this);
 		setAspectRatio(mWindow->width() / (float)mWindow->height());
+		calculateCameraDirection();
+		calculateViewMatrix();
 	}
 }
 
 bool QCameraComponent::eventFilter(QObject* watched, QEvent* event)
 {
+	static QPoint pressedPos;
 	if (watched != nullptr && watched == mWindow) {
 		switch (event->type())
 		{
@@ -77,18 +85,18 @@ bool QCameraComponent::eventFilter(QObject* watched, QEvent* event)
 			break;
 		case QEvent::MouseButtonPress:
 			mWindow->setCursor(Qt::BlankCursor);             //隐藏鼠标光标
-			QCursor::setPos(mWindow->mapToGlobal(QPoint(mWindow->width() / 2, mWindow->height() / 2)));   //将鼠标移动窗口中央
+			pressedPos = QCursor::pos();
 			break;
 		case QEvent::MouseButtonRelease:
+			pressedPos = { 0,0 };
 			mWindow->setCursor(Qt::ArrowCursor);             //显示鼠标光标
 			break;
 
 		case QEvent::MouseMove: {
 			if (qApp->mouseButtons() & Qt::LeftButton) {
-				QRect rect(0, 0, mWindow->width(), mWindow->height());
-				QMouseEvent* mouseEvent = static_cast<QMouseEvent*>(event);
-				float xoffset = mouseEvent->x() - rect.center().x();
-				float yoffset = mouseEvent->y() - rect.center().y(); // 注意这里是相反的，因为y坐标是从底部往顶部依次增大的
+				QPoint currentPos = QCursor::pos();
+				float xoffset = pressedPos.x() - currentPos.x();
+				float yoffset = currentPos.y() - pressedPos.y();	// 注意这里是相反的，因为y坐标是从底部往顶部依次增大的
 				xoffset *= mRotationSpeed;
 				yoffset *= mRotationSpeed;
 				float yaw = getYaw() - xoffset;
@@ -103,7 +111,7 @@ bool QCameraComponent::eventFilter(QObject* watched, QEvent* event)
 				rotation.setY(yaw);
 				rotation.setX(pitch);
 				setRotation(rotation);
-				QCursor::setPos(mWindow->mapToGlobal(QPoint(mWindow->width() / 2, mWindow->height() / 2)));   //将鼠标移动窗口中央
+				QCursor::setPos(pressedPos);   //将鼠标移动窗口中央
 			}
 			break;
 		}
@@ -175,9 +183,10 @@ void QCameraComponent::calculateClipMatrix()
 
 void QCameraComponent::calculateCameraDirection()
 {
-	mCameraDirection.setX(cos(getYaw()) * cos(getPitch()));
+	float xzLen = cos(getPitch());
+	mCameraDirection.setX(xzLen * cos(getYaw()));
 	mCameraDirection.setY(sin(getPitch()));
-	mCameraDirection.setZ(sin(getYaw()) * cos(getPitch()));
+	mCameraDirection.setZ(xzLen * sin(-getYaw()));
 	mCameraRight = QVector3D::crossProduct({ 0.0f,1.0f,0.0f }, mCameraDirection);
 	mCameraUp = QVector3D::crossProduct(mCameraRight, mCameraDirection);         //摄像机上向量
 }
