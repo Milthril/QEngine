@@ -1,18 +1,18 @@
-#ifndef WindowLayoutMgr_h__
-#define WindowLayoutMgr_h__
+#ifndef EditorAttributeMgr_h__
+#define EditorAttributeMgr_h__
 
 #include <QMenu>
 #include <QDir>
+#include <QJsonObject>
 #include "kddockwidgets/KDDockWidgets.h"
 #include "kddockwidgets/LayoutSaver.h"
 #include "kddockwidgets/FrameworkWidgetFactory.h"
-#include "QJsonObject"
 
-class WindowAttributeMgr {
-	friend class EngineMainWindow;
+class EditorAttributeMgr {
+	friend class EditorWindow;
 public:
 	enum class WindowStyle;
-	WindowAttributeMgr();
+	EditorAttributeMgr();
 	void initConfig();
 	void saveCurrentLayout();
 	void resetDefaultLayout();
@@ -40,4 +40,6 @@ public:
 	QAbstractButton* createTitleBarButton(QWidget* parent, KDDockWidgets::TitleBarButtonType) const override;
 };
 
-#endif // WindowLayoutMgr_h__
+
+
+#endif // EditorAttributeMgr_h__

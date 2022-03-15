@@ -15,5 +15,4 @@ public:
 	void setHoverColor(QColor val) { hoverColor = val; update(); }
 };
 
-
 #endif // WinMinButton_h__

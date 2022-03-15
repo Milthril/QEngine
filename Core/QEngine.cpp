@@ -4,11 +4,13 @@ QEngine::QEngine(int argc, char** argv)
 	: QApplication(argc, argv)
 	, mWindow(std::make_shared<QRhiWindow>(QRhi::Implementation::Vulkan))
 {
-	mWindow->show();
-	mWindow->waitExposed();
 }
 
-void QEngine::onGameLoop()
+void QEngine::init()
+{
+}
+
+void QEngine::update()
 {
 }
 
@@ -24,14 +26,17 @@ std::shared_ptr<QRhiWindow> QEngine::window()
 
 void QEngine::execGame()
 {
+	mWindow->show();
+	mWindow->waitExposed();
+	init();
 	while (true) {
 		QGuiApplication::processEvents();
-		onGameLoop();
+		update();
 		mWindow->requestUpdate();
 	}
 }
 
-QRhi* QEngine::globalRHI()
+QRhi* QEngine::getRHI()
 {
 	return mWindow->mRhi.get();
 }

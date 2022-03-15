@@ -77,7 +77,7 @@ bool QCameraComponent::eventFilter(QObject* watched, QEvent* event)
 			break;
 		case QEvent::MouseButtonPress:
 			mWindow->setCursor(Qt::BlankCursor);             //隐藏鼠标光标
-			QCursor::setPos(mWindow->geometry().center());   //将鼠标移动窗口中央
+			QCursor::setPos(mWindow->mapToGlobal(QPoint(mWindow->width() / 2, mWindow->height() / 2)));   //将鼠标移动窗口中央
 			break;
 		case QEvent::MouseButtonRelease:
 			mWindow->setCursor(Qt::ArrowCursor);             //显示鼠标光标
@@ -103,7 +103,7 @@ bool QCameraComponent::eventFilter(QObject* watched, QEvent* event)
 				rotation.setY(yaw);
 				rotation.setX(pitch);
 				setRotation(rotation);
-				QCursor::setPos(mWindow->geometry().center());   //将鼠标移动窗口中央
+				QCursor::setPos(mWindow->mapToGlobal(QPoint(mWindow->width() / 2, mWindow->height() / 2)));   //将鼠标移动窗口中央
 			}
 			break;
 		}

@@ -9,7 +9,7 @@
 #undef Engine
 #endif
 #define Engine (static_cast<QEngine *>(QEngine::instance()))
-#define RHI (static_cast<QEngine *>(QEngine::instance()))->globalRHI()
+#define RHI (static_cast<QEngine *>(QEngine::instance()))->getRHI()
 
 class QEngine :public QApplication
 {
@@ -18,9 +18,10 @@ public:
 	std::shared_ptr<QScene> scene();
 	std::shared_ptr<QRhiWindow> window();
 	void execGame();
-	QRhi* globalRHI();
+	QRhi* getRHI();
 protected:
-	virtual void onGameLoop();
+	virtual void init();
+	virtual void update();
 private:
 	std::shared_ptr<QRhiWindow> mWindow;
 };

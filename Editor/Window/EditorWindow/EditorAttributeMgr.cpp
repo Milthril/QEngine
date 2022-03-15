@@ -1,4 +1,4 @@
-#include "WindowLayoutMgr.h"
+#include "EditorAttributeMgr.h"
 #include <QInputDialog>
 #include <QActionGroup>
 #include <QApplication>
@@ -7,11 +7,11 @@
 #include "Widgets\Buttons\WinMaxButton.h"
 #include "QJsonDocument"
 
-WindowAttributeMgr::WindowAttributeMgr()
+EditorAttributeMgr::EditorAttributeMgr()
 {
 }
 
-void WindowAttributeMgr::initConfig()
+void EditorAttributeMgr::initConfig()
 {
 	initDefaultAttribute();
 	loadCurrentCtx();
@@ -19,15 +19,15 @@ void WindowAttributeMgr::initConfig()
 	loadAllStyleSheet();
 }
 
-QDir WindowAttributeMgr::getLayoutDir() {
+QDir EditorAttributeMgr::getLayoutDir() {
 	return mSaveDir.filePath("Layout");
 }
 
-QDir WindowAttributeMgr::getStyleSheetDir() {
+QDir EditorAttributeMgr::getStyleSheetDir() {
 	return mSaveDir.filePath("StyleSheet");
 }
 
-void WindowAttributeMgr::initDefaultAttribute() {
+void EditorAttributeMgr::initDefaultAttribute() {
 	if (mSaveDir.exists())
 		return;
 	mSaveDir.mkpath(getLayoutDir().path());
@@ -36,6 +36,87 @@ void WindowAttributeMgr::initDefaultAttribute() {
 	mSaver.saveToFile(getLayoutDir().filePath("DefaultWindowLayout"));
 
 	writeFile(getStyleSheetDir().filePath("Light.qss"), R"(
+
+QWidget{
+	font-family:Ebrima;
+	font-size: 10pt;
+	background-color:rgb(45,45,48);
+	color:white;
+}
+QTreeWidget,QListWidget{
+	background-color: rgb(30,30,30);
+}
+QLineEdit{
+	background-color:rgb(51,51,55);
+	border-radius: 3px;
+	color: rgba(255,255,255,150);
+	border: 1px inset transparent;
+}
+QLineEdit:hover{
+	background-color:rgb(63,63,70);
+	border: 1px inset rgba(0,120,215,150);
+}
+
+QPushButton{
+    padding:  0px 5px 0px 5px;
+    border-radius: 0px;
+    border: 1px solid rgba(200,200,200,200);
+    background-color: rgba(200,200,200,100);
+}
+
+QPushButton:hover{
+	background-color: rgb(28,151,234);
+}
+
+QTreeWidget::item:hover {
+	background-color: rgba(0,120,215,150);
+}
+
+QTreeWidget::item:selected {
+	background-color: rgb(0,120,215);
+}
+
+QScrollBar:vertical {
+    width: 8px;
+    background: #f0f0f0;
+}
+QScrollBar:horizontal {
+    height: 8px;
+    background: #f0f0f0;
+}
+QScrollBar::handle:vertical {
+    background: #cdcdcd;
+    min-height: 30px;
+}
+QScrollBar::handle:horizontal {
+    background: #cdcdcd;
+    min-width: 30px;
+}
+QScrollBar::handle:vertical:hover,
+QScrollBar::handle:horizontal:hover {
+    background: #a6a6a6;
+}
+QScrollBar::sub-line:vertical, QScrollBar::add-line:vertical,
+QScrollBar::sub-line:horizontal, QScrollBar::add-line:horizontal {
+    width: 0;
+    height: 0;
+}
+
+QScrollBar::add-page:vertical, QScrollBar::sub-page:vertical,
+QScrollBar::add-page:horizontal, QScrollBar::sub-page:horizontal {
+    background: none;
+}
+
+QMenu{
+	background-color: rgb(27,27,28);
+}
+QMenu::item:selected,QMenuBar::item:selected {
+	background-color: rgb(62,62,64);
+}
+)");
+
+	writeFile(getStyleSheetDir().filePath("Dark.qss"), R"(
+
 QWidget{
 	font-family:Ebrima;
 	font-size: 10pt;
@@ -115,91 +196,13 @@ QMenu::item {
 QMenu::item:selected,QMenuBar::item:selected {
 	background-color: rgb(201,222,245);
 }
-)");
 
-	writeFile(getStyleSheetDir().filePath("Dark.qss"), R"(
-QWidget{
-	font-family:Ebrima;
-	font-size: 10pt;
-	background-color:rgb(45,45,48);
-	color:white;
-}
-QTreeWidget,QListWidget{
-	background-color: rgb(30,30,30);
-}
-QLineEdit{
-	background-color:rgb(51,51,55);
-	border-radius: 3px;
-	color: rgba(255,255,255,150);
-	border: 1px inset transparent;
-}
-QLineEdit:hover{
-	background-color:rgb(63,63,70);
-	border: 1px inset rgba(0,120,215,150);
-}
-
-QPushButton{
-    padding:  0px 5px 0px 5px;
-    border-radius: 0px;
-    border: 1px solid rgba(200,200,200,200);
-    background-color: rgba(200,200,200,100);
-}
-
-QPushButton:hover{
-	background-color: rgb(28,151,234);
-}
-
-QTreeWidget::item:hover {
-	background-color: rgba(0,120,215,150);
-}
-
-QTreeWidget::item:selected {
-	background-color: rgb(0,120,215);
-}
-
-QScrollBar:vertical {
-    width: 8px;
-    background: #f0f0f0;
-}
-QScrollBar:horizontal {
-    height: 8px;
-    background: #f0f0f0;
-}
-QScrollBar::handle:vertical {
-    background: #cdcdcd;
-    min-height: 30px;
-}
-QScrollBar::handle:horizontal {
-    background: #cdcdcd;
-    min-width: 30px;
-}
-QScrollBar::handle:vertical:hover,
-QScrollBar::handle:horizontal:hover {
-    background: #a6a6a6;
-}
-QScrollBar::sub-line:vertical, QScrollBar::add-line:vertical,
-QScrollBar::sub-line:horizontal, QScrollBar::add-line:horizontal {
-    width: 0;
-    height: 0;
-}
-
-QScrollBar::add-page:vertical, QScrollBar::sub-page:vertical,
-QScrollBar::add-page:horizontal, QScrollBar::sub-page:horizontal {
-    background: none;
-}
-
-QMenu{
-	background-color: rgb(27,27,28);
-}
-QMenu::item:selected,QMenuBar::item:selected {
-	background-color: rgb(62,62,64);
-}
 )");
 
 	loadStyleSheet(getStyleSheetDir().filePath("Light.qss"));
 }
 
-void WindowAttributeMgr::writeFile(QString filePath, QByteArray data)
+void EditorAttributeMgr::writeFile(QString filePath, QByteArray data)
 {
 	QFile file(filePath);
 	if (file.open(QFile::WriteOnly)) {
@@ -208,7 +211,7 @@ void WindowAttributeMgr::writeFile(QString filePath, QByteArray data)
 	}
 }
 
-void WindowAttributeMgr::loadAllLayout()
+void EditorAttributeMgr::loadAllLayout()
 {
 	mLayoutMenu->clear();
 	for (auto layoutFileInfo : getLayoutDir().entryInfoList(QDir::Filter::Files)) {
@@ -228,7 +231,7 @@ void WindowAttributeMgr::loadAllLayout()
 	}
 }
 
-void WindowAttributeMgr::loadAllStyleSheet()
+void EditorAttributeMgr::loadAllStyleSheet()
 {
 	mWindowStyleMenu->clear();
 	QActionGroup* acStyleGroup = new QActionGroup(mWindowStyleMenu);
@@ -251,7 +254,7 @@ void WindowAttributeMgr::loadAllStyleSheet()
 	}
 }
 
-void WindowAttributeMgr::loadStyleSheet(QString filePath)
+void EditorAttributeMgr::loadStyleSheet(QString filePath)
 {
 	QFile file(filePath);
 	if (file.open(QFile::ReadOnly)) {
@@ -260,12 +263,12 @@ void WindowAttributeMgr::loadStyleSheet(QString filePath)
 	}
 }
 
-void WindowAttributeMgr::saveCurrentCtx()
+void EditorAttributeMgr::saveCurrentCtx()
 {
 	writeFile(mSaveDir.filePath("Config.json"), QJsonDocument(mCurrentCtx).toJson());
 }
 
-void WindowAttributeMgr::loadCurrentCtx()
+void EditorAttributeMgr::loadCurrentCtx()
 {
 	QFile file(mSaveDir.filePath("Config.json"));
 	if (file.open(QFile::ReadOnly)) {
@@ -273,7 +276,7 @@ void WindowAttributeMgr::loadCurrentCtx()
 	}
 }
 
-void WindowAttributeMgr::saveCurrentLayout()
+void EditorAttributeMgr::saveCurrentLayout()
 {
 	bool ok;
 	QString text = QInputDialog::getText(nullptr, QObject::tr("save window layout"),
@@ -293,7 +296,7 @@ void WindowAttributeMgr::saveCurrentLayout()
 	}
 }
 
-void WindowAttributeMgr::resetDefaultLayout()
+void EditorAttributeMgr::resetDefaultLayout()
 {
 	KDDockWidgets::LayoutSaver mSaver;
 	mSaver.restoreFromFile(getLayoutDir().filePath("DefaultWindowLayout"));
