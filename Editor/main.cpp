@@ -14,7 +14,7 @@
 #include "Scene\Component\SkeletonMesh\QSkeletonMeshComponent.h"
 #include "Scene\Component\AssimpToolkit\MMDVmdParser.h"
 #include "Scene\Component\SkeletonMesh\QMMDModel.h"
-#include "Adjuster\CodeEditor\GLSL\GLSLEditor.h"
+#include "Window\MaterialEditor\QMaterialEditor.h"
 
 const int CUBE_MAT_SIZE = 10;
 const int CUBE_MAT_SPACING = 5;
@@ -40,24 +40,35 @@ public:
 		mCamera = std::make_shared<QCameraComponent>();
 		mCamera->setupWindow(window().get());		//将相机与窗口绑定，使用WASD Shift 空格可进行移动，鼠标左键按住窗口可调整视角
 		scene()->setCamera(mCamera);				//设置场景相机
-		for (int i = 0; i < CUBE_MAT_SIZE; i++) {
-			for (int j = 0; j < CUBE_MAT_SIZE; j++) {
-				std::shared_ptr<QCube>& cube = mCube[i][j];
-				cube.reset(new QCube);
-				cube->setPosition(QVector3D((i - CUBE_MAT_SIZE / 2.0) * CUBE_MAT_SPACING, (j - CUBE_MAT_SIZE / 2.0) * CUBE_MAT_SPACING, -10));
-				scene()->addPrimitive(QString("cube(%1,%2)").arg(i).arg(j), cube);
-			}
-		}
 
-		mText = std::make_shared<QText2D>("GPU Particles");
-		mMaterial = std::make_shared<QMaterial>();
-		mMaterial->addParamVec3("BaseColor", QVector3D(0.1, 0.5, 0.9));					//设置材质参数
-		mMaterial->setShadingCode("FragColor = vec4(UBO.BaseColor,1);");				//设置材质的Shading代码
-		mText->setMaterial(mMaterial);
+		//mText = std::make_shared<QText2D>("GPU Particles");
+		//mMaterial = std::make_shared<QMaterial>();
+		//mMaterial->addParamVec3("BaseColor", QVector3D(0.1, 0.5, 0.9));					//设置材质参数
+		//mMaterial->setShadingCode("FragColor = vec4(UBO.BaseColor,1);");				//设置材质的Shading代码
+		//mText->setMaterial(mMaterial);
 
-		mText->setPosition(QVector3D(0, -4, 0));
-		mText->setRotation(QVector3D(0, 180, 0));
-		scene()->addPrimitive("text", mText);
+		//for (int i = 0; i < CUBE_MAT_SIZE; i++) {
+		//	for (int j = 0; j < CUBE_MAT_SIZE; j++) {
+		//		std::shared_ptr<QCube>& cube = mCube[i][j];
+		//		cube.reset(new QCube);
+		//		cube->setPosition(QVector3D((i - CUBE_MAT_SIZE / 2.0) * CUBE_MAT_SPACING, (j - CUBE_MAT_SIZE / 2.0) * CUBE_MAT_SPACING, -10));
+		//		cube->setMaterial(mMaterial);
+		//		scene()->addPrimitive(QString("cube(%1,%2)").arg(i).arg(j), cube);
+		//	}
+		//}
+
+		mStaticModel = std::make_shared<QStaticModel>();
+		mStaticModel->loadFromFile(R"(C:\Users\fuxinghao879\Desktop\QEngine\Example\Genji\Genji.FBX)");
+
+		mStaticModel->setRotation(QVector3D(-90, 0, 0));
+		scene()->addPrimitive("Genji", mStaticModel);
+
+		//QMaterialEditor* editor = new QMaterialEditor(mMaterial);
+		//editor->show();
+
+		//mText->setPosition(QVector3D(0, -4, 0));
+		//mText->setRotation(QVector3D(0, 180, 0));
+		//scene()->addPrimitive("text", mText);
 	}
 protected:
 	void update() override
@@ -65,8 +76,8 @@ protected:
 		float time = QTime::currentTime().msecsSinceStartOfDay();
 		//auto anim = mSkeletonModel->getSkeleton()->getAnimations().first();
 		//anim->show(fmod(time, anim->getDuration()));
-		mMaterial->setParam<QVector3D>("BaseColor", QVector3D(0.1, 0.5, 0.9) * (sin(time / 1000) * 5 + 5));		//设置材质颜色
-		mText->setScale(QVector3D(1, 1, 1) * (5 + 4 * sin(time / 1000)));										//RGB最大值超出1.0具有Bloom效果
+		//mMaterial->setParam<QVector3D>("BaseColor", QVector3D(0.1, 0.5, 0.9) * (sin(time / 1000) * 5 + 5));		//设置材质颜色
+		//mText->setScale(QVector3D(1, 1, 1) * (5 + 4 * sin(time / 1000)));										//RGB最大值超出1.0具有Bloom效果
 
 		//QVector<QParticleComponent::Particle> particles(1000);													//每帧发射100个粒子，后续可定义各类发射器
 		//for (auto& particle : particles) {																		//通过QParticleComponent::setUpdater可设置GPU粒子的运动代码，从而实现各种力的作用效果
@@ -80,8 +91,6 @@ int main(int argc, char** argv) {
 	MyGame engine(argc, argv);
 	EditorWindow::preInitConfig();
 	EditorWindow w;
-	GLSLEditor s;
-	s.show();
 	w.show();
 	engine.execGame();
 }

@@ -1,9 +1,9 @@
 <RCC>
     <qresource prefix="/">
-        <file alias="hide_right">Resources/Icons/hide_right.png</file>
-        <file alias="alphaback">Resources/Icons/alphaback.png</file>
-        <file alias="box_arrow">Resources/Icons/box_arrow.png</file>
-        <file alias="redo">Resources/Icons/redo.png</file>
+        <file>Resources/Icons/hide_right.png</file>
+        <file>Resources/Icons/alphaback.png</file>
+        <file>Resources/Icons/box_arrow.png</file>
+        <file>Resources/Icons/redo.png</file>
         <file>Resources/Icons/24gf-folderMinus.png</file>
         <file>Resources/Icons/24gf-folderOpen.png</file>
         <file>Resources/Icons/24gf-fileEmpty.png</file>
