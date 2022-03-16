@@ -74,6 +74,7 @@ void QSkeletonModelComponent::loadFromFile(const QString filePath)
 		else {
 			mMaterialList[i]->setShadingCode("FragColor = vec4(1.0); ");
 		}
+		mMaterialList[i]->addRef(this);
 	}
 	mSkeleton.reset(new QSkeleton(this, scene));
 	mMeshes.clear();

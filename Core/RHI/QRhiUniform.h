@@ -7,6 +7,31 @@
 class QRhiUniform {
 	friend class QRhiUniformProxy;
 public:
+	struct QParamDesc {
+		QString name;
+		uint32_t offsetInByte;
+		uint32_t sizeInByte;
+		uint32_t sizeInByteAligned;
+		bool needUpdate = false;
+		enum Type {
+			Float = 0,
+			Vec2,
+			Vec3,
+			Vec4,
+			Mat4,
+		}type;
+		QString getTypeName();
+	};
+	struct QTextureDesc {
+		QString name;
+		QImage image;
+		bool needUpdate = false;
+		enum Type {
+			Sampler2D = 0,
+			CubeMap,
+		};
+	};
+
 	QRhiUniform();
 	~QRhiUniform();
 	template<typename _Ty>
@@ -38,39 +63,16 @@ public:
 	void setTextureSampler(const QString& name, const QImage& image);
 	void addTextureSampler(const QString& name, const QImage& image);
 	void removeTextureSampler(const QString& name);
-
+	const QVector<QRhiUniform::QParamDesc>& getParams() const { return mParams; }
 	QRhiSignal bNeedRecreate;
 	std::shared_ptr<QRhiUniformProxy> getProxy() const { return mProxy; }
 protected:
-	struct QParamDesc {
-		QString name;
-		uint32_t offsetInByte;
-		uint32_t sizeInByte;
-		uint32_t sizeInByteAligned;
-		bool needUpdate = false;
-		enum Type {
-			Float = 0,
-			Vec2,
-			Vec3,
-			Vec4,
-			Mat4,
-		}type;
-		QString getTypeName();
-	};
-	struct QTextureDesc {
-		QString name;
-		QImage image;
-		bool needUpdate = false;
-		enum Type {
-			Sampler2D = 0,
-			CubeMap,
-		};
-	};
 	void addParam(const QString& name, void* data, uint16_t size, QParamDesc::Type type);
 	QVector<QParamDesc>::iterator getParamDesc(const QString& name);
 	QVector<QTextureDesc>::iterator getTextureDesc(const QString& name);
 protected:
 	QVector<QParamDesc> mParams;
+
 	QVector<int8_t> mData;
 	QVector<QTextureDesc> mTexture;
 	std::shared_ptr<QRhiUniformProxy> mProxy;

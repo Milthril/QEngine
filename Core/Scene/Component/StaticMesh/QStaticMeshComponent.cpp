@@ -29,7 +29,11 @@ std::shared_ptr<QMaterial> QStaticMeshComponent::getMaterial() const
 
 void QStaticMeshComponent::setMaterial(std::shared_ptr<QMaterial> val)
 {
+	if (mMaterial) {
+		mMaterial->removeRef(this);
+	}
 	mMaterial = val;
+	mMaterial->addRef(this);
 }
 
 const QVector<QStaticMeshComponent::Vertex>& QStaticMeshComponent::getVertices() const
@@ -59,6 +63,13 @@ uint32_t QStaticMeshComponent::getVertexCount()
 uint32_t QStaticMeshComponent::getIndexedCount()
 {
 	return mIndices.size();
+}
+
+QStaticMeshComponent::~QStaticMeshComponent()
+{
+	if (mMaterial) {
+		mMaterial->removeRef(this);
+	}
 }
 
 QStaticMeshComponent::Topology QStaticMeshComponent::getTopology() const

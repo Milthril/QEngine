@@ -25,7 +25,7 @@ std::shared_ptr<QSkeleton::ModelNode> QSkeleton::processModelNode(aiNode* node)
 
 void QSkeleton::resolveAnimations(const aiScene* scene)
 {
-	for (int i = 0; i < scene->mNumAnimations; i++) {
+	for (uint i = 0; i < scene->mNumAnimations; i++) {
 		std::shared_ptr<QSkeletonAnimation> anim = std::make_shared<QSkeletonAnimation>(this);
 		anim->loadFromAssimp(scene->mAnimations[i]);
 		addAnimation(anim);

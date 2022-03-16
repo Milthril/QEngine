@@ -16,7 +16,6 @@ public:
 	static Adjuster* create(QObject* object = nullptr, QString propertyName = "");
 	inline static bool isUpdating_ = false;
 private:
-
 	QHash<int, CreateAdjuster> AdjusterCreator_;
 };
 

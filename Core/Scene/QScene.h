@@ -18,6 +18,7 @@ public:
 
 	void insertPrimitive(uint32_t index, const QString& name, std::shared_ptr<QPrimitiveComponent> component);
 	void removePrimitive(std::shared_ptr<QPrimitiveComponent> component);
+	const QList<std::shared_ptr<QPrimitiveComponent>>& geyPrimitiveList() const { return mPrimitiveList; }
 
 	void addLight(std::shared_ptr<QLightComponent> light);
 	void addPrimitive(const QString& name, std::shared_ptr<QPrimitiveComponent> component);
@@ -29,6 +30,7 @@ public:
 	void setSkyBox(std::shared_ptr<QSkyBoxComponent> val);
 private:
 	QList<std::shared_ptr<QPrimitiveComponent>> mPrimitiveList;
+
 	QList<std::shared_ptr<QLightComponent>> mLightList;
 	std::shared_ptr<QSkyBoxComponent> mSkyBox;
 	std::shared_ptr<QCameraComponent> mCamera;

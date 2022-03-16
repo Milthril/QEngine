@@ -2,6 +2,7 @@
 #include <memory>
 #include <QQueue>
 #include "QApplication"
+#include "Scene/Component/QPrimitiveComponent.h"
 
 SceneTreeWidget::SceneTreeWidget(std::shared_ptr<QScene> scene)
 	:mScene(scene)
@@ -20,9 +21,7 @@ void SceneTreeWidget::createUI() {
 
 	connect(this, &QTreeWidget::itemClicked, this, [this](QTreeWidgetItem* item, int) {
 		QObject* oPtr = item->data(1, 0).value<QObject*>();
-		if (oPtr) {
-			Q_EMIT objectChanged(oPtr);
-		}
+		Q_EMIT objectChanged(oPtr);
 	});
 
 	connect(this, &QTreeWidget::itemPressed, this, [](QTreeWidgetItem* item, int) {
@@ -42,21 +41,24 @@ void SceneTreeWidget::updateUI()
 	mRoot = new QTreeWidgetItem(QStringList("Root"));
 	mRoot->setData(1, 0, QVariant::fromValue(mRoot));
 	addTopLevelItem(mRoot);
-	QQueue<QPair<QObject*, QTreeWidgetItem*>> qObject;
-	qObject.push_back({ mScene.get(),mRoot });
+	QQueue<QPair<std::shared_ptr<QSceneComponent>, QTreeWidgetItem*>> qObject;
+	for (auto comp : mScene->geyPrimitiveList()) {
+		qObject.push_back({ comp,mRoot });
+	}
+
 	while (!qObject.isEmpty()) {
-		QPair<QObject*, QTreeWidgetItem*> parent = qObject.takeFirst();
-		for (auto child : parent.first->children()) {
-			QSceneComponent* comp = dynamic_cast<QSceneComponent*>(child);
-			if (comp) {
-				QTreeWidgetItem* item = new QTreeWidgetItem({ child->objectName() });
-				item->setData(1, 0, QVariant::fromValue(child));
-				parent.second->addChild(item);
+		QPair<std::shared_ptr<QSceneComponent>, QTreeWidgetItem*> parent = qObject.takeFirst();
+		if (parent.first) {
+			QTreeWidgetItem* item = new QTreeWidgetItem({ parent.first->objectName() });
+			item->setData(1, 0, QVariant::fromValue(parent.first.get()));
+			parent.second->addChild(item);
+
+			parent.first->disconnect(this);
+			connect(parent.first.get(), &QObject::objectNameChanged, this, [item](const QString& name) {
+				item->setText(0, name);
+			});
+			for (auto child : parent.first->getChildren()) {
 				qObject.push_back({ child,item });
-				child->disconnect(this);
-				connect(child, &QObject::objectNameChanged, this, [item](const QString& name) {
-					item->setText(0, name);
-				});
 			}
 		}
 	}

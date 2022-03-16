@@ -3,14 +3,20 @@
 
 #include "RHI\QRhiUniform.h"
 
+class QPrimitiveComponent;
+
 class QMaterial :public QRhiUniform {
 	friend class QMaterialProxy;
 public:
 	QMaterial();
 	QByteArray getShadingCode() const { return mShadingCode; }
 	void setShadingCode(QByteArray val) { mShadingCode = val; }
+	void addRef(QPrimitiveComponent* comp);
+	void removeRef(QPrimitiveComponent* comp);
 protected:
+	QVector<QPrimitiveComponent*> mRef;
 	QByteArray mShadingCode;
 };
 
+Q_DECLARE_METATYPE(std::shared_ptr<QMaterial>)
 #endif // QMaterial_h__

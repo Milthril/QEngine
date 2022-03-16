@@ -17,6 +17,7 @@ std::shared_ptr<QStaticMeshComponent> createStaticMeshFromAssimpMesh(aiMesh* mes
 	staticMesh->setPosition(converter(position));
 	staticMesh->setRotation(converter(roatation));
 	staticMesh->setScale(converter(scale));
+	staticMesh->setObjectName(mesh->mName.C_Str());
 
 	QVector<QStaticMeshComponent::Vertex> vertices(mesh->mNumVertices);
 	for (unsigned int i = 0; i < mesh->mNumVertices; i++) {

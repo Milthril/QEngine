@@ -28,3 +28,8 @@ target_link_libraries(Editor
     kddockwidgets
     QScintilla
     )
+
+add_custom_command(TARGET Editor PRE_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:assimp> $<TARGET_FILE_DIR:Editor>
+    COMMAND_EXPAND_LISTS
+)

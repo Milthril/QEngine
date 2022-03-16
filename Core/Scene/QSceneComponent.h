@@ -41,6 +41,9 @@ public:
 	const QVector3D& getScale() const;
 	virtual void setScale(const QVector3D& newScale);
 	virtual QSceneComponent::ProxyType type() = 0;
+
+	const QList<std::shared_ptr<QSceneComponent>>& getChildren() const { return mChildren; }
+
 protected:
 	void addChild(std::shared_ptr<QSceneComponent> child);
 	void removeChild(std::shared_ptr<QSceneComponent> child);

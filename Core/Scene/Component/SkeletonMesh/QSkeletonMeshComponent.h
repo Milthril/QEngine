@@ -33,7 +33,7 @@ protected:
 	QVector<std::shared_ptr<QMaterial>> mMaterialList;
 };
 
-class QSkeletonMesh {
+class QSkeletonMesh{
 public:
 	QSkeletonMesh(QSkeletonModelComponent* model, aiMesh* mesh);
 	std::shared_ptr<QMaterial> getMaterial() const { return mMaterial; }

@@ -10,7 +10,7 @@
 #include "RHI/QRhiUniformMgr.h"
 #include "QEngine.h"
 
-QSceneRenderer::QSceneRenderer( int sampleCount, QRhiSPtr<QRhiRenderPassDescriptor> renderPassDescriptor)
+QSceneRenderer::QSceneRenderer(int sampleCount, QRhiSPtr<QRhiRenderPassDescriptor> renderPassDescriptor)
 	: mSampleCount(sampleCount)
 	, mRootRenderPassDescriptor(renderPassDescriptor)
 	, mBloomPainter(new QBloomPainter())

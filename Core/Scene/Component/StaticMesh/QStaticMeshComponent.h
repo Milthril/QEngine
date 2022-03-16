@@ -5,10 +5,12 @@
 
 class QStaticMeshComponent : public QPrimitiveComponent {
 	Q_OBJECT
-		Q_PROPERTY(Topology topology READ getTopology WRITE setTopology SCRIPTABLE false)
-		Q_PROPERTY(QVector<Vertex> vertices READ getVertices WRITE setVertices SCRIPTABLE false)
-		Q_PROPERTY(QVector<uint32_t> indices READ getIndices WRITE setIndices SCRIPTABLE false)
+		Q_PROPERTY(Topology Topology READ getTopology WRITE setTopology SCRIPTABLE false)
+		Q_PROPERTY(QVector<Vertex> Vertices READ getVertices WRITE setVertices SCRIPTABLE false)
+		Q_PROPERTY(QVector<uint32_t> Indices READ getIndices WRITE setIndices SCRIPTABLE false)
+		Q_PROPERTY(std::shared_ptr<QMaterial> Material READ getMaterial WRITE setMaterial)
 public:
+	virtual ~QStaticMeshComponent();
 	struct Vertex {
 		QVector3D position;
 		QVector3D normal;

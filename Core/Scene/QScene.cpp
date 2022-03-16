@@ -18,14 +18,12 @@ void QScene::insertPrimitive(uint32_t index, const QString& name, std::shared_pt
 {
 	component->setObjectName(name);
 	mPrimitiveList.insert(index, component);
-	component->setParent(this);
 	Q_EMIT primitiveInserted(index, component);
 }
 
 void QScene::removePrimitive(std::shared_ptr<QPrimitiveComponent> component)
 {
 	if (mPrimitiveList.removeOne(component)) {
-		component->setParent(nullptr);
 		Q_EMIT primitiveRemoved(component);
 	}
 }
