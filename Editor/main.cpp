@@ -14,6 +14,7 @@
 #include "Scene\Component\SkeletonMesh\QSkeletonMeshComponent.h"
 #include "Scene\Component\AssimpToolkit\MMDVmdParser.h"
 #include "Scene\Component\SkeletonMesh\QMMDModel.h"
+#include "Adjuster\CodeEditor\GLSL\GLSLEditor.h"
 
 const int CUBE_MAT_SIZE = 10;
 const int CUBE_MAT_SPACING = 5;
@@ -79,6 +80,8 @@ int main(int argc, char** argv) {
 	MyGame engine(argc, argv);
 	EditorWindow::preInitConfig();
 	EditorWindow w;
+	GLSLEditor s;
+	s.show();
 	w.show();
 	engine.execGame();
 }

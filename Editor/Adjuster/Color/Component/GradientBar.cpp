@@ -43,7 +43,7 @@ public:
 		, currentItem(nullptr)
 	{
 		//loadResource();
-		back.setTexture(QPixmap(QStringLiteral(":/Icons/alphaback")));
+		back.setTexture(QPixmap(QStringLiteral(":/Resources/Icons/alphaback.png")));
 		gradient.setCoordinateMode(QLinearGradient::StretchToDeviceMode);
 		gradient.setSpread(QLinearGradient::RepeatSpread);
 	}

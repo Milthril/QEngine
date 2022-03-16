@@ -14,7 +14,6 @@ private:
 	QObject* object_ = nullptr;
 protected:
 	void showEvent(QShowEvent* event) override;
-
 };
 
 #endif // QPropertyPanel_h__

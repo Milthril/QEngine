@@ -29,7 +29,7 @@ IntSlider::IntSlider(QBoundedInt number  /*= 0*/, QString name, QWidget* parent 
 	nameLabel_->setAlignment(Qt::AlignCenter);
 	nameLabel_->setFixedHeight(height());
 	arrowLabel_->setFixedSize(height(), height());
-	arrowLabel_->setPixmap(QPixmap(":/Icons/box_arrow").scaled(arrowLabel_->size(), Qt::IgnoreAspectRatio, Qt::TransformationMode::SmoothTransformation));
+	arrowLabel_->setPixmap(QPixmap(":/Resources/Icons/box_arrow").scaled(arrowLabel_->size(), Qt::IgnoreAspectRatio, Qt::TransformationMode::SmoothTransformation));
 	arrowLabel_->setCursor(Qt::CursorShape::SizeHorCursor);
 	numberEditer_->setFixedHeight(height());
 	numberEditer_->setFrame(QFrame::NoFrame);

@@ -1,5 +1,5 @@
 <RCC>
-    <qresource prefix="/Icons">
+    <qresource prefix="/">
         <file alias="hide_right">Resources/Icons/hide_right.png</file>
         <file alias="alphaback">Resources/Icons/alphaback.png</file>
         <file alias="box_arrow">Resources/Icons/box_arrow.png</file>
@@ -10,5 +10,11 @@
         <file>Resources/Icons/24gf-fileText.png</file>
         <file>Resources/Icons/right_arrow.png</file>
         <file>Resources/Icons/Filter.png</file>
+        <file>Resources/Icons/case.png</file>
+        <file>Resources/Icons/arrow-left-l.png</file>
+        <file>Resources/Icons/arrow-right-l.png</file>
+        <file>Resources/Icons/ic_exp.png</file>
+        <file>Resources/Icons/text-format.png</file>
+        <file>Resources/Icons/replace.png</file>
     </qresource>
 </RCC>

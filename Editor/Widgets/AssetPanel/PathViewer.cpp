@@ -38,13 +38,13 @@ void PathViewer::setCurrentDir(QString dir)
 		if (QDir(path).entryInfoList(QDir::Filter::Dirs | QDir::Filter::NoDotAndDotDot).isEmpty())
 			return;
 		QPushButton* btImage = new QPushButton();
-		btImage->setIcon(QIcon(":/Icons/Resources/Icons/right_arrow.png"));
+		btImage->setIcon(QIcon(":/Resources/Iconright_arrow.png"));
 		btImage->setIconSize({ 10, 10 });
 		btImage->setFixedSize(20, 20);
 		hLayout->addWidget(btImage);
 		connect(btImage, &QPushButton::clicked, this, [this, path, btImage]() {
 			QMenu menu;
-			QIcon icon(":/Icons/Resources/Icons/24gf-folderMinus.png");
+			QIcon icon(":/Resources/Icon24gf-folderMinus.png");
 			for (auto& subDir : QDir(path).entryInfoList(QDir::Filter::Dirs | QDir::Filter::NoDotAndDotDot)) {
 				menu.addAction(icon, subDir.fileName(), [this, subDir]() {
 					Q_EMIT pathClicked(subDir.filePath());

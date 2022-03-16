@@ -45,7 +45,7 @@ public:
 ColorPreview::ColorPreview(QWidget* parent) :
 	QWidget(parent), p(new Private)
 {
-	p->back.setTexture(QPixmap(QStringLiteral(":/Icons/alphaback")));
+	p->back.setTexture(QPixmap(QStringLiteral(":/Resources/Icons/alphaback")));
 }
 
 ColorPreview::~ColorPreview()
@@ -99,23 +99,23 @@ void ColorPreview::paint(QPainter& painter, QRect rect) const
 	QColor c1, c2;
 	switch (p->display_mode) {
 	case DisplayMode::NoAlpha:
-	c1 = c2 = p->col.rgb();
-	break;
+		c1 = c2 = p->col.rgb();
+		break;
 	case DisplayMode::AllAlpha:
-	c1 = c2 = p->col;
-	break;
+		c1 = c2 = p->col;
+		break;
 	case DisplayMode::SplitAlpha:
-	c1 = p->col.rgb();
-	c2 = p->col;
-	break;
+		c1 = p->col.rgb();
+		c2 = p->col;
+		break;
 	case DisplayMode::SplitColor:
-	c1 = p->comparison;
-	c2 = p->col;
-	break;
+		c1 = p->comparison;
+		c2 = p->col;
+		break;
 	case DisplayMode::SplitColorReverse:
-	c1 = p->col;
-	c2 = p->comparison;
-	break;
+		c1 = p->col;
+		c2 = p->comparison;
+		break;
 	}
 
 	if (p->draw_frame)

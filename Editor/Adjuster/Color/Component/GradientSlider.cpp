@@ -38,7 +38,7 @@ public:
 	Private() :
 		back(Qt::darkGray, Qt::DiagCrossPattern)
 	{
-		back.setTexture(QPixmap(QStringLiteral(":/Icons/alphaback")));
+		back.setTexture(QPixmap(QStringLiteral(":/Resources/Icons/alphaback")));
 		gradient.setCoordinateMode(QGradient::StretchToDeviceMode);
 		gradient.setSpread(QGradient::RepeatSpread);
 	}

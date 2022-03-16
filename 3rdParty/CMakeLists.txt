@@ -1,6 +1,6 @@
 add_subdirectory(assimp)
 add_subdirectory(KDDockWidgets)
-
+add_subdirectory(QScintilla)
 
 function(get_all_targets var)
     set(targets)

@@ -9,8 +9,11 @@ protected:
 	virtual void paintEvent(QPaintEvent*) override;
 protected:
 	bool hovered = false;
-	QColor hoverColor = QColor(220, 220, 220);
+	QColor checkColor = QColor(230, 230, 230, 240);
+	QColor hoverColor = QColor(220, 220, 220, 240);
 public:
+	QColor getCheckColor() const { return checkColor; }
+	void setCheckColor(QColor val) { checkColor = val; }
 	QColor getHoverColor() const { return hoverColor; }
 	void setHoverColor(QColor val) { hoverColor = val; update(); }
 };

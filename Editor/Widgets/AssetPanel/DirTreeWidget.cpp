@@ -23,9 +23,9 @@
 //		iconRect.setWidth(iconRect.height());
 //		iconRect.adjust(3, 3, -3, -3);
 //		if (option.state & QStyle::State_Open)
-//			painter->drawPixmap(iconRect, QPixmap(":/Icons/Resources/Icons/24gf-folderOpen.png"));
+//			painter->drawPixmap(iconRect, QPixmap(":/Resources/Icon24gf-folderOpen.png"));
 //		else
-//			painter->drawPixmap(iconRect, QPixmap(":/Icons/Resources/Icons/24gf-folderMinus.png"));
+//			painter->drawPixmap(iconRect, QPixmap(":/Resources/Icon24gf-folderMinus.png"));
 //		QRect textRect = option.rect;
 //		textRect.setLeft(textRect.left() + textRect.height());
 //		painter->drawText(textRect, Qt::AlignLeft, text);

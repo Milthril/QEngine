@@ -26,4 +26,5 @@ target_link_libraries(Editor
     PUBLIC 
     Core
     kddockwidgets
+    QScintilla
     )

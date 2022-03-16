@@ -66,7 +66,7 @@ void AssetPanel::createUI()
 
 	btFileFilter_.setText("Filter");
 	btFileFilter_.setFixedHeight(20);
-	btFileFilter_.setIcon(QIcon(":/Icons/Resources/Icons/Filter.png"));
+	btFileFilter_.setIcon(QIcon(":/Resources/IconFilter.png"));
 
 	QWidget* rightPanel = new QWidget;
 	QVBoxLayout* rightLayout = new QVBoxLayout(rightPanel);

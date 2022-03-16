@@ -5,7 +5,6 @@
 #include "QApplication"
 #include "QStyleFactory"
 #include "QEngine.h"
-#include "../DockWidget.h"
 
 EditorWindow::EditorWindow()
 	: KDDockWidgets::MainWindow("QEngine Editor")
@@ -22,7 +21,6 @@ EditorWindow::EditorWindow()
 void EditorWindow::preInitConfig()
 {
 	qApp->setStyle(QStyleFactory::create(QStringLiteral("Fusion")));
-
 	KDDockWidgets::Config::Flags flags = KDDockWidgets::Config::self().flags();
 	flags = flags
 		//| KDDockWidgets::Config::Flag_CloseOnlyCurrentTab

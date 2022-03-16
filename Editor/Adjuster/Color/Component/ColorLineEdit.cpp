@@ -62,7 +62,7 @@ public:
 ColorLineEdit::ColorLineEdit(QWidget* parent)
 	: QLineEdit(parent), p(new Private)
 {
-	p->background.setTexture(QPixmap(QStringLiteral(":/Icons/alphaback")));
+	p->background.setTexture(QPixmap(QStringLiteral(":/Resources/Icons/alphaback")));
 	setColor(Qt::white);
 	/// \todo determine if having this connection might be useful
 	/*connect(this, &QLineEdit::textChanged, [this](const QString& text){

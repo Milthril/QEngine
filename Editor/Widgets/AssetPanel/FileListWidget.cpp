@@ -48,8 +48,8 @@ protected:
 		return GridSize;
 	}
 public:
-	QIcon fileType = QIcon(":/Icons/Resources/Icons/24gf-fileEmpty.png");
-	QIcon dirType = QIcon(":/Icons/Resources/Icons/24gf-folderMinus.png");
+	QIcon fileType = QIcon(":/Resources/Icons/24gf-fileEmpty.png");
+	QIcon dirType = QIcon(":/Resources/Icons/24gf-folderMinus.png");
 	FileListWidegtThreadTask* cacheTask_;
 };
 

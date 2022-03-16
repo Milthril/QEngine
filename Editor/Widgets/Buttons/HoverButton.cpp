@@ -15,8 +15,11 @@ void HoverButton::leaveEvent(QEvent* event)
 
 void HoverButton::paintEvent(QPaintEvent*)
 {
+	QPainter painter(this);
+	if (this->isChecked()) {
+		painter.fillRect(rect(), checkColor);
+	}
 	if (hovered) {
-		QPainter painter(this);
 		painter.fillRect(rect(), hoverColor);
 	}
 }

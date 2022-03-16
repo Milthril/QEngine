@@ -6,6 +6,7 @@
 #include "Widgets\Buttons\WinMinButton.h"
 #include "Widgets\Buttons\WinMaxButton.h"
 #include "QJsonDocument"
+#include "private\qstylesheetstyle_p.h"
 
 EditorAttributeMgr::EditorAttributeMgr()
 {
@@ -42,6 +43,10 @@ QWidget{
 	font-size: 10pt;
 	background-color:rgb(45,45,48);
 	color:white;
+}
+CodeSearchEditor{
+	background-color:rgb(10,10,10);
+	border-radius: 3px;
 }
 QTreeWidget,QListWidget{
 	background-color: rgb(30,30,30);
@@ -116,12 +121,15 @@ QMenu::item:selected,QMenuBar::item:selected {
 )");
 
 	writeFile(getStyleSheetDir().filePath("Light.qss"), R"(
-
 QWidget{
 	font-family:Ebrima;
 	font-size: 10pt;
 	background-color:rgb(238,238,242);
 	color:black;
+}
+CodeSearchEditor{
+	background-color:rgb(204,213,240);
+	border-radius: 3px;
 }
 QTreeWidget,QListWidget{
 	background-color: white;
