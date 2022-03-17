@@ -100,6 +100,13 @@ CodeSearchEditor::CodeSearchEditor()
 	});
 }
 
+void CodeSearchEditor::showSearch(const QString& str /*= QString()*/)
+{
+	mSearchEdit->setText(str);
+	show();
+	mSearchEdit->setFocus();
+}
+
 void CodeSearchEditor::keyPressEvent(QKeyEvent* e)
 {
 	e->accept();

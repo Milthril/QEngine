@@ -3,7 +3,7 @@
 
 #include "..\QParticleSystem.h"
 
-class IParticleEmitter {
+class IParticleEmitter :public QObject {
 public:
 	IParticleEmitter() {}
 

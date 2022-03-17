@@ -6,7 +6,7 @@
 #include <QDoubleValidator>
 #include <QPainter>
 #include "QFocusLineEdit.h"
-#include "Effect/QNeumorphism.h"
+#include "Toolkit/QNeumorphism.h"
 
 DoubleBox::DoubleBox(double value /*= 0*/, QString name, QWidget* parent /*= nullptr*/)
 	: Adjuster(parent)

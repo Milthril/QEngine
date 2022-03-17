@@ -56,9 +56,12 @@ void QCodeEditor::showEvent(QShowEvent* event)
 
 	QColor textColor = style.palette.color(QPalette::Text);
 	QColor windowColor = style.palette.color(QPalette::Window);
-
 	setMarginsForegroundColor(textColor);
 	setMarginsBackgroundColor(style.palette.color(QPalette::Window));
+	setMatchedBraceBackgroundColor(windowColor);
+	setMatchedBraceForegroundColor(QColor(154, 183, 190));
+	setUnmatchedBraceBackgroundColor(windowColor);
+	setUnmatchedBraceForegroundColor(Qt::red);
 	setCaretForegroundColor(textColor);
 	setSelectionBackgroundColor(QColor(154, 183, 190));
 	setSelectionForegroundColor(textColor);
@@ -79,7 +82,7 @@ void QCodeEditor::keyPressEvent(QKeyEvent* e)
 {
 	QsciScintilla::keyPressEvent(e);
 	if (e->modifiers().testFlag(Qt::KeyboardModifier::ControlModifier) && (e->key() == Qt::Key_F || e->key() == Qt::Key_H)) {
-		mSearchEditor->show();
+		mSearchEditor->showSearch(selectedText());
 	}
 }
 

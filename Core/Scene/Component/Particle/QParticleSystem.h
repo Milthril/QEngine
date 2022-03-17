@@ -10,7 +10,7 @@ inline const char* getParticleDefine() {
 	return R"(
 #extension GL_ARB_separate_shader_objects : enable
 #define LOCAL_SIZE 256
-#define PARTICLE_MAX_SIZE 10000
+#define PARTICLE_MAX_SIZE 1000000
 layout (local_size_x = LOCAL_SIZE) in;
 struct Particle {
 	vec3 position;
@@ -27,7 +27,7 @@ class QParticleSystem {
 		Q_PROPERTY(float lifetime READ getLifetime WRITE setLifetime);
 public:
 	QParticleSystem();
-	inline static const int PARTICLE_MAX_SIZE = 10000;
+	inline static const int PARTICLE_MAX_SIZE = 1000000;
 	struct Particle {
 		QVector4D position;
 		QVector4D rotation;

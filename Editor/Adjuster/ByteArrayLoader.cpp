@@ -3,7 +3,7 @@
 #include <QFile>
 #include <QFileDialog>
 #include <QPushButton>
-#include "Effect/QNeumorphism.h"
+#include "Toolkit/QNeumorphism.h"
 
 ByteArrayLoader::ByteArrayLoader(QByteArray value, QWidget* parent /*= nullptr*/)
 	: btLoad_(new QPushButton("Load"))

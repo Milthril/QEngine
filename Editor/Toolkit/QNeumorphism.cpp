@@ -1,4 +1,4 @@
-#include "Effect/QNeumorphism.h"
+#include "Toolkit/QNeumorphism.h"
 #include <QPainter>
 
 QNeumorphism::QNeumorphism(qreal blurRadius, qreal distance, qreal strength, qreal angle, bool inset)

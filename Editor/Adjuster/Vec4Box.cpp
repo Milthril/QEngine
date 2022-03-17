@@ -1,7 +1,7 @@
 #include "Vec4Box.h"
 #include <QHBoxLayout>
 #include "DoubleBox.h"
-#include "Effect/QNeumorphism.h"
+#include "Toolkit/QNeumorphism.h"
 
 Vec4Box::Vec4Box(QVector4D value, QWidget* parent /*= nullptr*/)
 	: x(new DoubleBox(value.x(), "X"))

@@ -1,7 +1,7 @@
 #include "ComboBox.h"
 #include <QComboBox>
 #include <QHBoxLayout>
-#include "Effect/QNeumorphism.h"
+#include "Toolkit/QNeumorphism.h"
 
 ComboBox::ComboBox(QCombo value /*= 0*/, QWidget* parent /*= nullptr*/)
 	: comboBox_(new QComboBox)

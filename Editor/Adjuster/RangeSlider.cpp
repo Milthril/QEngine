@@ -1,6 +1,6 @@
 #include "RangeSlider.h"
 #include "QFocusLineEdit.h"
-#include "Effect/QNeumorphism.h"
+#include "Toolkit/QNeumorphism.h"
 #include <QValidator>
 #include <QBoxLayout>
 #include <QPainter>

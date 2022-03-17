@@ -26,7 +26,7 @@
 #include <QMimeData>
 #include "ColorWheel.hpp"
 #include "ColorWheelPrivate.hpp"
-#include "Effect/QNeumorphism.h"
+#include "Toolkit/QNeumorphism.h"
 
 namespace QWidgetEx {
 static const double selector_radius = 6;

@@ -101,7 +101,7 @@ void QRhiWindow::renderInternal()
 {
 	if (!isExposed())
 		return;
-	if (!mHasSwapChain)
+	if (!mHasSwapChain || !mSwapChain)
 		return;
 	if (mSwapChain->currentPixelSize() != mSwapChain->surfacePixelSize() || mNewlyExposed) {
 		resizeSwapChain();
@@ -183,6 +183,7 @@ bool QRhiWindow::event(QEvent* e)
 		// this is the proper time to tear down the swapchain (while the native window and surface are still around)
 		if (static_cast<QPlatformSurfaceEvent*>(e)->surfaceEventType() == QPlatformSurfaceEvent::SurfaceAboutToBeDestroyed) {
 			mHasSwapChain = false;
+			mSwapChain.reset(nullptr);
 		}
 		break;
 

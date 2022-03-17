@@ -13,12 +13,13 @@ class CodeSearchEditor :public QWidget {
 public:
 	CodeSearchEditor();
 	using QWidget::QWidget;
+	void showSearch(const QString& str = QString());
 protected:
 	void keyPressEvent(QKeyEvent* e) override;
 	QCodeEditor::SearchContext getCurrentContext();
 Q_SIGNALS:
 	void requestSearch(const QCodeEditor::SearchContext& ctx);
-	void requestReplace(const QCodeEditor::SearchContext& ctx,const QString& dst);
+	void requestReplace(const QCodeEditor::SearchContext& ctx, const QString& dst);
 private:
 	QLineEdit* mSearchEdit;
 	ImageButton* btCaseSensitive;

@@ -24,7 +24,6 @@
 #include "Adjuster\Vec2Box.h"
 #include "Adjuster\Vec3Box.h"
 #include "Adjuster\Vec4Box.h"
-#include "Effect\QNeumorphism.h"
 #include "ExtType/QBoundedDouble.h"
 #include "ExtType/QBoundedInt.h"
 #include "ExtType/QColors.h"

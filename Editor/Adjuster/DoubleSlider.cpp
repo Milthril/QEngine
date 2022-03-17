@@ -6,7 +6,7 @@
 #include <QDoubleValidator>
 #include <QPainter>
 #include "QFocusLineEdit.h"
-#include "Effect/QNeumorphism.h"
+#include "Toolkit/QNeumorphism.h"
 
 DoubleSlider::DoubleSlider(QBoundedDouble number  /*= 0*/, QString name, QWidget* parent /*= nullptr*/)
 	: Adjuster(parent)
