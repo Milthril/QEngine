@@ -28,21 +28,9 @@ void QDefaultProxyStaticMesh::recreatePipeline(PipelineUsageFlags flags /*= Pipe
 	if (mStaticMesh->getVertexCount() == 0) {
 		return;
 	}
-	mPipeline.reset(RHI->newGraphicsPipeline());
-	QRhiGraphicsPipeline::TargetBlend blendState;
-	blendState.enable = false;
-
-	mPipeline->setTargetBlends({ blendState });
-	mPipeline->setTopology(mStaticMesh->getTopology());
-	mPipeline->setDepthTest(true);
-	mPipeline->setDepthWrite(true);
-	mPipeline->setSampleCount(mRenderer->getSampleCount());
-
 	QVector<QRhiVertexInputBinding> inputBindings;
 	inputBindings << QRhiVertexInputBinding{ sizeof(QStaticMeshComponent::Vertex) };
-
 	QVector<QRhiVertexInputAttribute> attributeList;
-
 	attributeList << QRhiVertexInputAttribute{ 0, 0, QRhiVertexInputAttribute::Float3, offsetof(QStaticMeshComponent::Vertex, position) };
 	attributeList << QRhiVertexInputAttribute{ 0, 1, QRhiVertexInputAttribute::Float3, offsetof(QStaticMeshComponent::Vertex,normal) };
 	attributeList << QRhiVertexInputAttribute{ 0, 2, QRhiVertexInputAttribute::Float3, offsetof(QStaticMeshComponent::Vertex,tangent) };
@@ -89,11 +77,13 @@ void QDefaultProxyStaticMesh::recreatePipeline(PipelineUsageFlags flags /*= Pipe
 	QRhiVertexInputLayout inputLayout;
 	inputLayout.setBindings(inputBindings.begin(), inputBindings.end());
 	inputLayout.setAttributes(attributeList.begin(), attributeList.end());
-	mPipeline->setVertexInputLayout(inputLayout);
-
 	QShader vs = QSceneRenderer::createShaderFromCode(QShader::Stage::VertexStage, vertexShaderCode.toLocal8Bit());
-
+	if (!vs.isValid()) {
+		mPipeline.reset(nullptr);
+		return;
+	}
 	const QRhiUniformProxy::UniformInfo& materialInfo = mStaticMesh->getMaterial()->getProxy()->getUniformInfo(1);
+
 	QString fragShaderCode = QString(R"(#version 440
 	layout(location = 0) in vec2 vUV;
 	layout(location = 0) out vec4 FragColor;
@@ -102,16 +92,29 @@ void QDefaultProxyStaticMesh::recreatePipeline(PipelineUsageFlags flags /*= Pipe
 	    %2
 	}
 	)").arg(materialInfo.uniformDefineCode, mStaticMesh->getMaterial()->getShadingCode());
+
 	QShader fs = QSceneRenderer::createShaderFromCode(QShader::Stage::FragmentStage, fragShaderCode.toLocal8Bit());
-	Q_ASSERT(fs.isValid());
+	if (!fs.isValid()) {
+		mPipeline.reset(nullptr);
+		return;
+	}
+
+	mPipeline.reset(RHI->newGraphicsPipeline());
+
+	QRhiGraphicsPipeline::TargetBlend blendState;
+	blendState.enable = false;
+	mPipeline->setVertexInputLayout(inputLayout);
+	mPipeline->setTargetBlends({ blendState });
+	mPipeline->setTopology(mStaticMesh->getTopology());
+	mPipeline->setDepthTest(true);
+	mPipeline->setDepthWrite(true);
+	mPipeline->setSampleCount(mRenderer->getSampleCount());
 
 	mPipeline->setShaderStages({
 		{ QRhiShaderStage::Vertex, vs },
 		{ QRhiShaderStage::Fragment, fs }
 	});
-
 	mShaderResourceBindings.reset(RHI->newShaderResourceBindings());
-
 	QVector<QRhiShaderResourceBinding> shaderBindings;
 	shaderBindings << QRhiShaderResourceBinding::uniformBuffer(0, QRhiShaderResourceBinding::VertexStage, mUniformBuffer.get());
 	shaderBindings << materialInfo.bindings;
@@ -163,6 +166,8 @@ void QDefaultProxyStaticMesh::updateResource(QRhiResourceUpdateBatch* batch) {
 }
 
 void QDefaultProxyStaticMesh::drawInPass(QRhiCommandBuffer* cmdBuffer, const QRhiViewport& viewport) {
+	if (!mPipeline)
+		return;
 	cmdBuffer->setGraphicsPipeline(mPipeline.get());
 	cmdBuffer->setViewport(viewport);
 	cmdBuffer->setShaderResources();

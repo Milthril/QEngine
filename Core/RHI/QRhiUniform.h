@@ -3,79 +3,91 @@
 
 #include "private\qrhi_p.h"
 #include "QRhiUniformProxy.h"
+#include "Scene\QSceneComponent.h"
 
 class QRhiUniform {
 	friend class QRhiUniformProxy;
+	friend class QSceneRenderer;
 public:
-	struct QParamDesc {
+	struct ParamDescBase {
 		QString name;
-		uint32_t offsetInByte;
-		uint32_t sizeInByte;
-		uint32_t sizeInByteAligned;
-		bool needUpdate = false;
 		enum Type {
 			Float = 0,
 			Vec2,
 			Vec3,
 			Vec4,
 			Mat4,
+
+			Sampler2D
 		}type;
 		QString getTypeName();
+		QRhiSignal needUpdate;
+		virtual ~ParamDescBase() {}
 	};
-	struct QTextureDesc {
-		QString name;
+
+	struct DataDesc : public ParamDescBase {
+		uint32_t offsetInByte;
+		uint32_t sizeInByte;
+		uint32_t sizeInByteAligned;
+	};
+	struct TextureDesc :public ParamDescBase {
 		QImage image;
-		bool needUpdate = false;
-		enum Type {
-			Sampler2D = 0,
-			CubeMap,
-		};
 	};
 
 	QRhiUniform();
 	~QRhiUniform();
 	template<typename _Ty>
-	void setParam(const QString& name, const _Ty& data) {
+	void setData(const QString& name, const _Ty& data) {
 		auto paramDescIter = getParamDesc(name);
-		if (paramDescIter != mParams.end()) {
-			Q_ASSERT(sizeof(data) == paramDescIter->sizeInByte);
-			memcpy(mData.data() + paramDescIter->offsetInByte, &data, sizeof(data));
-			paramDescIter->needUpdate = true;
+		std::shared_ptr<QRhiUniform::DataDesc> ptr = std::dynamic_pointer_cast<QRhiUniform::DataDesc>(paramDescIter);
+		if (ptr) {
+			Q_ASSERT(sizeof(data) == ptr->sizeInByte);
+			memcpy(mData.data() + ptr->offsetInByte, &data, sizeof(data));
+			ptr->needUpdate.active();
 		}
 	}
 
 	template<typename _Ty>
-	_Ty getParam(const QString& name) {
+	_Ty getData(const QString& name) {
 		auto paramDescIter = getParamDesc(name);
-		_Ty param;
-		if (paramDescIter != mParams.end()) {
-			memcpy(&param, mData.data() + paramDescIter->offsetInByte, sizeof(_Ty));
+		_Ty param = {};
+		std::shared_ptr<QRhiUniform::DataDesc> ptr = std::dynamic_pointer_cast<QRhiUniform::DataDesc>(paramDescIter);
+		if (ptr) {
+			memcpy(&param, mData.data() + ptr->offsetInByte, sizeof(_Ty));
 		}
 		return param;
 	}
-	void addParamFloat(const QString& name, float var);
-	void addParamVec2(const QString& name, QVector2D vec2);
-	void addParamVec3(const QString& name, QVector3D vec3);
-	void addParamVec4(const QString& name, QVector4D vec4);
-	void addParamMat4(const QString& name, QMatrix4x4 mat4);
+	void addDataFloat(const QString& name, float var);
+	void addDataVec2(const QString& name, QVector2D vec2);
+	void addDataVec3(const QString& name, QVector3D vec3);
+	void addDataVec4(const QString& name, QVector4D vec4);
+	void addDataMat4(const QString& name, QMatrix4x4 mat4);
+
 	void removeParam(const QString& name);
+	bool renameParma(const QString& src, const QString& dst);
+
+	QString getVaildName(QString name);
 
 	void setTextureSampler(const QString& name, const QImage& image);
 	void addTextureSampler(const QString& name, const QImage& image);
-	void removeTextureSampler(const QString& name);
-	const QVector<QRhiUniform::QParamDesc>& getParams() const { return mParams; }
-	QRhiSignal bNeedRecreate;
+
 	std::shared_ptr<QRhiUniformProxy> getProxy() const { return mProxy; }
-protected:
-	void addParam(const QString& name, void* data, uint16_t size, QParamDesc::Type type);
-	QVector<QParamDesc>::iterator getParamDesc(const QString& name);
-	QVector<QTextureDesc>::iterator getTextureDesc(const QString& name);
-protected:
-	QVector<QParamDesc> mParams;
+	const QVector<std::shared_ptr<QRhiUniform::ParamDescBase>>& getParamsDesc() const { return mParams; }
+	std::shared_ptr<ParamDescBase> getParamDesc(const QString& name);
+	QVector<std::shared_ptr<DataDesc>> getAllDataDesc();
+	QVector<std::shared_ptr<TextureDesc>> getAllTextureDesc();
 
+	void addRef(QSceneComponent* comp);
+	void removeRef(QSceneComponent* comp);
+
+	QRhiSignal bNeedRecreate;
+protected:
+	void addParam(const QString& name, void* data, uint16_t size, ParamDescBase::Type type);
+
+protected:
+	QVector<std::shared_ptr<ParamDescBase>> mParams;
 	QVector<int8_t> mData;
-	QVector<QTextureDesc> mTexture;
 	std::shared_ptr<QRhiUniformProxy> mProxy;
+	QVector<QSceneComponent*> mRef;
 };
-
-#endif // QRhiUniform_h__
+#endif // QRhiUniform_h_

@@ -7,7 +7,7 @@ class QParticleUpdater :public QRhiUniform {
 public:
 	QParticleUpdater();
 	QByteArray getUpdateCode() const { return mUpdateCode; }
-	void setUpdateCode(QByteArray val) { mUpdateCode = val; }
+	void setUpdateCode(QByteArray val);
 protected:
 	QByteArray mUpdateCode;
 };

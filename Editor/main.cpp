@@ -57,11 +57,11 @@ public:
 		//	}
 		//}
 
-		mStaticModel = std::make_shared<QStaticModel>();
-		mStaticModel->loadFromFile(R"(C:\Users\fuxinghao879\Desktop\QEngine\Example\Genji\Genji.FBX)");
+		//mStaticModel = std::make_shared<QStaticModel>();
+		//mStaticModel->loadFromFile(R"(C:\Users\fuxinghao879\Desktop\QEngine\Example\Genji\Genji.FBX)");
 
-		mStaticModel->setRotation(QVector3D(-90, 0, 0));
-		scene()->addPrimitive("Genji", mStaticModel);
+		//mStaticModel->setRotation(QVector3D(-90, 0, 0));
+		//scene()->addPrimitive("Genji", mStaticModel);
 
 		//QMaterialEditor* editor = new QMaterialEditor(mMaterial);
 		//editor->show();
@@ -69,6 +69,14 @@ public:
 		//mText->setPosition(QVector3D(0, -4, 0));
 		//mText->setRotation(QVector3D(0, 180, 0));
 		//scene()->addPrimitive("text", mText);
+
+		mSkyBox = std::make_shared<QSkyBoxComponent>();
+		mSkyBox->setSkyBoxImage(QImage(R"(C:\Users\fuxinghao879\Desktop\QEngine\Example\sky.jpeg)"));
+		scene()->setSkyBox(mSkyBox);
+		//scene()->addPrimitive("12", std::make_shared<QCube>());
+		mGPUParticles = std::make_shared<QParticleComponent>();
+		mGPUParticles->setStaticMesh(std::make_shared<QCube>());						//设置粒子的形状（实例）
+		scene()->addPrimitive("GPU", mGPUParticles);
 	}
 protected:
 	void update() override

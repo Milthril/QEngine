@@ -9,9 +9,14 @@ template<typename _Ty>
 class QRhiSPtr :public std::shared_ptr<_Ty> {
 public:
 	void reset(_Ty* res) noexcept {
-		std::shared_ptr<_Ty>::reset(res, [](_Ty* res) {
-			res->destroy();
-		});
+		if (res != nullptr) {
+			std::shared_ptr<_Ty>::reset(res, [](_Ty* res) {
+				res->destroy();
+			});
+		}
+		else {
+			std::shared_ptr<_Ty>::reset();
+		}
 	}
 };
 

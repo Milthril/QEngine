@@ -10,11 +10,9 @@ class QMaterial :public QRhiUniform {
 public:
 	QMaterial();
 	QByteArray getShadingCode() const { return mShadingCode; }
-	void setShadingCode(QByteArray val) { mShadingCode = val; }
-	void addRef(QPrimitiveComponent* comp);
-	void removeRef(QPrimitiveComponent* comp);
+	void setShadingCode(QByteArray val);
+
 protected:
-	QVector<QPrimitiveComponent*> mRef;
 	QByteArray mShadingCode;
 };
 

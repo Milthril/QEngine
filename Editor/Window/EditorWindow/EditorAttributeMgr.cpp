@@ -6,7 +6,6 @@
 #include "Widgets\Buttons\WinMinButton.h"
 #include "Widgets\Buttons\WinMaxButton.h"
 #include "QJsonDocument"
-#include "private\qstylesheetstyle_p.h"
 
 EditorAttributeMgr::EditorAttributeMgr()
 {

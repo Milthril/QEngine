@@ -29,8 +29,6 @@ public:
 		SkyBox,
 	};
 
-	QRhiSignal bNeedResetProxy;
-
 	QMatrix4x4 calculateModelMatrix();
 	QMatrix4x4 calculateWorldMatrix();
 
@@ -44,6 +42,8 @@ public:
 
 	const QList<std::shared_ptr<QSceneComponent>>& getChildren() const { return mChildren; }
 
+	QRhiSignal bNeedRecreateResource;
+	QRhiSignal bNeedRecreatePipeline;
 protected:
 	void addChild(std::shared_ptr<QSceneComponent> child);
 	void removeChild(std::shared_ptr<QSceneComponent> child);

@@ -32,6 +32,8 @@
 #include "QUndoCommand"
 #include "Adjuster\MaterialButton.h"
 #include "Scene\Material\QMaterial.h"
+#include "Scene\Component\Particle\QParticleSystem.h"
+#include "Adjuster\ParticleSystemButton.h"
 
 class PropertyAssignCommand :public QUndoCommand {
 public:
@@ -106,6 +108,7 @@ AdjusterFactory::AdjusterFactory() {
 	BIND_ADJUSTER(QByteArray, ByteArrayLoader);
 	BIND_ADJUSTER(QImage, ImageLoader);
 	BIND_ADJUSTER(std::shared_ptr<QMaterial>, MaterialButton);
+	BIND_ADJUSTER(std::shared_ptr<QParticleSystem>, ParticleSystemButton);
 }
 
 AdjusterFactory* AdjusterFactory::getInstance()

@@ -41,7 +41,6 @@ public:
 	QSceneComponent::ProxyType type() override {
 		return QSceneComponent::ProxyType::StaticMesh;
 	}
-
 	QRhiSignal bNeedUpdateVertex;
 	QRhiSignal bNeedUpdateIndex;
 private:

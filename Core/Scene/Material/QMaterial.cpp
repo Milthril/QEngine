@@ -3,15 +3,12 @@
 QMaterial::QMaterial()
 {
 	mShadingCode = "FragColor = vec4(1);";
-	bNeedRecreate = true;
 }
 
-void QMaterial::addRef(QPrimitiveComponent* comp)
+void QMaterial::setShadingCode(QByteArray val)
 {
-	mRef << comp;
-}
-
-void QMaterial::removeRef(QPrimitiveComponent* comp)
-{
-	mRef.removeOne(comp);
+	if (val != mShadingCode) {
+		mShadingCode = val;
+		bNeedRecreate.active();
+	}
 }

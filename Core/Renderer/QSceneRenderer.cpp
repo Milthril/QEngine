@@ -32,7 +32,7 @@ void QSceneRenderer::renderInternal(QRhiCommandBuffer* buffer, QRhiRenderTarget*
 {
 	QRhiResourceUpdateBatch* batch = RHI->nextResourceUpdateBatch();
 	tryResetUniformProxy();
-	tryResetPrimitiveProxy();
+	tryResetPrimitiveProxy(batch);
 	tryResetSkyBox(batch);
 	for (auto& it : mProxyUploadList)
 		it->uploadResource(batch);
@@ -83,7 +83,7 @@ QShader QSceneRenderer::createShaderFromCode(QShader::Stage stage, const char* c
 	baker.setSourceString(code, stage);
 	QShader shader = baker.bake();
 	if (!shader.isValid())
-		qFatal(baker.errorMessage().toLocal8Bit());
+		qWarning("%s \n %s", code, baker.errorMessage().toLocal8Bit());
 	return shader;
 }
 
@@ -119,6 +119,12 @@ void QSceneRenderer::tryResetUniformProxy()
 		if (uniform->bNeedRecreate.receive()) {
 			const auto& proxy = uniform->getProxy();
 			proxy->recreateResource();
+			for (auto& param : uniform->mParams) {
+				param->needUpdate.active();
+			}
+			for (auto& ref : uniform->mRef) {	//重置引用该uniform的组件 的代理
+				ref->bNeedRecreatePipeline.active();
+			}
 		}
 	}
 }
@@ -135,12 +141,14 @@ void QSceneRenderer::tryResetSkyBox(QRhiResourceUpdateBatch* batch)
 	}
 }
 
-void QSceneRenderer::tryResetPrimitiveProxy()
-{
+void QSceneRenderer::tryResetPrimitiveProxy(QRhiResourceUpdateBatch* batch) {
 	for (auto& id : mPrimitiveProxyMap.keys()) {
 		auto& proxy = mPrimitiveProxyMap[id];
-		if (proxy->mComponent->bNeedResetProxy.receive()) {
+		if (proxy->mComponent->bNeedRecreateResource.receive()) {
 			proxy->recreateResource();
+			proxy->updateResource(batch);
+		}
+		if (proxy->mComponent->bNeedRecreatePipeline.receive()) {
 			proxy->recreatePipeline();
 		}
 	}
@@ -171,7 +179,8 @@ std::shared_ptr<QRhiProxy> QSceneRenderer::createPrimitiveProxy(std::shared_ptr<
 	}
 	proxy->mRenderer = this;
 	proxy->mComponent = component;
-	component->bNeedResetProxy.active();
+	component->bNeedRecreateResource.active();
+	component->bNeedRecreatePipeline.active();
 	return std::dynamic_pointer_cast<QRhiProxy>(proxy);
 }
 

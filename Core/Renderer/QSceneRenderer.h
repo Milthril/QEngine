@@ -61,7 +61,7 @@ private:
 	void onLightChanged();
 	void onSkyBoxChanged();
 	void tryResetUniformProxy();
-	void tryResetPrimitiveProxy();
+	void tryResetPrimitiveProxy(QRhiResourceUpdateBatch* batch);
 	void tryResetSkyBox(QRhiResourceUpdateBatch* batch);
 	void resetPrimitiveProxy(std::shared_ptr<QPrimitiveComponent> component);
 	virtual std::shared_ptr<QRhiProxy> createStaticMeshProxy(std::shared_ptr<QStaticMeshComponent>) = 0;

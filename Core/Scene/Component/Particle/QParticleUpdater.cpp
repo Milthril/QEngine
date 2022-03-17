@@ -10,3 +10,9 @@ QParticleUpdater::QParticleUpdater()
         particle.rotation = particle.rotation;
     )";
 }
+
+void QParticleUpdater::setUpdateCode(QByteArray val)
+{
+	mUpdateCode = val;
+	bNeedRecreate.active();
+}

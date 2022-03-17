@@ -1,27 +1,27 @@
-#include "QMaterialEditor.h"
 #include "QHBoxLayout"
-#include "Scene\Material\QMaterial.h"
+#include "QParticlesEditor.h"
+#include "QPushButton"
+#include "QSplitter"
 #include "Widgets\CodeEditor\GLSL\GLSLEditor.h"
 #include "Widgets\UniformPanel\UniformPanel.h"
-#include "QSplitter"
-#include "QPushButton"
+#include "Scene\Component\Particle\QParticleSystem.h"
 
-QMaterialEditor* QMaterialEditor::QMaterialEditor::instance()
+QParticlesEditor* QParticlesEditor::QParticlesEditor::instance()
 {
-	static QMaterialEditor ins;
+	static QParticlesEditor ins;
 	return &ins;
 }
 
-void QMaterialEditor::edit(std::shared_ptr<QMaterial> material)
+void QParticlesEditor::edit(std::shared_ptr<QParticleSystem> system)
 {
-	mMaterial = material;
-	mUniformPanel->setUniform(std::dynamic_pointer_cast<QRhiUniform>(material));
-	editor->setText(mMaterial->getShadingCode());
+	mSystem = system;
+	mUniformPanel->setUniform(std::dynamic_pointer_cast<QRhiUniform>(system->getUpdater()));
+	editor->setText(mSystem->getUpdater()->getUpdateCode());
 	if (!isVisible())
 		show();
 }
 
-QMaterialEditor::QMaterialEditor()
+QParticlesEditor::QParticlesEditor()
 	: KDDockWidgets::DockWidget("Material Editor")
 	, editor(new GLSLEditor)
 	, mUniformPanel(new UniformPanel())
@@ -39,6 +39,6 @@ QMaterialEditor::QMaterialEditor()
 	body->setStretchFactor(0, 2);
 	body->setStretchFactor(1, 5);
 	connect(btCompile, &QPushButton::clicked, this, [this]() {
-		mMaterial->setShadingCode(editor->text().toLocal8Bit());
+		mSystem->getUpdater()->setUpdateCode(editor->text().toLocal8Bit());
 	});
 }

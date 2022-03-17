@@ -5,14 +5,17 @@
 
 class QRhiUniform;
 class QTreeWidget;
+class QPushButton;
 
 class UniformPanel : public QWidget {
 public:
-	UniformPanel(std::shared_ptr<QRhiUniform> uniform);
+	UniformPanel();
+	void setUniform(std::shared_ptr<QRhiUniform> uniform);
 protected:
 	void updateParamPanel();
 private:
 	std::shared_ptr<QRhiUniform> mUniform;
+	QPushButton* btNewParam;
 	QTreeWidget* mParamsPanel;
 };
 

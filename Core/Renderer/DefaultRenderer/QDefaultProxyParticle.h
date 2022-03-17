@@ -23,7 +23,7 @@ private:
 	QRhiSPtr<QRhiComputePipeline> mMatrixComputePipline;
 	QRhiSPtr<QRhiShaderResourceBindings> mMatrixBindings;
 
-	std::array<float, QParticleComponent::PARTICLE_MAX_SIZE> mAgePool = { 0 };
+	std::array<float, QParticleSystem::PARTICLE_MAX_SIZE> mAgePool = { 0 };
 	QList<uint32_t> mIndexPool;
 	int mNumOfParticles = 0;
 	float mDuration;

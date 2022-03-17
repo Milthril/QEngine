@@ -20,26 +20,24 @@ void QRhiUniformProxy::recreateResource()
 	mSampler->create();
 
 	mTextureMap.clear();
-	for (auto& texture : mMaterial->mTexture) {
+	for (auto& texture : mMaterial->getAllTextureDesc()) {
 		QRhiSPtr<QRhiTexture> tex;
-		tex.reset(RHI->newTexture(QRhiTexture::RGBA8, texture.image.size(), 1));
-		mTextureMap[texture.name] = tex;
+		tex.reset(RHI->newTexture(QRhiTexture::RGBA8, texture->image.size(), 1));
+		mTextureMap[texture->name] = tex;
 		tex->create();
 	}
 }
 
 void QRhiUniformProxy::updateResource(QRhiResourceUpdateBatch* batch)
 {
-	for (auto& params : mMaterial->mParams) {
-		if (params.needUpdate) {
-			batch->updateDynamicBuffer(mUniformBlock.get(), params.offsetInByte, params.sizeInByte, mMaterial->mData.data() + params.offsetInByte);
-			params.needUpdate = false;
+	for (auto& params : mMaterial->getAllDataDesc()) {
+		if (params->needUpdate.receive()) {
+			batch->updateDynamicBuffer(mUniformBlock.get(), params->offsetInByte, params->sizeInByte, mMaterial->mData.data() + params->offsetInByte);
 		}
 	}
-	for (auto& params : mMaterial->mTexture) {
-		if (params.needUpdate) {
-			batch->uploadTexture(mTextureMap[params.name].get(), params.image);
-			params.needUpdate = false;
+	for (auto& params : mMaterial->getAllTextureDesc()) {
+		if (params->needUpdate.receive()) {
+			batch->uploadTexture(mTextureMap[params->name].get(), params->image);
 		}
 	}
 }
@@ -48,11 +46,12 @@ QRhiUniformProxy::UniformInfo QRhiUniformProxy::getUniformInfo(uint8_t bindingOf
 {
 	QRhiUniformProxy::UniformInfo info;
 	QString uniformCode;
-	if (!mMaterial->mParams.isEmpty()) {
+	auto dataDesc = mMaterial->getAllDataDesc();
+	if (!dataDesc.isEmpty()) {
 		info.bindings << QRhiShaderResourceBinding::uniformBuffer(bindingOffset, stage, mUniformBlock.get());
 		uniformCode = "layout(binding = " + QString::number(bindingOffset) + ") uniform UniformBlock{ \n";
-		for (auto& param : mMaterial->mParams) {
-			uniformCode += QString("    %1 %2;\n").arg(param.getTypeName()).arg(param.name);
+		for (auto& param : dataDesc) {
+			uniformCode += QString("    %1 %2;\n").arg(param->getTypeName()).arg(param->name);
 		}
 		uniformCode += "}UBO;\n";
 		bindingOffset++;
