@@ -1,7 +1,7 @@
 ﻿#include "QDateTime"
 #include "QDefaultProxyParticle.h"
 #include "QEngine.h"
-#include "Scene\Component\Particle\ParticleEmitter\IParticleEmitter.h"
+#include "Scene\Component\Particle\QParticleEmitter.h"
 #include "Scene\Component\Particle\QParticleComponent.h"
 
 QDefaultProxyParticle::QDefaultProxyParticle(std::shared_ptr<QParticleComponent> particle)
@@ -89,14 +89,14 @@ void QDefaultProxyParticle::recreatePipeline(PipelineUsageFlags flags /*= Pipeli
 	mMatrixBindings[0]->setBindings({
 		QRhiShaderResourceBinding::bufferLoad(0, QRhiShaderResourceBinding::ComputeStage, mParticlesBuffer[1].get()),
 		QRhiShaderResourceBinding::bufferStore(1, QRhiShaderResourceBinding::ComputeStage,mMatrixBuffer.get()),
-	});
+									});
 	mMatrixBindings[0]->create();
 
 	mMatrixBindings[1].reset(RHI->newShaderResourceBindings());
 	mMatrixBindings[1]->setBindings({
 		QRhiShaderResourceBinding::bufferLoad(0, QRhiShaderResourceBinding::ComputeStage, mParticlesBuffer[0].get()),
 		QRhiShaderResourceBinding::bufferStore(1, QRhiShaderResourceBinding::ComputeStage,mMatrixBuffer.get()),
-	});
+									});
 	mMatrixBindings[1]->create();
 
 	mMatrixComputePipline->setShaderResourceBindings(mMatrixBindings[0].get());

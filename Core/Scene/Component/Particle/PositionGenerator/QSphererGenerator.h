@@ -1,9 +1,10 @@
-﻿#ifndef QCubeEmitter_h__
-#define QCubeEmitter_h__
+﻿#ifndef QSphereGenerator_h__
+#define QSphereGenerator_h__
 
-#include "IParticleEmitter.h"
 #include <QRandomGenerator>
-class QCubeEmitter : public IParticleEmitter {
+#include "IPositionGenerator.h"
+
+class QSphereGenerator : public IPositionGenerator {
 	Q_OBJECT
 		Q_PROPERTY(float Width READ getWidth WRITE setWidth)
 		Q_PROPERTY(float Height READ getHeight WRITE setHeight)
@@ -15,7 +16,7 @@ public:
 	void setHeight(float val) { mHeight = val; }
 	float getDepth() const { return mDepth; }
 	void setDepth(float val) { mDepth = val; }
-	void handParticle(Particle& particle) override;
+	QVector3D generate() override;
 private:
 	float mWidth = 1;
 	float mHeight = 1;
@@ -23,4 +24,4 @@ private:
 	QRandomGenerator mRandom;
 };
 
-#endif // QCubeEmitter_h__
+#endif // QSphereGenerator_h__

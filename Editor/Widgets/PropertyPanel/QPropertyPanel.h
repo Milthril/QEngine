@@ -8,6 +8,7 @@ public:
 	QPropertyPanel(QObject* object = nullptr);
 	QObject* getObject() const;
 	void setObject(QObject* val);
+	static void setupObjectToItem(QTreeWidgetItem* item, QObject* obj);
 private:
 	void updatePanel();
 private:

@@ -1,5 +1,6 @@
 #include "QPropertyItemFactory.h"
 #include "QPropertyAdjusterItem.h"
+#include "QPropertySubClassItem.h"
 
 #include "Adjuster\BoolBox.h"
 #include "Adjuster\ByteArrayLoader.h"
@@ -28,11 +29,13 @@
 #include "ExtType/QColors.h"
 #include "Scene\Component\Particle\QParticleSystem.h"
 #include "Scene\Material\QMaterial.h"
+#include "Scene\Component\Particle\PositionGenerator\IPositionGenerator.h"
 
 #define REGISTER_ADJUSTER_ITEM(Type,AdjusterType)\
 		mCreatorMap[QMetaTypeId2<Type>::qt_metatype_id()] = [](QString name, Getter getter, Setter setter) { \
 			return new QPropertyAdjusterItem(name, getter, setter, new AdjusterType(getter().value<Type>()));\
 		};
+
 QPropertyItemFactory* QPropertyItemFactory::instance()
 {
 	static QPropertyItemFactory ins;
@@ -60,6 +63,10 @@ QPropertyItemFactory::QPropertyItemFactory()
 	REGISTER_ADJUSTER_ITEM(QImage, ImageLoader);
 	REGISTER_ADJUSTER_ITEM(std::shared_ptr<QMaterial>, MaterialButton);
 	REGISTER_ADJUSTER_ITEM(std::shared_ptr<QParticleSystem>, ParticleSystemButton);
+
+	mCreatorMap[QMetaTypeId2<QSubClass<IPositionGenerator>>::qt_metatype_id()] = [](QString name, Getter getter, Setter setter) {
+		return new QPropertySubClassItem<QSubClass<IPositionGenerator>>(name, getter, setter);
+	};
 }
 
 QPropertyItem* QPropertyItemFactory::createItem(TypeId id, QString name, Getter getter, Setter setter)

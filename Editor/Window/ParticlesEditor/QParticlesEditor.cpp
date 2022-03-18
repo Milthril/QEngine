@@ -6,7 +6,7 @@
 #include "Widgets\UniformPanel\UniformPanel.h"
 #include "Scene\Component\Particle\QParticleSystem.h"
 #include "Widgets\PropertyPanel\QPropertyPanel.h"
-#include "Scene\Component\Particle\ParticleEmitter\IParticleEmitter.h"
+#include "Scene\Component\Particle\QParticleEmitter.h"
 
 QParticlesEditor* QParticlesEditor::QParticlesEditor::instance()
 {

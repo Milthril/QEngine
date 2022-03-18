@@ -4,7 +4,7 @@
 #include "qvectornd.h"
 #include "QParticleUpdater.h"
 
-class IParticleEmitter;
+class QParticleEmitter;
 
 inline const char* getParticleDefine() {
 	return R"(
@@ -41,10 +41,10 @@ public:
 		Particle particles[PARTICLE_MAX_SIZE];
 	};
 	std::shared_ptr<QParticleUpdater> getUpdater() const { return mUpdater; }
-	std::shared_ptr<IParticleEmitter> getEmitter() const { return mEmitter; }
+	std::shared_ptr<QParticleEmitter> getEmitter() const { return mEmitter; }
 private:
-	std::shared_ptr<IParticleEmitter> mEmitter;
-	std::shared_ptr<QParticleUpdater> mUpdater = std::make_shared<QParticleUpdater>();
+	std::shared_ptr<QParticleEmitter> mEmitter;
+	std::shared_ptr<QParticleUpdater> mUpdater;
 };
 
 Q_DECLARE_METATYPE(std::shared_ptr<QParticleSystem>)

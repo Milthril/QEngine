@@ -1,7 +1,8 @@
 ﻿#include "QParticleSystem.h"
-#include "ParticleEmitter\QCubeEmitter.h"
+#include "QParticleEmitter.h"
 
 QParticleSystem::QParticleSystem()
 {
-	mEmitter = std::make_shared<QCubeEmitter>();
+	mEmitter = std::make_shared<QParticleEmitter>();
+	mUpdater = std::make_shared<QParticleUpdater>();
 }

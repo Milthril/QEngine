@@ -29,27 +29,31 @@ QObject* QPropertyPanel::getObject() const
 void QPropertyPanel::setObject(QObject* val) {
 	if (val != mObject) {
 		mObject = val;
-		updatePanel();
+		if (isVisible())
+			updatePanel();
 	}
 }
 
-void setupItemInternal(QObject* object, QTreeWidgetItem* parentItem) {
+void QPropertyPanel::setupObjectToItem(QTreeWidgetItem* parentItem, QObject* object)
+{
 	if (object == nullptr)
 		return;
 	for (int i = 1; i < object->metaObject()->propertyCount(); i++) {
 		QMetaProperty property = object->metaObject()->property(i);
 		if (property.isScriptable()) {
-			QPropertyItem* item = QPropertyItemFactory::instance()->createItem(property.typeId()
-																			   , property.name()
-			, [object, property]() {return property.read(object); }
-			, [object, property](QVariant var) { property.write(object, var); }
+			QPropertyItem* item = QPropertyItemFactory::instance()->createItem(property.typeId(),
+																			   property.name(),
+																			   [object, property]() {return property.read(object); },
+																			   [object, property](QVariant var) { property.write(object, var); }
 			);
 			if (item) {
+				parentItem->addChild(item);
+				item->createWidgetOrSubItem();
 				const QMetaObject* meta = property.metaType().metaObject();
 				if (meta != nullptr && meta->inherits(&QObject::staticMetaObject)) {
 					QObject* obj = property.read(object).value<QObject*>();
 					if (obj != nullptr) {
-						setupItemInternal(obj, item);
+						setupObjectToItem(item, obj);
 					}
 				}
 			}
@@ -66,20 +70,19 @@ void QPropertyPanel::updatePanel() {
 		if (!property.isScriptable())
 			continue;
 
-		QPropertyItem* item = QPropertyItemFactory::instance()->createItem(property.typeId()
-																		   , property.name()
-		, [this, property]() {return property.read(mObject); }
-		, [this, property](QVariant var) { property.write(mObject, var); }
+		QPropertyItem* item = QPropertyItemFactory::instance()->createItem(property.typeId(),
+																		   property.name(),
+																		   [this, property]() {return property.read(mObject); },
+																		   [this, property](QVariant var) { property.write(mObject, var); }
 		);
 		if (item) {
 			addTopLevelItem(item);
 			item->createWidgetOrSubItem();
-
 			const QMetaObject* meta = property.metaType().metaObject();
 			if (meta != nullptr && meta->inherits(&QObject::staticMetaObject)) {
 				QObject* obj = property.read(mObject).value<QObject*>();
 				if (obj != nullptr) {
-					setupItemInternal(obj, item);
+					setupObjectToItem(item, obj);
 				}
 			}
 		}
