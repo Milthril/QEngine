@@ -5,6 +5,8 @@
 #include "Widgets\CodeEditor\GLSL\GLSLEditor.h"
 #include "Widgets\UniformPanel\UniformPanel.h"
 #include "Scene\Component\Particle\QParticleSystem.h"
+#include "Widgets\PropertyPanel\QPropertyPanel.h"
+#include "Scene\Component\Particle\ParticleEmitter\IParticleEmitter.h"
 
 QParticlesEditor* QParticlesEditor::QParticlesEditor::instance()
 {
@@ -16,6 +18,7 @@ void QParticlesEditor::edit(std::shared_ptr<QParticleSystem> system)
 {
 	mSystem = system;
 	mUniformPanel->setUniform(std::dynamic_pointer_cast<QRhiUniform>(system->getUpdater()));
+	mEmitterPanel->setObject(system->getEmitter().get());
 	editor->setText(mSystem->getUpdater()->getUpdateCode());
 	if (!isVisible())
 		show();
@@ -26,14 +29,19 @@ QParticlesEditor::QParticlesEditor()
 	, editor(new GLSLEditor)
 	, mUniformPanel(new UniformPanel())
 	, btCompile(new QPushButton("Compile"))
+	, mEmitterPanel(new QPropertyPanel)
 {
 	QSplitter* body = new QSplitter;
 	setWidget(body);
-	body->addWidget(mUniformPanel);
+	QSplitter* leftPanel = new QSplitter;
+	leftPanel->setOrientation(Qt::Orientation::Vertical);
+	leftPanel->addWidget(mEmitterPanel);
+	leftPanel->addWidget(mUniformPanel);
+	body->addWidget(leftPanel);
 	QWidget* right = new QWidget;
 	QVBoxLayout* v = new QVBoxLayout(right);
 	v->addWidget(btCompile, 0, Qt::AlignRight);
-	btCompile->setFixedSize(60, 30);
+	btCompile->setFixedSize(60, 25);
 	v->addWidget(editor);
 	body->addWidget(right);
 	body->setStretchFactor(0, 2);

@@ -33,7 +33,7 @@ QMaterialEditor::QMaterialEditor()
 	QWidget* right = new QWidget;
 	QVBoxLayout* v = new QVBoxLayout(right);
 	v->addWidget(btCompile, 0, Qt::AlignRight);
-	btCompile->setFixedSize(60, 30);
+	btCompile->setFixedSize(60, 25);
 	v->addWidget(editor);
 	body->addWidget(right);
 	body->setStretchFactor(0, 2);

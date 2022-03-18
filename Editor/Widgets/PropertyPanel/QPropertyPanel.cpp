@@ -36,8 +36,7 @@ void QPropertyPanel::setObject(QObject* val) {
 void setupItemInternal(QObject* object, QTreeWidgetItem* parentItem) {
 	if (object == nullptr)
 		return;
-
-	for (int i = 0; i < object->metaObject()->propertyCount(); i++) {
+	for (int i = 1; i < object->metaObject()->propertyCount(); i++) {
 		QMetaProperty property = object->metaObject()->property(i);
 		if (property.isScriptable()) {
 			QPropertyItem* item = new QPropertyItem(object, property);
@@ -58,7 +57,7 @@ void QPropertyPanel::updatePanel() {
 	this->clear();
 	if (object_ == nullptr)
 		return;
-	for (int i = 0; i < object_->metaObject()->propertyCount(); i++) {
+	for (int i = 1; i < object_->metaObject()->propertyCount(); i++) {
 		QMetaProperty property = object_->metaObject()->property(i);
 		if (!property.isScriptable())
 			continue;

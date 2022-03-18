@@ -7,6 +7,7 @@ class GLSLEditor;
 class UniformPanel;
 class QPushButton;
 class QParticleSystem;
+class QPropertyPanel;
 
 class QParticlesEditor :public KDDockWidgets::DockWidget {
 public:
@@ -17,6 +18,7 @@ private:
 private:
 	std::shared_ptr<QParticleSystem> mSystem;
 private:
+	QPropertyPanel* mEmitterPanel;
 	UniformPanel* mUniformPanel;
 	GLSLEditor* editor;
 	QPushButton* btCompile;

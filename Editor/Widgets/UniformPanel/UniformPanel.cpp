@@ -17,7 +17,7 @@ UniformPanel::UniformPanel()
 	, btNewParam(new QPushButton("New Param"))
 {
 	QVBoxLayout* v = new QVBoxLayout(this);
-	btNewParam->setFixedSize(80, 30);
+	btNewParam->setFixedSize(80, 25);
 	v->addWidget(btNewParam, 0, Qt::AlignRight);
 	v->addWidget(mParamsPanel);
 	mParamsPanel->setColumnCount(1);

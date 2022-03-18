@@ -24,7 +24,7 @@ struct Particle {
 
 class QParticleSystem {
 	Q_GADGET
-		Q_PROPERTY(float lifetime READ getLifetime WRITE setLifetime);
+
 public:
 	QParticleSystem();
 	inline static const int PARTICLE_MAX_SIZE = 1000000;
@@ -38,14 +38,11 @@ public:
 	struct ParticleBuffer {
 		Particle particles[PARTICLE_MAX_SIZE];
 	};
-	float getLifetime() const { return mLifetime; }
-	void setLifetime(float val) { mLifetime = val; }
 	std::shared_ptr<QParticleUpdater> getUpdater() const { return mUpdater; }
 	std::shared_ptr<IParticleEmitter> getEmitter() const { return mEmitter; }
 private:
 	std::shared_ptr<IParticleEmitter> mEmitter;
 	std::shared_ptr<QParticleUpdater> mUpdater = std::make_shared<QParticleUpdater>();
-	float mLifetime = 2;
 };
 
 Q_DECLARE_METATYPE(std::shared_ptr<QParticleSystem>)

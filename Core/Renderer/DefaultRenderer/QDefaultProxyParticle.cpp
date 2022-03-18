@@ -148,7 +148,7 @@ void QDefaultProxyParticle::updatePrePass(QRhiCommandBuffer* cmdBuffer)
 		float& age = mAgePool[i];
 		if (age >= 0) {
 			age += mDuration;
-			if (age > mParticle->getParticleSystem()->getLifetime()) {
+			if (age > mParticle->getParticleSystem()->getEmitter()->getLifetime()) {
 				mIndexPool.push_back(i);
 				age = -1;
 			}
