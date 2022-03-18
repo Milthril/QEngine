@@ -3,7 +3,7 @@
 #include <QMetaProperty>
 #include "QPropertyItem.h"
 #include "QFile"
-#include "QDynamicPropertyItem.h"
+#include "QPropertyItemFactory.h"
 
 QPropertyPanel::QPropertyPanel(QObject* object /*= nullptr*/) {
 	setObject(object);
@@ -23,12 +23,12 @@ QPropertyPanel::QPropertyPanel(QObject* object /*= nullptr*/) {
 
 QObject* QPropertyPanel::getObject() const
 {
-	return object_;
+	return mObject;
 }
 
 void QPropertyPanel::setObject(QObject* val) {
-	if (val != object_) {
-		object_ = val;
+	if (val != mObject) {
+		mObject = val;
 		updatePanel();
 	}
 }
@@ -39,14 +39,18 @@ void setupItemInternal(QObject* object, QTreeWidgetItem* parentItem) {
 	for (int i = 1; i < object->metaObject()->propertyCount(); i++) {
 		QMetaProperty property = object->metaObject()->property(i);
 		if (property.isScriptable()) {
-			QPropertyItem* item = new QPropertyItem(object, property);
-			item->setUp(parentItem);
-
-			const QMetaObject* meta = property.metaType().metaObject();
-			if (meta != nullptr && meta->inherits(&QObject::staticMetaObject)) {
-				QObject* obj = property.read(object).value<QObject*>();
-				if (obj != nullptr) {
-					setupItemInternal(obj, item);
+			QPropertyItem* item = QPropertyItemFactory::instance()->createItem(property.typeId()
+																			   , property.name()
+			, [object, property]() {return property.read(object); }
+			, [object, property](QVariant var) { property.write(object, var); }
+			);
+			if (item) {
+				const QMetaObject* meta = property.metaType().metaObject();
+				if (meta != nullptr && meta->inherits(&QObject::staticMetaObject)) {
+					QObject* obj = property.read(object).value<QObject*>();
+					if (obj != nullptr) {
+						setupItemInternal(obj, item);
+					}
 				}
 			}
 		}
@@ -55,36 +59,45 @@ void setupItemInternal(QObject* object, QTreeWidgetItem* parentItem) {
 
 void QPropertyPanel::updatePanel() {
 	this->clear();
-	if (object_ == nullptr)
+	if (mObject == nullptr)
 		return;
-	for (int i = 1; i < object_->metaObject()->propertyCount(); i++) {
-		QMetaProperty property = object_->metaObject()->property(i);
+	for (int i = 1; i < mObject->metaObject()->propertyCount(); i++) {
+		QMetaProperty property = mObject->metaObject()->property(i);
 		if (!property.isScriptable())
 			continue;
-		QPropertyItem* item = new QPropertyItem(object_, property);
-		item->setUp(this);
-		const QMetaObject* meta = property.metaType().metaObject();
-		if (meta != nullptr && meta->inherits(&QObject::staticMetaObject)) {
-			QObject* obj = property.read(object_).value<QObject*>();
-			if (obj != nullptr) {
-				setupItemInternal(obj, item);
+
+		QPropertyItem* item = QPropertyItemFactory::instance()->createItem(property.typeId()
+																		   , property.name()
+		, [this, property]() {return property.read(mObject); }
+		, [this, property](QVariant var) { property.write(mObject, var); }
+		);
+		if (item) {
+			addTopLevelItem(item);
+			item->createWidgetOrSubItem();
+
+			const QMetaObject* meta = property.metaType().metaObject();
+			if (meta != nullptr && meta->inherits(&QObject::staticMetaObject)) {
+				QObject* obj = property.read(mObject).value<QObject*>();
+				if (obj != nullptr) {
+					setupItemInternal(obj, item);
+				}
 			}
 		}
 	}
 	this->expandAll();
 
-	for (auto& dpName : object_->dynamicPropertyNames()) {
-		QDynamicPropertyItem* item = new QDynamicPropertyItem(object_, dpName);
-		item->setUp(this);
-		QVariant var = object_->property(dpName);
-		const QMetaObject* meta = var.metaType().metaObject();
-		if (meta != nullptr && meta->inherits(&QObject::staticMetaObject)) {
-			QObject* obj = var.value<QObject*>();
-			if (obj != nullptr) {
-				setupItemInternal(obj, item);
-			}
-		}
-	}
+	//for (auto& dpName : mObject->dynamicPropertyNames()) {
+	//	QDynamicPropertyItem* item = new QDynamicPropertyItem(mObject, dpName);
+	//	item->setUp(this);
+	//	QVariant var = mObject->property(dpName);
+	//	const QMetaObject* meta = var.metaType().metaObject();
+	//	if (meta != nullptr && meta->inherits(&QObject::staticMetaObject)) {
+	//		QObject* obj = var.value<QObject*>();
+	//		if (obj != nullptr) {
+	//			setupItemInternal(obj, item);
+	//		}
+	//	}
+	//}
 }
 
 void QPropertyPanel::showEvent(QShowEvent* event)

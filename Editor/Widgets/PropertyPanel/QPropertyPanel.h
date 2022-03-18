@@ -11,7 +11,7 @@ public:
 private:
 	void updatePanel();
 private:
-	QObject* object_ = nullptr;
+	QObject* mObject = nullptr;
 protected:
 	void showEvent(QShowEvent* event) override;
 };

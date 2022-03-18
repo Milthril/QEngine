@@ -11,18 +11,12 @@ class QHBoxLayout;
 class QPropertyItem : public QTreeWidgetItem
 {
 public:
-	explicit QPropertyItem(QObject* object, QMetaProperty property);
+	using Getter = std::function<QVariant()>;
+	using Setter = std::function<void(QVariant)>;
+	explicit QPropertyItem();
 	~QPropertyItem();
-	virtual QWidget* createWidget();
-	virtual void setUp(QTreeWidgetItem* tree);
-	virtual void setUp(QTreeWidget* tree);
-	void rename();
+	virtual void createWidgetOrSubItem() = 0;
 protected:
-	QObject* object_ = nullptr;
-	QMetaProperty property_;
-	QWidget* itemWidget_ = nullptr;
-	QHBoxLayout* layout_ = nullptr;
-	QLabel* name_ = nullptr;
 };
 
 #endif // QPropertyItem_h__
