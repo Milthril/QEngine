@@ -12,6 +12,7 @@ QPropertyItem::QPropertyItem(QObject* object, QMetaProperty property)
 	, itemWidget_(new QWidget)
 	, name_(new QLabel)
 {
+	itemWidget_->setAttribute(Qt::WA_TranslucentBackground, true);
 	layout_ = new QHBoxLayout(itemWidget_);
 	layout_->setAlignment(Qt::AlignCenter);
 	layout_->setContentsMargins(10, 2, 10, 2);

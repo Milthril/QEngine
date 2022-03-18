@@ -19,6 +19,8 @@ void QMaterialEditor::edit(std::shared_ptr<QMaterial> material)
 	editor->setText(mMaterial->getShadingCode());
 	if (!isVisible())
 		show();
+	activateWindow();
+	setFocus();
 }
 
 QMaterialEditor::QMaterialEditor()

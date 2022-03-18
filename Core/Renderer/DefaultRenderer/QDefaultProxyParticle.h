@@ -10,22 +10,29 @@ public:
 	void uploadResource(QRhiResourceUpdateBatch* batch) override;
 	void updateResource(QRhiResourceUpdateBatch* batch) override;
 private:
-	uint32_t allocIndex();
-private:
 	std::shared_ptr<QParticleComponent> mParticle;
 
-	QRhiSPtr<QRhiBuffer> mParticlesBuffer;
+	struct ParticleRunContext {
+		uint inputCounter = 0;
+		uint outputCounter = 0;
+		float duration = 0;
+		float lifetime = 0;
+	};
+
+	QRhiSPtr<QRhiBuffer> mParticlesBuffer[2];
+	QRhiSPtr<QRhiBuffer> mParticleCounterBuffer;
 	QRhiSPtr<QRhiComputePipeline> mComputePipeline;
-	QRhiSPtr<QRhiShaderResourceBindings> mComputeBindings;
+	QRhiSPtr<QRhiShaderResourceBindings> mComputeBindings[2];
 	QRhiSPtr<QRhiShaderResourceBindings> mShaderResourceBindings;
 
 	QRhiSPtr<QRhiBuffer> mMatrixBuffer;
 	QRhiSPtr<QRhiComputePipeline> mMatrixComputePipline;
-	QRhiSPtr<QRhiShaderResourceBindings> mMatrixBindings;
+	QRhiSPtr<QRhiShaderResourceBindings> mMatrixBindings[2];
 
-	std::array<float, QParticleSystem::PARTICLE_MAX_SIZE> mAgePool = { 0 };
-	QList<uint32_t> mIndexPool;
-	int mNumOfParticles = 0;
+	QRhiBufferReadbackResult mCtxReader;
+	ParticleRunContext mCtx;
+	int mInputIndex = 0;
+	int mOutputIndex = 1;
 	float mDuration;
 	float mLastSecond;
 protected:

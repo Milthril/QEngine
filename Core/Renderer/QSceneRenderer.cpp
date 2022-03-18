@@ -82,8 +82,11 @@ QShader QSceneRenderer::createShaderFromCode(QShader::Stage stage, const char* c
 
 	baker.setSourceString(code, stage);
 	QShader shader = baker.bake();
-	if (!shader.isValid())
-		qWarning("%s \n %s", code, baker.errorMessage().toLocal8Bit());
+	if (!shader.isValid()) {
+		qWarning(code);
+		qWarning(baker.errorMessage().toLocal8Bit());
+	}
+
 	return shader;
 }
 

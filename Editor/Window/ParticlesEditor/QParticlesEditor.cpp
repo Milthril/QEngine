@@ -22,6 +22,8 @@ void QParticlesEditor::edit(std::shared_ptr<QParticleSystem> system)
 	editor->setText(mSystem->getUpdater()->getUpdateCode());
 	if (!isVisible())
 		show();
+	activateWindow();
+	setFocus();
 }
 
 QParticlesEditor::QParticlesEditor()

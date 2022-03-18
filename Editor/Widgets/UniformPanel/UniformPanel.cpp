@@ -91,6 +91,7 @@ void UniformPanel::updateParamPanel() {
 		QTreeWidgetItem* item = new QTreeWidgetItem();
 		item->setText(1, param->name);
 		QWidget* itemWidget = new QWidget;
+		itemWidget->setAttribute(Qt::WA_TranslucentBackground, true);
 		QHBoxLayout* h = new QHBoxLayout(itemWidget);
 		QLineEdit* lineEdit = new QLineEdit(param->name);
 		lineEdit->setEnabled(false);

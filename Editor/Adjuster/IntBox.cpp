@@ -7,6 +7,7 @@
 #include <QPainter>
 #include "QFocusLineEdit.h"
 #include "Toolkit/QNeumorphism.h"
+#include "QStyleOption"
 
 IntBox::IntBox(int value/*= 0*/, QString name, QWidget* parent /*= nullptr*/)
 	: Adjuster(parent)
@@ -154,7 +155,9 @@ void IntBox::paintEvent(QPaintEvent* event)
 	QPainter painter(this);
 	painter.setRenderHint(QPainter::Antialiasing);
 	painter.setPen(Qt::NoPen);
-	painter.setBrush(QColor(200, 200, 200));
+	QStyleOption opt;
+	opt.initFrom(this);
+	painter.setBrush(opt.palette.color(QPalette::Window));
 	painter.drawRoundedRect(rect(), 2, 2);
 	QWidget::paintEvent(event);
 }

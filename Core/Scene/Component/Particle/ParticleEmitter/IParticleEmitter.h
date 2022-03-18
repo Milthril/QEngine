@@ -29,4 +29,7 @@ protected:
 	QVector3D mScaling = QVector3D(1, 1, 1);
 };
 
+class SubClass {
+};
+
 #endif // IParticleEmitter_h__

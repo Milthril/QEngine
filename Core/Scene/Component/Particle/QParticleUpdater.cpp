@@ -2,13 +2,11 @@
 
 QParticleUpdater::QParticleUpdater()
 {
-	mUpdateCode = 
- R"(particle.life   = particle.life + 0.01;
-particle.position = particle.position + particle.velocity;
-particle.velocity = particle.velocity;
-particle.scaling  = particle.scaling;
-particle.rotation = particle.rotation;
-    )";
+	mUpdateCode =
+		R"(outParticle.position = inParticle.position + inParticle.velocity;
+outParticle.velocity = inParticle.velocity;
+outParticle.scaling  = inParticle.scaling;
+outParticle.rotation = inParticle.rotation;)";
 }
 
 void QParticleUpdater::setUpdateCode(QByteArray val)

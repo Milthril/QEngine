@@ -36,6 +36,8 @@ public:
 		float life = 0.0;
 	};
 	struct ParticleBuffer {
+		uint32_t counter = 0;
+		uint32_t padding[3];
 		Particle particles[PARTICLE_MAX_SIZE];
 	};
 	std::shared_ptr<QParticleUpdater> getUpdater() const { return mUpdater; }
