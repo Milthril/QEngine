@@ -24,7 +24,7 @@ void QMaterialEditor::edit(std::shared_ptr<QMaterial> material)
 }
 
 QMaterialEditor::QMaterialEditor()
-	: KDDockWidgets::DockWidget("Material Editor")
+	: KDDockWidgets::DockWidget("Particle Editor")
 	, editor(new GLSLEditor)
 	, mUniformPanel(new UniformPanel())
 	, btCompile(new QPushButton("Compile"))

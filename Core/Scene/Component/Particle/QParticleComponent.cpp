@@ -3,8 +3,26 @@
 
 QParticleComponent::QParticleComponent()
 {
-	mStaticMesh = std::make_shared<QCube>();
+	setStaticMesh(std::make_shared<QCube>());
 	mParticleSystem->getUpdater()->addRef(this);
+}
+
+void QParticleComponent::setStaticMesh(QSubClass<QStaticMeshComponent> val)
+{
+	if (!val)
+		return;
+	if (mStaticMesh) {
+		val->setMaterial(mStaticMesh->getMaterial());		// 转移材质
+		val->getMaterial()->bNeedRecreate.active();
+		mStaticMesh->getMaterial()->removeRef(this);
+	}
+	else {
+
+	}
+	mStaticMesh = val;
+	mStaticMesh->getMaterial()->addRef(this);
+	bNeedRecreateResource.active();
+	bNeedRecreatePipeline.active();
 }
 
 void QParticleComponent::setPosition(const QVector3D& newPosition)

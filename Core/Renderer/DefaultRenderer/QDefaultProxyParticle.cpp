@@ -155,12 +155,18 @@ void QDefaultProxyParticle::recreatePipeline(PipelineUsageFlags flags /*= Pipeli
 
 void QDefaultProxyParticle::uploadResource(QRhiResourceUpdateBatch* batch)
 {
-	mStaticMeshProxy->uploadResource(batch);
 	mLastSecond = QTime::currentTime().msecsSinceStartOfDay() / 1000.0;;
 }
 
 void QDefaultProxyParticle::updateResource(QRhiResourceUpdateBatch* batch)
 {
+	if (mParticle->getStaticMesh()->bNeedRecreateResource.receive()) {
+		mStaticMeshProxy = mRenderer->createPrimitiveProxy(mParticle->getStaticMesh());
+		mParticle->getStaticMesh()->bNeedRecreateResource.receive();
+		mStaticMeshProxy->recreateResource();
+		mStaticMeshProxy->uploadResource(batch);
+	}
+
 	mStaticMeshProxy->updateResource(batch);
 }
 
@@ -211,7 +217,7 @@ void QDefaultProxyParticle::updatePrePass(QRhiCommandBuffer* cmdBuffer)
 }
 
 void QDefaultProxyParticle::drawInPass(QRhiCommandBuffer* cmdBuffer, const QRhiViewport& viewport) {
-	if (!mComputePipeline)
+	if (!mStaticMeshProxy->mPipeline)
 		return;
 	cmdBuffer->setGraphicsPipeline(mStaticMeshProxy->mPipeline.get());
 	cmdBuffer->setViewport(viewport);

@@ -14,7 +14,7 @@ private:
 	void AddUniform(QRhiUniform* material);
 	void RemoveUniform(QRhiUniform* material);
 private:
-	QList<QRhiUniform*> mUniformMap;
+	QList<QRhiUniform*> mUniformList;
 };
 
 #endif // QRhiUniformMgr_h__

@@ -8,7 +8,7 @@ QRhiUniformMgr* QRhiUniformMgr::instance()
 
 void QRhiUniformMgr::update(QRhiResourceUpdateBatch* batch)
 {
-	for (auto& uniform : mUniformMap) {
+	for (auto& uniform : mUniformList) {
 		const auto& proxy = uniform->getProxy();
 		proxy->updateResource(batch);
 	}
@@ -16,10 +16,10 @@ void QRhiUniformMgr::update(QRhiResourceUpdateBatch* batch)
 
 void QRhiUniformMgr::AddUniform(QRhiUniform* material)
 {
-	mUniformMap << material;
+	mUniformList << material;
 }
 
 void QRhiUniformMgr::RemoveUniform(QRhiUniform* material)
 {
-	mUniformMap.removeOne(material);
+	mUniformList.removeOne(material);
 }

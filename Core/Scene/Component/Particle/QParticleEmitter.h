@@ -12,6 +12,7 @@ class QParticleEmitter :public QObject {
 		Q_PROPERTY(QSubClass<IPositionGenerator> PositionGenerator READ getPositionGenerator WRITE setPositionGenerator)
 public:
 	QParticleEmitter();
+
 	using Particle = QParticleSystem::Particle;
 
 	virtual QVector<Particle> update();
@@ -22,7 +23,7 @@ public:
 	int getNumOfTick() const { return mNumOfTick; }
 	void setNumOfTick(int val) { mNumOfTick = val; }
 
-	QSubClass<IPositionGenerator> getPositionGenerator() const { return mPositionGenerator; }
+	const QSubClass<IPositionGenerator>& getPositionGenerator() const { return mPositionGenerator; }
 	void setPositionGenerator(QSubClass<IPositionGenerator> val) { mPositionGenerator = val; }
 
 	QVector3D getScaling() const { return mScaling; }
@@ -32,7 +33,7 @@ protected:
 	float mLifetime = 2;
 	int mNumOfTick = 100;
 	QSubClass<IPositionGenerator> mPositionGenerator;
-	QVector3D mScaling = QVector3D(1, 1, 1);
+	QVector3D mScaling = QVector3D(0.1, 0.1, 0.1);
 };
 
 #endif // QParticleEmitter_h__

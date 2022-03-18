@@ -1,8 +1,9 @@
 ﻿#include "QParticleEmitter.h"
+#include "PositionGenerator\QCubeGenerator.h"
 
 QParticleEmitter::QParticleEmitter()
 {
-	mPositionGenerator.setSubClass("Cube");
+	mPositionGenerator.setSubClass<QCubeGenerator>();
 }
 
 QVector<QParticleEmitter::Particle> QParticleEmitter::update()
@@ -10,7 +11,7 @@ QVector<QParticleEmitter::Particle> QParticleEmitter::update()
 	QVector<QParticleEmitter::Particle> particles(qMax(0, mNumOfTick));
 	for (QParticleEmitter::Particle& particle : particles) {
 		particle.scaling = mScaling.toVector4D();
-		particle.position = mPositionGenerator->generate().toVector4D();
 	}
+	mPositionGenerator->generate(particles);
 	return particles;
 }

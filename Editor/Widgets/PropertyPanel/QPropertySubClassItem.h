@@ -25,11 +25,18 @@ public:
 		layout->setAlignment(Qt::AlignCenter);
 		layout->setContentsMargins(10, 2, 10, 2);
 		layout->addWidget(mNameLabel, 100, Qt::AlignLeft);
-
 		mComboBox->addItems(mSubClass.getSubList());
+		mComboBox->setCurrentText(mSubClass.getCurrentClass());
 		layout->addWidget(mComboBox);
 		mItemWidget->setAttribute(Qt::WA_TranslucentBackground, true);
 		mNameLabel->setStyleSheet("background-color:rgba(0,0,0,0)");
+		QObject::connect(mComboBox, &QComboBox::currentTextChanged, [this,setter](QString text) {
+			if (mSubClass.setSubClass(text)) {
+				this->takeChildren();
+				createWidgetOrSubItem();
+			}
+			setter(QVariant::fromValue<>(mSubClass));
+		});
 	}
 
 	~QPropertySubClassItem()

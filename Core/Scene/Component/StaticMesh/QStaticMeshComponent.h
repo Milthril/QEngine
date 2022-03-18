@@ -2,6 +2,7 @@
 #define QStaticMeshComponent_h__
 
 #include "Scene\Component\QPrimitiveComponent.h"
+#include "ExtType\QSubClass.h"
 
 class QStaticMeshComponent : public QPrimitiveComponent {
 	Q_OBJECT
@@ -50,5 +51,7 @@ private:
 	QVector<Vertex> mVertices;
 	QVector<Index> mIndices;
 };
+
+Q_DECLARE_METATYPE(QSubClass<QStaticMeshComponent>) 
 
 #endif // QStaticMeshComponent_h__

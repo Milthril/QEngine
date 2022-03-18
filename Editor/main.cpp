@@ -71,11 +71,10 @@ public:
 		//scene()->addPrimitive("text", mText);
 
 		mSkyBox = std::make_shared<QSkyBoxComponent>();
-		mSkyBox->setSkyBoxImage(QImage(R"(C:\Users\fuxinghao879\Desktop\QEngine\Example\sky.jpeg)"));
+		mSkyBox->setSkyBoxImage(QImage(ASSET_DIR"/sky.jpeg"));
 		scene()->setSkyBox(mSkyBox);
 		//scene()->addPrimitive("12", std::make_shared<QCube>());
 		mGPUParticles = std::make_shared<QParticleComponent>();
-		mGPUParticles->setStaticMesh(std::make_shared<QCube>());						//设置粒子的形状（实例）
 		scene()->addPrimitive("GPU", mGPUParticles);
 	}
 protected:

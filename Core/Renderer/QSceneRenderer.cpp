@@ -118,7 +118,7 @@ void QSceneRenderer::onSkyBoxChanged()
 
 void QSceneRenderer::tryResetUniformProxy()
 {
-	for (auto& uniform : QRhiUniformMgr::instance()->mUniformMap) {
+	for (auto& uniform : QRhiUniformMgr::instance()->mUniformList) {
 		if (uniform->bNeedRecreate.receive()) {
 			const auto& proxy = uniform->getProxy();
 			proxy->recreateResource();

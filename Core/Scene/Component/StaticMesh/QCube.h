@@ -4,8 +4,10 @@
 #include "Scene/Component/StaticMesh/QStaticMeshComponent.h"
 
 class QCube :public QStaticMeshComponent {
+	Q_OBJECT
+	REGISTER_SUBCLASS(QStaticMeshComponent, QCube)
 public:
-	QCube();
+	Q_INVOKABLE QCube();
 };
 
 #endif // QCube_h__

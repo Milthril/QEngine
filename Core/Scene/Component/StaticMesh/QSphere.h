@@ -4,8 +4,10 @@
 #include "Scene/Component/StaticMesh/QStaticMeshComponent.h"
 
 class QSphere :public QStaticMeshComponent {
+	Q_OBJECT
+	REGISTER_SUBCLASS(QStaticMeshComponent,QSphere)
 public:
-	QSphere();
+	Q_INVOKABLE QSphere();
 	int getStackCount() const;
 	int getSectorCount() const;
 	void setSubdivide(int stackCount, int sectorCount);

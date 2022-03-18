@@ -27,7 +27,7 @@ void QParticlesEditor::edit(std::shared_ptr<QParticleSystem> system)
 }
 
 QParticlesEditor::QParticlesEditor()
-	: KDDockWidgets::DockWidget("Material Editor")
+	: KDDockWidgets::DockWidget("Particles Editor")
 	, editor(new GLSLEditor)
 	, mUniformPanel(new UniformPanel())
 	, btCompile(new QPushButton("Compile"))

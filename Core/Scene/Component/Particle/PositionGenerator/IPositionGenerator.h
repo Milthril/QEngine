@@ -4,17 +4,14 @@
 #include "QObject"
 #include "qvectornd.h"
 #include "ExtType\QSubClass.h"
+#include <QRandomGenerator>
+#include "Scene\Component\Particle\QParticleSystem.h"
 
 class IPositionGenerator :public QObject {
 	Q_OBJECT
 public:
-	virtual QVector3D generate() = 0;
-};
-
-template<>
-class QSubClass<IPositionGenerator> : public QSubClassBase<IPositionGenerator> {
-public:
-	QSubClass();
+	virtual void generate(QVector<QParticleSystem::Particle>& particle) = 0;
+	inline static QRandomGenerator mRandom;
 };
 
 Q_DECLARE_METATYPE(QSubClass<IPositionGenerator>)
