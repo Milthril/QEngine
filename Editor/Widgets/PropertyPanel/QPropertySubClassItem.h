@@ -31,11 +31,12 @@ public:
 		mItemWidget->setAttribute(Qt::WA_TranslucentBackground, true);
 		mNameLabel->setStyleSheet("background-color:rgba(0,0,0,0)");
 		QObject::connect(mComboBox, &QComboBox::currentTextChanged, [this,setter](QString text) {
-			if (mSubClass.setSubClass(text)) {
+			bool ret = mSubClass.setSubClass(text);
+			setter(QVariant::fromValue<>(mSubClass));
+			if (ret) {
 				this->takeChildren();
 				createWidgetOrSubItem();
 			}
-			setter(QVariant::fromValue<>(mSubClass));
 		});
 	}
 

@@ -1,8 +1,11 @@
+#include "QApplication"
+#include "QEngine.h"
+#include "Renderer/Common/QDebugPainter.h"
+#include "Scene/Component/QPrimitiveComponent.h"
 #include "SceneTreeWidget.h"
 #include <memory>
 #include <QQueue>
-#include "QApplication"
-#include "Scene/Component/QPrimitiveComponent.h"
+#include "Scene/QSceneComponent.h"
 
 SceneTreeWidget::SceneTreeWidget(std::shared_ptr<QScene> scene)
 	:mScene(scene)
@@ -19,9 +22,22 @@ void SceneTreeWidget::createUI() {
 	setSelectionMode(QAbstractItemView::SingleSelection);
 	setFrameStyle(QFrame::NoFrame);
 
-	connect(this, &QTreeWidget::itemClicked, this, [this](QTreeWidgetItem* item, int) {
-		QObject* oPtr = item->data(1, 0).value<QObject*>();
+	connect(this, &QTreeWidget::currentItemChanged, this, [this](QTreeWidgetItem* current, QTreeWidgetItem* ) {
+		QObject* oPtr = current->data(1, 0).value<QObject*>();
 		Q_EMIT objectChanged(oPtr);
+	});
+
+
+	connect(Engine->debugPainter().get(), &QDebugPainter::currentCompChanged, this, [this](std::shared_ptr<QSceneComponent> comp) {
+		QTreeWidgetItemIterator iter(this);
+		while (*iter) {
+			QObject* oPtr = (*iter)->data(1, 0).value<QObject*>();
+			if (oPtr == comp.get()) {
+				setCurrentItem(*iter);
+				return;
+			}
+			iter++;
+		}
 	});
 
 	connect(this, &QTreeWidget::itemPressed, this, [](QTreeWidgetItem* item, int) {

@@ -1,5 +1,6 @@
 #include "QScene.h"
 #include "Component\QPrimitiveComponent.h"
+#include "QQueue"
 
 void QScene::insertLight(uint32_t index, std::shared_ptr<QLightComponent> light)
 {
@@ -57,4 +58,22 @@ void QScene::setSkyBox(std::shared_ptr<QSkyBoxComponent> val)
 {
 	mSkyBox = val;
 	Q_EMIT skyBoxChanged();
+}
+
+std::shared_ptr<QSceneComponent> QScene::searchCompById(QSceneComponent::ComponentId id)
+{
+	QQueue<std::shared_ptr<QSceneComponent>> qObject;
+	for (auto comp : mPrimitiveList) {
+		qObject.push_back( comp );
+	}
+	while (!qObject.isEmpty()) {
+		std::shared_ptr<QSceneComponent> parent = qObject.takeFirst();
+		if (parent->componentId() == id) {
+			return parent;
+		}
+		for (auto child : parent->getChildren()) {
+			qObject.push_back(child);
+		}
+	}
+	return nullptr;
 }

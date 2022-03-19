@@ -1,13 +1,20 @@
 #include "QEngine.h"
+#include "Renderer\Common\QDebugPainter.h"
 
-QEngine::QEngine(int argc, char** argv)
+QEngine::QEngine(int argc, char** argv,bool enableDebug /*= false*/)
 	: QApplication(argc, argv)
 	, mScene(std::make_shared<QScene>())
 	, mWindow(std::make_shared<QRhiWindow>(QRhi::Implementation::Vulkan))
 	, mRenderer(std::make_shared<QDefaultRenderer>())
 {
 	mRenderer->setScene(mScene);
+	if (enableDebug) {
+		mDebugPainter = std::make_shared<QDebugPainter>();
+		window()->installEventFilter(mDebugPainter.get());
+		renderer()->setDegbuPainter(mDebugPainter);
+	}
 }
+
 
 void QEngine::init()
 {
@@ -17,19 +24,24 @@ void QEngine::update()
 {
 }
 
-std::shared_ptr<QScene> QEngine::scene()
+const std::shared_ptr<QScene>& QEngine::scene()
 {
 	return mScene;
 }
 
-std::shared_ptr<QRhiWindow> QEngine::window()
+const std::shared_ptr<QRhiWindow>& QEngine::window()
 {
 	return mWindow;
 }
 
-std::shared_ptr<QSceneRenderer> QEngine::renderer()
+const std::shared_ptr<QSceneRenderer>& QEngine::renderer()
 {
 	return mRenderer;
+}
+
+const std::shared_ptr<QDebugPainter>& QEngine::debugPainter() 
+{
+	return mDebugPainter;
 }
 
 void QEngine::execGame()

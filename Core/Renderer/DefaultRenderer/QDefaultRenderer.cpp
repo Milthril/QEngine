@@ -13,7 +13,6 @@ QDefaultRenderer::QDefaultRenderer()
 		int offset = (mReadReult.pixelSize.width() * mReadPoint.y() + mReadPoint.x()) * 4;
 		uint32_t id = p[offset] + p[offset + 1] * 256 + p[offset + 2] * 256 * 256 + p[offset + 3] * 256 * 256 * 256;
 		mReadPoint = { 0,0 };
-		qDebug() << id;
 		Q_EMIT readBackCompId(id);
 	};
 }
@@ -42,8 +41,6 @@ void QDefaultRenderer::render(QRhiCommandBuffer* cmdBuffer, QRhiRenderTarget* re
 		mSkyBoxProxy->drawInPass(cmdBuffer, viewport);
 	}
 	cmdBuffer->endPass();
-
-	mReadPoint = QPoint(size.width() / 2, size.height() / 2);
 	if (debugEnabled() &&!mReadPoint.isNull()) {
 		batch = RHI->nextResourceUpdateBatch();
 		batch->readBackTexture(mReadDesc, &mReadReult);

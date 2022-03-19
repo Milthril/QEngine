@@ -11,6 +11,7 @@ class QStaticMeshComponent : public QPrimitiveComponent {
 		Q_PROPERTY(QVector<uint32_t> Indices READ getIndices WRITE setIndices SCRIPTABLE false)
 		Q_PROPERTY(std::shared_ptr<QMaterial> Material READ getMaterial WRITE setMaterial)
 public:
+	QStaticMeshComponent();
 	virtual ~QStaticMeshComponent();
 	struct Vertex {
 		QVector3D position;
@@ -46,7 +47,7 @@ public:
 	QRhiSignal bNeedUpdateIndex;
 private:
 	QRhiBuffer::Type mBufferType = QRhiBuffer::Type::Immutable;
-	std::shared_ptr<QMaterial> mMaterial = std::make_shared<QMaterial>();
+	std::shared_ptr<QMaterial> mMaterial;
 	Topology mTopology = Topology::Triangles;
 	QVector<Vertex> mVertices;
 	QVector<Index> mIndices;

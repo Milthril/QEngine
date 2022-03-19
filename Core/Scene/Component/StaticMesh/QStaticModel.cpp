@@ -50,6 +50,9 @@ void QStaticModel::loadFromFile(const QString filePath)
 {
 	Assimp::Importer importer;
 	const aiScene* scene = importer.ReadFile(filePath.toUtf8().constData(), aiProcess_Triangulate | aiProcess_FlipUVs);
+	if (!scene) {
+		return;
+	}
 	mMaterialList.resize(scene->mNumMaterials);
 	for (int i = 0; i < scene->mNumMaterials; i++) {
 		aiMaterial* material = scene->mMaterials[i];

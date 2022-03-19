@@ -14,10 +14,11 @@ void QParticleComponent::setStaticMesh(QSubClass<QStaticMeshComponent> val)
 	if (mStaticMesh) {
 		val->setMaterial(mStaticMesh->getMaterial());		// 转移材质
 		val->getMaterial()->bNeedRecreate.active();
-		mStaticMesh->getMaterial()->removeRef(this);
+	}
+	else {
+		val->getMaterial()->addRef(this);
 	}
 	mStaticMesh = val;
-	mStaticMesh->getMaterial()->addRef(this);
 	mStaticMesh->bNeedRecreateResource.active();
 	mStaticMesh->bNeedRecreatePipeline.active();
 	bNeedRecreateResource.active();

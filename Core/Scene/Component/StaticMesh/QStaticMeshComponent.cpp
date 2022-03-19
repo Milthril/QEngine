@@ -1,5 +1,17 @@
 #include "QStaticMeshComponent.h"
 
+QStaticMeshComponent::QStaticMeshComponent()
+{
+	setMaterial(std::make_shared<QMaterial>());
+}
+
+QStaticMeshComponent::~QStaticMeshComponent()
+{
+	if (mMaterial) {
+		mMaterial->removeRef(this);
+	}
+}
+
 void QStaticMeshComponent::setVertices(const QVector<Vertex>& newVertices)
 {
 	mVertices = newVertices;
@@ -65,12 +77,6 @@ uint32_t QStaticMeshComponent::getIndexedCount()
 	return mIndices.size();
 }
 
-QStaticMeshComponent::~QStaticMeshComponent()
-{
-	if (mMaterial) {
-		mMaterial->removeRef(this);
-	}
-}
 
 QStaticMeshComponent::Topology QStaticMeshComponent::getTopology() const
 {

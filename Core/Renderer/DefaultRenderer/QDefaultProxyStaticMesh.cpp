@@ -1,14 +1,12 @@
 #include "QDefaultProxyStaticMesh.h"
 #include "Scene\Component\QPrimitiveComponent.h"
 #include "Scene\Component\StaticMesh\QStaticMeshComponent.h"
+#include "Scene\Component\Particle\QParticleComponent.h"
 #include "QEngine.h"
 
-
-QDefaultProxyStaticMesh::QDefaultProxyStaticMesh(std::shared_ptr<QStaticMeshComponent> mesh, bool usedByParticle)
+QDefaultProxyStaticMesh::QDefaultProxyStaticMesh(std::shared_ptr<QStaticMeshComponent> mesh)
 	: mStaticMesh(mesh)
-	, bUsedByParticle(usedByParticle)
 {
-
 }
 
 void QDefaultProxyStaticMesh::recreateResource()
@@ -63,7 +61,7 @@ void QDefaultProxyStaticMesh::recreatePipeline()
 	}
 	)";
 
-	if (bUsedByParticle) {
+	if (mParentParticle) {
 		inputBindings << QRhiVertexInputBinding{ sizeof(float) * 16 ,QRhiVertexInputBinding::PerInstance };
 		attributeList << QRhiVertexInputAttribute{ 1, 5, QRhiVertexInputAttribute::Float4, 0,0 };
 		attributeList << QRhiVertexInputAttribute{ 1, 6, QRhiVertexInputAttribute::Float4, 4 * sizeof(float),1 };
@@ -92,7 +90,12 @@ void QDefaultProxyStaticMesh::recreatePipeline()
 
 	if (mRenderer->debugEnabled()) {
 		defineCode.prepend("layout (location = 1) out vec4 CompId;\n");
-		outputCode.append(QString("CompId = %1;\n").arg(mStaticMesh->getCompIdVec4String()));
+		if (mParentParticle) {
+			outputCode.append(QString("CompId = %1;\n").arg(mParentParticle->getCompIdVec4String()));
+		}
+		else {
+			outputCode.append(QString("CompId = %1;\n").arg(mStaticMesh->getCompIdVec4String()));
+		}
 	}
 	QString fragShaderCode = QString(R"(#version 440
 	layout(location = 0) in vec2 vUV;

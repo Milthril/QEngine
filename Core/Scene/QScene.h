@@ -28,9 +28,10 @@ public:
 
 	std::shared_ptr<QSkyBoxComponent> getSkyBox() const;
 	void setSkyBox(std::shared_ptr<QSkyBoxComponent> val);
+
+	std::shared_ptr<QSceneComponent> searchCompById(QSceneComponent::ComponentId id);
 private:
 	QList<std::shared_ptr<QPrimitiveComponent>> mPrimitiveList;
-
 	QList<std::shared_ptr<QLightComponent>> mLightList;
 	std::shared_ptr<QSkyBoxComponent> mSkyBox;
 	std::shared_ptr<QCameraComponent> mCamera;

@@ -93,7 +93,7 @@ bool QCameraComponent::eventFilter(QObject* watched, QEvent* event)
 			break;
 
 		case QEvent::MouseMove: {
-			if (qApp->mouseButtons() & Qt::LeftButton) {
+			if (qApp->mouseButtons() & Qt::RightButton) {
 				QPoint currentPos = QCursor::pos();
 				float xoffset = pressedPos.x() - currentPos.x();
 				float yoffset = currentPos.y() - pressedPos.y();	// 注意这里是相反的，因为y坐标是从底部往顶部依次增大的

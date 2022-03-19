@@ -39,6 +39,7 @@ UniformPanel::UniformPanel()
 					if (edit) {
 						edit->setEnabled(true);
 						edit->selectAll();
+						edit->setFocus();
 					}
 				}
 			});
