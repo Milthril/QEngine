@@ -9,11 +9,10 @@
 #include "private/qshaderbaker_p.h"
 #include "RHI/QRhiUniformMgr.h"
 #include "QEngine.h"
+#include "Common/QDebugPainter.h"
 
-QSceneRenderer::QSceneRenderer(int sampleCount, QRhiSPtr<QRhiRenderPassDescriptor> renderPassDescriptor)
-	: mSampleCount(sampleCount)
-	, mRootRenderPassDescriptor(renderPassDescriptor)
-	, mBloomPainter(new QBloomPainter())
+QSceneRenderer::QSceneRenderer()
+	: mBloomPainter(new QBloomPainter())
 {
 }
 
@@ -88,6 +87,17 @@ QShader QSceneRenderer::createShaderFromCode(QShader::Stage stage, const char* c
 	}
 
 	return shader;
+}
+
+
+bool QSceneRenderer::debugEnabled() const
+{
+	return mDebugPainter != nullptr;
+}
+
+void QSceneRenderer::setDegbuPainter(std::shared_ptr<QDebugPainter> painter) 
+{
+	mDebugPainter = painter;
 }
 
 void QSceneRenderer::onPrimitiveInserted(uint32_t index, std::shared_ptr<QPrimitiveComponent> primitive)

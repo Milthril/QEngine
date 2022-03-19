@@ -15,6 +15,7 @@
 #include "Scene\Component\AssimpToolkit\MMDVmdParser.h"
 #include "Scene\Component\SkeletonMesh\QMMDModel.h"
 #include "Window\MaterialEditor\QMaterialEditor.h"
+#include "Renderer\Common\QDebugPainter.h"
 
 const int CUBE_MAT_SIZE = 10;
 const int CUBE_MAT_SPACING = 5;
@@ -35,8 +36,14 @@ public:
 
 	MyGame(int argc, char** argv)
 		: QEngine(argc, argv) {
+
+		std::shared_ptr<QDebugPainter> debugDrawPainter = std::make_shared<QDebugPainter>();
+		window()->installEventFilter(debugDrawPainter.get());
+		renderer()->setDegbuPainter(debugDrawPainter);
+
 	}
 	virtual void init() override {
+
 		mCamera = std::make_shared<QCameraComponent>();
 		mCamera->setupWindow(window().get());		//将相机与窗口绑定，使用WASD Shift 空格可进行移动，鼠标左键按住窗口可调整视角
 		scene()->setCamera(mCamera);				//设置场景相机
@@ -47,15 +54,15 @@ public:
 		//mMaterial->setShadingCode("FragColor = vec4(UBO.BaseColor,1);");				//设置材质的Shading代码
 		//mText->setMaterial(mMaterial);
 
-		//for (int i = 0; i < CUBE_MAT_SIZE; i++) {
-		//	for (int j = 0; j < CUBE_MAT_SIZE; j++) {
-		//		std::shared_ptr<QCube>& cube = mCube[i][j];
-		//		cube.reset(new QCube);
-		//		cube->setPosition(QVector3D((i - CUBE_MAT_SIZE / 2.0) * CUBE_MAT_SPACING, (j - CUBE_MAT_SIZE / 2.0) * CUBE_MAT_SPACING, -10));
-		//		cube->setMaterial(mMaterial);
-		//		scene()->addPrimitive(QString("cube(%1,%2)").arg(i).arg(j), cube);
-		//	}
-		//}
+		for (int i = 0; i < CUBE_MAT_SIZE; i++) {
+			for (int j = 0; j < CUBE_MAT_SIZE; j++) {
+				std::shared_ptr<QCube>& cube = mCube[i][j];
+				cube.reset(new QCube);
+				cube->setPosition(QVector3D((i - CUBE_MAT_SIZE / 2.0) * CUBE_MAT_SPACING, (j - CUBE_MAT_SIZE / 2.0) * CUBE_MAT_SPACING, -10));
+				//cube->setMaterial(mMaterial);
+				scene()->addPrimitive(QString("cube(%1,%2)").arg(i).arg(j), cube);
+			}
+		}
 
 		//mStaticModel = std::make_shared<QStaticModel>();
 		//mStaticModel->loadFromFile(R"(C:\Users\fuxinghao879\Desktop\QEngine\Example\Genji\Genji.FBX)");
@@ -74,8 +81,8 @@ public:
 		mSkyBox->setSkyBoxImage(QImage(ASSET_DIR"/sky.jpeg"));
 		scene()->setSkyBox(mSkyBox);
 		//scene()->addPrimitive("12", std::make_shared<QCube>());
-		mGPUParticles = std::make_shared<QParticleComponent>();
-		scene()->addPrimitive("GPU", mGPUParticles);
+		//mGPUParticles = std::make_shared<QParticleComponent>();
+		//scene()->addPrimitive("GPU", mGPUParticles);
 	}
 protected:
 	void update() override

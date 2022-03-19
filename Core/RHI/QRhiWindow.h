@@ -9,8 +9,6 @@ class QRhiWindow :public QWindow {
 	friend class QEngine;
 public:
 	QRhiWindow(QRhi::Implementation backend);
-	static void setDefaultSurfaceFormat(QSurfaceFormat format);
-	std::shared_ptr<QScene> scene() const { return mScene; }
 	void waitExposed();
 private:
 	void initInternal();
@@ -26,8 +24,6 @@ private:
 	QRhiSPtr<QRhiRenderBuffer> mDepthStencilFrameBuffer;
 	QRhiSPtr<QRhiRenderPassDescriptor> mRenderPassDesciptor;
 	std::shared_ptr<QOffscreenSurface> mFallbackSurface;
-	std::shared_ptr<QSceneRenderer>  mRootRenderer;
-	std::shared_ptr<QScene> mScene;
 	QElapsedTimer mTimer;
 	int mFrameCount = 0;
 protected:

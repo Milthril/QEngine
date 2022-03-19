@@ -2,19 +2,21 @@
 #define QDefaultRenderer_h__
 
 #include "Renderer/QSceneRenderer.h"
-#include "../Common/QTexturePainter.h"
-#include "../Common/QBloomPainter.h"
+#include "Renderer/Common/QTexturePainter.h"
+#include "Renderer/Common/QBloomPainter.h"
 
 class QDefaultRenderer :public QSceneRenderer {
 public:
-	QDefaultRenderer(int sampleCount, QRhiSPtr<QRhiRenderPassDescriptor> renderPassDescriptor);
+	QDefaultRenderer();
 	virtual void render(QRhiCommandBuffer* cmdBuffer, QRhiRenderTarget* renderTarget) override;
+	virtual QVector<QRhiGraphicsPipeline::TargetBlend> getDefaultBlends() override;
+	virtual void requestReadbackCompId(const QPoint& screenPt) override;
 protected:
+	void createOrResizeRenderTarget(QSize size);
 	std::shared_ptr<QRhiProxy> createStaticMeshProxy(std::shared_ptr<QStaticMeshComponent>) override;
 	std::shared_ptr<QRhiProxy> createSkeletonMeshProxy(std::shared_ptr<QSkeletonModelComponent>) override;
 	std::shared_ptr<QRhiProxy> createParticleProxy(std::shared_ptr<QParticleComponent>) override;
 	std::shared_ptr<QRhiProxy> createSkyBoxProxy(std::shared_ptr<QSkyBoxComponent>) override;
-	void createOrResizeRenderTarget(QSize size);
 	QRhiSPtr<QRhiRenderPassDescriptor> getRenderPassDescriptor() const override;
 private:
 	struct RTResource {
@@ -23,8 +25,15 @@ private:
 		QRhiSPtr<QRhiRenderBuffer> depthStencil;
 		QRhiSPtr<QRhiTextureRenderTarget> renderTarget;
 		QRhiSPtr<QRhiRenderPassDescriptor> renderPassDesc;
+
+		QRhiSPtr<QRhiTexture> debugTexture;
+		QRhiSPtr<QRhiRenderBuffer> debugMsaaBuffer;
 	};
 	RTResource mRT;
+
+	QRhiReadbackResult mReadReult;
+	QRhiReadbackDescription mReadDesc;
+	QPoint mReadPoint;
 };
 
 #endif // QDefaultRenderer_h__

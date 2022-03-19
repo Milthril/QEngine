@@ -6,9 +6,16 @@
 #include "QEngine.h"
 #include "QDefaultProxySkeletonModel.h"
 
-QDefaultRenderer::QDefaultRenderer(int sampleCount, QRhiSPtr<QRhiRenderPassDescriptor> renderPassDescriptor)
-	:QSceneRenderer(sampleCount, renderPassDescriptor)
+QDefaultRenderer::QDefaultRenderer()
 {
+	mReadReult.completed = [this]() {
+		const uchar* p = reinterpret_cast<const uchar*>(mReadReult.data.constData());
+		int offset = (mReadReult.pixelSize.width() * mReadPoint.y() + mReadPoint.x()) * 4;
+		uint32_t id = p[offset] + p[offset + 1] * 256 + p[offset + 2] * 256 * 256 + p[offset + 3] * 256 * 256 * 256;
+		mReadPoint = { 0,0 };
+		qDebug() << id;
+		Q_EMIT readBackCompId(id);
+	};
 }
 
 void QDefaultRenderer::render(QRhiCommandBuffer* cmdBuffer, QRhiRenderTarget* renderTarget)
@@ -35,12 +42,36 @@ void QDefaultRenderer::render(QRhiCommandBuffer* cmdBuffer, QRhiRenderTarget* re
 		mSkyBoxProxy->drawInPass(cmdBuffer, viewport);
 	}
 	cmdBuffer->endPass();
+
+	mReadPoint = QPoint(size.width() / 2, size.height() / 2);
+	if (debugEnabled() &&!mReadPoint.isNull()) {
+		batch = RHI->nextResourceUpdateBatch();
+		batch->readBackTexture(mReadDesc, &mReadReult);
+		cmdBuffer->resourceUpdate(batch);
+		RHI->finish();
+	}
+
 	mBloomPainter->drawCommand(cmdBuffer, mRT.colorAttachment, renderTarget);
 }
 
 QRhiSPtr<QRhiRenderPassDescriptor> QDefaultRenderer::getRenderPassDescriptor() const
 {
 	return mRT.renderPassDesc;
+}
+
+QVector<QRhiGraphicsPipeline::TargetBlend> QDefaultRenderer::getDefaultBlends()
+{
+	QRhiGraphicsPipeline::TargetBlend blendState;
+	blendState.enable = false;
+	if (debugEnabled()) {
+		return { blendState,blendState };
+	}
+	return { blendState };
+}
+
+void QDefaultRenderer::requestReadbackCompId(const QPoint& screenPt)
+{
+	mReadPoint = screenPt;
 }
 
 std::shared_ptr<QRhiProxy> QDefaultRenderer::createStaticMeshProxy(std::shared_ptr<QStaticMeshComponent> comp)
@@ -69,6 +100,7 @@ void QDefaultRenderer::createOrResizeRenderTarget(QSize size)
 		return;
 	mRT.colorAttachment.reset(RHI->newTexture(QRhiTexture::RGBA32F, size, 1, QRhiTexture::RenderTarget | QRhiTexture::UsedAsTransferSource));
 	mRT.colorAttachment->create();
+	QVector<QRhiColorAttachment> colorAttachments;
 	QRhiColorAttachment colorAttachment;
 	if (getSampleCount() > 1) {
 		mRT.msaaBuffer.reset(RHI->newRenderBuffer(QRhiRenderBuffer::Color, size, getSampleCount(), {}, QRhiTexture::RGBA32F));
@@ -79,10 +111,28 @@ void QDefaultRenderer::createOrResizeRenderTarget(QSize size)
 	else {
 		colorAttachment.setTexture(mRT.colorAttachment.get());
 	}
+	colorAttachments << colorAttachment;
+
+	if (debugEnabled()) {
+		QRhiColorAttachment debugAttachment;
+		mRT.debugTexture.reset(RHI->newTexture(QRhiTexture::RGBA8, size,1, QRhiTexture::RenderTarget | QRhiTexture::UsedAsTransferSource));
+		mRT.debugTexture->create();
+		if (getSampleCount() > 1) {
+			mRT.debugMsaaBuffer.reset(RHI->newRenderBuffer(QRhiRenderBuffer::Color, size, getSampleCount(), {}, QRhiTexture::RGBA8));
+			mRT.debugMsaaBuffer->create();
+			debugAttachment.setRenderBuffer(mRT.debugMsaaBuffer.get());
+			debugAttachment.setResolveTexture(mRT.debugTexture.get());
+		}
+		else {
+			debugAttachment.setTexture(mRT.debugTexture.get());
+		}
+		colorAttachments << debugAttachment;
+		mReadDesc.setTexture(mRT.debugTexture.get());
+	}
+	QRhiTextureRenderTargetDescription RTDesc;
+	RTDesc.setColorAttachments(colorAttachments.begin(),colorAttachments.end());
 	mRT.depthStencil.reset(RHI->newRenderBuffer(QRhiRenderBuffer::DepthStencil, size, getSampleCount()));
 	mRT.depthStencil->create();
-	QRhiTextureRenderTargetDescription RTDesc;
-	RTDesc.setColorAttachments({ colorAttachment });
 	RTDesc.setDepthStencilBuffer(mRT.depthStencil.get());
 	mRT.renderTarget.reset(RHI->newTextureRenderTarget(RTDesc));
 	mRT.renderPassDesc.reset(mRT.renderTarget->newCompatibleRenderPassDescriptor());

@@ -8,7 +8,7 @@
 
 EditorWindow::EditorWindow()
 	: KDDockWidgets::MainWindow("QEngine Editor")
-	, mAssetPanel("F:/hero/game/assets")
+	, mAssetPanel(ASSET_DIR)
 	, mFile("File")
 	, mEdit("Edit")
 	, mWindow("Window")

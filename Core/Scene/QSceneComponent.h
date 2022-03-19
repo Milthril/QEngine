@@ -19,6 +19,14 @@ public:
 	using ComponentId = uint32_t;
 	QSceneComponent::ComponentId componentId() const { return mId; }
 
+	QString getCompIdVec4String() const { 
+		int r = (mId & 0x000000FF) >> 0;
+		int g = (mId & 0x0000FF00) >> 8;
+		int b = (mId & 0x00FF0000) >> 16;
+		int a = (mId & 0xFF000000) >> 24;
+		return QString("vec4(%1,%2,%3,%4)").arg(r / 255.0f).arg(g / 255.0f).arg(b / 255.0f).arg(a / 255.0f);
+	}
+
 	enum ProxyType {
 		None,
 		Camera,

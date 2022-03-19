@@ -5,7 +5,7 @@
 
 class QAdvanceRenderer :public QSceneRenderer {
 public:
-	QAdvanceRenderer(int sampleCount, QRhiSPtr<QRhiRenderPassDescriptor> renderPassDescriptor) :QSceneRenderer(sampleCount, renderPassDescriptor) {}
+	QAdvanceRenderer() {}
 protected:
 
 	std::shared_ptr<QRhiProxy> createStaticMeshProxy(std::shared_ptr<QStaticMeshComponent>) override;

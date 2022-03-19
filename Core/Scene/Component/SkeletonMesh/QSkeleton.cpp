@@ -74,7 +74,6 @@ std::shared_ptr<QSkeleton::BoneNode> QSkeleton::addBoneNode(aiBone* bone) {
 		return mBoneMap[bone->mName.C_Str()];
 	std::shared_ptr<QSkeleton::BoneNode> boneNode = std::make_shared<QSkeleton::BoneNode>();
 	boneNode->name = bone->mName.C_Str();
-	qDebug() << boneNode->name;
 	boneNode->offsetMatrix = converter(bone->mOffsetMatrix);
 	boneNode->index = mBoneOffsetMatrix.size();
 	mBoneOffsetMatrix << boneNode->offsetMatrix.toGenericMatrix<4, 4>();

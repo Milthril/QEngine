@@ -39,7 +39,7 @@ void QDefaultProxySkeletonModel::recreateResource()
 	Q_ASSERT(mUniformBuffer->create());
 }
 
-void QDefaultProxySkeletonModel::recreatePipeline(PipelineUsageFlags flags /*= PipelineUsageFlag::Normal*/)
+void QDefaultProxySkeletonModel::recreatePipeline()
 {
 	for (int i = 0; i < mMeshProxyList.size(); i++) {
 		auto& meshProxy = mMeshProxyList[i];
@@ -48,7 +48,8 @@ void QDefaultProxySkeletonModel::recreatePipeline(PipelineUsageFlags flags /*= P
 		QRhiGraphicsPipeline::TargetBlend blendState;
 		blendState.enable = false;
 
-		pipeline->setTargetBlends({ blendState });
+		auto blends = mRenderer->getDefaultBlends();
+		mPipeline->setTargetBlends(blends.begin(), blends.end());
 		pipeline->setTopology(QRhiGraphicsPipeline::Topology::Triangles);
 		pipeline->setDepthTest(true);
 		pipeline->setDepthWrite(true);

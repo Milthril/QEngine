@@ -7,10 +7,10 @@
 #include "QVulkanInstance"
 #include <QPlatformSurfaceEvent>
 #include <QtGui/private/qrhinull_p.h>
+#include "QEngine.h"
 
 QRhiWindow::QRhiWindow(QRhi::Implementation backend)
 	: mBackend(backend)
-	, mScene(new QScene)
 {
 	switch (backend) {
 	case QRhi::OpenGLES2:
@@ -31,10 +31,6 @@ QRhiWindow::QRhiWindow(QRhi::Implementation backend)
 	}
 }
 
-void QRhiWindow::setDefaultSurfaceFormat(QSurfaceFormat format)
-{
-	QSurfaceFormat::setDefaultFormat(format);
-}
 
 void QRhiWindow::waitExposed()
 {
@@ -92,9 +88,10 @@ void QRhiWindow::initInternal()
 	mRenderPassDesciptor.reset(mSwapChain->newCompatibleRenderPassDescriptor());
 	mSwapChain->setRenderPassDescriptor(mRenderPassDesciptor.get());
 	resizeSwapChain();
-
-	mRootRenderer = std::make_shared<QDefaultRenderer>(mSwapChain->sampleCount(), mRenderPassDesciptor);
-	mRootRenderer->setScene(mScene);
+	if (Engine->renderer()) {
+		Engine->renderer()->setSampleCount(mSwapChain->sampleCount());
+		Engine->renderer()->setRootRenderPassDescriptor(mRenderPassDesciptor);
+	}
 }
 
 void QRhiWindow::renderInternal()
@@ -120,9 +117,9 @@ void QRhiWindow::renderInternal()
 		qDebug("beginFrame failed with %d, retry", ret);
 		return;
 	}
-	if (mRootRenderer) {
+	if (Engine->renderer()) {
 		mSwapChain->currentFrameRenderTarget()->setRenderPassDescriptor(mRenderPassDesciptor.get());
-		mRootRenderer->renderInternal(mSwapChain->currentFrameCommandBuffer(), mSwapChain->currentFrameRenderTarget());
+		Engine->renderer()->renderInternal(mSwapChain->currentFrameCommandBuffer(), mSwapChain->currentFrameRenderTarget());
 	}
 	mRhi->endFrame(mSwapChain.get());
 

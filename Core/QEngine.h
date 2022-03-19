@@ -17,6 +17,7 @@ public:
 	QEngine(int argc, char** argv);
 	std::shared_ptr<QScene> scene();
 	std::shared_ptr<QRhiWindow> window();
+	std::shared_ptr<QSceneRenderer> renderer();
 	void execGame();
 	QRhi* getRHI();
 protected:
@@ -24,6 +25,8 @@ protected:
 	virtual void update();
 private:
 	std::shared_ptr<QRhiWindow> mWindow;
+	std::shared_ptr<QScene> mScene;
+	std::shared_ptr<QSceneRenderer>  mRenderer;
 };
 
 #endif // QEngine_h__

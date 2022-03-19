@@ -74,12 +74,13 @@ void QDefaultProxySkyBox::recreateResource()
 	Q_ASSERT(mVertexBuffer->create());
 }
 
-void QDefaultProxySkyBox::recreatePipeline(PipelineUsageFlags flags /*= PipelineUsageFlag::Normal*/)
+void QDefaultProxySkyBox::recreatePipeline()
 {
 	mPipeline.reset(RHI->newGraphicsPipeline());
-	QRhiGraphicsPipeline::TargetBlend blendState;
-	blendState.enable = false;
-	mPipeline->setTargetBlends({ blendState });
+
+	auto blends = mRenderer->getDefaultBlends();
+	mPipeline->setTargetBlends(blends.begin(), blends.end());
+
 	mPipeline->setTopology(QRhiGraphicsPipeline::Triangles);
 	mPipeline->setDepthTest(true);
 	mPipeline->setDepthWrite(true);
@@ -116,15 +117,22 @@ void QDefaultProxySkyBox::recreatePipeline(PipelineUsageFlags flags /*= Pipeline
 
 	QString fragShaderCode = QString(R"(#version 440
 	layout(location = 0) in vec3 vPosition;
-
 	layout(location = 0) out vec4 outColor;
-
+	%1
 	layout(binding = 1) uniform samplerCube uSkybox;
-
 	void main(){
 		outColor = texture(uSkybox,vPosition);
+		%2
 	}
 	)");
+	if (mRenderer->debugEnabled()) {
+		fragShaderCode = fragShaderCode
+			.arg("layout (location = 1) out vec4 CompId;\n")
+			.arg("CompId = " + mSkyBox->getCompIdVec4String()+";\n");
+	}
+	else {
+		fragShaderCode = fragShaderCode.arg("").arg("");
+	}
 
 	QShader fs = QSceneRenderer::createShaderFromCode(QShader::Stage::FragmentStage, fragShaderCode.toLocal8Bit());
 	Q_ASSERT(fs.isValid());
