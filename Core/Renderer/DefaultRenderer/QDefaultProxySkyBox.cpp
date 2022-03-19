@@ -141,7 +141,6 @@ void QDefaultProxySkyBox::recreatePipeline()
 		{ QRhiShaderStage::Vertex, vs },
 		{ QRhiShaderStage::Fragment, fs }
 	});
-
 	mShaderResourceBindings.reset(RHI->newShaderResourceBindings());
 
 	QVector<QRhiShaderResourceBinding> shaderBindings;

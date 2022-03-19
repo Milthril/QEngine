@@ -103,16 +103,23 @@ void QDefaultProxySkeletonModel::recreatePipeline()
 		pipeline->setVertexInputLayout(inputLayout);
 
 		QShader vs = QSceneRenderer::createShaderFromCode(QShader::Stage::VertexStage, vertexShaderCode.toLocal8Bit());
-
 		const QRhiUniformProxy::UniformInfo& materialInfo = meshProxy->mesh->getMaterial()->getProxy()->getUniformInfo(1);
+
+		QString defineCode = materialInfo.uniformDefineCode;
+		QString outputCode = meshProxy->mesh->getMaterial()->getShadingCode();
+
+		if (mRenderer->debugEnabled()) {
+			defineCode.prepend("layout (location = 1) out vec4 CompId;\n");
+			outputCode.append(QString("CompId = %1;\n").arg(mSkeletonModel->componentId()));
+		}
 		QString fragShaderCode = QString(R"(#version 440
-			layout(location = 0) in vec2 vUV;
-			layout(location = 0) out vec4 FragColor;
-			%1
-			void main(){
-				%2
-			}
-		)").arg(materialInfo.uniformDefineCode, meshProxy->mesh->getMaterial()->getShadingCode());
+		layout(location = 0) in vec2 vUV;
+		layout(location = 0) out vec4 FragColor;
+		%1
+		void main(){
+			%2
+		}
+		)").arg(defineCode).arg(outputCode);
 		QShader fs = QSceneRenderer::createShaderFromCode(QShader::Stage::FragmentStage, fragShaderCode.toLocal8Bit());
 		Q_ASSERT(fs.isValid());
 

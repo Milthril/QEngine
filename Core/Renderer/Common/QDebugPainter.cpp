@@ -14,6 +14,21 @@ QDebugPainter::QDebugPainter()
 	});
 }
 
+void QDebugPainter::drawCommand(QRhiCommandBuffer* cmdBuffer, QRhiRenderTarget* outputTarget)
+{
+
+}
+
+void QDebugPainter::initRhiResource()
+{
+	QVector<Vertex> verteices;
+	mVertexBuffer.reset(RHI->newBuffer(QRhiBuffer::Immutable, QRhiBuffer::VertexBuffer, sizeof(Vertex) * verteices.size()));
+	Q_ASSERT(mVertexBuffer->create());
+
+	mUniformBuffer.reset(RHI->newBuffer(QRhiBuffer::Type::Dynamic, QRhiBuffer::UniformBuffer, sizeof(QMatrix4x4)));
+	Q_ASSERT(mUniformBuffer->create());
+}
+
 bool QDebugPainter::eventFilter(QObject* watched, QEvent* event)
 {
 	static QPoint pressedPos;
