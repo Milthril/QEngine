@@ -5,6 +5,7 @@
 #include "QDefaultProxySkyBox.h"
 #include "QEngine.h"
 #include "QDefaultProxySkeletonModel.h"
+#include "Renderer/Common/QDebugPainter.h"
 
 QDefaultRenderer::QDefaultRenderer()
 {
@@ -31,6 +32,9 @@ void QDefaultRenderer::render(QRhiCommandBuffer* cmdBuffer, QRhiRenderTarget* re
 	if (mSkyBoxProxy) {
 		mSkyBoxProxy->updateResource(batch);
 	}
+	if (debugEnabled()) {
+		mDebugPainter->updatePrePass(batch, mRT.renderTarget.get());
+	}
 	cmdBuffer->beginPass(mRT.renderTarget.get(), QColor::fromRgbF(0.0f, 0.0f, 0.0f, 0.0f), { 1.0f, 0 }, batch);
 
 	QRhiViewport viewport(0, 0, size.width(), size.height());
@@ -40,15 +44,20 @@ void QDefaultRenderer::render(QRhiCommandBuffer* cmdBuffer, QRhiRenderTarget* re
 	if (mSkyBoxProxy) {
 		mSkyBoxProxy->drawInPass(cmdBuffer, viewport);
 	}
-	cmdBuffer->endPass();
-	if (debugEnabled() &&!mReadPoint.isNull()) {
-		batch = RHI->nextResourceUpdateBatch();
-		batch->readBackTexture(mReadDesc, &mReadReult);
-		cmdBuffer->resourceUpdate(batch);
-		RHI->finish();
+	if (debugEnabled()) {
+		mDebugPainter->drawInPass(cmdBuffer, mRT.renderTarget.get());
 	}
+	cmdBuffer->endPass();
 
 	mBloomPainter->drawCommand(cmdBuffer, mRT.colorAttachment, renderTarget);
+	if (debugEnabled()) {
+		if (!mReadPoint.isNull()) {
+			batch = RHI->nextResourceUpdateBatch();
+			batch->readBackTexture(mReadDesc, &mReadReult);
+			cmdBuffer->resourceUpdate(batch);
+			RHI->finish();
+		}
+	}
 }
 
 QRhiSPtr<QRhiRenderPassDescriptor> QDefaultRenderer::getRenderPassDescriptor() const

@@ -2,6 +2,8 @@
 #include "QApplication"
 #include "qevent.h"
 #include "QEngine.h"
+#include "ImGuizmo.h"
+#include "Scene/Component/Camera/QCameraComponent.h"
 
 QDebugPainter::QDebugPainter()
 {
@@ -14,19 +16,29 @@ QDebugPainter::QDebugPainter()
 	});
 }
 
-void QDebugPainter::drawCommand(QRhiCommandBuffer* cmdBuffer, QRhiRenderTarget* outputTarget)
+void QDebugPainter::paint()
 {
-
-}
-
-void QDebugPainter::initRhiResource()
-{
-	QVector<Vertex> verteices;
-	mVertexBuffer.reset(RHI->newBuffer(QRhiBuffer::Immutable, QRhiBuffer::VertexBuffer, sizeof(Vertex) * verteices.size()));
-	Q_ASSERT(mVertexBuffer->create());
-
-	mUniformBuffer.reset(RHI->newBuffer(QRhiBuffer::Type::Dynamic, QRhiBuffer::UniformBuffer, sizeof(QMatrix4x4)));
-	Q_ASSERT(mUniformBuffer->create());
+	auto& io =ImGui::GetIO();
+	ImGuizmo::BeginFrame();
+	ImGuizmo::SetRect(0, 0, io.DisplaySize.x, io.DisplaySize.y);
+	auto camera = Engine->scene()->getCamera();
+	if (camera) {
+		QMatrix4x4 MAT;
+		QMatrix4x4 Model;
+		QMatrix4x4 View = camera->getMatrixView();
+		QMatrix4x4 Clip = RHI->clipSpaceCorrMatrix() * camera->getMatrixClip();
+		if (mCurrentComp) {
+			Model = mCurrentComp->calculateModelMatrix();
+			ImGuizmo::Manipulate(View.constData(), Clip.constData(), ImGuizmo::OPERATION::TRANSLATE, ImGuizmo::LOCAL, Model.data(), NULL, NULL, NULL,  NULL);
+			QVector3D position;
+			QVector3D rotation;
+			QVector3D scaling;
+			ImGuizmo::DecomposeMatrixToComponents(Model.constData(), (float*)&position, (float*)&rotation, (float*)&scaling);
+			mCurrentComp->setPosition(position);
+			mCurrentComp->setRotation(rotation);
+			mCurrentComp->setScale(scaling);
+		}
+	}
 }
 
 bool QDebugPainter::eventFilter(QObject* watched, QEvent* event)
@@ -60,7 +72,7 @@ bool QDebugPainter::eventFilter(QObject* watched, QEvent* event)
 		}
 		}
 	}
-	return QObject::eventFilter(watched, event);
+	return QImguiPainter::eventFilter(watched, event);
 }
 
 

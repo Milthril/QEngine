@@ -10,7 +10,7 @@ QEngine::QEngine(int argc, char** argv,bool enableDebug /*= false*/)
 	mRenderer->setScene(mScene);
 	if (enableDebug) {
 		mDebugPainter = std::make_shared<QDebugPainter>();
-		window()->installEventFilter(mDebugPainter.get());
+		mDebugPainter->setupWindow(mWindow.get());
 		renderer()->setDegbuPainter(mDebugPainter);
 	}
 }

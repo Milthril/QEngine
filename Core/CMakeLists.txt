@@ -30,6 +30,7 @@ target_link_libraries(Core PUBLIC
     Qt${QT_VERSION_MAJOR}::ShaderToolsPrivate
     Qt${QT_VERSION_MAJOR}::Network
     assimp::assimp
+    ImGuizmo
 )
 target_include_directories(Core PUBLIC  .)
 
