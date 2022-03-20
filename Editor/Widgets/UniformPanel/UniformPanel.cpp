@@ -11,6 +11,7 @@
 #include "QPushButton"
 #include "QMenu"
 #include "QApplication"
+#include "QClipboard"
 
 UniformPanel::UniformPanel()
 	: mParamsPanel(new QTreeWidget)
@@ -26,6 +27,10 @@ UniformPanel::UniformPanel()
 	mParamsPanel->setContextMenuPolicy(Qt::CustomContextMenu);
 	mParamsPanel->setSelectionMode(QAbstractItemView::SingleSelection);
 	mParamsPanel->setFrameStyle(QFrame::NoFrame);
+
+	connect(mParamsPanel, &QTreeWidget::itemDoubleClicked, this, [this](QTreeWidgetItem* item) {
+		QGuiApplication::clipboard()->setText("UBO."+item->text(1));
+	});
 
 	connect(mParamsPanel, &QTreeWidget::itemPressed, this, [this](QTreeWidgetItem* item, int) {
 		if (qApp->mouseButtons() & Qt::RightButton) {

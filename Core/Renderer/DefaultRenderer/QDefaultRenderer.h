@@ -31,6 +31,7 @@ private:
 	};
 	RTResource mRT;
 
+	std::shared_ptr<QBloomPainter> mBloomPainter;
 	QRhiReadbackResult mReadReult;
 	QRhiReadbackDescription mReadDesc;
 	QPoint mReadPoint;

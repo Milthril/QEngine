@@ -4,15 +4,11 @@
 #include "QObject"
 #include "RHI\QRhiWindow.h"
 #include "QImguiPainter.h"
+#include "ImGuizmo.h"
 
 class QDebugPainter :public QImguiPainter {
 	Q_OBJECT
 public:
-	enum Mode {
-		Translate,
-		Rotate,
-		Scale
-	};
 	QDebugPainter();
 	void paint() override;
 protected:
@@ -21,6 +17,7 @@ Q_SIGNALS:
 	void currentCompChanged(std::shared_ptr<QSceneComponent>);
 private:
 	std::shared_ptr<QSceneComponent> mCurrentComp;
+	ImGuizmo::OPERATION mOpt = ImGuizmo::OPERATION::TRANSLATE;
 };
 
 

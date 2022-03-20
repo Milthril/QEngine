@@ -12,7 +12,6 @@
 #include "Common/QDebugPainter.h"
 
 QSceneRenderer::QSceneRenderer()
-	: mBloomPainter(new QBloomPainter())
 {
 }
 

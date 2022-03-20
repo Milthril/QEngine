@@ -9,8 +9,9 @@ public:
 	QObject* getObject() const;
 	void setObject(QObject* val);
 	static void setupObjectToItem(QTreeWidgetItem* item, QObject* obj);
-private:
+
 	void updatePanel();
+	void recreatePanel();
 private:
 	QObject* mObject = nullptr;
 protected:

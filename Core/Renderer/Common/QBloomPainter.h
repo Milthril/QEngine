@@ -7,10 +7,10 @@
 class QBloomMeragePainter {
 public:
 	QBloomMeragePainter();
-	void drawCommand(QRhiCommandBuffer* cmdBuffer, QRhiSPtr<QRhiTexture> src, QRhiSPtr<QRhiTexture> bloom, QRhiRenderTarget* renderTarget);
+	void updateTexture(QRhiSPtr<QRhiTexture> src, QRhiSPtr<QRhiTexture> bloom, QRhiRenderTarget* renderTarget);
+	void drawInPass(QRhiCommandBuffer* cmdBuffer, QRhiRenderTarget* renderTarget);
 protected:
 	void initRhiResource(QRhiRenderPassDescriptor* renderPassDesc, QRhiRenderTarget* renderTarget, QRhiSPtr<QRhiTexture> src, QRhiSPtr<QRhiTexture> bloom);
-	void updateTexture(QRhiSPtr<QRhiTexture> src, QRhiSPtr<QRhiTexture> bloom);
 private:
 	QRhiSPtr<QRhiGraphicsPipeline> mPipeline;
 	QRhiSPtr<QRhiSampler> mSampler;
@@ -22,7 +22,8 @@ private:
 class QBloomPainter {
 public:
 	QBloomPainter();
-	void drawCommand(QRhiCommandBuffer* cmdBuffer, QRhiSPtr<QRhiTexture> inputTexture, QRhiRenderTarget* outputTarget);
+	void makeBloom(QRhiCommandBuffer* cmdBuffer, QRhiSPtr<QRhiTexture> inputTexture, QRhiRenderTarget* renderTarget);
+	void drawInPass(QRhiCommandBuffer* cmdBuffer, QRhiRenderTarget* renderTarget);
 	void setBloomSize(int size);
 protected:
 	void initRhiResource();
@@ -43,7 +44,6 @@ private:
 	QRhiSPtr<QRhiShaderResourceBindings> mBindingsV;
 	QPixelSelector mPixelSelector;
 	QBloomMeragePainter mMeragePainter;
-
 	struct BloomState {
 		uint32_t size = 0;
 		uint32_t padding[3];

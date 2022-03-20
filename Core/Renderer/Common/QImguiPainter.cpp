@@ -207,7 +207,7 @@ void QImguiPainter::initRhiResource(QRhiResourceUpdateBatch* batch, QRhiRenderTa
 	QRhiGraphicsPipeline::TargetBlend blendState;
 	blendState.enable = true;
 	mPipeline->setDepthTest(true);
-	mPipeline->setTargetBlends({ blendState,blendState });
+	mPipeline->setTargetBlends({ blendState });
 	mPipeline->setFlags(QRhiGraphicsPipeline::UsesScissor);
 	mPipeline->setSampleCount(outputTarget->sampleCount());
 	QShader vs = QSceneRenderer::createShaderFromCode(QShader::VertexStage, R"(#version 440
@@ -235,10 +235,8 @@ layout(location = 0) in vec2 vUV;
 layout(location = 1) in vec4 vColor;
 layout(binding = 1) uniform sampler2D uTexture;
 layout(location = 0) out vec4 OutColor;
-layout(location = 1) out vec4 OutId;
 void main(){
 	OutColor = vec4((vColor * texture(uTexture,vUV)).rgb,1.0);
-	OutId = vec4(1);
 }
 )");
 

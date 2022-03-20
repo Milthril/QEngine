@@ -2,7 +2,6 @@
 #include "QApplication"
 #include "qevent.h"
 #include "QEngine.h"
-#include "ImGuizmo.h"
 #include "Scene/Component/Camera/QCameraComponent.h"
 
 QDebugPainter::QDebugPainter()
@@ -23,20 +22,28 @@ void QDebugPainter::paint()
 	ImGuizmo::SetRect(0, 0, io.DisplaySize.x, io.DisplaySize.y);
 	auto camera = Engine->scene()->getCamera();
 	if (camera) {
-		QMatrix4x4 MAT;
-		QMatrix4x4 Model;
-		QMatrix4x4 View = camera->getMatrixView();
-		QMatrix4x4 Clip = RHI->clipSpaceCorrMatrix() * camera->getMatrixClip();
 		if (mCurrentComp) {
-			Model = mCurrentComp->calculateModelMatrix();
-			ImGuizmo::Manipulate(View.constData(), Clip.constData(), ImGuizmo::OPERATION::TRANSLATE, ImGuizmo::LOCAL, Model.data(), NULL, NULL, NULL,  NULL);
+			QMatrix4x4 MAT;
+			QMatrix4x4 Local = mCurrentComp->calculateLocalMatrix();
+			QMatrix4x4 View = camera->getMatrixView();
+			QMatrix4x4 Clip = RHI->clipSpaceCorrMatrix() * camera->getMatrixClip();
+			QMatrix4x4 Parent = mCurrentComp->calculateParentMatrix();
+
+			QMatrix4x4 World = Parent * Local;
+			ImGuizmo::Manipulate(View.constData(), Clip.constData(), mOpt, ImGuizmo::LOCAL, World.data(), NULL, NULL, NULL,  NULL);
 			QVector3D position;
 			QVector3D rotation;
 			QVector3D scaling;
-			ImGuizmo::DecomposeMatrixToComponents(Model.constData(), (float*)&position, (float*)&rotation, (float*)&scaling);
+			QMatrix4x4 ParentMat = mCurrentComp->calculateParentMatrix();
+			QMatrix4x4 NewLocal = ParentMat.inverted()* World;
+
+			ImGuizmo::DecomposeMatrixToComponents(NewLocal.constData(), (float*)&position, (float*)&rotation, (float*)&scaling);
 			mCurrentComp->setPosition(position);
 			mCurrentComp->setRotation(rotation);
 			mCurrentComp->setScale(scaling);
+			if (NewLocal != Local) {
+				Engine->requestUpdatePropertyPanel();
+			}
 		}
 	}
 }
@@ -65,6 +72,16 @@ bool QDebugPainter::eventFilter(QObject* watched, QEvent* event)
 			break;
 		}
 		case QEvent::KeyPress: {
+			QKeyEvent* keyEvent = static_cast<QKeyEvent*>(event);
+			if (keyEvent->key() == Qt::Key_W) {
+				mOpt = ImGuizmo::OPERATION::TRANSLATE;
+			}
+			else if (keyEvent->key() == Qt::Key_E) {
+				mOpt = ImGuizmo::OPERATION::ROTATE;
+			}
+			else if (keyEvent->key() == Qt::Key_R) {
+				mOpt = ImGuizmo::OPERATION::SCALE;
+			}
 			break;
 		}
 		case QEvent::KeyRelease: {

@@ -83,11 +83,14 @@ void EditorWindow::createUI()
 	auto viewportContainter = QWidget::createWindowContainer(Engine->window().get());
 	viewportContainter->setMinimumSize(400, 300);
 	dockViewport->setWidget(viewportContainter);
+
+	mWindowLayoutMgr.loadAllLayout();
 }
 
 void EditorWindow::connectUI()
 {
 	connect(&mSceneTreeWidget, &SceneTreeWidget::objectChanged, &mPropertyPanel, &QPropertyPanel::setObject);
+	connect(Engine, &QEngine::requestUpdatePropertyPanel, &mPropertyPanel, &QPropertyPanel::updatePanel);
 }
 
 void EditorWindow::showEvent(QShowEvent* event)

@@ -8,6 +8,7 @@
 #include "Renderer/Common/QDebugPainter.h"
 
 QDefaultRenderer::QDefaultRenderer()
+	: mBloomPainter(new QBloomPainter())
 {
 	mReadReult.completed = [this]() {
 		const uchar* p = reinterpret_cast<const uchar*>(mReadReult.data.constData());
@@ -32,9 +33,7 @@ void QDefaultRenderer::render(QRhiCommandBuffer* cmdBuffer, QRhiRenderTarget* re
 	if (mSkyBoxProxy) {
 		mSkyBoxProxy->updateResource(batch);
 	}
-	if (debugEnabled()) {
-		mDebugPainter->updatePrePass(batch, mRT.renderTarget.get());
-	}
+
 	cmdBuffer->beginPass(mRT.renderTarget.get(), QColor::fromRgbF(0.0f, 0.0f, 0.0f, 0.0f), { 1.0f, 0 }, batch);
 
 	QRhiViewport viewport(0, 0, size.width(), size.height());
@@ -44,12 +43,21 @@ void QDefaultRenderer::render(QRhiCommandBuffer* cmdBuffer, QRhiRenderTarget* re
 	if (mSkyBoxProxy) {
 		mSkyBoxProxy->drawInPass(cmdBuffer, viewport);
 	}
-	if (debugEnabled()) {
-		mDebugPainter->drawInPass(cmdBuffer, mRT.renderTarget.get());
-	}
+
 	cmdBuffer->endPass();
 
-	mBloomPainter->drawCommand(cmdBuffer, mRT.colorAttachment, renderTarget);
+	mBloomPainter->makeBloom(cmdBuffer, mRT.colorAttachment,renderTarget);
+
+	if (debugEnabled()) 
+		mDebugPainter->updatePrePass(batch, renderTarget);
+	
+	cmdBuffer->beginPass(renderTarget, QColor::fromRgbF(0.0f, 0.0f, 0.0f, 0.0f), { 1.0f, 0 });
+	mBloomPainter->drawInPass(cmdBuffer, renderTarget);
+	if (debugEnabled()) 
+		mDebugPainter->drawInPass(cmdBuffer, renderTarget);
+	
+	cmdBuffer->endPass();
+
 	if (debugEnabled()) {
 		if (!mReadPoint.isNull()) {
 			batch = RHI->nextResourceUpdateBatch();

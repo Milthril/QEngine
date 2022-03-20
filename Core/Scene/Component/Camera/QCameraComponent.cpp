@@ -132,7 +132,7 @@ bool QCameraComponent::eventFilter(QObject* watched, QEvent* event)
 			float time = QTime::currentTime().msecsSinceStartOfDay() / 1000.0;
 			mDeltaTimeMs = time - mLastFrameTimeMs;                           //在此处更新时间差
 			mLastFrameTimeMs = time;
-			if (!mKeySet.isEmpty()) {
+			if (!mKeySet.isEmpty()&&qApp->mouseButtons()&Qt::RightButton) {
 				QVector3D position = getPosition();
 				if (mKeySet.contains(Qt::Key_W))                           //前
 					position += mMoveSpeed * mCameraDirection;

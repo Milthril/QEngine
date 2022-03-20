@@ -37,7 +37,8 @@ public:
 		SkyBox,
 	};
 
-	QMatrix4x4 calculateModelMatrix();
+	QMatrix4x4 calculateLocalMatrix();
+	QMatrix4x4 calculateParentMatrix();
 	QMatrix4x4 calculateWorldMatrix();
 
 	const QVector3D& getPosition() const;

@@ -15,7 +15,6 @@ void EditorAttributeMgr::initConfig()
 {
 	initDefaultAttribute();
 	loadCurrentCtx();
-	loadAllLayout();
 	loadAllStyleSheet();
 }
 
@@ -318,6 +317,7 @@ QAbstractButton* WindowStyleFactory::createTitleBarButton(QWidget* parent, KDDoc
 		button = new WinCloseButton;
 		break;
 	case KDDockWidgets::TitleBarButtonType::Float:
+		button = new WinMaxButton;
 		break;
 	case KDDockWidgets::TitleBarButtonType::Minimize:
 		button = new WinMinButton;

@@ -90,8 +90,7 @@ protected:
 	QHash<QSceneComponent::ComponentId, std::shared_ptr<QRhiProxy>> mPrimitiveProxyMap;	//图元组件代理
 	QList<std::shared_ptr<QRhiProxy>> mProxyUploadList;
 	std::shared_ptr<QRhiProxy> mSkyBoxProxy;
-	std::shared_ptr<QBloomPainter> mBloomPainter;
-	std::shared_ptr<QDebugPainter> mDebugPainter;;
+	std::shared_ptr<QDebugPainter> mDebugPainter;
 
 };
 

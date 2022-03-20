@@ -14,10 +14,13 @@ public:
 	explicit QPropertyAdjusterItem(const QString& name, Getter getter, Setter setter, Adjuster* adjuster);
 	~QPropertyAdjusterItem();
 	virtual void createWidgetOrSubItem();
+	void update() override;
+
 protected:
 	QWidget* mItemWidget;
 	QLabel* mNameLabel;
 	Adjuster* mAdjuster;
+	Getter mGetter;
 };
 
 #endif // QPropertyAdjusterItem_h__

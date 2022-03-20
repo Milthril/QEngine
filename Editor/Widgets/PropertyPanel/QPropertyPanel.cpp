@@ -30,7 +30,7 @@ void QPropertyPanel::setObject(QObject* val) {
 	if (val != mObject) {
 		mObject = val;
 		if (isVisible())
-			updatePanel();
+			recreatePanel();
 	}
 }
 
@@ -61,7 +61,7 @@ void QPropertyPanel::setupObjectToItem(QTreeWidgetItem* parentItem, QObject* obj
 	}
 }
 
-void QPropertyPanel::updatePanel() {
+void QPropertyPanel::recreatePanel() {
 	this->clear();
 	if (mObject == nullptr)
 		return;
@@ -103,8 +103,20 @@ void QPropertyPanel::updatePanel() {
 	//}
 }
 
+void QPropertyPanel::updatePanel()
+{
+	QTreeWidgetItemIterator iter(this);
+	while (*iter) {
+		QPropertyItem* item = dynamic_cast<QPropertyItem*>(*iter);
+		if (item) {
+			item->update();
+		}
+		iter++;
+	}
+}
+
 void QPropertyPanel::showEvent(QShowEvent* event)
 {
 	QTreeWidget::showEvent(event);
-	updatePanel();
+	recreatePanel();
 }

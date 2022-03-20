@@ -7,6 +7,7 @@ QPropertyAdjusterItem::QPropertyAdjusterItem(const QString& name, Getter getter,
 	: mItemWidget(new QWidget)
 	, mNameLabel(new QLabel(name))
 	, mAdjuster(adjuster)
+	, mGetter(getter)
 {
 	QHBoxLayout* layout = new QHBoxLayout(mItemWidget);
 	layout->setAlignment(Qt::AlignCenter);
@@ -30,4 +31,12 @@ QPropertyAdjusterItem::~QPropertyAdjusterItem()
 void QPropertyAdjusterItem::createWidgetOrSubItem()
 {
 	treeWidget()->setItemWidget(this, 0, mItemWidget);
+}
+
+void QPropertyAdjusterItem::update()
+{
+	QVariant var = mGetter();
+	if (var != mAdjuster->getValue()) {
+		mAdjuster->setValue(var);
+	}
 }

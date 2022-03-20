@@ -181,7 +181,7 @@ void QDefaultProxySkyBox::uploadResource(QRhiResourceUpdateBatch* batch)
 }
 
 void QDefaultProxySkyBox::updateResource(QRhiResourceUpdateBatch* batch) {
-	QMatrix4x4 MVP = mRenderer->getVP() * mSkyBox->calculateModelMatrix();
+	QMatrix4x4 MVP = mRenderer->getVP() * mSkyBox->calculateLocalMatrix();
 	batch->updateDynamicBuffer(mUniformBuffer.get(), 0, sizeof(QMatrix4x4), MVP.constData());
 }
 

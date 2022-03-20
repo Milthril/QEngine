@@ -13,6 +13,7 @@
 
 class QEngine :public QApplication
 {
+	Q_OBJECT
 public:
 	QEngine(int argc, char** argv,bool enableDebug = false);
 	const std::shared_ptr<QScene>& scene();
@@ -21,7 +22,8 @@ public:
 	const std::shared_ptr<QDebugPainter>& debugPainter();
 	void execGame();
 	QRhi* getRHI();
-
+Q_SIGNALS:
+	void requestUpdatePropertyPanel();
 protected:
 	virtual void init();
 	virtual void update();

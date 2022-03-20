@@ -21,7 +21,7 @@ MaterialButton::MaterialButton(std::shared_ptr<QMaterial> material)
 
 QVariant MaterialButton::getValue()
 {
-	return 0;
+	return QVariant::fromValue(mMaterial);
 }
 
 void MaterialButton::setValue(QVariant var)

@@ -1,25 +1,28 @@
 #include "QSceneComponent.h"
+#include "imgui.h"
+#include "ImGuizmo.h"
 
-QMatrix4x4 QSceneComponent::calculateModelMatrix()
+QMatrix4x4 QSceneComponent::calculateLocalMatrix()
 {
 	QMatrix4x4 modelMatrix;
-	modelMatrix.translate(mPosition);
-	modelMatrix.rotate(mRotation.x(), 1, 0, 0);
-	modelMatrix.rotate(mRotation.y(), 0, 1, 0);
-	modelMatrix.rotate(mRotation.z(), 0, 0, 1);
-	modelMatrix.scale(mScale);
+	ImGuizmo::RecomposeMatrixFromComponents((float*)&mPosition, (float*)&mRotation, (float*)&mScale, modelMatrix.data());
 	return modelMatrix;
+}
+
+QMatrix4x4 QSceneComponent::calculateParentMatrix()
+{
+	QMatrix4x4 matrix;
+	QSceneComponent* parent = mParent;
+	while (parent != nullptr) {
+		matrix = parent->calculateLocalMatrix() * matrix;
+		parent = parent->mParent;
+	}
+	return matrix;
 }
 
 QMatrix4x4 QSceneComponent::calculateWorldMatrix()
 {
-	QMatrix4x4 matrix = calculateModelMatrix();
-	QSceneComponent* parent = mParent;
-	while (parent != nullptr) {
-		matrix = parent->calculateModelMatrix() * matrix;
-		parent = parent->mParent;
-	}
-	return matrix;
+	return calculateParentMatrix()*calculateLocalMatrix();
 }
 
 const QVector3D& QSceneComponent::getPosition() const
