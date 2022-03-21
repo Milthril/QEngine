@@ -41,13 +41,13 @@ layout (location = 0) out vec4 outFragColor;
 	mPipeline->setShaderStages({
 		{ QRhiShaderStage::Vertex, vs },
 		{ QRhiShaderStage::Fragment, fs }
-	});
+							   });
 	QRhiVertexInputLayout inputLayout;
 
 	mBindings.reset(RHI->newShaderResourceBindings());
 	mBindings->setBindings({
 		QRhiShaderResourceBinding::sampledTexture(0,QRhiShaderResourceBinding::FragmentStage,mTexture.get(),mSampler.get())
-	});
+						   });
 	mBindings->create();
 	mPipeline->setVertexInputLayout(inputLayout);
 	mPipeline->setShaderResourceBindings(mBindings.get());
@@ -62,7 +62,7 @@ void QPixelSelector::updateTexture(QRhiSPtr<QRhiTexture> texture)
 		mBindings->destroy();
 		mBindings->setBindings({
 			QRhiShaderResourceBinding::sampledTexture(0,QRhiShaderResourceBinding::FragmentStage,mTexture.get(),mSampler.get())
-		});
+							   });
 		mBindings->create();
 	}
 }

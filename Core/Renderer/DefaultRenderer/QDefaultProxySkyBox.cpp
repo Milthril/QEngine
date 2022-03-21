@@ -128,7 +128,7 @@ void QDefaultProxySkyBox::recreatePipeline()
 	if (mRenderer->debugEnabled()) {
 		fragShaderCode = fragShaderCode
 			.arg("layout (location = 1) out vec4 CompId;\n")
-			.arg("CompId = " + mSkyBox->getCompIdVec4String()+";\n");
+			.arg("CompId = " + mSkyBox->getCompIdVec4String() + ";\n");
 	}
 	else {
 		fragShaderCode = fragShaderCode.arg("").arg("");
@@ -140,7 +140,7 @@ void QDefaultProxySkyBox::recreatePipeline()
 	mPipeline->setShaderStages({
 		{ QRhiShaderStage::Vertex, vs },
 		{ QRhiShaderStage::Fragment, fs }
-	});
+							   });
 	mShaderResourceBindings.reset(RHI->newShaderResourceBindings());
 
 	QVector<QRhiShaderResourceBinding> shaderBindings;

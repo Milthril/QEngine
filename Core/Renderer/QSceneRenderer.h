@@ -59,11 +59,10 @@ public:
 	static QShader createShaderFromCode(QShader::Stage stage, const char* code);
 
 	bool debugEnabled() const;
-	void setDegbuPainter(std::shared_ptr<QDebugPainter> painter) ;
+	void setDegbuPainter(std::shared_ptr<QDebugPainter> painter);
 
 	virtual QVector<QRhiGraphicsPipeline::TargetBlend> getDefaultBlends() { return{}; }
 	virtual void requestReadbackCompId(const QPoint& screenPt) {}
-
 
 Q_SIGNALS:
 	void readBackCompId(QSceneComponent::ComponentId);
@@ -91,7 +90,6 @@ protected:
 	QList<std::shared_ptr<QRhiProxy>> mProxyUploadList;
 	std::shared_ptr<QRhiProxy> mSkyBoxProxy;
 	std::shared_ptr<QDebugPainter> mDebugPainter;
-
 };
 
 #endif // QSceneRenderer_h__

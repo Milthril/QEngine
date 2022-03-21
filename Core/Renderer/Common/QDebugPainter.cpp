@@ -17,7 +17,8 @@ QDebugPainter::QDebugPainter()
 
 void QDebugPainter::paint()
 {
-	auto& io =ImGui::GetIO();
+	auto& io = ImGui::GetIO();
+	ImGui::GetBackgroundDrawList()->AddText(ImGui::GetFont(), ImGui::GetFontSize(), ImVec2(1, 1), ImColor(0, 255, 0, 255), QString("FPS: %1").arg(Engine->window()->getFPS()).toLocal8Bit().data());
 	ImGuizmo::BeginFrame();
 	ImGuizmo::SetRect(0, 0, io.DisplaySize.x, io.DisplaySize.y);
 	auto camera = Engine->scene()->getCamera();
@@ -26,16 +27,22 @@ void QDebugPainter::paint()
 			QMatrix4x4 MAT;
 			QMatrix4x4 Local = mCurrentComp->calculateLocalMatrix();
 			QMatrix4x4 View = camera->getMatrixView();
-			QMatrix4x4 Clip = RHI->clipSpaceCorrMatrix() * camera->getMatrixClip();
+
+			QMatrix4x4 mat = QMatrix4x4(1.0f, 0.0f, 0.0f, 0.0f,
+										0.0f, -1.0f, 0.0f, 0.0f,
+										0.0f, 0.0f, 0.5f, 0.5f,
+										0.0f, 0.0f, 0.0f, 1.0f);
+			QMatrix4x4 Clip = mat * camera->getMatrixClip();
+
 			QMatrix4x4 Parent = mCurrentComp->calculateParentMatrix();
 
 			QMatrix4x4 World = Parent * Local;
-			ImGuizmo::Manipulate(View.constData(), Clip.constData(), mOpt, ImGuizmo::LOCAL, World.data(), NULL, NULL, NULL,  NULL);
+			ImGuizmo::Manipulate(View.constData(), Clip.constData(), mOpt, ImGuizmo::LOCAL, World.data(), NULL, NULL, NULL, NULL);
 			QVector3D position;
 			QVector3D rotation;
 			QVector3D scaling;
 			QMatrix4x4 ParentMat = mCurrentComp->calculateParentMatrix();
-			QMatrix4x4 NewLocal = ParentMat.inverted()* World;
+			QMatrix4x4 NewLocal = ParentMat.inverted() * World;
 
 			ImGuizmo::DecomposeMatrixToComponents(NewLocal.constData(), (float*)&position, (float*)&rotation, (float*)&scaling);
 			mCurrentComp->setPosition(position);
@@ -51,7 +58,7 @@ void QDebugPainter::paint()
 bool QDebugPainter::eventFilter(QObject* watched, QEvent* event)
 {
 	static QPoint pressedPos;
-	if (watched != nullptr ) {
+	if (watched != nullptr) {
 		switch (event->type())
 		{
 		case QEvent::MouseButtonPress:
@@ -60,14 +67,17 @@ bool QDebugPainter::eventFilter(QObject* watched, QEvent* event)
 		case QEvent::MouseButtonRelease: {
 			QMouseEvent* mouse = static_cast<QMouseEvent*>(event);
 			if (pressedPos == QCursor::pos() && mouse->button() == Qt::LeftButton) {
-				Engine->renderer()->requestReadbackCompId(mouse->pos() * Engine->devicePixelRatio());
+				QPoint pt = mouse->pos() * Engine->devicePixelRatio();
+				if (RHI->isYUpInNDC()) {
+					pt.setY(mWindow->height() - pt.y());
+				}
+				Engine->renderer()->requestReadbackCompId(pt);
 			}
 			pressedPos = { 0,0 };
 			break;
 		}
 		case QEvent::MouseMove: {
 			if (qApp->mouseButtons() & Qt::LeftButton) {
-			
 			}
 			break;
 		}
@@ -91,5 +101,3 @@ bool QDebugPainter::eventFilter(QObject* watched, QEvent* event)
 	}
 	return QImguiPainter::eventFilter(watched, event);
 }
-
-

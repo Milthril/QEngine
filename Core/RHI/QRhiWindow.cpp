@@ -31,7 +31,6 @@ QRhiWindow::QRhiWindow(QRhi::Implementation backend)
 	}
 }
 
-
 void QRhiWindow::waitExposed()
 {
 	while (!mRunning) {
@@ -118,14 +117,15 @@ void QRhiWindow::renderInternal()
 		return;
 	}
 	if (Engine->renderer()) {
+		QRhiCommandBuffer* cmdBuffer = mSwapChain->currentFrameCommandBuffer();
 		mSwapChain->currentFrameRenderTarget()->setRenderPassDescriptor(mRenderPassDesciptor.get());
-		Engine->renderer()->renderInternal(mSwapChain->currentFrameCommandBuffer(), mSwapChain->currentFrameRenderTarget());
+		Engine->renderer()->renderInternal(cmdBuffer, mSwapChain->currentFrameRenderTarget());
 	}
 	mRhi->endFrame(mSwapChain.get());
 
 	mFrameCount += 1;
 	if (mTimer.elapsed() > 1000) {
-		qDebug("ca. %d fps", mFrameCount);
+		mFPS = mFrameCount;
 		mTimer.restart();
 		mFrameCount = 0;
 	}

@@ -7,3 +7,6 @@
 [submodule "3rdParty/ImGuizmo"]
 	path = 3rdParty/ImGuizmo
 	url = https://github.com/CedricGuillemet/ImGuizmo.git
+[submodule "3rdParty/KDDockWidgets"]
+	path = 3rdParty/KDDockWidgets
+	url = https://github.com/Italink/KDDockWidgets.git

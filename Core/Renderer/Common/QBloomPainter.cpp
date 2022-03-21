@@ -121,13 +121,13 @@ void main(){
 	mPipelineH->setShaderStages({
 		{ QRhiShaderStage::Vertex, vs },
 		{ QRhiShaderStage::Fragment, fsH }
-	});
+								});
 	QRhiVertexInputLayout inputLayout;
 	mBindingsH.reset(RHI->newShaderResourceBindings());
 	mBindingsH->setBindings({
 		QRhiShaderResourceBinding::sampledTexture(0,QRhiShaderResourceBinding::FragmentStage,mBloomRT[0].colorAttachment.get(),mSampler.get()),
 		QRhiShaderResourceBinding::uniformBuffer(1,QRhiShaderResourceBinding::FragmentStage,mUniformBuffer.get())
-	});
+							});
 	mBindingsH->create();
 	mPipelineH->setVertexInputLayout(inputLayout);
 	mPipelineH->setShaderResourceBindings(mBindingsH.get());
@@ -165,12 +165,12 @@ void main(){
 	mPipelineV->setShaderStages({
 		{ QRhiShaderStage::Vertex, vs },
 		{ QRhiShaderStage::Fragment, fsV }
-	});
+								});
 	mBindingsV.reset(RHI->newShaderResourceBindings());
 	mBindingsV->setBindings({
 		QRhiShaderResourceBinding::sampledTexture(0,QRhiShaderResourceBinding::FragmentStage,mBloomRT[1].colorAttachment.get(),mSampler.get()),
 		QRhiShaderResourceBinding::uniformBuffer(1,QRhiShaderResourceBinding::FragmentStage,mUniformBuffer.get())
-	});
+							});
 	mBindingsV->create();
 	mPipelineV->setVertexInputLayout(inputLayout);
 	mPipelineV->setShaderResourceBindings(mBindingsV.get());
@@ -199,7 +199,7 @@ void QBloomPainter::createOrResize(QSize size)
 		mBindingsH->setBindings({
 			QRhiShaderResourceBinding::sampledTexture(0,QRhiShaderResourceBinding::FragmentStage,mBloomRT[0].colorAttachment.get(),mSampler.get()),
 			QRhiShaderResourceBinding::uniformBuffer(1,QRhiShaderResourceBinding::FragmentStage,mUniformBuffer.get())
-		});
+								});
 		mBindingsH->create();
 	}
 
@@ -208,7 +208,7 @@ void QBloomPainter::createOrResize(QSize size)
 		mBindingsV->setBindings({
 			QRhiShaderResourceBinding::sampledTexture(0,QRhiShaderResourceBinding::FragmentStage,mBloomRT[1].colorAttachment.get(),mSampler.get()),
 			QRhiShaderResourceBinding::uniformBuffer(1,QRhiShaderResourceBinding::FragmentStage,mUniformBuffer.get())
-		});
+								});
 		mBindingsV->create();
 	}
 }
@@ -262,7 +262,7 @@ void main() {
 	mPipeline->setShaderStages({
 		{ QRhiShaderStage::Vertex, vs },
 		{ QRhiShaderStage::Fragment, fs }
-	});
+							   });
 
 	QRhiVertexInputLayout inputLayout;
 
@@ -270,7 +270,7 @@ void main() {
 	mBindings->setBindings({
 		QRhiShaderResourceBinding::sampledTexture(0,QRhiShaderResourceBinding::FragmentStage,mSrcTexture.get(),mSampler.get()),
 		QRhiShaderResourceBinding::sampledTexture(1,QRhiShaderResourceBinding::FragmentStage,mBloomTexture.get(),mSampler.get())
-	});
+						   });
 
 	mBindings->create();
 	mPipeline->setVertexInputLayout(inputLayout);
@@ -278,7 +278,6 @@ void main() {
 	mPipeline->setRenderPassDescriptor(renderPassDesc);
 	mPipeline->create();
 }
-
 
 void QBloomMeragePainter::updateTexture(QRhiSPtr<QRhiTexture> src, QRhiSPtr<QRhiTexture> bloom, QRhiRenderTarget* renderTarget)
 {

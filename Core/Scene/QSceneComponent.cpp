@@ -22,7 +22,7 @@ QMatrix4x4 QSceneComponent::calculateParentMatrix()
 
 QMatrix4x4 QSceneComponent::calculateWorldMatrix()
 {
-	return calculateParentMatrix()*calculateLocalMatrix();
+	return calculateParentMatrix() * calculateLocalMatrix();
 }
 
 const QVector3D& QSceneComponent::getPosition() const

@@ -5,7 +5,7 @@
 #include "RHI\QRhiWindow.h"
 #include "imgui_internal.h"
 
-class QImguiPainter :public QObject{
+class QImguiPainter :public QObject {
 	Q_OBJECT
 public:
 	QImguiPainter();
@@ -18,7 +18,7 @@ protected:
 	virtual bool eventFilter(QObject* watched, QEvent* event) override;
 Q_SIGNALS:
 	void currentCompChanged(std::shared_ptr<QSceneComponent>);
-private:
+protected:
 	std::shared_ptr<QSceneComponent> mCurrentComp;
 	QRhiSPtr<QRhiGraphicsPipeline> mPipeline;
 	QRhiSPtr<QRhiBuffer> mVertexBuffer;
@@ -34,6 +34,5 @@ private:
 	float        mMouseWheel = 0;
 	float        mMouseWheelH = 0;
 };
-
 
 #endif // QImguiPainter_h__

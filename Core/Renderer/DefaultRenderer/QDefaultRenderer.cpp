@@ -46,16 +46,16 @@ void QDefaultRenderer::render(QRhiCommandBuffer* cmdBuffer, QRhiRenderTarget* re
 
 	cmdBuffer->endPass();
 
-	mBloomPainter->makeBloom(cmdBuffer, mRT.colorAttachment,renderTarget);
+	mBloomPainter->makeBloom(cmdBuffer, mRT.colorAttachment, renderTarget);
 
-	if (debugEnabled()) 
+	if (debugEnabled())
 		mDebugPainter->updatePrePass(batch, renderTarget);
-	
+
 	cmdBuffer->beginPass(renderTarget, QColor::fromRgbF(0.0f, 0.0f, 0.0f, 0.0f), { 1.0f, 0 });
 	mBloomPainter->drawInPass(cmdBuffer, renderTarget);
-	if (debugEnabled()) 
+	if (debugEnabled())
 		mDebugPainter->drawInPass(cmdBuffer, renderTarget);
-	
+
 	cmdBuffer->endPass();
 
 	if (debugEnabled()) {
@@ -129,7 +129,7 @@ void QDefaultRenderer::createOrResizeRenderTarget(QSize size)
 
 	if (debugEnabled()) {
 		QRhiColorAttachment debugAttachment;
-		mRT.debugTexture.reset(RHI->newTexture(QRhiTexture::RGBA8, size,1, QRhiTexture::RenderTarget | QRhiTexture::UsedAsTransferSource));
+		mRT.debugTexture.reset(RHI->newTexture(QRhiTexture::RGBA8, size, 1, QRhiTexture::RenderTarget | QRhiTexture::UsedAsTransferSource));
 		mRT.debugTexture->create();
 		if (getSampleCount() > 1) {
 			mRT.debugMsaaBuffer.reset(RHI->newRenderBuffer(QRhiRenderBuffer::Color, size, getSampleCount(), {}, QRhiTexture::RGBA8));
@@ -144,7 +144,7 @@ void QDefaultRenderer::createOrResizeRenderTarget(QSize size)
 		mReadDesc.setTexture(mRT.debugTexture.get());
 	}
 	QRhiTextureRenderTargetDescription RTDesc;
-	RTDesc.setColorAttachments(colorAttachments.begin(),colorAttachments.end());
+	RTDesc.setColorAttachments(colorAttachments.begin(), colorAttachments.end());
 	mRT.depthStencil.reset(RHI->newRenderBuffer(QRhiRenderBuffer::DepthStencil, size, getSampleCount()));
 	mRT.depthStencil->create();
 	RTDesc.setDepthStencilBuffer(mRT.depthStencil.get());

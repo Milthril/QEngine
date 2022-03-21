@@ -73,10 +73,10 @@ QShader QSceneRenderer::createShaderFromCode(QShader::Stage stage, const char* c
 	baker.setGeneratedShaderVariants({ QShader::StandardShader });
 	baker.setGeneratedShaders({
 		QShaderBaker::GeneratedShader{QShader::Source::SpirvShader,QShaderVersion(100)},
-		QShaderBaker::GeneratedShader{QShader::Source::GlslShader,QShaderVersion(450)},
+		QShaderBaker::GeneratedShader{QShader::Source::GlslShader,QShaderVersion(430)},
 		QShaderBaker::GeneratedShader{QShader::Source::MslShader,QShaderVersion(12)},
 		QShaderBaker::GeneratedShader{QShader::Source::HlslShader,QShaderVersion(50)},
-	});
+							  });
 
 	baker.setSourceString(code, stage);
 	QShader shader = baker.bake();
@@ -88,13 +88,12 @@ QShader QSceneRenderer::createShaderFromCode(QShader::Stage stage, const char* c
 	return shader;
 }
 
-
 bool QSceneRenderer::debugEnabled() const
 {
 	return mDebugPainter != nullptr;
 }
 
-void QSceneRenderer::setDegbuPainter(std::shared_ptr<QDebugPainter> painter) 
+void QSceneRenderer::setDegbuPainter(std::shared_ptr<QDebugPainter> painter)
 {
 	mDebugPainter = painter;
 }

@@ -85,7 +85,7 @@ void QDefaultProxyStaticMesh::recreatePipeline()
 	}
 	const QRhiUniformProxy::UniformInfo& materialInfo = mStaticMesh->getMaterial()->getProxy()->getUniformInfo(1);
 
-	QString defineCode = materialInfo.uniformDefineCode ;
+	QString defineCode = materialInfo.uniformDefineCode;
 	QString outputCode = mStaticMesh->getMaterial()->getShadingCode();
 
 	if (mRenderer->debugEnabled()) {
@@ -116,7 +116,7 @@ void QDefaultProxyStaticMesh::recreatePipeline()
 
 	mPipeline->setVertexInputLayout(inputLayout);
 	auto blends = mRenderer->getDefaultBlends();
-	mPipeline->setTargetBlends(blends.begin(),blends.end());
+	mPipeline->setTargetBlends(blends.begin(), blends.end());
 	mPipeline->setTopology(mStaticMesh->getTopology());
 	mPipeline->setDepthTest(true);
 	mPipeline->setDepthWrite(true);
@@ -125,7 +125,7 @@ void QDefaultProxyStaticMesh::recreatePipeline()
 	mPipeline->setShaderStages({
 		{ QRhiShaderStage::Vertex, vs },
 		{ QRhiShaderStage::Fragment, fs }
-	});
+							   });
 	mShaderResourceBindings.reset(RHI->newShaderResourceBindings());
 	QVector<QRhiShaderResourceBinding> shaderBindings;
 	shaderBindings << QRhiShaderResourceBinding::uniformBuffer(0, QRhiShaderResourceBinding::VertexStage, mUniformBuffer.get());

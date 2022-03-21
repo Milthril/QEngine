@@ -126,7 +126,7 @@ void QDefaultProxySkeletonModel::recreatePipeline()
 		pipeline->setShaderStages({
 			{ QRhiShaderStage::Vertex, vs },
 			{ QRhiShaderStage::Fragment, fs }
-		});
+								  });
 		auto& shaderResBindings = mMeshProxyList[i]->shaderBindings;
 		shaderResBindings.reset(RHI->newShaderResourceBindings());
 

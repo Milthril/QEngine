@@ -10,6 +10,7 @@ class QRhiWindow :public QWindow {
 public:
 	QRhiWindow(QRhi::Implementation backend);
 	void waitExposed();
+	int getFPS() const { return mFPS; }
 private:
 	void initInternal();
 	void renderInternal();
@@ -26,6 +27,7 @@ private:
 	std::shared_ptr<QOffscreenSurface> mFallbackSurface;
 	QElapsedTimer mTimer;
 	int mFrameCount = 0;
+	int mFPS = 0;
 protected:
 	bool mRunning = false;
 	bool mNotExposed = false;

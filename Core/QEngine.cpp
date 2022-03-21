@@ -1,7 +1,7 @@
 #include "QEngine.h"
 #include "Renderer\Common\QDebugPainter.h"
 
-QEngine::QEngine(int argc, char** argv,bool enableDebug /*= false*/)
+QEngine::QEngine(int argc, char** argv, bool enableDebug /*= false*/)
 	: QApplication(argc, argv)
 	, mScene(std::make_shared<QScene>())
 	, mWindow(std::make_shared<QRhiWindow>(QRhi::Implementation::Vulkan))
@@ -14,7 +14,6 @@ QEngine::QEngine(int argc, char** argv,bool enableDebug /*= false*/)
 		renderer()->setDegbuPainter(mDebugPainter);
 	}
 }
-
 
 void QEngine::init()
 {
@@ -39,7 +38,7 @@ const std::shared_ptr<QSceneRenderer>& QEngine::renderer()
 	return mRenderer;
 }
 
-const std::shared_ptr<QDebugPainter>& QEngine::debugPainter() 
+const std::shared_ptr<QDebugPainter>& QEngine::debugPainter()
 {
 	return mDebugPainter;
 }

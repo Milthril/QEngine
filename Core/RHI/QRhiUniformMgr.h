@@ -15,6 +15,7 @@ private:
 	void RemoveUniform(QRhiUniform* material);
 private:
 	QList<QRhiUniform*> mUniformList;
+	QRhiSPtr<QRhiBuffer> mClipMatUniform;
 };
 
 #endif // QRhiUniformMgr_h__
