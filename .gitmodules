@@ -1,9 +1,6 @@
 [submodule "3rdParty/assimp"]
 	path = 3rdParty/assimp
 	url = https://github.com/assimp/assimp.git
-[submodule "3rdParty/KDDockWidgets"]
-	path = 3rdParty/KDDockWidgets
-	url = https://github.com/Italink/KDDockWidgets.git
 [submodule "3rdParty/Imgui"]
 	path = 3rdParty/Imgui
 	url = https://github.com/ocornut/imgui.git
