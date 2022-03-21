@@ -68,10 +68,10 @@ void QDefaultProxySkyBox::recreateResource()
 	mSampler->create();
 
 	mUniformBuffer.reset(RHI->newBuffer(QRhiBuffer::Type::Dynamic, QRhiBuffer::UniformBuffer, sizeof(QMatrix4x4)));
-	Q_ASSERT(mUniformBuffer->create());
+	mUniformBuffer->create();
 
 	mVertexBuffer.reset(RHI->newBuffer(QRhiBuffer::Immutable, QRhiBuffer::VertexBuffer, sizeof(cubeData)));
-	Q_ASSERT(mVertexBuffer->create());
+	mVertexBuffer->create();
 }
 
 void QDefaultProxySkyBox::recreatePipeline()
@@ -154,7 +154,7 @@ void QDefaultProxySkyBox::recreatePipeline()
 
 	mPipeline->setRenderPassDescriptor(mRenderer->getRenderPassDescriptor().get());
 
-	Q_ASSERT(mPipeline->create());
+	mPipeline->create();
 }
 
 void QDefaultProxySkyBox::uploadResource(QRhiResourceUpdateBatch* batch)

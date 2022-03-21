@@ -176,13 +176,13 @@ void QImguiPainter::setupWindow(QRhiWindow* window)
 void QImguiPainter::initRhiResource(QRhiResourceUpdateBatch* batch, QRhiRenderTarget* outputTarget)
 {
 	mVertexBuffer.reset(RHI->newBuffer(QRhiBuffer::Dynamic, QRhiBuffer::VertexBuffer, sizeof(ImDrawVert) * IMGUI_BUFFER_SIZE));
-	Q_ASSERT(mVertexBuffer->create());
+	mVertexBuffer->create();
 
 	mIndexBuffer.reset(RHI->newBuffer(QRhiBuffer::Dynamic, QRhiBuffer::IndexBuffer, sizeof(ImDrawIdx) * IMGUI_BUFFER_SIZE));
-	Q_ASSERT(mIndexBuffer->create());
+	mIndexBuffer->create();
 
 	mUniformBuffer.reset(RHI->newBuffer(QRhiBuffer::Type::Dynamic, QRhiBuffer::UniformBuffer, sizeof(QMatrix4x4)));
-	Q_ASSERT(mUniformBuffer->create());
+	mUniformBuffer->create();
 
 	mSampler.reset(RHI->newSampler(QRhiSampler::Linear,
 				   QRhiSampler::Linear,

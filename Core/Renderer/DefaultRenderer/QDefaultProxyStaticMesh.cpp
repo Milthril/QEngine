@@ -12,16 +12,16 @@ QDefaultProxyStaticMesh::QDefaultProxyStaticMesh(std::shared_ptr<QStaticMeshComp
 void QDefaultProxyStaticMesh::recreateResource()
 {
 	mUniformBuffer.reset(RHI->newBuffer(QRhiBuffer::Type::Dynamic, QRhiBuffer::UniformBuffer, sizeof(QMatrix4x4)));
-	Q_ASSERT(mUniformBuffer->create());
+	mUniformBuffer->create();
 
 	mVertexBuffer.reset(RHI->newBuffer(mStaticMesh->getBufferType(), QRhiBuffer::VertexBuffer, sizeof(QStaticMeshComponent::Vertex) * mStaticMesh->getVertexCount()));
-	Q_ASSERT(mVertexBuffer->create());
+	mVertexBuffer->create();
 
 	if (mStaticMesh->getIndexedCount() == 0) {
 		mStaticMesh->autoFillIndices();
 	}
 	mIndexBuffer.reset(RHI->newBuffer(mStaticMesh->getBufferType(), QRhiBuffer::IndexBuffer, sizeof(QStaticMeshComponent::Index) * mStaticMesh->getIndexedCount()));
-	Q_ASSERT(mIndexBuffer->create());
+	mIndexBuffer->create();
 }
 
 void QDefaultProxyStaticMesh::recreatePipeline()
@@ -137,7 +137,7 @@ void QDefaultProxyStaticMesh::recreatePipeline()
 
 	mPipeline->setRenderPassDescriptor(mRenderer->getRenderPassDescriptor().get());
 
-	Q_ASSERT(mPipeline->create());
+	mPipeline->create();
 }
 
 void QDefaultProxyStaticMesh::uploadResource(QRhiResourceUpdateBatch* batch)
@@ -154,7 +154,7 @@ void QDefaultProxyStaticMesh::updateResource(QRhiResourceUpdateBatch* batch) {
 	if (mStaticMesh->bNeedUpdateVertex.receive()) {
 		if (mStaticMesh->getBufferType() != QRhiBuffer::Dynamic || mVertexBuffer->size() != sizeof(QStaticMeshComponent::Vertex) * mStaticMesh->getVertices().size()) {
 			mVertexBuffer.reset(RHI->newBuffer(mStaticMesh->getBufferType(), QRhiBuffer::VertexBuffer, sizeof(QStaticMeshComponent::Vertex) * mStaticMesh->getVertices().size()));
-			Q_ASSERT(mVertexBuffer->create());
+			mVertexBuffer->create();
 		}
 		if (mStaticMesh->getBufferType() == QRhiBuffer::Dynamic)
 			batch->updateDynamicBuffer(mVertexBuffer.get(), 0, sizeof(QStaticMeshComponent::Vertex) * mStaticMesh->getVertices().size(), mStaticMesh->getVertices().constData());
@@ -164,7 +164,7 @@ void QDefaultProxyStaticMesh::updateResource(QRhiResourceUpdateBatch* batch) {
 	if (mStaticMesh->bNeedUpdateIndex.receive()) {
 		if (mStaticMesh->getBufferType() != QRhiBuffer::Dynamic || mIndexBuffer->size() != sizeof(QStaticMeshComponent::Index) * mStaticMesh->getIndices().size()) {
 			mIndexBuffer.reset(RHI->newBuffer(mStaticMesh->getBufferType(), QRhiBuffer::IndexBuffer, sizeof(QStaticMeshComponent::Index) * mStaticMesh->getIndices().size()));
-			Q_ASSERT(mIndexBuffer->create());
+			mIndexBuffer->create();
 		}
 
 		if (mStaticMesh->getBufferType() == QRhiBuffer::Dynamic)

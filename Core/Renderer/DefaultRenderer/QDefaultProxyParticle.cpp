@@ -85,7 +85,7 @@ void QDefaultProxyParticle::recreatePipeline()
 	mComputePipeline->setShaderResourceBindings(mComputeBindings[mInputIndex].get());
 
 	mComputePipeline->setShaderStage({ QRhiShaderStage::Compute,computeUpdater });
-	Q_ASSERT(mComputePipeline->create());
+	mComputePipeline->create();
 
 	mMatrixComputePipline.reset(RHI->newComputePipeline());
 	mMatrixBindings[0].reset(RHI->newShaderResourceBindings());
@@ -153,7 +153,7 @@ void QDefaultProxyParticle::recreatePipeline()
 		}
 	)");
 	mMatrixComputePipline->setShaderStage({ QRhiShaderStage::Compute,matrixCompute });
-	Q_ASSERT(mMatrixComputePipline->create());
+	mMatrixComputePipline->create();
 }
 
 void QDefaultProxyParticle::uploadResource(QRhiResourceUpdateBatch* batch)

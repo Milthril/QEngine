@@ -124,5 +124,4 @@ QObject* deserialize(QByteArray data)
 	}
 	return obj;
 }
-
 }

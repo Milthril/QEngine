@@ -11,7 +11,7 @@ QDefaultProxySkeletonModel::QDefaultProxySkeletonModel(std::shared_ptr<QSkeleton
 void QDefaultProxySkeletonModel::recreateResource()
 {
 	mUniformBuffer.reset(RHI->newBuffer(QRhiBuffer::Type::Dynamic, QRhiBuffer::UniformBuffer, sizeof(QMatrix4x4)));
-	Q_ASSERT(mUniformBuffer->create());
+	mUniformBuffer->create();
 
 	int indexOffset = 0;
 	int vertexOffset = 0;
@@ -30,13 +30,13 @@ void QDefaultProxySkeletonModel::recreateResource()
 		vertexOffset += meshProxy->vertexRange;
 	}
 	mVertexBuffer.reset(RHI->newBuffer(QRhiBuffer::Type::Immutable, QRhiBuffer::VertexBuffer, sizeof(QSkeletonModelComponent::Vertex) * vertexOffset));
-	Q_ASSERT(mVertexBuffer->create());
+	mVertexBuffer->create();
 
 	mIndexBuffer.reset(RHI->newBuffer(QRhiBuffer::Type::Immutable, QRhiBuffer::IndexBuffer, sizeof(QSkeletonModelComponent::Index) * indexOffset));
-	Q_ASSERT(mIndexBuffer->create());
+	mIndexBuffer->create();
 
 	mUniformBuffer.reset(RHI->newBuffer(QRhiBuffer::Type::Dynamic, QRhiBuffer::UniformBuffer, sizeof(float) * 16 + mSkeletonModel->getSkeleton()->getBoneMatrix().size() * sizeof(QSkeleton::Mat4)));
-	Q_ASSERT(mUniformBuffer->create());
+	mUniformBuffer->create();
 }
 
 void QDefaultProxySkeletonModel::recreatePipeline()
@@ -141,7 +141,7 @@ void QDefaultProxySkeletonModel::recreatePipeline()
 
 		pipeline->setRenderPassDescriptor(mRenderer->getRenderPassDescriptor().get());
 
-		Q_ASSERT(pipeline->create());
+		pipeline->create();
 	}
 }
 
