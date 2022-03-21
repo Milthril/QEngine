@@ -30,7 +30,7 @@ public:
 	std::shared_ptr<QParticleComponent> mGPUParticles;
 	std::shared_ptr<QSphere> mSphere;
 	std::shared_ptr<QText2D> mText;
-	std::shared_ptr<QMaterial> mMaterial;
+	std::shared_ptr<QMaterial> mTextMaterial;
 
 	QRandomGenerator rand;
 
@@ -64,10 +64,10 @@ public:
 		mText->setPosition(QVector3D(0, -5, 0));
 		mText->setRotation(QVector3D(0, 180, 0));
 
-		mMaterial = std::make_shared<QMaterial>();
-		mMaterial->addDataVec3("BaseColor", QVector3D(0.1, 0.5, 0.9));					//设置材质参数
-		mMaterial->setShadingCode("FragColor = vec4(UBO.BaseColor,1);");				//设置材质的Shading代码
-		mText->setMaterial(mMaterial);
+		mTextMaterial = std::make_shared<QMaterial>();
+		mTextMaterial->addDataVec3("BaseColor", QVector3D(0.1, 0.5, 0.9));					//设置材质参数
+		mTextMaterial->setShadingCode("FragColor = vec4(UBO.BaseColor,1);");				//设置材质的Shading代码
+		mText->setMaterial(mTextMaterial);
 
 		scene()->addPrimitive("Text", mText);
 

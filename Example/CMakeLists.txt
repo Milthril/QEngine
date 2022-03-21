@@ -18,3 +18,5 @@ add_custom_command(TARGET Example PRE_BUILD
 )
 
 target_compile_definitions(Example PRIVATE PROJECT_SOURCE_DIR="${PROJECT_SOURCE_DIR}")
+
+target_compile_definitions(Example PRIVATE ASSET_DIR="${ASSET_DIR}")
