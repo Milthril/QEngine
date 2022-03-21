@@ -40,7 +40,7 @@ void QRhiWindow::waitExposed()
 
 void QRhiWindow::initInternal()
 {
-	QRhi::Flags rhiFlags = QRhi::EnableDebugMarkers | QRhi::EnableProfiling;
+	QRhi::Flags rhiFlags = QRhi::EnableProfiling;
 	if (mBackend == QRhi::Null) {
 		QRhiNullInitParams params;
 		mRhi.reset(QRhi::create(QRhi::Null, &params, rhiFlags));
@@ -68,7 +68,6 @@ void QRhiWindow::initInternal()
 	}
 	else  if (mBackend == QRhi::D3D11) {
 		QRhiD3D11InitParams params;
-		params.enableDebugLayer = true;
 		mRhi.reset(QRhi::create(QRhi::D3D11, &params, rhiFlags));
 	}
 	else if (mBackend == QRhi::Metal) {

@@ -45,6 +45,7 @@ const std::shared_ptr<QDebugPainter>& QEngine::debugPainter()
 
 void QEngine::execGame()
 {
+	mWindow->resize(800, 600);
 	mWindow->show();
 	mWindow->waitExposed();
 	init();

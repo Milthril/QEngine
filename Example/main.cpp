@@ -15,6 +15,7 @@
 #include "Scene\Component\SkeletonMesh\QMMDModel.h"
 #include "Scene\Component\Particle\PositionGenerator\QCubeGenerator.h"
 #include "Scene\Component\Particle\QParticleEmitter.h"
+#include "QDir"
 
 const int CUBE_MAT_SIZE = 10;
 const int CUBE_MAT_SPACING = 5;
@@ -34,12 +35,17 @@ public:
 		: QEngine(argc, argv) {
 	}
 	void init() override {
+		QDir assetDir(ASSET_DIR);
+		if (!assetDir.exists()) {
+			assetDir.setPath("../Asset");
+		}
+
 		mCamera = std::make_shared<QCameraComponent>();
 		mCamera->setupWindow(window().get());		//将相机与窗口绑定，使用WASD Shift 空格可进行移动，鼠标左键按住窗口可调整视角
 		scene()->setCamera(mCamera);				//设置场景相机
 
 		mSkyBox = std::make_shared<QSkyBoxComponent>();
-		mSkyBox->setSkyBoxImage(QImage(ASSET_DIR"/sky.jpeg"));
+		mSkyBox->setSkyBoxImage(QImage(assetDir.filePath("sky.jpeg")));
 		scene()->setSkyBox(mSkyBox);
 
 		mMaterial = std::make_shared<QMaterial>();																	//新建材质
@@ -83,7 +89,7 @@ public:
 		scene()->addPrimitive("Text", mText);
 
 		mStaticModel = std::make_shared<QStaticModel>();
-		mStaticModel->loadFromFile(ASSET_DIR"/Model/FBX/Genji/Genji.FBX");											//通过Assimp加载模型，材质也是根据Assmip解析创建默认的QMaterial
+		mStaticModel->loadFromFile(assetDir.filePath("Model/FBX/Genji/Genji.FBX"));											//通过Assimp加载模型，材质也是根据Assmip解析创建默认的QMaterial
 		mStaticModel->setRotation(QVector3D(-90, 0, 0));
 		scene()->addPrimitive("Model", mStaticModel);
 	}

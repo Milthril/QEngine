@@ -45,6 +45,9 @@ AssetPanel::AssetPanel(QString rootDir)
 	, directoryWidget_(rootDir)
 	, pathViewer_(rootDir)
 {
+	if (!rootDir_.exists()) {
+		rootDir_ = QDir::home();
+	}
 	createUI();
 	connectUI();
 	fileWidget_.setCurrentDir(rootDir);
