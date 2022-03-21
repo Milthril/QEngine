@@ -31,7 +31,7 @@ protected:
 			icon = dirType;
 		}
 		else {
-			if (fileInfo.suffix() == "png")
+			if (fileInfo.suffix() == "png" || fileInfo.suffix() == "jpg" || fileInfo.suffix() == "jepg")
 				icon = cacheTask_->getIcon(fileInfo.filePath());
 			if (icon.isNull())
 				icon = fileType;
