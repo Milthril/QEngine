@@ -33,7 +33,7 @@ protected:
 	float mLifetime = 2;
 	int mNumOfTick = 100;
 	QSubClass<IPositionGenerator> mPositionGenerator;
-	QVector3D mScaling = QVector3D(0.1, 0.1, 0.1);
+	QVector3D mScaling = QVector3D(0.1f, 0.1f, 0.1f);
 };
 
 #endif // QParticleEmitter_h__

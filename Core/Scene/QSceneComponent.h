@@ -6,6 +6,8 @@
 #include "QMatrix4x4"
 #include "RHI\QRhiSignal.h"
 
+class QScene;
+
 class QSceneComponent :public QObject {
 	friend class QSceneRenderer;
 	Q_OBJECT
@@ -16,8 +18,12 @@ public:
 	QSceneComponent() {
 		mId = IdCounter++;
 	}
+
 	using ComponentId = uint32_t;
 	QSceneComponent::ComponentId componentId() const { return mId; }
+
+	QScene* getScene() const;
+	void setScene(QScene* val);
 
 	QString getCompIdVec4String() const {
 		int r = (mId & 0x000000FF) >> 0;
@@ -62,6 +68,7 @@ private:
 	QVector3D mScale = QVector3D(1.0f, 1.0f, 1.0f);
 	ComponentId mId = 0;
 	inline static ComponentId IdCounter = 0;
+	QScene* mScene = nullptr;
 	QSceneComponent* mParent = nullptr;
 	QList<std::shared_ptr<QSceneComponent>> mChildren;
 };

@@ -20,5 +20,4 @@ private:
 	ImGuizmo::OPERATION mOpt = ImGuizmo::OPERATION::TRANSLATE;
 };
 
-
 #endif // QDebugPainter_h__

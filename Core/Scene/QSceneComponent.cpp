@@ -2,6 +2,16 @@
 #include "imgui.h"
 #include "ImGuizmo.h"
 
+QScene* QSceneComponent::getScene() const
+{
+	return mScene;
+}
+
+void QSceneComponent::setScene(QScene* val)
+{
+	mScene = val;
+}
+
 QMatrix4x4 QSceneComponent::calculateLocalMatrix()
 {
 	QMatrix4x4 modelMatrix;

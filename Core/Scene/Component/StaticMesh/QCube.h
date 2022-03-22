@@ -5,7 +5,7 @@
 
 class QCube :public QStaticMeshComponent {
 	Q_OBJECT
-	REGISTER_SUBCLASS(QStaticMeshComponent, QCube)
+		REGISTER_SUBCLASS(QStaticMeshComponent, QCube)
 public:
 	Q_INVOKABLE QCube();
 };
