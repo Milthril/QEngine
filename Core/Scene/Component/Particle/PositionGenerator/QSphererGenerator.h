@@ -3,12 +3,14 @@
 
 #include <QRandomGenerator>
 #include "IPositionGenerator.h"
+#include "Script\LuaRegister.h"
 
 class QSphereGenerator : public IPositionGenerator {
 	Q_OBJECT
+		Q_ENABLE_LUA
 		Q_PROPERTY(float Radius READ getRadius WRITE setRadius)
 		Q_PROPERTY(bool Solid READ getSolid WRITE setSolid)
-	REGISTER_SUBCLASS(IPositionGenerator, QSphereGenerator);
+		REGISTER_SUBCLASS(IPositionGenerator, QSphereGenerator);
 public:
 	Q_INVOKABLE QSphereGenerator();;
 

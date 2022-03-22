@@ -19,6 +19,8 @@ add_library(Core STATIC
     ${PROJECT_SOURCE}
 )
 
+add_dependencies(Core moc)
+
 source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES ${PROJECT_SOURCE})
 
 target_link_libraries(Core PUBLIC 
@@ -31,6 +33,8 @@ target_link_libraries(Core PUBLIC
     Qt${QT_VERSION_MAJOR}::Network
     assimp::assimp
     ImGuizmo
+    sol2
+    liblua-5.3.5
 )
 target_include_directories(Core PUBLIC  .)
 

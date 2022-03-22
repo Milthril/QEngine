@@ -1,6 +1,8 @@
 add_subdirectory(assimp)
 add_subdirectory(KDDockWidgets)
 add_subdirectory(QScintilla)
+add_subdirectory(QMocWithLua)
+add_subdirectory(Sol2)
 
 add_library(Imgui
     STATIC

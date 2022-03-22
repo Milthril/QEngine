@@ -16,13 +16,11 @@
     type name
 
 namespace QSerialization {
-
-QByteArray serialize(QObject *src);
+QByteArray serialize(QObject* src);
 
 void deserialize(QObject* dst, QByteArray data);
 
 QObject* deserialize(QByteArray data);
-
 }
 
 #endif // QSerialization_h__
