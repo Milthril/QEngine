@@ -259,8 +259,5 @@ if (SOL2_BUILD_LUA)
 	find_package(LuaBuild REQUIRED COMPONENTS ${SOL2_LUA_VERSION})
 endif()
 
-set_target_properties(LUA_VANILLA PROPERTIES FOLDER "3rdParty")
-set_target_properties(${LUA_LIBRARIES} PROPERTIES FOLDER "3rdParty")
-
 add_library(Lua ALIAS ${LUA_LIBRARIES}) 
 

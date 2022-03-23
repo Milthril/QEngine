@@ -3,7 +3,7 @@
 
 #include <QRandomGenerator>
 #include "IPositionGenerator.h"
-#include "Script\LuaRegister.h"
+#include "Script\QLua.h"
 
 class QSphereGenerator : public IPositionGenerator {
 	Q_OBJECT
@@ -16,11 +16,11 @@ public:
 
 	void generate(QVector<QParticleSystem::Particle>& particles) override;
 
-	float getRadius() const { return mRadius; }
-	void setRadius(float val) { mRadius = val; }
+	Q_INVOKABLE float getRadius() const { return mRadius; }
+	Q_INVOKABLE void setRadius(float val) { mRadius = val; }
 
-	bool getSolid() const { return mSolid; }
-	void setSolid(bool val) { mSolid = val; }
+	Q_INVOKABLE bool getSolid() const { return mSolid; }
+	Q_INVOKABLE void setSolid(bool val) { mSolid = val; }
 
 private:
 	float mRadius = 10;

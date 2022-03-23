@@ -1962,6 +1962,7 @@ QJsonObject ClassDef::toJson() const
 	QJsonObject cls;
 	cls[QLatin1String("className")] = QString::fromUtf8(classname.constData());
 	cls[QLatin1String("qualifiedClassName")] = QString::fromUtf8(qualified.constData());
+	cls[QLatin1String("enableLua")] = hasQLua;
 
 	QJsonArray classInfos;
 	for (const auto& info : qAsConst(classInfoList)) {

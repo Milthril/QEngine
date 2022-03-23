@@ -13,13 +13,14 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 find_package(QT NAMES Qt6 Qt5 COMPONENTS Core Widgets ShaderTools Network REQUIRED)
 find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Core Core5Compat Widgets OpenGL ShaderTools Network REQUIRED)
 
+set(CMAKE_AUTOMOC_MOC_OPTIONS --output-json --output-json-dir ${CMAKE_BINARY_DIR}/MocInfo)        #开启moc的json生成
 file(GLOB_RECURSE PROJECT_SOURCE FILES *.h *.cpp)
 
 add_library(Core STATIC
     ${PROJECT_SOURCE}
 )
 
-add_dependencies(Core moc)
+add_dependencies(Core QMocWithLua)                  #使Core依赖于QMocWithLua
 
 source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES ${PROJECT_SOURCE})
 
@@ -34,7 +35,21 @@ target_link_libraries(Core PUBLIC
     assimp::assimp
     ImGuizmo
     sol2
-    liblua-5.3.5
+    Lua
 )
+
+function(target_setup_dll TARGET_NAME)
+    add_custom_command(TARGET ${TARGET_NAME} PRE_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:assimp> $<TARGET_FILE_DIR:${TARGET_NAME}>
+        COMMAND_EXPAND_LISTS
+    )
+    add_custom_command(TARGET ${TARGET_NAME} PRE_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:Lua> $<TARGET_FILE_DIR:${TARGET_NAME}>
+        COMMAND_EXPAND_LISTS
+    )
+endfunction()
+
+
+
 target_include_directories(Core PUBLIC  .)
 

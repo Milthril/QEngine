@@ -58,7 +58,7 @@ ExternalProject_Add(TOLUAPP_BUILD_SOURCE
 	BUILD_BYPRODUCTS "${toluapp_sources}")
 
 set(toluapp_lib toluapp_lib_${toluapp_version})
-add_library(${toluapp_lib} SHARED ${toluapp_sources})
+add_library(${toluapp_lib} STATIC ${toluapp_sources})
 add_dependencies(${toluapp_lib} TOLUAPP_BUILD_SOURCE)
 set_target_properties(${toluapp_lib} PROPERTIES
 	OUTPUT_NAME toluapp-${toluapp_version}

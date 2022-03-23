@@ -1,4 +1,4 @@
-#include <QGuiApplication>
+ï»¿#include <QGuiApplication>
 #include "QDateTime"
 #include "QEngine.h"
 #include "qrandom.h"
@@ -41,19 +41,19 @@ public:
 		}
 
 		mCamera = std::make_shared<QCameraComponent>();
-		mCamera->setupWindow(window().get());		//½«Ïà»úÓë´°¿Ú°ó¶¨£¬Ê¹ÓÃWASD Shift ¿Õ¸ñ¿É½øĞĞÒÆ¶¯£¬Êó±ê×ó¼ü°´×¡´°¿Ú¿Éµ÷ÕûÊÓ½Ç
-		scene()->setCamera(mCamera);				//ÉèÖÃ³¡¾°Ïà»ú
+		mCamera->setupWindow(window().get());		//å°†ç›¸æœºä¸çª—å£ç»‘å®šï¼Œä½¿ç”¨WASD Shift ç©ºæ ¼å¯è¿›è¡Œç§»åŠ¨ï¼Œé¼ æ ‡å·¦é”®æŒ‰ä½çª—å£å¯è°ƒæ•´è§†è§’
+		scene()->setCamera(mCamera);				//è®¾ç½®åœºæ™¯ç›¸æœº
 
 		mSkyBox = std::make_shared<QSkyBoxComponent>();
 		mSkyBox->setSkyBoxImage(QImage(assetDir.filePath("sky.jpeg")));
 		scene()->setSkyBox(mSkyBox);
 
-		mMaterial = std::make_shared<QMaterial>();																	//ĞÂ½¨²ÄÖÊ
-		mMaterial->addDataVec3("BaseColor", QVector3D(0.1, 0.5, 0.9));												//Ìí¼Ó²ÄÖÊ²ÎÊı
-		mMaterial->setShadingCode("FragColor = vec4(UBO.BaseColor,1);");											//ÉèÖÃ²ÄÖÊµÄShading´úÂë
+		mMaterial = std::make_shared<QMaterial>();																	//æ–°å»ºæè´¨
+		mMaterial->addDataVec3("BaseColor", QVector3D(0.1, 0.5, 0.9));												//æ·»åŠ æè´¨å‚æ•°
+		mMaterial->setShadingCode("FragColor = vec4(UBO.BaseColor,1);");											//è®¾ç½®æè´¨çš„Shadingä»£ç 
 
 		mGPUParticles = std::make_shared<QParticleComponent>();
-		mGPUParticles->getParticleSystem()->getUpdater()->addDataVec3("force", QVector3D(0, 0.0098, 0));			//ÎªÁ£×ÓÌí¼ÓÒ»¸ö×÷ÓÃÁ¦£¬ÉèÖÃÁ£×ÓµÄÔË¶¯´úÂë
+		mGPUParticles->getParticleSystem()->getUpdater()->addDataVec3("force", QVector3D(0, 0.0098, 0));			//ä¸ºç²’å­æ·»åŠ ä¸€ä¸ªä½œç”¨åŠ›ï¼Œè®¾ç½®ç²’å­çš„è¿åŠ¨ä»£ç 
 		mGPUParticles->getParticleSystem()->getUpdater()->setUpdateCode(R"(
 			outParticle.position = inParticle.position + inParticle.velocity;
 			outParticle.velocity = inParticle.velocity + UBO.force;
@@ -61,16 +61,16 @@ public:
 			outParticle.rotation = inParticle.rotation;
 		)");
 
-		std::shared_ptr<QCubeGenerator> positionGenerator = std::make_shared<QCubeGenerator>();						//ÉèÖÃÁ£×ÓµÄÎ»ÖÃÉú³ÉÆ÷£¬Õâ²¿·ÖÓÃµ½ÁËSubClass½á¹¹£¬¿ÉÀ©Õ¹
+		std::shared_ptr<QCubeGenerator> positionGenerator = std::make_shared<QCubeGenerator>();						//è®¾ç½®ç²’å­çš„ä½ç½®ç”Ÿæˆå™¨ï¼Œè¿™éƒ¨åˆ†ç”¨åˆ°äº†SubClassç»“æ„ï¼Œå¯æ‰©å±•
 		positionGenerator->setWidth(1000);
 		positionGenerator->setHeight(1000);
 		positionGenerator->setDepth(1000);
-		mGPUParticles->getParticleSystem()->getEmitter()->setPositionGenerator(positionGenerator);					//ÉèÖÃÁ£×Ó´æ»îÊ±¼ä
+		mGPUParticles->getParticleSystem()->getEmitter()->setPositionGenerator(positionGenerator);					//è®¾ç½®ç²’å­å­˜æ´»æ—¶é—´
 		mGPUParticles->getParticleSystem()->getEmitter()->setLifetime(2);
-		mGPUParticles->getParticleSystem()->getEmitter()->setNumOfTick(1000.0);										//ÉèÖÃÃ¿Ö¡·¢ÉäÊıÁ¿£¬·¢Éä·½Ê½¿ÉÀ©Õ¹
-		mGPUParticles->setStaticMesh(std::make_shared<QCube>());													//ÉèÖÃÁ£×ÓµÄĞÎ×´£¨ÊµÀı£©£¬¿ÉÀ©Õ¹
-		mGPUParticles->getStaticMesh()->setScale(QVector3D(0.05, 0.05, 0.05));
-		mGPUParticles->getStaticMesh()->setMaterial(mMaterial);														//ÉèÖÃÁ£×Ó²ÄÖÊ
+		mGPUParticles->getParticleSystem()->getEmitter()->setNumOfTick(1000.0);										//è®¾ç½®æ¯å¸§å‘å°„æ•°é‡ï¼Œå‘å°„æ–¹å¼å¯æ‰©å±•
+		mGPUParticles->setStaticMesh(std::make_shared<QCube>());													//è®¾ç½®ç²’å­çš„å½¢çŠ¶ï¼ˆå®ä¾‹ï¼‰ï¼Œå¯æ‰©å±•
+		mGPUParticles->getStaticMesh()->setScale(QVector3D(0.05f, 0.05f, 0.05f));
+		mGPUParticles->getStaticMesh()->setMaterial(mMaterial);														//è®¾ç½®ç²’å­æè´¨
 		scene()->addPrimitive("GPU particles", mGPUParticles);
 
 		for (int i = 0; i < CUBE_MAT_SIZE; i++) {
@@ -82,14 +82,14 @@ public:
 			}
 		}
 
-		mText = std::make_shared<QText2D>("GPU Particles");															//ÉèÖÃÎÄ×Ö²ÄÖÊ
+		mText = std::make_shared<QText2D>("GPU Particles");															//è®¾ç½®æ–‡å­—æè´¨
 		mText->setMaterial(mMaterial);
 		mText->setPosition(QVector3D(0, -4, 0));
 		mText->setRotation(QVector3D(0, 180, 0));
 		scene()->addPrimitive("Text", mText);
 
 		mStaticModel = std::make_shared<QStaticModel>();
-		mStaticModel->loadFromFile(assetDir.filePath("Model/FBX/Genji/Genji.FBX"));											//Í¨¹ıAssimp¼ÓÔØÄ£ĞÍ£¬²ÄÖÊÒ²ÊÇ¸ù¾İAssmip½âÎö´´½¨Ä¬ÈÏµÄQMaterial
+		mStaticModel->loadFromFile(assetDir.filePath("Model/FBX/Genji/Genji.FBX"));											//é€šè¿‡AssimpåŠ è½½æ¨¡å‹ï¼Œæè´¨ä¹Ÿæ˜¯æ ¹æ®Assmipè§£æåˆ›å»ºé»˜è®¤çš„QMaterial
 		mStaticModel->setRotation(QVector3D(-90, 0, 0));
 		scene()->addPrimitive("Model", mStaticModel);
 	}
@@ -97,9 +97,9 @@ public:
 	{
 		float time = QTime::currentTime().msecsSinceStartOfDay();
 
-		mMaterial->setData<QVector3D>("BaseColor", QVector3D(0.1, 0.5, 0.9) * (sin(time / 1000) * 10 + 10));			//ÉèÖÃ²ÄÖÊºôÎüÉ«£¬RGB×î´óÖµ³¬³ö1.0¾ßÓĞBloomĞ§¹û
+		mMaterial->setData<QVector3D>("BaseColor", QVector3D(0.1, 0.5, 0.9) * (sin(time / 1000) * 10 + 10));			//è®¾ç½®æè´¨å‘¼å¸è‰²ï¼ŒRGBæœ€å¤§å€¼è¶…å‡º1.0å…·æœ‰Bloomæ•ˆæœ
 
-		//ÉèÖÃÁ£×ÓµÄ×÷ÓÃÁ¦²ÎÊı
+		//è®¾ç½®ç²’å­çš„ä½œç”¨åŠ›å‚æ•°
 		mGPUParticles->getParticleSystem()->getUpdater()->setData<QVector3D>("force", QVector3D(cos(time / 1000), sin(time / 1000), 0.9) * 0.01);
 	}
 };

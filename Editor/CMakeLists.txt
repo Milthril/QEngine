@@ -22,6 +22,7 @@ add_executable(Editor
 )
 
 source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES ${PROJECT_SOURCE})
+
 target_link_libraries(Editor 
     PUBLIC 
     Core
@@ -29,8 +30,6 @@ target_link_libraries(Editor
     QScintilla
     )
 
-add_custom_command(TARGET Editor PRE_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:assimp> $<TARGET_FILE_DIR:Editor>
-    COMMAND_EXPAND_LISTS
-)
+target_setup_dll(Editor)
+
 target_compile_definitions(Editor PRIVATE ASSET_DIR="${ASSET_DIR}")

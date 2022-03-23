@@ -6,9 +6,9 @@
 
 class QStaticMeshComponent : public QPrimitiveComponent {
 	Q_OBJECT
-		Q_PROPERTY(Topology Topology READ getTopology WRITE setTopology SCRIPTABLE false)
-		Q_PROPERTY(QVector<Vertex> Vertices READ getVertices WRITE setVertices SCRIPTABLE false)
-		Q_PROPERTY(QVector<uint32_t> Indices READ getIndices WRITE setIndices SCRIPTABLE false)
+		Q_PROPERTY(Topology Topology READ getTopology WRITE setTopology DESIGNABLE false)
+		Q_PROPERTY(QVector<Vertex> Vertices READ getVertices WRITE setVertices DESIGNABLE false)
+		Q_PROPERTY(QVector<uint32_t> Indices READ getIndices WRITE setIndices DESIGNABLE false)
 		Q_PROPERTY(std::shared_ptr<QMaterial> Material READ getMaterial WRITE setMaterial)
 public:
 	QStaticMeshComponent();
@@ -53,6 +53,6 @@ private:
 	QVector<Index> mIndices;
 };
 
-Q_DECLARE_METATYPE(QSubClass<QStaticMeshComponent>) 
+Q_DECLARE_METATYPE(QSubClass<QStaticMeshComponent>)
 
 #endif // QStaticMeshComponent_h__

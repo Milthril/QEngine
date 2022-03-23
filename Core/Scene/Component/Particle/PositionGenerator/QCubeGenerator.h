@@ -2,7 +2,7 @@
 #define QCubeGenerator_h__
 
 #include "IPositionGenerator.h"
-#include "Script\LuaRegister.h"
+#include "Script\QLua.h"
 
 class QCubeGenerator : public IPositionGenerator {
 	Q_OBJECT
