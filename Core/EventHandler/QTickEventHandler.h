@@ -1,10 +1,13 @@
 #ifndef QTickEventHandler_h__
 #define QTickEventHandler_h__
 
+#include"QList"
+
 class QTickEventHandler {
 public:
 	QTickEventHandler();
 	virtual	~QTickEventHandler();
+	static void processEvent();
 protected:
 	virtual void tickEvent() = 0;
 private:

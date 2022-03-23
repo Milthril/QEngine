@@ -2,7 +2,6 @@
 
 QSphereGenerator::QSphereGenerator()
 {
-
 }
 
 void QSphereGenerator::generate(QVector<QParticleSystem::Particle>& particles)

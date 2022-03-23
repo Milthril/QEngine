@@ -4,6 +4,7 @@
 #include "private\qrhi_p.h"
 #include "QRhiUniformProxy.h"
 #include "Scene\QSceneComponent.h"
+#include "Script\QLuaScript.h"
 
 class QRhiUniform {
 	friend class QRhiUniformProxy;
@@ -77,17 +78,18 @@ public:
 	QVector<std::shared_ptr<DataDesc>> getAllDataDesc();
 	QVector<std::shared_ptr<TextureDesc>> getAllTextureDesc();
 
+	std::shared_ptr<QLuaScript> getScript() const { return mScript; }
+
 	void addRef(QSceneComponent* comp);
 	void removeRef(QSceneComponent* comp);
-
 	QRhiSignal bNeedRecreate;
 protected:
 	void addParam(const QString& name, void* data, uint16_t size, ParamDescBase::Type type);
-
 protected:
 	QVector<std::shared_ptr<ParamDescBase>> mParams;
 	QVector<int8_t> mData;
 	std::shared_ptr<QRhiUniformProxy> mProxy;
 	QVector<QSceneComponent*> mRef;
+	std::shared_ptr<QLuaScript> mScript = std::make_shared<QLuaScript>();
 };
 #endif // QRhiUniform_h_

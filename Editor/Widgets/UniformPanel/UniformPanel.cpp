@@ -12,14 +12,16 @@
 #include "QMenu"
 #include "QApplication"
 #include "QClipboard"
+#include "Window/ScriptEditor/QScriptEditor.h"
 
 UniformPanel::UniformPanel()
 	: mParamsPanel(new QTreeWidget)
 	, btNewParam(new QPushButton("New Param"))
 {
+	QHBoxLayout* h = new QHBoxLayout;
 	QVBoxLayout* v = new QVBoxLayout(this);
-	btNewParam->setFixedSize(80, 25);
-	v->addWidget(btNewParam, 0, Qt::AlignRight);
+	h->addWidget(btNewParam);
+	v->addLayout(h);
 	v->addWidget(mParamsPanel);
 	mParamsPanel->setColumnCount(1);
 	mParamsPanel->setIndentation(8);
@@ -29,7 +31,7 @@ UniformPanel::UniformPanel()
 	mParamsPanel->setFrameStyle(QFrame::NoFrame);
 
 	connect(mParamsPanel, &QTreeWidget::itemDoubleClicked, this, [this](QTreeWidgetItem* item) {
-		QGuiApplication::clipboard()->setText("UBO."+item->text(1));
+		QGuiApplication::clipboard()->setText("UBO." + item->text(1));
 	});
 
 	connect(mParamsPanel, &QTreeWidget::itemPressed, this, [this](QTreeWidgetItem* item, int) {
@@ -55,7 +57,6 @@ UniformPanel::UniformPanel()
 			menu.exec(QCursor::pos());
 		}
 	});
-
 	connect(btNewParam, &QPushButton::clicked, this, [this]() {
 		if (!mUniform)
 			return;

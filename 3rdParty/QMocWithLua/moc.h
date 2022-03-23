@@ -39,6 +39,7 @@
 #include <qversionnumber.h>
 #include <stdio.h>
 #include <ctype.h>
+#include "QDir"
 
 QT_BEGIN_NAMESPACE
 
@@ -245,6 +246,7 @@ public:
 
 	void parse();
 	void generate(FILE* out, FILE* jsonOutput);
+	void generateLuaApi(QDir dir);
 
 	bool parseClassHead(ClassDef* def);
 	inline bool inClass(const ClassDef* def) const {

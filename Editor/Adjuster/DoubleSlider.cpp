@@ -138,7 +138,7 @@ void DoubleSlider::mouseReleaseEvent(QMouseEvent* event)
 
 void DoubleSlider::mouseMoveEvent(QMouseEvent* event)
 {
-	if (!getEditEnabled()) {
+	if (!getEditEnabled() && event->buttons() & Qt::LeftButton) {
 		setCursor(Qt::BlankCursor);
 		arrowLabel_->setCursor(Qt::CursorShape::BlankCursor);
 		QPointF offset = event->position() - clickPosition_;

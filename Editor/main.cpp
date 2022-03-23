@@ -79,6 +79,8 @@ public:
 		mGPUParticles = std::make_shared<QParticleComponent>();
 		mGPUParticles->setPosition(QVector3D(0, -15, 0));
 		scene()->addPrimitive("GPU Particles", mGPUParticles);
+
+		auto it = QDir::current().path();
 	}
 protected:
 	void update() override

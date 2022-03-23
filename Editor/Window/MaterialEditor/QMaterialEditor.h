@@ -7,6 +7,7 @@ class QMaterial;
 class GLSLEditor;
 class UniformPanel;
 class QPushButton;
+class LuaEditor;
 
 class QMaterialEditor :public KDDockWidgets::DockWidget {
 public:
@@ -18,8 +19,11 @@ private:
 	std::shared_ptr<QMaterial> mMaterial;
 private:
 	UniformPanel* mUniformPanel;
-	GLSLEditor* editor;
-	QPushButton* btCompile;
+	LuaEditor* luaEditor;
+	GLSLEditor* glslEditor;
+
+	QPushButton* btSetupShader;
+	QPushButton* btSetupLua;
 };
 
 #endif // QMaterialEditor_h__

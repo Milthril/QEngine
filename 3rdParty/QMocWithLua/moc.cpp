@@ -1181,6 +1181,53 @@ void Moc::generate(FILE* out, FILE* jsonOutput)
 	}
 }
 
+void Moc::generateLuaApi(QDir dir)
+{
+	for (auto& def : classList) {
+		if (def.hasQLua) {
+			QJsonObject classInfo;
+			classInfo["ClassName"] = QLatin1String(def.classname);
+			QJsonObject propertiesInfo;
+			for (auto& prop : def.propertyList) {
+				if (prop.scriptable == "true") {
+					propertiesInfo[prop.name] = QLatin1String(prop.type);
+				}
+			}
+			classInfo["Properties"] = propertiesInfo;
+
+			QJsonObject functionsInfo;
+
+			for (auto& func : def.methodList) {
+				QJsonObject funcInfo;
+				funcInfo["isStatic"] = func.isStatic;
+				QJsonArray args;
+				for (auto& arg : func.arguments) {
+					QJsonObject argInfo;
+					argInfo["Name"] = QLatin1String(arg.name);
+					argInfo["Type"] = QLatin1String(arg.type.name);
+					args << argInfo;
+				}
+				funcInfo["Arguments"] = args;
+				functionsInfo[func.name] = funcInfo;
+			}
+			classInfo["Functions"] = functionsInfo;
+			QString outputPath = dir.filePath("lua_" + def.classname + ".json");
+			FILE* f;
+		#if defined(_MSC_VER)
+			if (_wfopen_s(&f, reinterpret_cast<const wchar_t*>(outputPath.utf16()), L"w") != 0)
+			#else
+			f = fopen(QFile::encodeName(jsonOutputFileName).constData(), "w");
+			if (!f)
+			#endif
+				fprintf(stderr, "moc: Cannot create JSON output file %s. %s\n",
+						QFile::encodeName(outputPath).constData(),
+						strerror(errno));
+			QJsonDocument jsonDoc(classInfo);
+			fputs(jsonDoc.toJson().constData(), f);
+		}
+	}
+}
+
 void Moc::parseSlots(ClassDef* def, FunctionDef::Access access)
 {
 	QTypeRevision defaultRevision;

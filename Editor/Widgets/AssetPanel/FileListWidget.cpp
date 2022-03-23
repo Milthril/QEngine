@@ -15,7 +15,6 @@ protected:
 			return;
 		painter->save();
 		QString text = index.data(Qt::DisplayRole).toString();
-
 		QRect expendRect(option.rect.x(), option.rect.y(), GridSize.width(), GridSize.height());
 
 		if (option.state & QStyle::State_Selected) {

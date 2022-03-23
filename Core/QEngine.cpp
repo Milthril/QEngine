@@ -1,5 +1,6 @@
 #include "QEngine.h"
 #include "Renderer\Common\QDebugPainter.h"
+#include "EventHandler\QTickEventHandler.h"
 
 QEngine::QEngine(int argc, char** argv, bool enableDebug /*= false*/)
 	: QApplication(argc, argv)
@@ -13,6 +14,7 @@ QEngine::QEngine(int argc, char** argv, bool enableDebug /*= false*/)
 		mDebugPainter->setupWindow(mWindow.get());
 		renderer()->setDegbuPainter(mDebugPainter);
 	}
+	qApp->devicePixelRatio();
 }
 
 void QEngine::init()
@@ -50,6 +52,7 @@ void QEngine::execGame()
 	mWindow->waitExposed();
 	init();
 	while (true) {
+		QTickEventHandler::processEvent();
 		QGuiApplication::processEvents();
 		update();
 		mWindow->requestUpdate();

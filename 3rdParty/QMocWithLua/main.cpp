@@ -309,11 +309,11 @@ int runMoc(int argc, char** argv)
 	jsonOption.setDescription(QStringLiteral("In addition to generating C++ code, create a machine-readable JSON file in a file that matches the output file and an extra .json extension."));
 	parser.addOption(jsonOption);
 
-	QCommandLineOption outputJsonDirOption(QStringLiteral("output-json-dir"));
-	outputJsonDirOption.setDescription(QStringLiteral(" json output dir."));
-	outputJsonDirOption.setValueName(QStringLiteral("json dir"));
-	outputJsonDirOption.setFlags(QCommandLineOption::ShortOptionStyle);
-	parser.addOption(outputJsonDirOption);
+	QCommandLineOption outputLuaAPI(QStringLiteral("output-lua-api"));
+	outputLuaAPI.setDescription(QStringLiteral("output lua dir."));
+	outputLuaAPI.setValueName(QStringLiteral("output dir"));
+	outputLuaAPI.setFlags(QCommandLineOption::ShortOptionStyle);
+	parser.addOption(outputLuaAPI);
 
 	QCommandLineOption collectOption(QStringLiteral("collect-json"));
 	collectOption.setDescription(QStringLiteral("Instead of processing C++ code, collect previously generated JSON output into a single file."));
@@ -567,13 +567,7 @@ int runMoc(int argc, char** argv)
 
 		if (parser.isSet(jsonOption)) {
 			QString jsonOutputFileName = output + QLatin1String(".json");
-			if (parser.isSet(outputJsonDirOption)) {
-				QFileInfo info(jsonOutputFileName);
-				QDir jsonDir = QDir(parser.value(outputJsonDirOption));
-				if (!jsonDir.exists())
-					jsonDir.mkdir(jsonDir.path());
-				jsonOutputFileName = jsonDir.filePath(info.fileName());
-			}
+
 			FILE* f;
 		#if defined(_MSC_VER)
 			if (_wfopen_s(&f, reinterpret_cast<const wchar_t*>(jsonOutputFileName.utf16()), L"w") != 0)
@@ -598,8 +592,15 @@ int runMoc(int argc, char** argv)
 	else {
 		if (moc.classList.isEmpty())
 			moc.note("No relevant classes found. No output generated.");
-		else
+		else {
 			moc.generate(out, jsonOutput.data());
+			if (parser.isSet(outputLuaAPI)) {
+				QDir luaDir = QDir(parser.value(outputLuaAPI));
+				if (!luaDir.exists())
+					luaDir.mkpath(luaDir.path());
+				moc.generateLuaApi(luaDir);
+			}
+		}
 	}
 
 	if (output.size())

@@ -4,6 +4,7 @@
 #include "Adjuster\BoolBox.h"
 #include <QLabel>
 #include <QMetaEnum>
+#include "QApplication"
 
 class FilterCheckAction :public QWidgetAction {
 public:
