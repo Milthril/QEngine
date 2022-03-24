@@ -1,20 +1,22 @@
 #include "QLuaScript.h"
-#include "QLuaAPIMgr.h"
 #include "Scene\Component\Particle\PositionGenerator\QCubeGenerator.h"
 
-QLuaScript::QLuaScript()
-	:mEvent(std::make_shared<QLuaEvent>())
+QLuaScript::QLuaScript(Usgae usage)
+	:mUsage(usage)
 {
 	mLocalState.open_libraries();
 	QCubeGenerator::registerLua(mLocalState);
-	QLuaEvent::registerLua(mLocalState);
-	mLocalState["Event"] = mEvent;
+	mLocalState["Event"] = &mEvent;
 }
 
 void QLuaScript::loadCode(const QByteArray& code)
 {
 	mCode = code;
-	mLocalState.do_string(code.data());
+	sol::protected_function_result ret = mLocalState.do_string(code.data());
+	if (!ret.valid()) {
+		sol::error err = ret;
+		qDebug() << err.what();
+	}
 }
 
 const QByteArray& QLuaScript::getCode()

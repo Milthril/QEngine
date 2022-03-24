@@ -1,8 +1,10 @@
 ﻿#include "QRhiUniform.h"
 #include "QRhiUniformMgr.h"
+#include "Script\QLuaScriptFactory.h"
 
 QRhiUniform::QRhiUniform()
-	:mProxy(std::make_shared<QRhiUniformProxy>(this)) {
+	:mProxy(std::make_shared<QRhiUniformProxy>(this))
+	, mScript(QLuaScriptFactory::instance()->createUniformScript(this)) {
 	QRhiUniformMgr::instance()->AddUniform(this);
 	bNeedRecreate.active();
 }

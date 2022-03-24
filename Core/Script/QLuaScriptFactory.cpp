@@ -1,17 +1,31 @@
-#include "QLuaAPIMgr.h"
+#include "QLuaScriptFactory.h"
 #include "QDir"
 #include "QJsonDocument"
 #include "QJsonArray"
 #include "Scene\Component\Particle\PositionGenerator\QCubeGenerator.h"
 #include "QQueue"
+#include "RHI\QRhiUniform.h"
+#include "QLocalTypeRegister.h"
 
-QLuaAPIMgr* QLuaAPIMgr::instance()
+QLuaScriptFactory* QLuaScriptFactory::instance()
 {
-	static QLuaAPIMgr ins;
+	static QLuaScriptFactory ins;
 	return &ins;
 }
 
-QStringList QLuaAPIMgr::generateAPIs() {
+std::shared_ptr<QLuaScript> QLuaScriptFactory::createUniformScript(QRhiUniform* uniform)
+{
+	std::shared_ptr<QLuaScript> script = std::make_shared<QLuaScript>(QLuaScript::Uniform);
+	QLuaEvent::registerLua(script->mLocalState);
+	QLuaRegister<QRhiUniform>(script->mLocalState);
+	QLuaRegister<QVector2D>(script->mLocalState);
+	QLuaRegister<QVector3D>(script->mLocalState);
+	QLuaRegister<QVector4D>(script->mLocalState);
+	script->mLocalState["UBO"] = uniform;
+	return script;
+}
+
+QStringList QLuaScriptFactory::generateAPIs(QLuaScript::Usgae usage) {
 	QStringList apis;
 	for (auto& cls : mMap) {
 		QString classname = cls["ClassName"].toString();
@@ -42,11 +56,11 @@ QStringList QLuaAPIMgr::generateAPIs() {
 		}
 	}
 	apis << "Event.Tick";
-
+	apis << QLocalLuaAPI<QRhiUniform>();
 	return apis;
 }
 
-QLuaAPIMgr::QLuaAPIMgr()
+QLuaScriptFactory::QLuaScriptFactory()
 {
 	QDir dir(LUA_API_DIR);
 	for (auto& info : dir.entryInfoList(QDir::Filter::Files)) {

@@ -32,6 +32,8 @@ QCodeEditor::QCodeEditor(QsciLexer* lexer, QWidget* parent)
 	setTabIndents(true);
 	setAutoIndent(true);
 	autoCompleteFromAll();
+	setCallTipsStyle(QsciScintilla::CallTipsNoAutoCompletionContext);
+	setCallTipsVisible(0);
 	setBraceMatching(QsciScintilla::StrictBraceMatch);
 	mLexer->setDefaultColor(Qt::red);
 	SendScintilla(QsciScintilla::SCI_SETHSCROLLBAR, 1);

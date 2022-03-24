@@ -1,19 +1,23 @@
 #ifndef QLuaScript_h__
 #define QLuaScript_h__
 
-#include "sol\sol.hpp"
+#include "QLocalInlineTypeDefine.h"
 #include "QLuaEvent.h"
 
 class QLuaScript {
+	friend class QLuaScriptFactory;
 public:
-	QLuaScript();
+	enum Usgae {
+		Uniform
+	};
+	QLuaScript(Usgae usage);
 	void loadCode(const QByteArray& code);
 	const QByteArray& getCode();
-
 private:
 	sol::state mLocalState;
-	std::shared_ptr<QLuaEvent> mEvent;
+	QLuaEvent mEvent;
 	QByteArray mCode;
+	Usgae mUsage;
 };
 
 #endif // QLuaScript_h__

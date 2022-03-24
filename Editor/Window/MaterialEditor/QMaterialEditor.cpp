@@ -6,6 +6,7 @@
 #include "Widgets\CodeEditor\GLSL\GLSLEditor.h"
 #include "Widgets\CodeEditor\Lua\LuaEditor.h"
 #include "Widgets\UniformPanel\UniformPanel.h"
+#include "Script\QLuaScriptFactory.h"
 
 QMaterialEditor* QMaterialEditor::QMaterialEditor::instance()
 {
@@ -18,6 +19,7 @@ void QMaterialEditor::edit(std::shared_ptr<QMaterial> material)
 	mMaterial = material;
 	mUniformPanel->setUniform(std::dynamic_pointer_cast<QRhiUniform>(material));
 	glslEditor->setText(mMaterial->getShadingCode());
+	luaEditor->setText(mMaterial->getScript()->getCode());
 	if (!isVisible())
 		show();
 	activateWindow();
@@ -32,6 +34,12 @@ QMaterialEditor::QMaterialEditor()
 	, btSetupShader(new QPushButton("Setup Material"))
 	, btSetupLua(new QPushButton("Setup Script"))
 {
+	QsciAPIs* apis = luaEditor->getApis();
+	for (auto& api : QLuaScriptFactory::instance()->generateAPIs(QLuaScript::Uniform)) {
+		apis->add(api);
+	}
+	apis->prepare();
+
 	QSplitter* body = new QSplitter;
 	setWidget(body);
 	body->addWidget(mUniformPanel);

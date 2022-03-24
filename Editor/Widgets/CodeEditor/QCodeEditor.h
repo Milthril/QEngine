@@ -20,6 +20,8 @@ public:
 		bool isWholeMatching = false;
 		bool isForward = false;
 	};
+	QsciAPIs* getApis() const { return mApis; }
+	void setApis(QsciAPIs* val) { mApis = val; }
 protected:
 	void showEvent(QShowEvent* event) override;
 	void resizeEvent(QResizeEvent* e) override;
@@ -29,6 +31,7 @@ protected:
 protected:
 	QsciLexer* mLexer;
 	QsciAPIs* mApis;
+
 	CodeSearchEditor* mSearchEditor;
 };
 

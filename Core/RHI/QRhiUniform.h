@@ -90,6 +90,6 @@ protected:
 	QVector<int8_t> mData;
 	std::shared_ptr<QRhiUniformProxy> mProxy;
 	QVector<QSceneComponent*> mRef;
-	std::shared_ptr<QLuaScript> mScript = std::make_shared<QLuaScript>();
+	std::shared_ptr<QLuaScript> mScript;
 };
 #endif // QRhiUniform_h_
