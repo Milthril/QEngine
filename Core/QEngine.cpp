@@ -14,7 +14,6 @@ QEngine::QEngine(int argc, char** argv, bool enableDebug /*= false*/)
 		mDebugPainter->setupWindow(mWindow.get());
 		renderer()->setDegbuPainter(mDebugPainter);
 	}
-	qApp->devicePixelRatio();
 }
 
 void QEngine::init()

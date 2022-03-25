@@ -1,13 +1,13 @@
-#ifndef SceneTreeWidget_h__
-#define SceneTreeWidget_h__
+#ifndef QScenePanel_h__
+#define QScenePanel_h__
 
 #include "QTreeWidget"
 #include "Scene\QScene.h"
 
-class SceneTreeWidget :public QTreeWidget {
+class QScenePanel :public QTreeWidget {
 	Q_OBJECT
 public:
-	SceneTreeWidget(std::shared_ptr<QScene> scene);
+	QScenePanel(std::shared_ptr<QScene> scene);
 private:
 	void createUI();
 	void updateUI();
@@ -18,4 +18,4 @@ Q_SIGNALS:
 	void objectChanged(QObject* obejct);
 };
 
-#endif // SceneTreeWidget_h__
+#endif // QScenePanel_h__

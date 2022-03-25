@@ -14,7 +14,6 @@ public:
 	QRhiSPtr<QRhiTexture> getOutputTexture() { return mBloomRT[0].colorAttachment; }
 protected:
 	void initRhiResource();
-
 private:
 	QRhiSPtr<QRhiSampler> mSampler;
 	QRhiSPtr<QRhiBuffer> mUniformBuffer;

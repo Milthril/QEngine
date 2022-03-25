@@ -12,7 +12,7 @@ EditorWindow::EditorWindow()
 	, mFile("File")
 	, mEdit("Edit")
 	, mWindow("Window")
-	, mSceneTreeWidget(Engine->scene())
+	, mQScenePanel(Engine->scene())
 {
 	createUI();
 	connectUI();
@@ -69,7 +69,7 @@ void EditorWindow::createUI()
 
 	auto dockScene = new KDDockWidgets::DockWidget("Scene", KDDockWidgets::DockWidget::Option_None, layoutSaverOptions);
 	dockScene->setAffinities(affinities());
-	dockScene->setWidget(&mSceneTreeWidget);
+	dockScene->setWidget(&mQScenePanel);
 	addDockWidget(dockScene, KDDockWidgets::Location::Location_OnTop);
 
 	auto dockProperty = new KDDockWidgets::DockWidget("Property", KDDockWidgets::DockWidget::Option_None, layoutSaverOptions);
@@ -89,7 +89,7 @@ void EditorWindow::createUI()
 
 void EditorWindow::connectUI()
 {
-	connect(&mSceneTreeWidget, &SceneTreeWidget::objectChanged, &mPropertyPanel, &QPropertyPanel::setObject);
+	connect(&mQScenePanel, &QScenePanel::objectChanged, &mPropertyPanel, &QPropertyPanel::setObject);
 	connect(Engine, &QEngine::requestUpdatePropertyPanel, &mPropertyPanel, &QPropertyPanel::updatePanel);
 }
 

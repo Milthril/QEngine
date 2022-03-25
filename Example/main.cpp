@@ -89,7 +89,7 @@ public:
 		scene()->addPrimitive("Text", mText);
 
 		mStaticModel = std::make_shared<QStaticModel>();
-		mStaticModel->loadFromFile(assetDir.filePath("Model/FBX/Genji/Genji.FBX"));											//通过Assimp加载模型，材质也是根据Assmip解析创建默认的QMaterial
+		mStaticModel->loadFromFile(assetDir.filePath("Model/FBX/Genji/Genji.FBX"));									//通过Assimp加载模型，材质也是根据Assmip解析创建默认的QMaterial
 		mStaticModel->setRotation(QVector3D(-90, 0, 0));
 		scene()->addPrimitive("Model", mStaticModel);
 	}

@@ -1,19 +1,19 @@
 #include "QApplication"
 #include "QEngine.h"
-#include "Renderer/Common/QDebugPainter.h"
 #include "Scene/Component/QPrimitiveComponent.h"
-#include "SceneTreeWidget.h"
+#include "QScenePanel.h"
 #include <memory>
 #include <QQueue>
 #include "Scene/QSceneComponent.h"
+#include "Renderer/CommonPass/DebugDrawPass.h"
 
-SceneTreeWidget::SceneTreeWidget(std::shared_ptr<QScene> scene)
+QScenePanel::QScenePanel(std::shared_ptr<QScene> scene)
 	:mScene(scene)
 {
 	createUI();
 }
 
-void SceneTreeWidget::createUI() {
+void QScenePanel::createUI() {
 	setColumnCount(1);
 	setIndentation(8);
 	setHeaderHidden(true);
@@ -22,13 +22,12 @@ void SceneTreeWidget::createUI() {
 	setSelectionMode(QAbstractItemView::SingleSelection);
 	setFrameStyle(QFrame::NoFrame);
 
-	connect(this, &QTreeWidget::currentItemChanged, this, [this](QTreeWidgetItem* current, QTreeWidgetItem* ) {
+	connect(this, &QTreeWidget::currentItemChanged, this, [this](QTreeWidgetItem* current, QTreeWidgetItem*) {
 		QObject* oPtr = current->data(1, 0).value<QObject*>();
 		Q_EMIT objectChanged(oPtr);
 	});
 
-
-	connect(Engine->debugPainter().get(), &QDebugPainter::currentCompChanged, this, [this](std::shared_ptr<QSceneComponent> comp) {
+	connect(Engine->debugPainter().get(), &DebugDrawPass::currentCompChanged, this, [this](std::shared_ptr<QSceneComponent> comp) {
 		QTreeWidgetItemIterator iter(this);
 		while (*iter) {
 			QObject* oPtr = (*iter)->data(1, 0).value<QObject*>();
@@ -51,17 +50,16 @@ void SceneTreeWidget::createUI() {
 	});
 }
 
-void SceneTreeWidget::updateUI()
+void QScenePanel::updateUI()
 {
 	clear();
 	mRoot = new QTreeWidgetItem(QStringList("Root"));
-	mRoot->setData(1, 0, QVariant::fromValue(mRoot));
+	mRoot->setData(1, 0, QVariant::fromValue(mScene.get()));		//场景作为根节点
 	addTopLevelItem(mRoot);
 	QQueue<QPair<std::shared_ptr<QSceneComponent>, QTreeWidgetItem*>> qObject;
 	for (auto comp : mScene->geyPrimitiveList()) {
 		qObject.push_back({ comp,mRoot });
 	}
-
 	while (!qObject.isEmpty()) {
 		QPair<std::shared_ptr<QSceneComponent>, QTreeWidgetItem*> parent = qObject.takeFirst();
 		if (parent.first) {

@@ -15,7 +15,6 @@
 #include "Scene\Component\AssimpToolkit\MMDVmdParser.h"
 #include "Scene\Component\SkeletonMesh\QMMDModel.h"
 #include "Window\MaterialEditor\QMaterialEditor.h"
-#include "Renderer\Common\QDebugPainter.h"
 
 const int CUBE_MAT_SIZE = 10;
 const int CUBE_MAT_SPACING = 5;

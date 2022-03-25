@@ -33,6 +33,7 @@ public:
 private:
 	QList<std::shared_ptr<QPrimitiveComponent>> mPrimitiveList;
 	QList<std::shared_ptr<QLightComponent>> mLightList;
+
 	std::shared_ptr<QSkyBoxComponent> mSkyBox;
 	std::shared_ptr<QCameraComponent> mCamera;
 Q_SIGNALS:

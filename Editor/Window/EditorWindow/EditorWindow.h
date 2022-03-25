@@ -1,12 +1,12 @@
 #ifndef EditorWindow_h__
 #define EditorWindow_h__
 
-#include <kddockwidgets/MainWindow.h>
-#include "Widgets/AssetPanel/AssetPanel.h"
 #include "EditorAttributeMgr.h"
-#include <kddockwidgets/DockWidget.h>
-#include "Widgets/SceneTreeWidget/SceneTreeWidget.h"
+#include "Widgets/AssetPanel/AssetPanel.h"
 #include "Widgets/PropertyPanel/QPropertyPanel.h"
+#include "Widgets/ScenePanel/QScenePanel.h"
+#include <kddockwidgets/DockWidget.h>
+#include <kddockwidgets/MainWindow.h>
 
 class EditorWindow : public KDDockWidgets::MainWindow {
 	Q_OBJECT
@@ -18,7 +18,7 @@ protected:
 	void connectUI();
 	void showEvent(QShowEvent* event) override;
 private:
-	SceneTreeWidget mSceneTreeWidget;
+	QScenePanel mQScenePanel;
 	QPropertyPanel mPropertyPanel;
 	AssetPanel mAssetPanel;
 	QMenu mFile;
