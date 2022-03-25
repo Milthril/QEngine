@@ -1,4 +1,4 @@
-#include "QImguiPainter.h"
+#include "ImGuiDrawPass.h"
 #include "QApplication"
 #include "qevent.h"
 #include "QEngine.h"
@@ -48,7 +48,7 @@ const QHash<ImGuiMouseCursor, Qt::CursorShape> cursorMap = {
 
 QByteArray g_currentClipboardText;
 
-QImguiPainter::QImguiPainter()
+ImGuiDrawPass::ImGuiDrawPass()
 {
 	mImGuiContext = ImGui::CreateContext();
 	ImGui::SetCurrentContext(mImGuiContext);
@@ -69,7 +69,7 @@ QImguiPainter::QImguiPainter()
 	};
 }
 
-void QImguiPainter::updatePrePass(QRhiResourceUpdateBatch* batch, QRhiRenderTarget* outputTarget)
+void ImGuiDrawPass::updatePrePass(QRhiResourceUpdateBatch* batch, QRhiRenderTarget* outputTarget)
 {
 	if (!mPipeline) {
 		initRhiResource(batch, outputTarget);
@@ -137,7 +137,7 @@ void QImguiPainter::updatePrePass(QRhiResourceUpdateBatch* batch, QRhiRenderTarg
 	batch->updateDynamicBuffer(mUniformBuffer.get(), 0, sizeof(QMatrix4x4), MVP.constData());
 }
 
-void QImguiPainter::drawInPass(QRhiCommandBuffer* cmdBuffer, QRhiRenderTarget* outputTarget)
+void ImGuiDrawPass::drawInPass(QRhiCommandBuffer* cmdBuffer, QRhiRenderTarget* outputTarget)
 {
 	ImDrawData* draw_data = ImGui::GetDrawData();
 	int64_t vertexBufferOffset = 0;
@@ -167,13 +167,13 @@ void QImguiPainter::drawInPass(QRhiCommandBuffer* cmdBuffer, QRhiRenderTarget* o
 	}
 }
 
-void QImguiPainter::setupWindow(QRhiWindow* window)
+void ImGuiDrawPass::setupWindow(QRhiWindow* window)
 {
 	mWindow = window;
 	mWindow->installEventFilter(this);
 }
 
-void QImguiPainter::initRhiResource(QRhiResourceUpdateBatch* batch, QRhiRenderTarget* outputTarget)
+void ImGuiDrawPass::initRhiResource(QRhiResourceUpdateBatch* batch, QRhiRenderTarget* outputTarget)
 {
 	mVertexBuffer.reset(RHI->newBuffer(QRhiBuffer::Dynamic, QRhiBuffer::VertexBuffer, sizeof(ImDrawVert) * IMGUI_BUFFER_SIZE));
 	mVertexBuffer->create();
@@ -264,7 +264,7 @@ void main(){
 	batch->uploadTexture(mFontTexture.get(), fontImage);
 }
 
-bool QImguiPainter::eventFilter(QObject* watched, QEvent* event)
+bool ImGuiDrawPass::eventFilter(QObject* watched, QEvent* event)
 {
 	if (watched != nullptr) {
 		switch (event->type()) {

@@ -9,7 +9,7 @@
 #include "private/qshaderbaker_p.h"
 #include "RHI/QRhiUniformMgr.h"
 #include "QEngine.h"
-#include "Common/QDebugPainter.h"
+#include "CommonPass/DebugDrawPass.h"
 
 QSceneRenderer::QSceneRenderer()
 {
@@ -38,7 +38,6 @@ void QSceneRenderer::renderInternal(QRhiCommandBuffer* buffer, QRhiRenderTarget*
 	mProxyUploadList.clear();
 	QRhiUniformMgr::instance()->update(batch);
 	buffer->resourceUpdate(batch);
-
 	render(buffer, renderTarget);
 }
 
@@ -93,7 +92,7 @@ bool QSceneRenderer::debugEnabled() const
 	return mDebugPainter != nullptr;
 }
 
-void QSceneRenderer::setDegbuPainter(std::shared_ptr<QDebugPainter> painter)
+void QSceneRenderer::setDegbuPainter(std::shared_ptr<DebugDrawPass> painter)
 {
 	mDebugPainter = painter;
 }

@@ -1,15 +1,15 @@
-#ifndef QDebugPainter_h__
-#define QDebugPainter_h__
+#ifndef DebugDrawPass_h__
+#define DebugDrawPass_h__
 
 #include "QObject"
 #include "RHI\QRhiWindow.h"
-#include "QImguiPainter.h"
+#include "ImGuiDrawPass.h"
 #include "ImGuizmo.h"
 
-class QDebugPainter :public QImguiPainter {
+class DebugDrawPass :public ImGuiDrawPass {
 	Q_OBJECT
 public:
-	QDebugPainter();
+	DebugDrawPass();
 	void paint() override;
 protected:
 	bool eventFilter(QObject* watched, QEvent* event) override;
@@ -20,4 +20,4 @@ private:
 	ImGuizmo::OPERATION mOpt = ImGuizmo::OPERATION::TRANSLATE;
 };
 
-#endif // QDebugPainter_h__
+#endif // DebugDrawPass_h__

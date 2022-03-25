@@ -1,12 +1,12 @@
-#include "QTexturePainter.h"
+#include "TextureDrawPass.h"
 #include "Renderer\QSceneRenderer.h"
 #include "QEngine.h"
 
-QTexturePainter::QTexturePainter()
+TextureDrawPass::TextureDrawPass()
 {
 }
 
-void QTexturePainter::initRhiResource(QRhiRenderPassDescriptor* renderPassDesc, QRhiRenderTarget* renderTarget, QRhiSPtr<QRhiTexture> texture)
+void TextureDrawPass::initRhiResource(QRhiRenderPassDescriptor* renderPassDesc, QRhiRenderTarget* renderTarget, QRhiSPtr<QRhiTexture> texture)
 {
 	mTexture = texture;
 	mSampler.reset(RHI->newSampler(QRhiSampler::Linear,
@@ -57,7 +57,7 @@ void main() {
 	mPipeline->create();
 }
 
-void QTexturePainter::updateTexture(QRhiSPtr<QRhiTexture> texture)
+void TextureDrawPass::updateTexture(QRhiSPtr<QRhiTexture> texture)
 {
 	mTexture = texture;
 	if (mBindings) {
@@ -69,7 +69,7 @@ void QTexturePainter::updateTexture(QRhiSPtr<QRhiTexture> texture)
 	}
 }
 
-void QTexturePainter::drawCommand(QRhiCommandBuffer* cmdBuffer, QRhiSPtr<QRhiTexture> texture, QRhiRenderTarget* renderTarget)
+void TextureDrawPass::drawCommand(QRhiCommandBuffer* cmdBuffer, QRhiSPtr<QRhiTexture> texture, QRhiRenderTarget* renderTarget)
 {
 	auto it = renderTarget->renderPassDescriptor();
 	if (texture != mTexture) {

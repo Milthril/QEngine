@@ -1,13 +1,13 @@
-#include "QPixelSelector.h"
+#include "PixelSelectPass.h"
 #include "Renderer\QSceneRenderer.h"
 #include "QEngine.h"
 
-QPixelSelector::QPixelSelector(QByteArray code)
+PixelSelectPass::PixelSelectPass(QByteArray code)
 	: mSelectCode(code)
 {
 }
 
-void QPixelSelector::initRhiResource(QRhiRenderPassDescriptor* renderPassDesc, QRhiRenderTarget* renderTarget, QRhiSPtr<QRhiTexture> texture)
+void PixelSelectPass::initRhiResource(QRhiRenderPassDescriptor* renderPassDesc, QRhiRenderTarget* renderTarget, QRhiSPtr<QRhiTexture> texture)
 {
 	mTexture = texture;
 	mSampler.reset(RHI->newSampler(QRhiSampler::Linear,
@@ -55,7 +55,7 @@ layout (location = 0) out vec4 outFragColor;
 	mPipeline->create();
 }
 
-void QPixelSelector::updateTexture(QRhiSPtr<QRhiTexture> texture)
+void PixelSelectPass::updateTexture(QRhiSPtr<QRhiTexture> texture)
 {
 	mTexture = texture;
 	if (mBindings) {
@@ -67,9 +67,8 @@ void QPixelSelector::updateTexture(QRhiSPtr<QRhiTexture> texture)
 	}
 }
 
-void QPixelSelector::drawCommand(QRhiCommandBuffer* cmdBuffer, QRhiSPtr<QRhiTexture> texture, QRhiRenderTarget* renderTarget)
+void PixelSelectPass::drawCommand(QRhiCommandBuffer* cmdBuffer, QRhiSPtr<QRhiTexture> texture, QRhiRenderTarget* renderTarget)
 {
-	auto it = renderTarget->renderPassDescriptor();
 	if (texture != mTexture) {
 		if (!mTexture)
 			initRhiResource(renderTarget->renderPassDescriptor(), renderTarget, texture);

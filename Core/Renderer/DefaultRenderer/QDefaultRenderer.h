@@ -2,8 +2,7 @@
 #define QDefaultRenderer_h__
 
 #include "Renderer/QSceneRenderer.h"
-#include "Renderer/Common/QTexturePainter.h"
-#include "Renderer/Common/QBloomPainter.h"
+#include "Renderer/CommonPass/BloomPass.h"
 
 class QDefaultRenderer :public QSceneRenderer {
 public:
@@ -31,7 +30,7 @@ private:
 	};
 	RTResource mRT;
 
-	std::shared_ptr<QBloomPainter> mBloomPainter;
+	std::shared_ptr<BloomPass> mBloomPainter;
 	QRhiReadbackResult mReadReult;
 	QRhiReadbackDescription mReadDesc;
 	QPoint mReadPoint;

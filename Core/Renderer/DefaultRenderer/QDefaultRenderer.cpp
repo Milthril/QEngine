@@ -5,10 +5,10 @@
 #include "QDefaultProxySkyBox.h"
 #include "QEngine.h"
 #include "QDefaultProxySkeletonModel.h"
-#include "Renderer/Common/QDebugPainter.h"
+#include "Renderer/CommonPass/DebugDrawPass.h"
 
 QDefaultRenderer::QDefaultRenderer()
-	: mBloomPainter(new QBloomPainter())
+	: mBloomPainter(new BloomPass())
 {
 	mReadReult.completed = [this]() {
 		const uchar* p = reinterpret_cast<const uchar*>(mReadReult.data.constData());

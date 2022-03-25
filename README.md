@@ -14,9 +14,20 @@ QEngine是一个简易的开源3D引擎
 
 ### 构建环境
 
-- CMake
-- Qt 6.2.3
-  - Shader Tools 模块
+- Qt 6.2.0+：在线下载器：https://download.qt.io/archive/online_installers，安装过程中请勾选
+  - Qt 6.2.0+
+    - MinGW 64 bit
+    - MSVC2019 64-bit 
+    - Sources：Qt源码
+    - Qt 5 Compatibility Module：Qt6对Qt5的支持
+    - Qt Shader Tools：Qt的着色器转换工具源码，用于运行时编译Shader
+    - Qt Debug Information Files（MSVC调试Qt源码的PDB文件，比较大，可不勾选）
+
+  - Developer and Designer Tools（一般默认即可）
+    - Debugging Tools for Windows
+    - CMake
+    - Ninjia
+
 - Vulkan SDK
 - MSVC 2019 
 

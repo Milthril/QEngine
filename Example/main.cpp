@@ -68,8 +68,8 @@ public:
 		mGPUParticles->getParticleSystem()->getEmitter()->setPositionGenerator(positionGenerator);					//设置粒子存活时间
 		mGPUParticles->getParticleSystem()->getEmitter()->setLifetime(2);
 		mGPUParticles->getParticleSystem()->getEmitter()->setNumOfTick(1000.0);										//设置每帧发射数量，发射方式可扩展
+		mGPUParticles->getParticleSystem()->getEmitter()->setScaling(QVector3D(0.05, 0.05, 0.05));
 		mGPUParticles->setStaticMesh(std::make_shared<QCube>());													//设置粒子的形状（实例），可扩展
-		mGPUParticles->getStaticMesh()->setScale(QVector3D(0.05f, 0.05f, 0.05f));
 		mGPUParticles->getStaticMesh()->setMaterial(mMaterial);														//设置粒子材质
 		scene()->addPrimitive("GPU particles", mGPUParticles);
 

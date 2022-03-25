@@ -1,11 +1,11 @@
-#ifndef QPixelSelector_h__
-#define QPixelSelector_h__
+#ifndef TextureDrawPass_h__
+#define TextureDrawPass_h__
 
 #include "RHI\QRhiDefine.h"
 
-class QPixelSelector {
+class TextureDrawPass {
 public:
-	QPixelSelector(QByteArray code);
+	TextureDrawPass();
 	void drawCommand(QRhiCommandBuffer* cmdBuffer, QRhiSPtr<QRhiTexture> texture, QRhiRenderTarget* renderTarget);
 protected:
 	void initRhiResource(QRhiRenderPassDescriptor* renderPassDesc, QRhiRenderTarget* renderTarget, QRhiSPtr<QRhiTexture> texture);
@@ -15,7 +15,6 @@ private:
 	QRhiSPtr<QRhiSampler> mSampler;
 	QRhiSPtr<QRhiShaderResourceBindings> mBindings;
 	QRhiSPtr<QRhiTexture> mTexture;
-	QByteArray mSelectCode;
 };
 
-#endif // QPixelSelector_h__
+#endif // TextureDrawPass_h__

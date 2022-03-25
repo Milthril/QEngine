@@ -1,14 +1,14 @@
-#ifndef QImguiPainter_h__
-#define QImguiPainter_h__
+#ifndef ImGuiDrawPass_h__
+#define ImGuiDrawPass_h__
 
 #include "QObject"
 #include "RHI\QRhiWindow.h"
 #include "imgui_internal.h"
 
-class QImguiPainter :public QObject {
+class ImGuiDrawPass :public QObject {
 	Q_OBJECT
 public:
-	QImguiPainter();
+	ImGuiDrawPass();
 	virtual void paint() = 0;
 	void updatePrePass(QRhiResourceUpdateBatch* batch, QRhiRenderTarget* outputTarget);
 	void drawInPass(QRhiCommandBuffer* cmdBuffer, QRhiRenderTarget* outputTarget);
@@ -35,4 +35,4 @@ protected:
 	float        mMouseWheelH = 0;
 };
 
-#endif // QImguiPainter_h__
+#endif // ImGuiDrawPass_h__

@@ -1,5 +1,5 @@
 #include "QEngine.h"
-#include "Renderer\Common\QDebugPainter.h"
+#include "Renderer\CommonPass\DebugDrawPass.h"
 #include "EventHandler\QTickEventHandler.h"
 
 QEngine::QEngine(int argc, char** argv, bool enableDebug /*= false*/)
@@ -10,7 +10,7 @@ QEngine::QEngine(int argc, char** argv, bool enableDebug /*= false*/)
 {
 	mRenderer->setScene(mScene);
 	if (enableDebug) {
-		mDebugPainter = std::make_shared<QDebugPainter>();
+		mDebugPainter = std::make_shared<DebugDrawPass>();
 		mDebugPainter->setupWindow(mWindow.get());
 		renderer()->setDegbuPainter(mDebugPainter);
 	}
@@ -40,7 +40,7 @@ const std::shared_ptr<QSceneRenderer>& QEngine::renderer()
 	return mRenderer;
 }
 
-const std::shared_ptr<QDebugPainter>& QEngine::debugPainter()
+const std::shared_ptr<DebugDrawPass>& QEngine::debugPainter()
 {
 	return mDebugPainter;
 }

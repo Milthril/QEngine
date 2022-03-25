@@ -2,7 +2,7 @@
 #define QSceneRenderer_h__
 
 #include "Scene/QScene.h"
-#include "Common/QBloomPainter.h"
+#include "CommonPass/BloomPass.h"
 #include "RHI/QRhiDefine.h"
 
 class QPrimitiveComponent;
@@ -12,7 +12,7 @@ class QSkeletonModelComponent;
 class QParticleComponent;
 class QSkyBoxComponent;
 class QSceneRenderer;
-class QDebugPainter;
+class DebugDrawPass;
 
 class QRhiProxy {
 public:
@@ -59,7 +59,7 @@ public:
 	static QShader createShaderFromCode(QShader::Stage stage, const char* code);
 
 	bool debugEnabled() const;
-	void setDegbuPainter(std::shared_ptr<QDebugPainter> painter);
+	void setDegbuPainter(std::shared_ptr<DebugDrawPass> painter);
 
 	virtual QVector<QRhiGraphicsPipeline::TargetBlend> getDefaultBlends() { return{}; }
 	virtual void requestReadbackCompId(const QPoint& screenPt) {}
@@ -89,7 +89,7 @@ protected:
 	QHash<QSceneComponent::ComponentId, std::shared_ptr<QRhiProxy>> mPrimitiveProxyMap;	//图元组件代理
 	QList<std::shared_ptr<QRhiProxy>> mProxyUploadList;
 	std::shared_ptr<QRhiProxy> mSkyBoxProxy;
-	std::shared_ptr<QDebugPainter> mDebugPainter;
+	std::shared_ptr<DebugDrawPass> mDebugPainter;
 };
 
 #endif // QSceneRenderer_h__
