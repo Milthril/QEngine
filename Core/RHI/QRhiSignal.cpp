@@ -1,5 +1,4 @@
-﻿
-#include "QRhiSignal.h"
+﻿#include "QRhiSignal.h"
 
 void QRhiSignal::active()
 {

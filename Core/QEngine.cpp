@@ -51,10 +51,10 @@ void QEngine::execGame()
 	mWindow->waitExposed();
 	init();
 	while (true) {
-		QTickEventHandler::processEvent();
-		QGuiApplication::processEvents();
 		update();
 		mWindow->requestUpdate();
+		QGuiApplication::processEvents();
+		QTickEventHandler::processEvent();
 	}
 }
 

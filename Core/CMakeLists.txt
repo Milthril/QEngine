@@ -40,6 +40,7 @@ target_link_libraries(Core PUBLIC
     ImGuizmo
     sol2
     Lua
+    SpectrumProvider
 )
 
 target_compile_definitions(Core PUBLIC LUA_API_DIR="${LUA_API_DIR}")

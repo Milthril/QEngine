@@ -1,3 +1,4 @@
+add_subdirectory(SpectrumProvider)
 add_subdirectory(assimp)
 add_subdirectory(KDDockWidgets)
 add_subdirectory(QScintilla)

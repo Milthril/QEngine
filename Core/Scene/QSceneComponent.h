@@ -58,6 +58,8 @@ public:
 
 	QRhiSignal bNeedRecreateResource;
 	QRhiSignal bNeedRecreatePipeline;
+	QRhiSignal bNeedAddChild;
+	QRhiSignal bNeedRemove;
 protected:
 	void addChild(std::shared_ptr<QSceneComponent> child);
 	void removeChild(std::shared_ptr<QSceneComponent> child);

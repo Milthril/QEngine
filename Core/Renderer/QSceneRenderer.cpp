@@ -99,9 +99,6 @@ void QSceneRenderer::setDegbuPainter(std::shared_ptr<DebugDrawPass> painter)
 
 void QSceneRenderer::onPrimitiveInserted(uint32_t index, std::shared_ptr<QPrimitiveComponent> primitive)
 {
-	for (auto& child : primitive->mChildren) {
-		onPrimitiveInserted(-1, std::dynamic_pointer_cast<QPrimitiveComponent>(child));
-	}
 	std::shared_ptr<QRhiProxy> proxy = createPrimitiveProxy(primitive);
 	if (!proxy)
 		return;
@@ -154,12 +151,34 @@ void QSceneRenderer::tryResetSkyBox(QRhiResourceUpdateBatch* batch)
 void QSceneRenderer::tryResetPrimitiveProxy(QRhiResourceUpdateBatch* batch) {
 	for (auto& id : mPrimitiveProxyMap.keys()) {
 		auto& proxy = mPrimitiveProxyMap[id];
+		if (proxy->mComponent->bNeedAddChild.receive()) {
+			for (auto& child : proxy->mComponent->mChildren) {
+				if (!mPrimitiveProxyMap.contains(child->componentId())) {
+					onPrimitiveInserted(-1, std::dynamic_pointer_cast<QPrimitiveComponent>(child));
+				}
+			}
+		}
+	}
+	for (auto& comp : mScene->mPrimitiveList) {
+		if (comp->bNeedAddChild.receive()) {
+			for (auto& child : comp->mChildren) {
+				if (!mPrimitiveProxyMap.contains(child->componentId())) {
+					onPrimitiveInserted(-1, std::dynamic_pointer_cast<QPrimitiveComponent>(child));
+				}
+			}
+		}
+	}
+	for (auto& id : mPrimitiveProxyMap.keys()) {
+		auto& proxy = mPrimitiveProxyMap[id];
 		if (proxy->mComponent->bNeedRecreateResource.receive()) {
 			proxy->recreateResource();
 			proxy->updateResource(batch);
 		}
 		if (proxy->mComponent->bNeedRecreatePipeline.receive()) {
 			proxy->recreatePipeline();
+		}
+		if (proxy->mComponent->bNeedRemove.receive()) {
+			mPrimitiveProxyMap.remove(proxy->mComponent->componentId());
 		}
 	}
 }

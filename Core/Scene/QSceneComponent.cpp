@@ -75,12 +75,14 @@ void QSceneComponent::addChild(std::shared_ptr<QSceneComponent> child)
 {
 	child->mParent = this;
 	mChildren << child;
+	bNeedAddChild.active();
 }
 
 void QSceneComponent::removeChild(std::shared_ptr<QSceneComponent> child)
 {
 	child->mParent = nullptr;
 	mChildren.removeOne(child);
+	bNeedRemove.active();
 }
 
 void QSceneComponent::clear()

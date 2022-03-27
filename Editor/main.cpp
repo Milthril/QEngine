@@ -15,6 +15,7 @@
 #include "Scene\Component\AssimpToolkit\MMDVmdParser.h"
 #include "Scene\Component\SkeletonMesh\QMMDModel.h"
 #include "Window\MaterialEditor\QMaterialEditor.h"
+#include "Scene\Component\StaticMesh\QAudioSpectrum.h"
 
 const int CUBE_MAT_SIZE = 10;
 const int CUBE_MAT_SPACING = 5;
@@ -32,6 +33,7 @@ public:
 	std::shared_ptr<QMaterial> mTextMaterial;
 
 	QRandomGenerator rand;
+	std::shared_ptr<QAudioSpectrum> mSpectrum;
 
 	MyGame(int argc, char** argv)
 		: QEngine(argc, argv, true) {
@@ -69,17 +71,23 @@ public:
 		mText->setRotation(QVector3D(0, 180, 0));
 
 		mTextMaterial = std::make_shared<QMaterial>();
-		mTextMaterial->addDataVec3("BaseColor", QVector3D(0.1, 0.5, 0.9));					//设置材质参数
+		mTextMaterial->addDataVec3("BaseColor", QVector3D(1, 5, 9));					//设置材质参数
 		mTextMaterial->setShadingCode("FragColor = vec4(UBO.BaseColor,1);");				//设置材质的Shading代码
 		mText->setMaterial(mTextMaterial);
-
 		scene()->addPrimitive("Text", mText);
+
+		mSpectrum = std::make_shared<QAudioSpectrum>();
+		mSpectrum->setPosition(QVector3D(0.0f, 0.0f, -4.0f));
+		mSpectrum->setScale(QVector3D(0.1f, 0.1f, 0.1f));
+		mSpectrum->setMaterial(mTextMaterial);
+		scene()->addPrimitive("Spectrum", mSpectrum);
+
+
 
 		mGPUParticles = std::make_shared<QParticleComponent>();
 		mGPUParticles->setPosition(QVector3D(0, -15, 0));
 		scene()->addPrimitive("GPU Particles", mGPUParticles);
 
-		auto it = QDir::current().path();
 	}
 protected:
 	void update() override

@@ -85,7 +85,6 @@ protected:
 	std::shared_ptr<QScene> mScene;
 	int mSampleCount;
 	QRhiSPtr<QRhiRenderPassDescriptor> mRootRenderPassDescriptor;
-
 	QHash<QSceneComponent::ComponentId, std::shared_ptr<QRhiProxy>> mPrimitiveProxyMap;	//图元组件代理
 	QList<std::shared_ptr<QRhiProxy>> mProxyUploadList;
 	std::shared_ptr<QRhiProxy> mSkyBoxProxy;
