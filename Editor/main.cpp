@@ -31,9 +31,9 @@ public:
 	std::shared_ptr<QSphere> mSphere;
 	std::shared_ptr<QText2D> mText;
 	std::shared_ptr<QMaterial> mTextMaterial;
+	std::shared_ptr<QAudioSpectrum> mSpectrum;
 
 	QRandomGenerator rand;
-	std::shared_ptr<QAudioSpectrum> mSpectrum;
 
 	MyGame(int argc, char** argv)
 		: QEngine(argc, argv, true) {
@@ -81,8 +81,6 @@ public:
 		mSpectrum->setScale(QVector3D(0.1f, 0.1f, 0.1f));
 		mSpectrum->setMaterial(mTextMaterial);
 		scene()->addPrimitive("Spectrum", mSpectrum);
-
-
 
 		mGPUParticles = std::make_shared<QParticleComponent>();
 		mGPUParticles->setPosition(QVector3D(0, -15, 0));

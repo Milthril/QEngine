@@ -16,6 +16,7 @@
 #include "Scene\Component\Particle\PositionGenerator\QCubeGenerator.h"
 #include "Scene\Component\Particle\QParticleEmitter.h"
 #include "QDir"
+#include "Scene\Component\StaticMesh\QAudioSpectrum.h"
 
 const int CUBE_MAT_SIZE = 10;
 const int CUBE_MAT_SPACING = 5;
@@ -30,6 +31,8 @@ public:
 	std::shared_ptr<QParticleComponent> mGPUParticles;
 	std::shared_ptr<QText2D> mText;
 	std::shared_ptr<QMaterial> mMaterial;
+	std::shared_ptr<QAudioSpectrum> mSpectrum;
+
 	QRandomGenerator rand;
 	MyGame(int argc, char** argv)
 		: QEngine(argc, argv) {
@@ -67,8 +70,8 @@ public:
 		positionGenerator->setDepth(1000);
 		mGPUParticles->getParticleSystem()->getEmitter()->setPositionGenerator(positionGenerator);					//设置粒子存活时间
 		mGPUParticles->getParticleSystem()->getEmitter()->setLifetime(2);
-		mGPUParticles->getParticleSystem()->getEmitter()->setNumOfTick(1000.0);										//设置每帧发射数量，发射方式可扩展
-		mGPUParticles->getParticleSystem()->getEmitter()->setScaling(QVector3D(0.05, 0.05, 0.05));
+		mGPUParticles->getParticleSystem()->getEmitter()->setNumOfTick(2000);										//设置每帧发射数量，发射方式可扩展
+		mGPUParticles->getParticleSystem()->getEmitter()->setScaling(QVector3D(0.1, 0.1, 0.1));
 		mGPUParticles->setStaticMesh(std::make_shared<QCube>());													//设置粒子的形状（实例），可扩展
 		mGPUParticles->getStaticMesh()->setMaterial(mMaterial);														//设置粒子材质
 		scene()->addPrimitive("GPU particles", mGPUParticles);
@@ -87,6 +90,12 @@ public:
 		mText->setPosition(QVector3D(0, -4, 0));
 		mText->setRotation(QVector3D(0, 180, 0));
 		scene()->addPrimitive("Text", mText);
+
+		mSpectrum = std::make_shared<QAudioSpectrum>();
+		mSpectrum->setPosition(QVector3D(0.0f, 0.0f, -4.0f));
+		mSpectrum->setScale(QVector3D(0.1f, 0.1f, 0.1f));
+		mSpectrum->setMaterial(mMaterial);
+		scene()->addPrimitive("Spectrum", mSpectrum);
 
 		mStaticModel = std::make_shared<QStaticModel>();
 		mStaticModel->loadFromFile(assetDir.filePath("Model/FBX/Genji/Genji.FBX"));									//通过Assimp加载模型，材质也是根据Assmip解析创建默认的QMaterial
