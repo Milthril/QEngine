@@ -1,7 +1,4 @@
 #include "DspCurves.h"
-#include "kfr\dsp\fir_design.hpp"
-#include "kfr\dsp\sample_rate_conversion.hpp"
-#include "kfr\dsp\window.hpp"
 #include "SpectrumMgr.h"
 #include "SpectrumProvider.h"
 #include "WinAudioCapture.h"
@@ -28,7 +25,7 @@ enum class WindowFunction {
 	SinWindow
 };
 
-void createWindowFunction(kfr::univector<double>& window, WindowFunction funcType){
+void createWindowFunction(std::vector<double>& window, WindowFunction funcType) {
 	size_t size = window.size();
 	for (int n = 0; n < size; ++n) {
 		float x = 0.0;
@@ -109,7 +106,7 @@ void SpectrumMgr::start()
 	mCapture->start();
 	mRunning = true;
 	mStoped = std::promise<bool>();
-	mCalculateThread = std::make_shared<std::thread>([ this]() {
+	mCalculateThread = std::make_shared<std::thread>([this]() {
 		while (mRunning) {
 			calculateSpectrum();
 			std::this_thread::sleep_for(std::chrono::milliseconds(20));
@@ -117,10 +114,9 @@ void SpectrumMgr::start()
 		mStoped.set_value_at_thread_exit(true);
 	});
 	mCalculateThread->detach();
-
 }
 
-void SpectrumMgr::stop(){
+void SpectrumMgr::stop() {
 	if (!mRunning) {
 		return;
 	}
@@ -141,13 +137,16 @@ void SpectrumMgr::calculateSpectrum()
 
 		int sampleCount = spectrumPair.first->getSpectrumCount();
 		int sampleRate = mCapture->mFormat.nSamplesPerSec;
-		if (sampleCount != ctx.mInput.size()) {
-			ctx.mDctPlan.reset(new kfr::dct_plan<double>(sampleCount));
+		if (sampleCount != ctx.mWindow.size()) {
+			if (ctx.mInput != nullptr)
+				fftw_free(ctx.mInput);
+			if (ctx.mOutput != nullptr)
+				fftw_free(ctx.mOutput);
+			ctx.mInput = (double*)fftw_malloc(sizeof(double) * sampleCount);
+			ctx.mOutput = (double*)fftw_malloc(sizeof(double) * sampleCount);
+			ctx.mFFTPlan = fftw_plan_r2r_1d(sampleCount, ctx.mInput, ctx.mOutput, fftw_r2r_kind::FFTW_R2HC, FFTW_ESTIMATE);
 			ctx.mWindow.resize(sampleCount);
 			createWindowFunction(ctx.mWindow, WindowFunction::HannWindow);
-			ctx.mInput.resize(sampleCount);
-			ctx.mOutput.resize(sampleCount);
-			ctx.mTemp.resize(ctx.mDctPlan->temp_size);
 		}
 		unsigned char* offset = getDataPtr(sampleCount * (getCurrentBitsPerSample() / 8) * getCurrentNumOfChannels());
 		if (offset == nullptr)
@@ -166,16 +165,16 @@ void SpectrumMgr::calculateSpectrum()
 			offset += bytesPerSample;
 			windowedRmsAvg += ctx.mInput[i];
 		}
-		windowedRmsAvg = sqrt(windowedRmsAvg /sampleCount);
+		windowedRmsAvg = sqrt(windowedRmsAvg / sampleCount);
 
-		ctx.mDctPlan->execute(ctx.mOutput.data(), ctx.mInput.data(), ctx.mTemp.data());
-		
+		fftw_execute(ctx.mFFTPlan);
+
 		float rangeOut[] = { 9999990.0f,-9999990.0f };
 
-		kfr::univector<double> fftMag(sampleCount/2);
-		for (int i = 0; i < sampleCount/2; i++) {
+		std::vector<double> fftMag(sampleCount / 2);
+		for (int i = 0; i < sampleCount / 2; i++) {
 			const double real = ctx.mOutput[i];
-			const double imag = ctx.mOutput[sampleCount / 2 + i];
+			const double imag = ctx.mOutput[sampleCount - 1 - (sampleCount / 2 + i)];
 			const double magnitude = sqrt(real * real + imag * imag);
 			double freq = DspCurves::freqd(i, sampleCount / 2, sampleRate);
 			double weight = DspCurves::myAWeight(freq);
@@ -189,14 +188,14 @@ void SpectrumMgr::calculateSpectrum()
 		int barIndx = 0;
 		float freqLast = 0.0f;
 		float freqMultiplier;
-		
+
 		for (auto& it : ctx.mOuputVar)
 			it = 0.0f;
 
 		if (ctx.mOuputVar.size() != spec->mBars.size()) {
 			continue;;
 		}
-		while (fftBinIndx < (sampleCount / 2) && barIndx < ctx.mOuputVar.size()){
+		while (fftBinIndx < (sampleCount / 2) && barIndx < ctx.mOuputVar.size()) {
 			float freqLin = ((float)fftBinIndx + 0.5f) * df;
 			float freqLog = spec->mBars[barIndx].freq;
 			int fftBinI = fftBinIndx;
@@ -221,7 +220,7 @@ void SpectrumMgr::calculateSpectrum()
 		ctx.mOuputVar.back() = min(ctx.mOuputVar.back(), ctx.mOuputVar[ctx.mOuputVar.size() - 2]);
 
 		for (int i = 0; i < ctx.mOuputVar.size(); i++) {
-			ctx.mOuputVar[i] = ctx.mOuputVar[i]* 2.0f;//(float) melSpectrumData[i];
+			ctx.mOuputVar[i] = ctx.mOuputVar[i] * 2.0f;//(float) melSpectrumData[i];
 
 			if (ctx.mOuputVar[i] < rangeOut[0])
 				rangeOut[0] = ctx.mOuputVar[i];
@@ -239,7 +238,7 @@ void SpectrumMgr::calculateSpectrum()
 
 		const double rangeTarget = 0.8f;
 		float rangeMul = ctx.rangeHiSmooth - ctx.rangeLoSmooth;
-		if (rangeMul < 1.0f) 
+		if (rangeMul < 1.0f)
 			rangeMul = 1.0f;
 		if (ctx.mSmooth.size() != spec->mBars.size()) {
 			continue;;
@@ -253,8 +252,8 @@ void SpectrumMgr::calculateSpectrum()
 				ctx.mSmooth[j] = (ctx.mSmooth[j] * (1.0f - spec->mSmoothFactorRise)) + (val * spec->mSmoothFactorRise);
 				ctx.mSmoothFall[j] = 0;
 			}
-			else if(val>0){
-				ctx.mSmoothFall[j] = ctx.mSmoothFall[j] *2+spec->mSmoothFactorFall;
+			else if (val > 0) {
+				ctx.mSmoothFall[j] = ctx.mSmoothFall[j] * 2 + spec->mSmoothFactorFall;
 				ctx.mSmooth[j] -= ctx.mSmoothFall[j];
 			}
 			spec->mBars[j].amp = std::clamp(ctx.mSmooth[j], 0.0, 1.0);

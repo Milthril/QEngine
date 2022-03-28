@@ -4,9 +4,9 @@
 #include <list>
 #include <memory>
 #include <map>
-#include "kfr\dft\fft.hpp"
 #include <functional>
 #include <future>
+#include <fftw3.h>
 
 class SpectrumProvider;
 class WinAudioCapture;
@@ -29,19 +29,18 @@ protected:
 	unsigned int getCurrentNumOfChannels();
 
 	struct SpectrumContex {
-		kfr::univector<double> mWindow;
-		kfr::univector<double> mInput;
-		kfr::univector<double> mOutput;
-		std::shared_ptr<kfr::dct_plan<double>> mDctPlan;
-		std::vector<kfr::u8> mTemp;
-		kfr::univector<double> mSmooth;
-		kfr::univector<double> mOuputVar;
-		kfr::univector<double> mSmoothFall;
+		std::vector<double> mWindow;
+		double* mInput = nullptr;
+		double* mOutput = nullptr;
+		fftw_plan mFFTPlan;
+		std::vector<double> mOuputVar;
+		std::vector<double> mSmooth;
+		std::vector<double> mSmoothFall;
 		float rangeLoSmooth = 0.0f;
 		float rangeHiSmooth = 0.0f;
 	};
 private:
-	std::map<SpectrumProvider*,SpectrumContex> mSpectrumMap;
+	std::map<SpectrumProvider*, SpectrumContex> mSpectrumMap;
 	std::shared_ptr<WinAudioCapture> mCapture;
 
 	using FuncPcmToReal = std::function<double(unsigned char*)>;
