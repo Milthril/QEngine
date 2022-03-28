@@ -35,13 +35,13 @@ public:
 	float getSmoothFactorFall() const;
 	void setSmoothFactorFall(float val);
 
+	void setBarSize(int size);
+	int getBarSize() const;
+
 	struct Element {
 		float freq;
 		float amp;
 	};
-
-	void setBarSize(int size);
-	int getBarSize() const;
 	const std::vector<SpectrumProvider::Element>& getBars() const { return mBars; }
 protected:
 	void updateFreq();
@@ -50,13 +50,13 @@ private:
 	int mSpectrumLevel = 12;
 	int mLowFreq = 0;
 	int mHighFreq = 8000;
-
+	float mRms = 0.0f;
 	float mSmoothFactorRange = 0.5f;
 	float mSmoothFactorRise = 0.6f;
 	float mSmoothFactorFall = 0.009f;//1.0f - no smooth
 public:
 	std::mutex mMutex;
-	std::vector<Element> mBars= std::vector<Element>(100);
+	std::vector<Element> mBars = std::vector<Element>(100);
 };
 
 #endif // SpectrumProvider_h__

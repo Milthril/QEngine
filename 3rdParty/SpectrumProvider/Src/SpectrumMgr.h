@@ -10,19 +10,27 @@
 
 class SpectrumProvider;
 class WinAudioCapture;
+class TimeDomainProvider;
 
 class SpectrumMgr {
 public:
 	SpectrumMgr();
 	static SpectrumMgr* instacne();
+
 	void addSpectrum(SpectrumProvider* spectrum);
 	void removeSpectrum(SpectrumProvider* spectrum);
 
+	void addTimeDomainProvider(TimeDomainProvider* time);
+	void removeTimeDomainProvider(TimeDomainProvider* time);
 private:
 	void start();
 	void stop();
+
+	void requestStart();
+	void requestStop();
 protected:
 	void calculateSpectrum();
+	void calculateTimeDomain();
 
 	unsigned char* getDataPtr(size_t dataSize);
 	unsigned int getCurrentBitsPerSample();
@@ -39,12 +47,20 @@ protected:
 		float rangeLoSmooth = 0.0f;
 		float rangeHiSmooth = 0.0f;
 	};
+
+	struct TimeContex {
+		double mRmsCache;
+		double mPeakCache;
+	};
 private:
 	std::map<SpectrumProvider*, SpectrumContex> mSpectrumMap;
-	std::shared_ptr<WinAudioCapture> mCapture;
+	std::map<TimeDomainProvider*, TimeContex> mTimeDomainMap;
 
+	std::shared_ptr<WinAudioCapture> mCapture;
 	using FuncPcmToReal = std::function<double(unsigned char*)>;
 	FuncPcmToReal mFuncPcmToReal[4];
+	FuncPcmToReal mCurrentFunc;
+
 	double mSpectrumAnalyserMultiplier = 0.15;
 
 	std::atomic<bool> mRunning = false;

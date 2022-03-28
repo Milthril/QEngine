@@ -17,6 +17,7 @@
 #include "Scene\Component\Particle\QParticleEmitter.h"
 #include "QDir"
 #include "Scene\Component\StaticMesh\QAudioSpectrum.h"
+#include "TimeDomainProvider.h"
 
 const int CUBE_MAT_SIZE = 10;
 const int CUBE_MAT_SPACING = 5;
@@ -32,6 +33,7 @@ public:
 	std::shared_ptr<QText2D> mText;
 	std::shared_ptr<QMaterial> mMaterial;
 	std::shared_ptr<QAudioSpectrum> mSpectrum;
+	std::shared_ptr<TimeDomainProvider> mTimeDomainProvider;
 
 	QRandomGenerator rand;
 	MyGame(int argc, char** argv)
@@ -101,6 +103,8 @@ public:
 		mStaticModel->loadFromFile(assetDir.filePath("Model/FBX/Genji/Genji.FBX"));									//通过Assimp加载模型，材质也是根据Assmip解析创建默认的QMaterial
 		mStaticModel->setRotation(QVector3D(-90, 0, 0));
 		scene()->addPrimitive("Model", mStaticModel);
+
+		mTimeDomainProvider = std::make_shared<TimeDomainProvider>();
 	}
 	void update() override
 	{
@@ -109,7 +113,7 @@ public:
 		mMaterial->setData<QVector3D>("BaseColor", QVector3D(0.1, 0.5, 0.9) * (sin(time / 1000) * 10 + 10));			//设置材质呼吸色，RGB最大值超出1.0具有Bloom效果
 
 		//设置粒子的作用力参数
-		mGPUParticles->getParticleSystem()->getUpdater()->setData<QVector3D>("force", QVector3D(cos(time / 1000), sin(time / 1000), 0.9) * 0.01);
+		mGPUParticles->getParticleSystem()->getUpdater()->setData<QVector3D>("force", QVector3D(0, mTimeDomainProvider->getPeak(), 0.0) * 0.8);
 	}
 };
 

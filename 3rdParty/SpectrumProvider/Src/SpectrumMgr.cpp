@@ -5,6 +5,7 @@
 #include <algorithm>
 #include <chrono>
 #include <thread>
+#include "TimeDomainProvider.h"
 
 #define M_PI 3.1415926535
 
@@ -89,16 +90,26 @@ SpectrumMgr* SpectrumMgr::instacne()
 
 void SpectrumMgr::addSpectrum(SpectrumProvider* spectrum)
 {
-	if (mSpectrumMap.empty())
-		start();
 	mSpectrumMap[spectrum] = {};
+	requestStart();
 }
 
 void SpectrumMgr::removeSpectrum(SpectrumProvider* spectrum)
 {
 	mSpectrumMap.erase(spectrum);
-	if (mSpectrumMap.empty())
-		stop();
+	requestStop();
+}
+
+void SpectrumMgr::addTimeDomainProvider(TimeDomainProvider* time)
+{
+	mTimeDomainMap[time] = {};
+	requestStart();
+}
+
+void SpectrumMgr::removeTimeDomainProvider(TimeDomainProvider* time)
+{
+	mTimeDomainMap.erase(time);
+	requestStop();
 }
 
 void SpectrumMgr::start()
@@ -109,11 +120,14 @@ void SpectrumMgr::start()
 	mCalculateThread = std::make_shared<std::thread>([this]() {
 		while (mRunning) {
 			calculateSpectrum();
+			calculateTimeDomain();
 			std::this_thread::sleep_for(std::chrono::milliseconds(20));
 		}
 		mStoped.set_value_at_thread_exit(true);
 	});
 	mCalculateThread->detach();
+
+	mCurrentFunc = mFuncPcmToReal[std::clamp((int)getCurrentBitsPerSample() / 8 - 1, 0, 3)];
 }
 
 void SpectrumMgr::stop() {
@@ -126,15 +140,24 @@ void SpectrumMgr::stop() {
 	mCapture->stop();
 }
 
+void SpectrumMgr::requestStart()
+{
+	if (!mSpectrumMap.empty() || !mTimeDomainMap.empty() || !mRunning)
+		start();
+}
+
+void SpectrumMgr::requestStop()
+{
+	if (mSpectrumMap.empty() && mTimeDomainMap.empty() && mRunning)
+		stop();
+}
+
 void SpectrumMgr::calculateSpectrum()
 {
-	const FuncPcmToReal& funcPcmToReal = mFuncPcmToReal[std::clamp((int)getCurrentBitsPerSample() / 8 - 1, 0, 3)];
 	for (auto& spectrumPair : mSpectrumMap) {
 		SpectrumProvider* spec = spectrumPair.first;
 		SpectrumContex& ctx = spectrumPair.second;
-
 		const int bytesPerSample = getCurrentBitsPerSample() / 8 * getCurrentNumOfChannels();
-
 		int sampleCount = spectrumPair.first->getSpectrumCount();
 		int sampleRate = mCapture->mFormat.nSamplesPerSec;
 		if (sampleCount != ctx.mWindow.size()) {
@@ -158,14 +181,10 @@ void SpectrumMgr::calculateSpectrum()
 		}
 		offset += spec->mChannelIndex * 8 * getCurrentNumOfChannels();
 
-		double windowedRmsAvg = 0.0;
-
 		for (int i = 0; i < sampleCount; i++) {
-			ctx.mInput[i] = funcPcmToReal(offset) * ctx.mWindow[i];
+			ctx.mInput[i] = mCurrentFunc(offset) * ctx.mWindow[i];
 			offset += bytesPerSample;
-			windowedRmsAvg += ctx.mInput[i];
 		}
-		windowedRmsAvg = sqrt(windowedRmsAvg / sampleCount);
 
 		fftw_execute(ctx.mFFTPlan);
 
@@ -257,6 +276,43 @@ void SpectrumMgr::calculateSpectrum()
 				ctx.mSmooth[j] -= ctx.mSmoothFall[j];
 			}
 			spec->mBars[j].amp = std::clamp(ctx.mSmooth[j], 0.0, 1.0);
+		}
+	}
+}
+
+void SpectrumMgr::calculateTimeDomain()
+{
+	for (auto& timePair : mTimeDomainMap) {
+		TimeDomainProvider* time = timePair.first;
+		TimeContex& ctx = timePair.second;
+		const int bytesPerSample = getCurrentBitsPerSample() / 8 * getCurrentNumOfChannels();
+		int sampleCount = time->mSampleCount;
+		unsigned char* offset = getDataPtr(sampleCount * (getCurrentBitsPerSample() / 8) * getCurrentNumOfChannels());
+		if (offset == nullptr)
+			continue;
+		offset += time->mChannelIndex * 8 * getCurrentNumOfChannels();
+		double sum = 0;
+		time->mPeak = 0;
+		for (int i = 0; i < sampleCount; i++) {
+			double var = mCurrentFunc(offset);
+			var = sqrt(var * var);
+			sum += var;
+			time->mPeak = max(time->mPeak, var);
+		}
+		time->mRms = sum / sampleCount;
+
+		if (time->mRms > ctx.mRmsCache) {
+			time->mRms = time->mRms * time->mSmoothFactorRise + ctx.mRmsCache * (1 - time->mSmoothFactorRise);
+		}
+		else if (time->mRms > 0) {
+			time->mRms = time->mRms * time->mSmoothFactorFall + ctx.mRmsCache * (1 - time->mSmoothFactorFall);
+		}
+
+		if (time->mPeak > ctx.mPeakCache) {
+			time->mPeak = time->mPeak * time->mSmoothFactorRise + ctx.mPeakCache * (1 - time->mSmoothFactorRise);
+		}
+		else if (time->mPeak > 0) {
+			time->mPeak = time->mPeak * time->mSmoothFactorFall + ctx.mPeakCache * (1 - time->mSmoothFactorFall);
 		}
 	}
 }
