@@ -13,7 +13,6 @@
 
 WinAudioCapture::WinAudioCapture()
 {
-
 }
 
 void WinAudioCapture::start()
@@ -57,18 +56,11 @@ void WinAudioCapture::start()
 	WAVEFORMATEX format = *(PWAVEFORMATEX)propVar.blob.pBlobData;
 	format.cbSize = 0;
 	format.wFormatTag = WAVE_FORMAT_PCM;
-	mFormat.nChannels = format.nChannels;
-	mFormat.nSamplesPerSec = format.nSamplesPerSec;
-	mFormat.nAvgBytesPerSec = format.nAvgBytesPerSec;
-	mFormat.nBlockAlign = format.nBlockAlign;
-	mFormat.wBitsPerSample= format.wBitsPerSample;
-	mFormat.cbSize= format.cbSize;
 
 	SAFE_RELEASE(pProps);
 
-	mRunning = true;
 	mStoped = std::promise<bool>();
-	mCaptureThread = std::make_shared<std::thread>([pDefaultDevice, this,format]() {
+	mCaptureThread = std::make_shared<std::thread>([pDefaultDevice, this, format]() {
 		IAudioClient* _AudioClient;
 		IAudioCaptureClient* _CaptureClient;
 		HANDLE _AudioSamplesReadyEvent = NULL;
@@ -90,9 +82,16 @@ void WinAudioCapture::start()
 		UINT32        _BufferSize;
 
 		//Initialize Audio Engine
-		hr = _AudioClient->Initialize(AUDCLNT_SHAREMODE_SHARED, 
+		hr = _AudioClient->Initialize(AUDCLNT_SHAREMODE_SHARED,
 									  AUDCLNT_STREAMFLAGS_LOOPBACK | AUDCLNT_STREAMFLAGS_EVENTCALLBACK | AUDCLNT_STREAMFLAGS_NOPERSIST
 									  , 20 * 10000, 0, &format, NULL);
+
+		mFormat.nChannels = format.nChannels;
+		mFormat.nSamplesPerSec = format.nSamplesPerSec;
+		mFormat.nAvgBytesPerSec = format.nAvgBytesPerSec;
+		mFormat.nBlockAlign = format.nBlockAlign;
+		mFormat.wBitsPerSample = format.wBitsPerSample;
+		mFormat.cbSize = format.cbSize;
 
 		if (FAILED(hr)) {
 			printf("Unable to initialize audio client: %x.\n", hr);
@@ -121,6 +120,7 @@ void WinAudioCapture::start()
 			printf("Unable to get new capture client: %x.\n", hr);
 			return false;
 		}
+		mRunning = true;
 		while (mRunning) {
 			DWORD waitResult = WaitForSingleObject(_AudioSamplesReadyEvent, INFINITE);
 			BYTE* pData;
@@ -130,7 +130,6 @@ void WinAudioCapture::start()
 			if (SUCCEEDED(hr)) {
 				if (framesAvailable != 0) {
 					if (flags & AUDCLNT_BUFFERFLAGS_SILENT) {
-
 					}
 					onSubmitAudioData(pData, framesAvailable * _FrameSize);
 				}
@@ -144,7 +143,6 @@ void WinAudioCapture::start()
 		SAFE_RELEASE(_AudioClient);
 		mStoped.set_value_at_thread_exit(true);
 		return true;
-	
 	});
 	mCaptureThread->detach();
 }

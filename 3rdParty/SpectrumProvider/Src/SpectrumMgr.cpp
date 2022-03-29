@@ -119,6 +119,10 @@ void SpectrumMgr::start()
 	mStoped = std::promise<bool>();
 	mCalculateThread = std::make_shared<std::thread>([this]() {
 		while (mRunning) {
+			if (!mCapture->isRunning()) {
+				return;
+			}
+			mCurrentFunc = mFuncPcmToReal[std::clamp((int)getCurrentBitsPerSample() / 8 - 1, 0, 3)];
 			calculateSpectrum();
 			calculateTimeDomain();
 			std::this_thread::sleep_for(std::chrono::milliseconds(20));
@@ -126,8 +130,6 @@ void SpectrumMgr::start()
 		mStoped.set_value_at_thread_exit(true);
 	});
 	mCalculateThread->detach();
-
-	mCurrentFunc = mFuncPcmToReal[std::clamp((int)getCurrentBitsPerSample() / 8 - 1, 0, 3)];
 }
 
 void SpectrumMgr::stop() {
@@ -208,12 +210,10 @@ void SpectrumMgr::calculateSpectrum()
 		float freqLast = 0.0f;
 		float freqMultiplier;
 
-		for (auto& it : ctx.mOuputVar)
-			it = 0.0f;
-
 		if (ctx.mOuputVar.size() != spec->mBars.size()) {
 			continue;;
 		}
+		std::fill(ctx.mOuputVar.begin(), ctx.mOuputVar.end(), 0);;
 		while (fftBinIndx < (sampleCount / 2) && barIndx < ctx.mOuputVar.size()) {
 			float freqLin = ((float)fftBinIndx + 0.5f) * df;
 			float freqLog = spec->mBars[barIndx].freq;
@@ -275,7 +275,7 @@ void SpectrumMgr::calculateSpectrum()
 				ctx.mSmoothFall[j] = ctx.mSmoothFall[j] * 2 + spec->mSmoothFactorFall;
 				ctx.mSmooth[j] -= ctx.mSmoothFall[j];
 			}
-			spec->mBars[j].amp = std::clamp(ctx.mSmooth[j], 0.0, 1.0);
+			spec->mBars[j].amp = val;
 		}
 	}
 }

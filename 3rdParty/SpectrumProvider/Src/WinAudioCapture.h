@@ -1,7 +1,6 @@
 #ifndef WinAudioCapture_h__
 #define WinAudioCapture_h__
 
-
 #include <windows.h>
 #include <initguid.h>
 #include <mmdeviceapi.h>
@@ -12,7 +11,7 @@
 
 const int MAX_BUFFER_SIZE = 100000;
 
-class WinAudioCapture: public IMMNotificationClient {
+class WinAudioCapture : public IMMNotificationClient {
 	friend class SpectrumMgr;
 public:
 	WinAudioCapture();
@@ -54,7 +53,7 @@ private:
 
 	unsigned char mBuffer[MAX_BUFFER_SIZE];
 	size_t mBufferSize = 0;
-	size_t mCacheKeepSize = 1 << 12;
+	size_t mCacheKeepSize = 1 << 14;
 
 	std::mutex mMutex;
 };
