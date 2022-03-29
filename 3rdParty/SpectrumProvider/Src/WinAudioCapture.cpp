@@ -172,10 +172,11 @@ const std::atomic<bool>& WinAudioCapture::isRunning()
 
 void WinAudioCapture::onSubmitAudioData(unsigned char* data, size_t size)
 {
+	std::lock_guard<std::mutex> locker(mMutex);
 	if (mBufferSize + size >= MAX_BUFFER_SIZE) {
-		size_t submitSize = mCacheKeepSize * (mFormat.wBitsPerSample / 8) * mFormat.nChannels;
-		memcpy_s(mBuffer, submitSize, mBuffer + mBufferSize - submitSize, submitSize);
-		mBufferSize = submitSize;
+		size_t moveSize = mCacheKeepSize * (mFormat.wBitsPerSample / 8) * mFormat.nChannels;
+		memcpy_s(mBuffer, moveSize, mBuffer + mBufferSize - moveSize, moveSize);
+		mBufferSize = moveSize;
 	}
 	memcpy_s(mBuffer + mBufferSize, size, data, size);
 	mBufferSize += size;
