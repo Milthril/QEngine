@@ -1,41 +1,40 @@
 #include "DirTreeWidget.h"
 #include "QStyledItemDelegate"
 #include "QPainter"
-//class DireTreeItemDelegate :public QStyledItemDelegate {
-//protected:
-//	void paint(QPainter* painter, const QStyleOptionViewItem& option, const QModelIndex& index) const override {
-//		if (!index.isValid())
-//			return;
-//		QString text = index.data(Qt::DisplayRole).toString();
-//		painter->save();
-//
-//		qDebug() << text << option.palette << option.backgroundBrush;
-//		if (option.state & QStyle::State_Selected) {
-//			painter->fillRect(option.rect, option.palette.brush(QPalette::Window));
-//			painter->setPen(Qt::white);
-//		}
-//
-//		if (option.state & QStyle::State_MouseOver) {
-//			painter->fillRect(option.rect, QColor(100, 100, 100, 100));
-//		}
-//
-//		QRect iconRect = option.rect;
-//		iconRect.setWidth(iconRect.height());
-//		iconRect.adjust(3, 3, -3, -3);
-//		if (option.state & QStyle::State_Open)
-//			painter->drawPixmap(iconRect, QPixmap(":/Resources/Icon24gf-folderOpen.png"));
-//		else
-//			painter->drawPixmap(iconRect, QPixmap(":/Resources/Icon24gf-folderMinus.png"));
-//		QRect textRect = option.rect;
-//		textRect.setLeft(textRect.left() + textRect.height());
-//		painter->drawText(textRect, Qt::AlignLeft, text);
-//		painter->restore();
-//	}
-//
-//	QSize sizeHint(const QStyleOptionViewItem& option, const QModelIndex& index) const override {
-//		return QStyledItemDelegate::sizeHint(option, index);
-//	}
-//};
+
+class DireTreeItemDelegate :public QStyledItemDelegate {
+protected:
+	void paint(QPainter* painter, const QStyleOptionViewItem& option, const QModelIndex& index) const override {
+		if (!index.isValid())
+			return;
+		QString text = index.data(Qt::DisplayRole).toString();
+		painter->save();
+		QColor highlight = option.palette.brush(QPalette::Highlight).color();
+		if (option.state & QStyle::State_Selected) {
+			painter->fillRect(option.rect, highlight);
+			painter->setPen(Qt::white);
+		}
+		if (option.state & QStyle::State_MouseOver) {
+			painter->fillRect(option.rect, highlight);
+		}
+		QRect iconRect = option.rect;
+		iconRect.setWidth(iconRect.height());
+		iconRect.adjust(1, 1, -1, -1);
+		if (option.state & QStyle::State_Open)
+			painter->drawPixmap(iconRect, QPixmap(":/Resources/Icons/24gf-folderOpen.png"));
+		else
+			painter->drawPixmap(iconRect, QPixmap(":/Resources/Icons/24gf-folderMinus.png"));
+		QRect textRect = option.rect;
+		textRect.setLeft(textRect.left() + textRect.height() + 5);
+		painter->setPen(option.palette.brush(QPalette::Text).color());
+		painter->drawText(textRect, Qt::AlignLeft, text);
+		painter->restore();
+	}
+
+	QSize sizeHint(const QStyleOptionViewItem& option, const QModelIndex& index) const override {
+		return QStyledItemDelegate::sizeHint(option, index);
+	}
+};
 
 DirTreeWidget::DirTreeWidget(QString rootDir)
 	:rootDir_(rootDir) {
@@ -44,7 +43,7 @@ DirTreeWidget::DirTreeWidget(QString rootDir)
 	setIconSize(QSize(16, 16));
 	setIndentation(10);
 	intiDirectories();
-	//setItemDelegate(new DireTreeItemDelegate);
+	setItemDelegate(new DireTreeItemDelegate);
 }
 
 void DirTreeWidget::setCurrentDir(QString dir)
