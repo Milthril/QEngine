@@ -13,8 +13,8 @@ class QAudioSpectrum :public QStaticMeshComponent ,public QTickEventHandler{
 public:
 	QAudioSpectrum();
 
-	QSpectrumProvider* getSpectrumProvider() const { return mSpectrumProvider; }
-	void setSpectrumProvider(QSpectrumProvider* val) { mSpectrumProvider = val; }
+	QSpectrumProvider* getSpectrumProvider() const { return mSpectrumProvider.get(); }
+	void setSpectrumProvider(QSpectrumProvider* val) { mSpectrumProvider.reset(val); }
 
 	float getSpacing() const { return mSpacing; }
 	void setSpacing(float val) { mSpacing = val; }
@@ -25,7 +25,7 @@ public:
 protected:
 	void tickEvent() override;
 private:
-	QSpectrumProvider* mSpectrumProvider = new QSpectrumProvider;
+	std::shared_ptr<QSpectrumProvider> mSpectrumProvider = std::make_shared<QSpectrumProvider>();
 	float mMaxHeight = 100;
 	float mSpacing = 1;
 };

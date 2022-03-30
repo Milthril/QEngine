@@ -21,6 +21,12 @@ void QRhiUniformMgr::update(QRhiResourceUpdateBatch* batch)
 	}
 }
 
+void QRhiUniformMgr::deleteAll()
+{
+	mUniformList.clear();
+	mClipMatUniform.reset(nullptr);
+}
+
 void QRhiUniformMgr::AddUniform(QRhiUniform* material)
 {
 	mUniformList << material;

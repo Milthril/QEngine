@@ -9,6 +9,7 @@ class QRhiUniformMgr {
 public:
 	static QRhiUniformMgr* instance();
 	void update(QRhiResourceUpdateBatch* batch);
+	void deleteAll();
 private:
 	QRhiUniformMgr() {}
 	void AddUniform(QRhiUniform* material);
