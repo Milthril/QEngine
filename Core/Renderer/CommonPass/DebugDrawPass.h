@@ -11,12 +11,13 @@ class DebugDrawPass :public ImGuiDrawPass {
 public:
 	DebugDrawPass();
 	void paint() override;
+	void setCurrentCompInternal(QSceneComponent* comp);
 protected:
 	bool eventFilter(QObject* watched, QEvent* event) override;
 Q_SIGNALS:
-	void currentCompChanged(std::shared_ptr<QSceneComponent>);
+	void currentCompChanged(QSceneComponent* comp);
 private:
-	std::shared_ptr<QSceneComponent> mCurrentComp;
+	QSceneComponent* mCurrentComp = nullptr;
 	ImGuizmo::OPERATION mOpt = ImGuizmo::OPERATION::TRANSLATE;
 };
 

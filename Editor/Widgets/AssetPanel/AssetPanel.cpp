@@ -50,8 +50,8 @@ AssetPanel::AssetPanel(QString rootDir)
 	}
 	createUI();
 	connectUI();
-	fileWidget_.setCurrentDir(rootDir);
-	pathViewer_.setCurrentDir(rootDir);
+	fileWidget_.setCurrentDir(rootDir_.path());
+	pathViewer_.setCurrentDir(rootDir_.path());
 }
 
 void AssetPanel::createUI()

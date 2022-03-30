@@ -8,8 +8,8 @@ DebugDrawPass::DebugDrawPass()
 {
 	connect(Engine->renderer().get(), &QSceneRenderer::readBackCompId, this, [this](QSceneComponent::ComponentId id) {
 		auto comp = Engine->scene()->searchCompById(id);
-		if (comp != mCurrentComp) {
-			mCurrentComp = comp;
+		if (comp.get() != mCurrentComp) {
+			mCurrentComp = comp.get();
 			Q_EMIT currentCompChanged(mCurrentComp);
 		}
 	});
@@ -53,6 +53,12 @@ void DebugDrawPass::paint()
 			}
 		}
 	}
+}
+
+void DebugDrawPass::setCurrentCompInternal(QSceneComponent* comp)
+{
+	if (mCurrentComp != comp)
+		mCurrentComp = comp;
 }
 
 bool DebugDrawPass::eventFilter(QObject* watched, QEvent* event)

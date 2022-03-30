@@ -87,10 +87,11 @@ public:
 			}
 		}
 
-		mText = std::make_shared<QText2D>("GPU Particles");															//设置文字材质
+		mText = std::make_shared<QText2D>(QString::fromUtf8("电脑放点音乐=.="));
 		mText->setMaterial(mMaterial);
 		mText->setPosition(QVector3D(0, -4, 0));
 		mText->setRotation(QVector3D(0, 180, 0));
+		mText->setScale(QVector3D(3, 3, 3));
 		scene()->addPrimitive("Text", mText);
 
 		mSpectrum = std::make_shared<QAudioSpectrum>();

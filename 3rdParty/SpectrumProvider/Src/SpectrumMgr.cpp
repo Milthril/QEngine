@@ -114,15 +114,18 @@ void SpectrumMgr::removeTimeDomainProvider(TimeDomainProvider* time)
 
 void SpectrumMgr::start()
 {
-	mCapture->start();
 	mRunning = true;
+	mCapture->start();
+	while (true) {
+		if (mCapture->isRunning()) {
+			std::this_thread::sleep_for(std::chrono::milliseconds(20));
+			break;
+		}
+	}
+	mCurrentFunc = mFuncPcmToReal[std::clamp((int)getCurrentBitsPerSample() / 8 - 1, 0, 3)];
 	mStoped = std::promise<bool>();
 	mCalculateThread = std::make_shared<std::thread>([this]() {
 		while (mRunning) {
-			if (!mCapture->isRunning()) {
-				return;
-			}
-			mCurrentFunc = mFuncPcmToReal[std::clamp((int)getCurrentBitsPerSample() / 8 - 1, 0, 3)];
 			calculateSpectrum();
 			calculateTimeDomain();
 			std::this_thread::sleep_for(std::chrono::milliseconds(20));
@@ -144,7 +147,7 @@ void SpectrumMgr::stop() {
 
 void SpectrumMgr::requestStart()
 {
-	if (!mSpectrumMap.empty() || !mTimeDomainMap.empty() || !mRunning)
+	if ((!mSpectrumMap.empty() || !mTimeDomainMap.empty()) && !mRunning)
 		start();
 }
 
@@ -275,7 +278,7 @@ void SpectrumMgr::calculateSpectrum()
 				ctx.mSmoothFall[j] = ctx.mSmoothFall[j] * 2 + spec->mSmoothFactorFall;
 				ctx.mSmooth[j] -= ctx.mSmoothFall[j];
 			}
-			spec->mBars[j].amp = val;
+			spec->mBars[j].amp = std::clamp(ctx.mSmooth[j], 0.0, 1.0);
 		}
 	}
 }

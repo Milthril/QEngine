@@ -1,4 +1,4 @@
-#include "Window\EditorWindow\EditorWindow.h"
+ï»¿#include "Window\EditorWindow\EditorWindow.h"
 #include <QGuiApplication>
 #include "QDateTime"
 #include "QEngine.h"
@@ -45,8 +45,8 @@ public:
 		}
 
 		mCamera = std::make_shared<QCameraComponent>();
-		mCamera->setupWindow(window().get());		//½«Ïà»úÓë´°¿Ú°ó¶¨£¬Ê¹ÓÃWASD Shift ¿Õ¸ñ¿É½øÐÐÒÆ¶¯£¬Êó±ê×ó¼ü°´×¡´°¿Ú¿Éµ÷ÕûÊÓ½Ç
-		scene()->setCamera(mCamera);				//ÉèÖÃ³¡¾°Ïà»ú
+		mCamera->setupWindow(window().get());		//å°†ç›¸æœºä¸Žçª—å£ç»‘å®šï¼Œä½¿ç”¨WASD Shift ç©ºæ ¼å¯è¿›è¡Œç§»åŠ¨ï¼Œé¼ æ ‡å·¦é”®æŒ‰ä½çª—å£å¯è°ƒæ•´è§†è§’
+		scene()->setCamera(mCamera);				//è®¾ç½®åœºæ™¯ç›¸æœº
 
 		mSkyBox = std::make_shared<QSkyBoxComponent>();
 		mSkyBox->setSkyBoxImage(QImage(assetDir.filePath("sky.jpeg")));
@@ -66,13 +66,14 @@ public:
 		mStaticModel->setRotation(QVector3D(-90, 0, 0));
 		scene()->addPrimitive("StaticModel", mStaticModel);
 
-		mText = std::make_shared<QText2D>("GPU Particles");
+		mText = std::make_shared<QText2D>(QString::fromUtf8("ç”µè„‘æ”¾ç‚¹éŸ³ä¹=.="));
 		mText->setPosition(QVector3D(0, -5, 0));
 		mText->setRotation(QVector3D(0, 180, 0));
+		mText->setScale(QVector3D(3, 3, 3));
 
 		mTextMaterial = std::make_shared<QMaterial>();
-		mTextMaterial->addDataVec3("BaseColor", QVector3D(1, 5, 9));					//ÉèÖÃ²ÄÖÊ²ÎÊý
-		mTextMaterial->setShadingCode("FragColor = vec4(UBO.BaseColor,1);");				//ÉèÖÃ²ÄÖÊµÄShading´úÂë
+		mTextMaterial->addDataVec3("BaseColor", QVector3D(1, 5, 9));					//è®¾ç½®æè´¨å‚æ•°
+		mTextMaterial->setShadingCode("FragColor = vec4(UBO.BaseColor,1);");				//è®¾ç½®æè´¨çš„Shadingä»£ç 
 		mText->setMaterial(mTextMaterial);
 		scene()->addPrimitive("Text", mText);
 
@@ -85,7 +86,6 @@ public:
 		mGPUParticles = std::make_shared<QParticleComponent>();
 		mGPUParticles->setPosition(QVector3D(0, -15, 0));
 		scene()->addPrimitive("GPU Particles", mGPUParticles);
-
 	}
 protected:
 	void update() override

@@ -24,14 +24,15 @@ void QScenePanel::createUI() {
 
 	connect(this, &QTreeWidget::currentItemChanged, this, [this](QTreeWidgetItem* current, QTreeWidgetItem*) {
 		QObject* oPtr = current->data(1, 0).value<QObject*>();
+		Engine->debugPainter()->setCurrentCompInternal(dynamic_cast<QSceneComponent*>(oPtr));
 		Q_EMIT objectChanged(oPtr);
 	});
 
-	connect(Engine->debugPainter().get(), &DebugDrawPass::currentCompChanged, this, [this](std::shared_ptr<QSceneComponent> comp) {
+	connect(Engine->debugPainter().get(), &DebugDrawPass::currentCompChanged, this, [this](QSceneComponent* comp) {
 		QTreeWidgetItemIterator iter(this);
 		while (*iter) {
 			QObject* oPtr = (*iter)->data(1, 0).value<QObject*>();
-			if (oPtr == comp.get()) {
+			if (oPtr == comp) {
 				setCurrentItem(*iter);
 				return;
 			}

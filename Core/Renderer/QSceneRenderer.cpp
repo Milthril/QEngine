@@ -1,4 +1,4 @@
-#include "QSceneRenderer.h"
+ï»¿#include "QSceneRenderer.h"
 #include "Scene/Component/QPrimitiveComponent.h"
 #include "Scene/Component/StaticMesh/QStaticMeshComponent.h"
 #include "Scene/Component/SkeletonMesh/QSkeletonMeshComponent.h"
@@ -129,7 +129,7 @@ void QSceneRenderer::tryResetUniformProxy()
 			for (auto& param : uniform->mParams) {
 				param->needUpdate.active();
 			}
-			for (auto& ref : uniform->mRef) {	//ÖØÖÃÒýÓÃ¸ÃuniformµÄ×é¼þ µÄ´úÀí
+			for (auto& ref : uniform->mRef) {	//é‡ç½®å¼•ç”¨è¯¥uniformçš„ç»„ä»¶ çš„ä»£ç†
 				ref->bNeedRecreatePipeline.active();
 			}
 		}
