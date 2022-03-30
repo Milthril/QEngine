@@ -67,7 +67,6 @@ void QPropertyPanel::recreatePanel() {
 		return;
 	for (int i = 1; i < mObject->metaObject()->propertyCount(); i++) {
 		QMetaProperty property = mObject->metaObject()->property(i);
-		qDebug() << property.name();
 		if (!property.isDesignable())
 			continue;
 		QPropertyItem* item = QPropertyItemFactory::instance()->createItem(property.typeId(),
