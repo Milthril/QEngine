@@ -10,13 +10,15 @@ protected:
 		QString text = index.data(Qt::DisplayRole).toString();
 		painter->save();
 		QColor highlight = option.palette.brush(QPalette::Highlight).color();
-		if (option.state & QStyle::State_Selected) {
-			painter->fillRect(option.rect, highlight);
-			painter->setPen(Qt::white);
+		if (option.state & QStyle::State_HasFocus) {
+			if (option.state & QStyle::State_Selected) {
+				painter->fillRect(option.rect, highlight);
+			}
+			if (option.state & QStyle::State_MouseOver) {
+				painter->fillRect(option.rect, highlight);
+			}
 		}
-		if (option.state & QStyle::State_MouseOver) {
-			painter->fillRect(option.rect, highlight);
-		}
+
 		QRect iconRect = option.rect;
 		iconRect.setWidth(iconRect.height());
 		iconRect.adjust(1, 1, -1, -1);
