@@ -33,6 +33,7 @@ protected:
 	bool mNotExposed = false;
 	bool mNewlyExposed = false;
 	bool mHasSwapChain = false;
+	bool mHasClosed = false;
 };
 
 #endif // QRhiWindow_h__

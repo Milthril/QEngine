@@ -50,7 +50,7 @@ void QEngine::execGame()
 	mWindow->show();
 	mWindow->waitExposed();
 	init();
-	while (true) {
+	while (!mWindow->mHasClosed) {
 		update();
 		mWindow->requestUpdate();
 		QGuiApplication::processEvents();
