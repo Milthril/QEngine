@@ -72,7 +72,6 @@ QPropertyItemFactory::QPropertyItemFactory()
 	mCreatorMap[QMetaTypeId2<QSubClass<QStaticMeshComponent>>::qt_metatype_id()] = [](QString name, Getter getter, Setter setter) {
 		return new QPropertySubClassItem<QSubClass<QStaticMeshComponent>>(name, getter, setter);
 	};
-
 }
 
 QPropertyItem* QPropertyItemFactory::createItem(TypeId id, QString name, Getter getter, Setter setter)
