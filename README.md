@@ -33,9 +33,16 @@ QEngine是一个简易的开源3D引擎，。
 
 把**EXE.rar**解压到当前文件夹下，其中Example.exe为不包含编辑器的Demo
 
+## 技术文档
+
+- [QRHI](./Doc/QRHI.md)：Qt6.0推出的RHI接口，支持Vulkan，DX11，OpenGL，Metal，虽然没文档，但是有样例，Vulkan风格的接口，更具可架构性，且使用起来比OpenGL更容易。
+- [反射机制](./Doc/反射相关.md)
+- [垃圾回收](./Doc/垃圾回收.md)
+- [内存管理](./Doc/内存管理.md)
+
 ## 构建环境
 
-- Qt 6.2.3以上版本：在线下载器：https://download.qt.io/archive/online_installers，安装过程中请勾选
+- Qt 6.2.3以上版本：在线下载器[https://download.qt.io/archive/online_installers](https://download.qt.io/archive/online_installers)，安装过程中请勾选
   - Qt 6.2.3+
     - MinGW 64 bit
     - MSVC2019 64-bit 
