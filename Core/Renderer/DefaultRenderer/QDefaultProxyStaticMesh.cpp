@@ -24,7 +24,7 @@ void QDefaultProxyStaticMesh::recreateResource()
 	mIndexBuffer->create();
 }
 
-void QDefaultProxyStaticMesh::recreatePipeline(const PipelineContext& ctx)
+void QDefaultProxyStaticMesh::recreatePipeline()
 {
 	if (mStaticMesh->getVertexCount() == 0) {
 		return;
@@ -78,7 +78,7 @@ void QDefaultProxyStaticMesh::recreatePipeline(const PipelineContext& ctx)
 	QRhiVertexInputLayout inputLayout;
 	inputLayout.setBindings(inputBindings.begin(), inputBindings.end());
 	inputLayout.setAttributes(attributeList.begin(), attributeList.end());
-	QShader vs = QSceneRenderer::createShaderFromCode(QShader::Stage::VertexStage, vertexShaderCode.toLocal8Bit());
+	QShader vs = ISceneRenderer::createShaderFromCode(QShader::Stage::VertexStage, vertexShaderCode.toLocal8Bit());
 	if (!vs.isValid()) {
 		mPipeline.reset(nullptr);
 		return;
@@ -88,7 +88,7 @@ void QDefaultProxyStaticMesh::recreatePipeline(const PipelineContext& ctx)
 	QString defineCode = materialInfo.uniformDefineCode;
 	QString outputCode = mStaticMesh->getMaterial()->getShadingCode();
 
-	if (ctx.outputDebugId) {
+	if (mRenderPass->getEnableOutputDebugId()) {
 		defineCode.prepend("layout (location = 1) out vec4 CompId;\n");
 		if (mParentParticle) {
 			outputCode.append(QString("CompId = %1;\n").arg(mParentParticle->getCompIdVec4String()));
@@ -106,7 +106,7 @@ void QDefaultProxyStaticMesh::recreatePipeline(const PipelineContext& ctx)
 	}
 	)").arg(defineCode).arg(outputCode);
 
-	QShader fs = QSceneRenderer::createShaderFromCode(QShader::Stage::FragmentStage, fragShaderCode.toLocal8Bit());
+	QShader fs = ISceneRenderer::createShaderFromCode(QShader::Stage::FragmentStage, fragShaderCode.toLocal8Bit());
 	if (!fs.isValid()) {
 		mPipeline.reset(nullptr);
 		return;
@@ -115,11 +115,12 @@ void QDefaultProxyStaticMesh::recreatePipeline(const PipelineContext& ctx)
 	mPipeline.reset(RHI->newGraphicsPipeline());
 
 	mPipeline->setVertexInputLayout(inputLayout);
-	mPipeline->setTargetBlends(ctx.blendState.begin(), ctx.blendState.end());
+	const auto& blendStates = mRenderPass->getBlendStates();
+	mPipeline->setTargetBlends(blendStates.begin(), blendStates.end());
 	mPipeline->setTopology(mStaticMesh->getTopology());
 	mPipeline->setDepthTest(true);
 	mPipeline->setDepthWrite(true);
-	mPipeline->setSampleCount(ctx.sampleCount);
+	mPipeline->setSampleCount(mRenderPass->getSampleCount());
 
 	mPipeline->setShaderStages({
 		{ QRhiShaderStage::Vertex, vs },
@@ -134,7 +135,7 @@ void QDefaultProxyStaticMesh::recreatePipeline(const PipelineContext& ctx)
 
 	mPipeline->setShaderResourceBindings(mShaderResourceBindings.get());
 
-	mPipeline->setRenderPassDescriptor(ctx.renderPassDesc);
+	mPipeline->setRenderPassDescriptor(mRenderPass->getRenderPassDescriptor());
 
 	mPipeline->create();
 }

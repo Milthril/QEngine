@@ -6,7 +6,7 @@
 
 DebugDrawPass::DebugDrawPass()
 {
-	connect(Engine->renderer().get(), &QSceneRenderer::readBackCompId, this, [this](QSceneComponent::ComponentId id) {
+	connect(Engine->renderer().get(), &ISceneRenderer::readBackCompId, this, [this](QSceneComponent::ComponentId id) {
 		auto comp = Engine->scene()->searchCompById(id);
 		if (comp.get() != mCurrentComp) {
 			mCurrentComp = comp.get();

@@ -1,12 +1,12 @@
 #ifndef QDefaultProxyParticle_h__
 #define QDefaultProxyParticle_h__
 
-#include "QDefaultRenderer.h"
 #include "Scene\Component\Particle\QParticleComponent.h"
+#include "Renderer\ISceneComponentRenderProxy.h"
 
 class QDefaultProxyStaticMesh;
 
-class QDefaultProxyParticle :public QRhiProxy {
+class QDefaultProxyParticle :public ISceneComponentRenderProxy {
 public:
 	QDefaultProxyParticle(std::shared_ptr<QParticleComponent> shape);
 	void uploadResource(QRhiResourceUpdateBatch* batch) override;
@@ -39,7 +39,7 @@ private:
 	float mLastSecond;
 protected:
 	void recreateResource() override;
-	void recreatePipeline(const PipelineContext& ctx) override;
+	void recreatePipeline() override;
 	void updatePrePass(QRhiCommandBuffer* cmdBuffer) override;
 	void drawInPass(QRhiCommandBuffer* cmdBuffer, const QRhiViewport& viewport) override;
 	std::shared_ptr<QDefaultProxyStaticMesh> mStaticMeshProxy;

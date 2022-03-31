@@ -1,5 +1,5 @@
 #include "BloomPass.h"
-#include "Renderer\QSceneRenderer.h"
+#include "Renderer\ISceneRenderer.h"
 #include "QEngine.h"
 
 BloomPass::BloomPass()
@@ -44,7 +44,7 @@ void QBloomMeragePainter::initRhiResource(QRhiRenderPassDescriptor* renderPassDe
 	blendState.enable = true;
 	mPipeline->setTargetBlends({ blendState });
 	mPipeline->setSampleCount(renderTarget->sampleCount());
-	QShader vs = QSceneRenderer::createShaderFromCode(QShader::VertexStage, R"(#version 450
+	QShader vs = ISceneRenderer::createShaderFromCode(QShader::VertexStage, R"(#version 450
 layout (location = 0) out vec2 vUV;
 out gl_PerVertex{
 	vec4 gl_Position;
@@ -55,7 +55,7 @@ void main() {
 }
 )");
 
-	QShader fs = QSceneRenderer::createShaderFromCode(QShader::FragmentStage, R"(#version 450
+	QShader fs = ISceneRenderer::createShaderFromCode(QShader::FragmentStage, R"(#version 450
 layout (binding = 0) uniform sampler2D uSrcTexture;
 layout (binding = 1) uniform sampler2D uBloomTexture;
 layout (location = 0) in vec2 vUV;

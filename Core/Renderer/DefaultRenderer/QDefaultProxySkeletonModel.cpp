@@ -39,20 +39,20 @@ void QDefaultProxySkeletonModel::recreateResource()
 	mUniformBuffer->create();
 }
 
-void QDefaultProxySkeletonModel::recreatePipeline(const PipelineContext& ctx)
+void QDefaultProxySkeletonModel::recreatePipeline()
 {
 	for (int i = 0; i < mMeshProxyList.size(); i++) {
 		auto& meshProxy = mMeshProxyList[i];
 		auto& pipeline = mMeshProxyList[i]->pipeline;
 		pipeline.reset(RHI->newGraphicsPipeline());
-		QRhiGraphicsPipeline::TargetBlend blendState;
-		blendState.enable = false;
 
-		mPipeline->setTargetBlends(ctx.blendState.begin(), ctx.blendState.end());
+		const auto& blendStates = mRenderPass->getBlendStates();
+		mPipeline->setTargetBlends(blendStates.begin(), blendStates.end());
+
 		pipeline->setTopology(QRhiGraphicsPipeline::Topology::Triangles);
 		pipeline->setDepthTest(true);
 		pipeline->setDepthWrite(true);
-		pipeline->setSampleCount(ctx.sampleCount);
+		pipeline->setSampleCount(mRenderPass->getSampleCount());
 
 		QVector<QRhiVertexInputBinding> inputBindings;
 		inputBindings << QRhiVertexInputBinding{ sizeof(QSkeletonModelComponent::Vertex) };
@@ -101,13 +101,13 @@ void QDefaultProxySkeletonModel::recreatePipeline(const PipelineContext& ctx)
 		inputLayout.setAttributes(attributeList.begin(), attributeList.end());
 		pipeline->setVertexInputLayout(inputLayout);
 
-		QShader vs = QSceneRenderer::createShaderFromCode(QShader::Stage::VertexStage, vertexShaderCode.toLocal8Bit());
+		QShader vs = ISceneRenderer::createShaderFromCode(QShader::Stage::VertexStage, vertexShaderCode.toLocal8Bit());
 		const QRhiUniformProxy::UniformInfo& materialInfo = meshProxy->mesh->getMaterial()->getProxy()->getUniformInfo(1);
 
 		QString defineCode = materialInfo.uniformDefineCode;
 		QString outputCode = meshProxy->mesh->getMaterial()->getShadingCode();
 
-		if (ctx.outputDebugId) {
+		if (mRenderPass->getEnableOutputDebugId()) {
 			defineCode.prepend("layout (location = 1) out vec4 CompId;\n");
 			outputCode.append(QString("CompId = %1;\n").arg(mSkeletonModel->componentId()));
 		}
@@ -119,7 +119,7 @@ void QDefaultProxySkeletonModel::recreatePipeline(const PipelineContext& ctx)
 			%2
 		}
 		)").arg(defineCode).arg(outputCode);
-		QShader fs = QSceneRenderer::createShaderFromCode(QShader::Stage::FragmentStage, fragShaderCode.toLocal8Bit());
+		QShader fs = ISceneRenderer::createShaderFromCode(QShader::Stage::FragmentStage, fragShaderCode.toLocal8Bit());
 		Q_ASSERT(fs.isValid());
 
 		pipeline->setShaderStages({
@@ -138,7 +138,7 @@ void QDefaultProxySkeletonModel::recreatePipeline(const PipelineContext& ctx)
 
 		pipeline->setShaderResourceBindings(shaderResBindings.get());
 
-		pipeline->setRenderPassDescriptor(ctx.renderPassDesc);
+		pipeline->setRenderPassDescriptor(mRenderPass->getRenderPassDescriptor());
 
 		pipeline->create();
 	}

@@ -74,16 +74,17 @@ void QDefaultProxySkyBox::recreateResource()
 	mVertexBuffer->create();
 }
 
-void QDefaultProxySkyBox::recreatePipeline(const PipelineContext& ctx)
+void QDefaultProxySkyBox::recreatePipeline()
 {
 	mPipeline.reset(RHI->newGraphicsPipeline());
 
-	mPipeline->setTargetBlends(ctx.blendState.begin(), ctx.blendState.end());
+	const auto& blendStates = mRenderPass->getBlendStates();
+	mPipeline->setTargetBlends(blendStates.begin(), blendStates.end());
 
 	mPipeline->setTopology(QRhiGraphicsPipeline::Triangles);
 	mPipeline->setDepthTest(true);
 	mPipeline->setDepthWrite(true);
-	mPipeline->setSampleCount(ctx.sampleCount);
+	mPipeline->setSampleCount(mRenderPass->getSampleCount());
 
 	QVector<QRhiVertexInputBinding> inputBindings;
 	inputBindings << QRhiVertexInputBinding{ sizeof(float) * 3 };
@@ -112,7 +113,7 @@ void QDefaultProxySkyBox::recreatePipeline(const PipelineContext& ctx)
 	}
 	)";
 
-	QShader vs = QSceneRenderer::createShaderFromCode(QShader::Stage::VertexStage, vertexShaderCode.toLocal8Bit());
+	QShader vs = ISceneRenderer::createShaderFromCode(QShader::Stage::VertexStage, vertexShaderCode.toLocal8Bit());
 
 	QString fragShaderCode = QString(R"(#version 440
 	layout(location = 0) in vec3 vPosition;
@@ -124,7 +125,7 @@ void QDefaultProxySkyBox::recreatePipeline(const PipelineContext& ctx)
 		%2
 	}
 	)");
-	if (ctx.outputDebugId) {
+	if (mRenderPass->getEnableOutputDebugId()) {
 		fragShaderCode = fragShaderCode
 			.arg("layout (location = 1) out vec4 CompId;\n")
 			.arg("CompId = " + mSkyBox->getCompIdVec4String() + ";\n");
@@ -133,7 +134,7 @@ void QDefaultProxySkyBox::recreatePipeline(const PipelineContext& ctx)
 		fragShaderCode = fragShaderCode.arg("").arg("");
 	}
 
-	QShader fs = QSceneRenderer::createShaderFromCode(QShader::Stage::FragmentStage, fragShaderCode.toLocal8Bit());
+	QShader fs = ISceneRenderer::createShaderFromCode(QShader::Stage::FragmentStage, fragShaderCode.toLocal8Bit());
 	Q_ASSERT(fs.isValid());
 
 	mPipeline->setShaderStages({
@@ -151,7 +152,7 @@ void QDefaultProxySkyBox::recreatePipeline(const PipelineContext& ctx)
 
 	mPipeline->setShaderResourceBindings(mShaderResourceBindings.get());
 
-	mPipeline->setRenderPassDescriptor(ctx.renderPassDesc);
+	mPipeline->setRenderPassDescriptor(mRenderPass->getRenderPassDescriptor());
 
 	mPipeline->create();
 }

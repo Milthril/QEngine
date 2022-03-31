@@ -87,10 +87,6 @@ void QRhiWindow::initInternal()
 	mRenderPassDesciptor.reset(mSwapChain->newCompatibleRenderPassDescriptor());
 	mSwapChain->setRenderPassDescriptor(mRenderPassDesciptor.get());
 	resizeSwapChain();
-	if (Engine->renderer()) {
-		Engine->renderer()->setSampleCount(mSwapChain->sampleCount());
-		Engine->renderer()->setRootRenderPassDescriptor(mRenderPassDesciptor);
-	}
 }
 
 void QRhiWindow::renderInternal()
@@ -105,24 +101,9 @@ void QRhiWindow::renderInternal()
 			return;
 		mNewlyExposed = false;
 	}
-	QRhi::FrameOpResult ret = mRhi->beginFrame(mSwapChain.get());
-	if (ret == QRhi::FrameOpSwapChainOutOfDate) {
-		resizeSwapChain();
-		if (!mHasSwapChain)
-			return;
-		mRhi->beginFrame(mSwapChain.get());;
-	}
-	if (ret != QRhi::FrameOpSuccess) {
-		qDebug("beginFrame failed with %d, retry", ret);
-		return;
-	}
 	if (Engine->renderer()) {
-		QRhiCommandBuffer* cmdBuffer = mSwapChain->currentFrameCommandBuffer();
-		mSwapChain->currentFrameRenderTarget()->setRenderPassDescriptor(mRenderPassDesciptor.get());
-		Engine->renderer()->renderInternal(cmdBuffer, mSwapChain->currentFrameRenderTarget());
+		Engine->renderer()->render();
 	}
-	mRhi->endFrame(mSwapChain.get());
-
 	mFrameCount += 1;
 	if (mTimer.elapsed() > 1000) {
 		mFPS = mFrameCount;
@@ -147,7 +128,6 @@ void QRhiWindow::exposeEvent(QExposeEvent*)
 		}
 		resizeSwapChain();
 	}
-
 	const QSize surfaceSize = mHasSwapChain ? mSwapChain->surfacePixelSize() : QSize();
 	// stop pushing frames when not exposed (or size is 0)
 	if ((!isExposed() || (mHasSwapChain && surfaceSize.isEmpty())) && mRunning && !mNotExposed) {
@@ -186,7 +166,6 @@ bool QRhiWindow::event(QEvent* e)
 			mSwapChain.reset(nullptr);
 		}
 		break;
-
 	default:
 		break;
 	}

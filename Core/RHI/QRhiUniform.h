@@ -8,7 +8,7 @@
 
 class QRhiUniform {
 	friend class QRhiUniformProxy;
-	friend class QSceneRenderer;
+	friend class ISceneRenderer;
 public:
 	struct ParamDescBase {
 		QString name;

@@ -1,6 +1,7 @@
-﻿#include "QDefaultScenePass.h"
+﻿#include "QDefaultRenderer.h"
+#include "QDefaultScenePass.h"
 #include "QEngine.h"
-#include "QDefaultRenderer.h"
+#include "Renderer/ISceneComponentRenderProxy.h"
 #include "Scene/Component/QPrimitiveComponent.h"
 
 QDefaultScenePass::QDefaultScenePass(QDefaultRenderer* renderer)
@@ -26,7 +27,7 @@ void QDefaultScenePass::compile() {		//创建默认的RT
 	}
 	colorAttachments << colorAttachment;
 
-	if (mEnableOutputID) {
+	if (mEnableOutputDebugId) {
 		QRhiColorAttachment debugAttachment;
 		mRT.debugTexture.reset(RHI->newTexture(QRhiTexture::RGBA8, mSceneFrameSize, 1, QRhiTexture::RenderTarget | QRhiTexture::UsedAsTransferSource));
 		mRT.debugTexture->create();
@@ -84,11 +85,6 @@ void QDefaultScenePass::execute()
 	RHI->endOffscreenFrame();
 }
 
-void QDefaultScenePass::setupEnableOutputID(bool var)
-{
-	mEnableOutputID = var;
-}
-
 void QDefaultScenePass::setupSceneFrameSize(QSize size)
 {
 	mSceneFrameSize = size;
@@ -102,4 +98,19 @@ void QDefaultScenePass::setupSampleCount(int count)
 QRhiSPtr<QRhiTexture> QDefaultScenePass::getOutputTexture()
 {
 	return mRT.colorAttachment;
+}
+
+int QDefaultScenePass::getSampleCount()
+{
+	return mSampleCount;
+}
+
+QRhiRenderPassDescriptor* QDefaultScenePass::getRenderPassDescriptor()
+{
+	return mRT.renderPassDesc.get();
+}
+
+QVector<QRhiGraphicsPipeline::TargetBlend> QDefaultScenePass::getBlendStates()
+{
+	return {};
 }

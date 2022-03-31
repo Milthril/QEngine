@@ -2,11 +2,12 @@
 #define QDefaultProxySkeletonModel_h__
 
 #include "QDefaultRenderer.h"
+#include "Renderer\ISceneComponentRenderProxy.h"
 
 class QSkeletonMesh;
 class QSkeletonModelComponent;
 
-class QDefaultProxySkeletonModel :public QRhiProxy {
+class QDefaultProxySkeletonModel :public ISceneComponentRenderProxy {
 public:
 	QDefaultProxySkeletonModel(std::shared_ptr<QSkeletonModelComponent> shape);
 private:
@@ -25,7 +26,7 @@ private:
 	QRhiSPtr<QRhiShaderResourceBindings> mShaderResourceBindings;
 protected:
 	void recreateResource() override;
-	void recreatePipeline(const PipelineContext& ctx) override;
+	void recreatePipeline() override;
 	void uploadResource(QRhiResourceUpdateBatch* batch) override;
 	void updateResource(QRhiResourceUpdateBatch* batch) override;
 	void drawInPass(QRhiCommandBuffer* cmdBuffer, const QRhiViewport& viewport) override;

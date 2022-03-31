@@ -208,7 +208,7 @@ void ImGuiDrawPass::initRhiResource(QRhiResourceUpdateBatch* batch, QRhiRenderTa
 	mPipeline->setTargetBlends({ blendState });
 	mPipeline->setFlags(QRhiGraphicsPipeline::UsesScissor);
 	mPipeline->setSampleCount(outputTarget->sampleCount());
-	QShader vs = QSceneRenderer::createShaderFromCode(QShader::VertexStage, R"(#version 440
+	QShader vs = ISceneRenderer::createShaderFromCode(QShader::VertexStage, R"(#version 440
 layout(location = 0) in vec2 inPosition;
 layout(location = 1) in vec2 inUV;
 layout(location = 2) in vec4 inColor;
@@ -228,7 +228,7 @@ void main(){
 }
 )");
 
-	QShader fs = QSceneRenderer::createShaderFromCode(QShader::FragmentStage, R"(#version 440
+	QShader fs = ISceneRenderer::createShaderFromCode(QShader::FragmentStage, R"(#version 440
 layout(location = 0) in vec2 vUV;
 layout(location = 1) in vec4 vColor;
 layout(binding = 1) uniform sampler2D uTexture;

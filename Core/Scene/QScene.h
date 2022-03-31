@@ -11,7 +11,7 @@ class QPrimitiveComponent;
 
 class QScene :public QObject {
 	Q_OBJECT
-		friend class QSceneRenderer;
+		friend class ISceneRenderer;
 public:
 	void insertLight(uint32_t index, std::shared_ptr<QLightComponent> light);
 	void removeLight(std::shared_ptr<QLightComponent> light);

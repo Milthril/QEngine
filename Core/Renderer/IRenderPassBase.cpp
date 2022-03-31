@@ -1,4 +1,4 @@
-﻿#include "QRenderPass.h"
+﻿#include "IRenderPassBase.h"
 
 void QRenderPass::addSubPass(std::shared_ptr<QRenderPass> subPass)
 {

@@ -9,7 +9,7 @@
 class QScene;
 
 class QSceneComponent :public QObject {
-	friend class QSceneRenderer;
+	friend class ISceneRenderer;
 	Q_OBJECT
 		Q_PROPERTY(QVector3D Position READ getPosition WRITE setPosition)
 		Q_PROPERTY(QVector3D Rotation READ getRotation WRITE setRotation)

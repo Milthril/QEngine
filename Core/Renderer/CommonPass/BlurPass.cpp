@@ -1,5 +1,5 @@
 #include "BlurPass.h"
-#include "Renderer\QSceneRenderer.h"
+#include "Renderer\ISceneRenderer.h"
 #include "QEngine.h"
 
 BlurPass::BlurPass() {
@@ -69,7 +69,7 @@ void BlurPass::initRhiResource()
 	blendState.enable = false;
 	mPipelineH->setTargetBlends({ blendState });
 	mPipelineH->setSampleCount(1);
-	QShader vs = QSceneRenderer::createShaderFromCode(QShader::VertexStage, R"(#version 450
+	QShader vs = ISceneRenderer::createShaderFromCode(QShader::VertexStage, R"(#version 450
 	layout (location = 0) out vec2 vUV;
 	out gl_PerVertex{
 		vec4 gl_Position;
@@ -79,7 +79,7 @@ void BlurPass::initRhiResource()
 		gl_Position = vec4(vUV * 2.0f - 1.0f, 0.0f, 1.0f);
 	}
 	)");
-	QShader fsH = QSceneRenderer::createShaderFromCode(QShader::FragmentStage, R"(#version 450
+	QShader fsH = ISceneRenderer::createShaderFromCode(QShader::FragmentStage, R"(#version 450
 layout (location = 0) in vec2 vUV;
 layout (location = 0) out vec4 outFragColor;
 layout (binding = 0) uniform sampler2D uTexture;
@@ -123,7 +123,7 @@ void main(){
 	mPipelineV->setTargetBlends({ blendState });
 	mPipelineV->setSampleCount(1);
 
-	QShader fsV = QSceneRenderer::createShaderFromCode(QShader::FragmentStage, R"(#version 450
+	QShader fsV = ISceneRenderer::createShaderFromCode(QShader::FragmentStage, R"(#version 450
 layout (location = 0) in vec2 vUV;
 layout (location = 0) out vec4 outFragColor;
 layout (binding = 0) uniform sampler2D uTexture;

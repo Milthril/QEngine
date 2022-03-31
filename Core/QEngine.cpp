@@ -10,9 +10,6 @@ QEngine::QEngine(int argc, char** argv, bool enableDebug /*= false*/)
 {
 	mRenderer->setScene(mScene);
 	if (enableDebug) {
-		mDebugPainter = std::make_shared<DebugDrawPass>();
-		mDebugPainter->setupWindow(mWindow.get());
-		renderer()->setDegbuPainter(mDebugPainter);
 	}
 }
 
@@ -34,7 +31,7 @@ const std::shared_ptr<QRhiWindow>& QEngine::window()
 	return mWindow;
 }
 
-const std::shared_ptr<QSceneRenderer>& QEngine::renderer()
+const std::shared_ptr<ISceneRenderer>& QEngine::renderer()
 {
 	return mRenderer;
 }

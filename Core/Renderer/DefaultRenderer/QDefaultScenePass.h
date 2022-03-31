@@ -1,25 +1,25 @@
 ﻿#ifndef QDefaultScenePass_h__
 #define QDefaultScenePass_h__
 
-#include "Renderer\FrameGraph\QRenderPass.h"
 #include "Scene\QSceneComponent.h"
+#include "Renderer\ISceneRenderPass.h"
 
-class QDefaultRenderer;
-class QRhiProxy;
+class ISceneComponentRenderProxy;
 
-class QDefaultScenePass :public QRenderPass {
+class QDefaultScenePass :public QSceneRenderPass {
 public:
 	QDefaultScenePass(QDefaultRenderer* renderer);
 	virtual void compile() override;
 	virtual void execute() override;
 
-	void setupEnableOutputID(bool var);
 	void setupSceneFrameSize(QSize size);
 	void setupSampleCount(int count);
-	QRhiSPtr<QRhiTexture> getOutputTexture();
 
+	QRhiSPtr<QRhiTexture> getOutputTexture();
+	virtual int getSampleCount() override;
+	virtual QRhiRenderPassDescriptor* getRenderPassDescriptor() override;
+	virtual QVector<QRhiGraphicsPipeline::TargetBlend> getBlendStates() override;
 private:
-	bool mEnableOutputID = false;
 	QSize mSceneFrameSize;
 	int mSampleCount = 1;
 
@@ -39,7 +39,7 @@ private:
 	QRhiReadbackResult mReadReult;
 	QRhiReadbackDescription mReadDesc;
 	QPoint mReadPoint;
-	QHash<QSceneComponent::ComponentId, std::shared_ptr<QRhiProxy>> mPrimitiveProxyMap;
+	QHash<QSceneComponent::ComponentId, std::shared_ptr<ISceneComponentRenderProxy>> mPrimitiveProxyMap;
 };
 
 #endif // QDefaultScenePass_h__

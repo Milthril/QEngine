@@ -5,7 +5,7 @@
 
 class QRhiUniformMgr {
 	friend class QRhiUniform;
-	friend class QSceneRenderer;
+	friend class ISceneRenderer;
 public:
 	static QRhiUniformMgr* instance();
 	void update(QRhiResourceUpdateBatch* batch);

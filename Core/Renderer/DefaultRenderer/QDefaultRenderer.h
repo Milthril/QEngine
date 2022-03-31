@@ -1,36 +1,20 @@
 #ifndef QDefaultRenderer_h__
 #define QDefaultRenderer_h__
 
-#include "Renderer/QSceneRenderer.h"
+#include "Renderer/ISceneRenderer.h"
 #include "Renderer/CommonPass/BloomPass.h"
 
-class QDefaultRenderer :public QSceneRenderer {
+class QDefaultRenderer :public ISceneRenderer {
 public:
 	QDefaultRenderer();
-	virtual void render(QRhiCommandBuffer* cmdBuffer, QRhiRenderTarget* renderTarget) override;
-	virtual QVector<QRhiGraphicsPipeline::TargetBlend> getDefaultBlends() override;
+	virtual void render() override;
 	virtual void requestReadbackCompId(const QPoint& screenPt) override;
 protected:
-	void createOrResizeRenderTarget(QSize size);
-	std::shared_ptr<QRhiProxy> createStaticMeshProxy(std::shared_ptr<QStaticMeshComponent>) override;
-	std::shared_ptr<QRhiProxy> createSkeletonMeshProxy(std::shared_ptr<QSkeletonModelComponent>) override;
-	std::shared_ptr<QRhiProxy> createParticleProxy(std::shared_ptr<QParticleComponent>) override;
-	std::shared_ptr<QRhiProxy> createSkyBoxProxy(std::shared_ptr<QSkyBoxComponent>) override;
-	QRhiSPtr<QRhiRenderPassDescriptor> getRenderPassDescriptor() const override;
+	std::shared_ptr<ISceneComponentRenderProxy> createStaticMeshProxy(std::shared_ptr<QStaticMeshComponent>) override;
+	std::shared_ptr<ISceneComponentRenderProxy> createSkeletonMeshProxy(std::shared_ptr<QSkeletonModelComponent>) override;
+	std::shared_ptr<ISceneComponentRenderProxy> createParticleProxy(std::shared_ptr<QParticleComponent>) override;
+	std::shared_ptr<ISceneComponentRenderProxy> createSkyBoxProxy(std::shared_ptr<QSkyBoxComponent>) override;
 private:
-	struct RTResource {
-		QRhiSPtr<QRhiTexture> colorAttachment;
-		QRhiSPtr<QRhiRenderBuffer> msaaBuffer;
-		QRhiSPtr<QRhiRenderBuffer> depthStencil;
-		QRhiSPtr<QRhiTextureRenderTarget> renderTarget;
-		QRhiSPtr<QRhiRenderPassDescriptor> renderPassDesc;
-
-		QRhiSPtr<QRhiTexture> debugTexture;
-		QRhiSPtr<QRhiRenderBuffer> debugMsaaBuffer;
-	};
-	RTResource mRT;
-
-	std::shared_ptr<BloomPass> mBloomPainter;
 	QRhiReadbackResult mReadReult;
 	QRhiReadbackDescription mReadDesc;
 	QPoint mReadPoint;
