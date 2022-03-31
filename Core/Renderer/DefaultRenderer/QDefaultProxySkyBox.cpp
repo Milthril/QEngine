@@ -2,6 +2,7 @@
 #include "Scene\Component\QPrimitiveComponent.h"
 #include "Scene\Component\SkyBox\QSkyBoxComponent.h"
 #include "QEngine.h"
+#include "Renderer\ISceneRenderPass.h"
 
 static float cubeData[] = { // Y up, front = CCW
 		// positions

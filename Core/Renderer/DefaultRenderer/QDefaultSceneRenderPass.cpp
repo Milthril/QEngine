@@ -1,15 +1,35 @@
-﻿#include "QDefaultRenderer.h"
-#include "QDefaultScenePass.h"
+﻿#include "QDefaultSceneRenderPass.h"
 #include "QEngine.h"
 #include "Renderer/ISceneComponentRenderProxy.h"
 #include "Scene/Component/QPrimitiveComponent.h"
+#include "QDefaultProxyStaticMesh.h"
+#include "QDefaultProxySkeletonModel.h"
+#include "QDefaultProxyParticle.h"
+#include "QDefaultProxySkyBox.h"
+#include "QDefaultRenderer.h"
 
-QDefaultScenePass::QDefaultScenePass(QDefaultRenderer* renderer)
+QDefaultSceneRenderPass::QDefaultSceneRenderPass(QDefaultRenderer* renderer)
 	: mRenderer(renderer)
 {
 }
 
-void QDefaultScenePass::compile() {		//创建默认的RT
+std::shared_ptr<ISceneComponentRenderProxy> QDefaultSceneRenderPass::createStaticMeshProxy(std::shared_ptr<QStaticMeshComponent> comp) {
+	return std::make_shared<QDefaultProxyStaticMesh>(comp);
+}
+
+std::shared_ptr<ISceneComponentRenderProxy> QDefaultSceneRenderPass::createSkeletonMeshProxy(std::shared_ptr<QSkeletonModelComponent> comp) {
+	return std::make_shared<QDefaultProxySkeletonModel>(comp);
+}
+
+std::shared_ptr<ISceneComponentRenderProxy> QDefaultSceneRenderPass::createParticleProxy(std::shared_ptr<QParticleComponent> comp) {
+	return std::make_shared<QDefaultProxyParticle>(comp);
+}
+
+std::shared_ptr<ISceneComponentRenderProxy> QDefaultSceneRenderPass::createSkyBoxProxy(std::shared_ptr<QSkyBoxComponent> comp) {
+	return std::make_shared<QDefaultProxySkyBox>(comp);
+}
+
+void QDefaultSceneRenderPass::compile() {		//创建默认的RT
 	if (mRT.colorAttachment && mRT.colorAttachment->pixelSize() == mSceneFrameSize)
 		return;
 	mRT.colorAttachment.reset(RHI->newTexture(QRhiTexture::RGBA32F, mSceneFrameSize, 1, QRhiTexture::RenderTarget | QRhiTexture::UsedAsTransferSource));
@@ -54,7 +74,7 @@ void QDefaultScenePass::compile() {		//创建默认的RT
 	mRT.renderTarget->create();
 }
 
-void QDefaultScenePass::execute()
+void QDefaultSceneRenderPass::execute()
 {
 	auto& primitiveList = mRenderer->getScene()->geyPrimitiveList();
 	QRhiCommandBuffer* cmdBuffer;
@@ -62,7 +82,7 @@ void QDefaultScenePass::execute()
 	QRhiResourceUpdateBatch* resUpdateBatch = RHI->nextResourceUpdateBatch();
 	for (int i = 0; i < primitiveList.size(); i++) {		//创建代理
 		if (!mPrimitiveProxyMap.contains(primitiveList[i]->componentId())) {
-			const auto& proxy = mRenderer->createPrimitiveProxy(primitiveList[i]);
+			const auto& proxy = createPrimitiveProxy(primitiveList[i]);
 			proxy->uploadResource(resUpdateBatch);
 			mPrimitiveProxyMap[primitiveList[i]->componentId()] = proxy;
 		}
@@ -85,32 +105,32 @@ void QDefaultScenePass::execute()
 	RHI->endOffscreenFrame();
 }
 
-void QDefaultScenePass::setupSceneFrameSize(QSize size)
+void QDefaultSceneRenderPass::setupSceneFrameSize(QSize size)
 {
 	mSceneFrameSize = size;
 }
 
-void QDefaultScenePass::setupSampleCount(int count)
+void QDefaultSceneRenderPass::setupSampleCount(int count)
 {
 	mSampleCount = count;
 }
 
-QRhiSPtr<QRhiTexture> QDefaultScenePass::getOutputTexture()
+QRhiSPtr<QRhiTexture> QDefaultSceneRenderPass::getOutputTexture()
 {
 	return mRT.colorAttachment;
 }
 
-int QDefaultScenePass::getSampleCount()
+int QDefaultSceneRenderPass::getSampleCount()
 {
 	return mSampleCount;
 }
 
-QRhiRenderPassDescriptor* QDefaultScenePass::getRenderPassDescriptor()
+QRhiRenderPassDescriptor* QDefaultSceneRenderPass::getRenderPassDescriptor()
 {
 	return mRT.renderPassDesc.get();
 }
 
-QVector<QRhiGraphicsPipeline::TargetBlend> QDefaultScenePass::getBlendStates()
+QVector<QRhiGraphicsPipeline::TargetBlend> QDefaultSceneRenderPass::getBlendStates()
 {
 	return {};
 }

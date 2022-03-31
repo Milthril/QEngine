@@ -3,6 +3,7 @@
 #include "Scene\Component\StaticMesh\QStaticMeshComponent.h"
 #include "Scene\Component\Particle\QParticleComponent.h"
 #include "QEngine.h"
+#include "Renderer\ISceneRenderPass.h"
 
 QDefaultProxyStaticMesh::QDefaultProxyStaticMesh(std::shared_ptr<QStaticMeshComponent> mesh)
 	: mStaticMesh(mesh)

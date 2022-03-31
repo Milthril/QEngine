@@ -3,7 +3,8 @@
 
 #include "RHI/QRhiDefine.h"
 #include "Scene/QSceneComponent.h"
-#include "ISceneRenderPass.h"
+
+class ISceneRenderPass;
 
 class ISceneComponentRenderProxy {
 public:
@@ -14,7 +15,7 @@ public:
 	virtual void updatePrePass(QRhiCommandBuffer* cmdBuffer) {}
 	virtual void drawInPass(QRhiCommandBuffer* cmdBuffer, const QRhiViewport& viewport) {}
 public:
-	QSceneRenderPass* mRenderPass;
+	ISceneRenderPass* mRenderPass;
 	std::shared_ptr<QSceneComponent> mComponent;
 	QRhiSPtr<QRhiGraphicsPipeline> mPipeline;
 	QRhiSPtr<QRhiBuffer> mUniformBuffer;

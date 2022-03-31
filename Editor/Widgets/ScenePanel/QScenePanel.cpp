@@ -24,7 +24,7 @@ void QScenePanel::createUI() {
 
 	connect(this, &QTreeWidget::currentItemChanged, this, [this](QTreeWidgetItem* current, QTreeWidgetItem*) {
 		QObject* oPtr = current->data(1, 0).value<QObject*>();
-		Engine->debugPainter()->setCurrentCompInternal(dynamic_cast<QSceneComponent*>(oPtr));
+		//Engine->debugPainter()->setCurrentCompInternal(dynamic_cast<QSceneComponent*>(oPtr));
 		Q_EMIT objectChanged(oPtr);
 	});
 

@@ -1,6 +1,6 @@
 ﻿#include "IRenderPassBase.h"
 
-void QRenderPass::addSubPass(std::shared_ptr<QRenderPass> subPass)
+void IRenderPassBase::addSubPass(std::shared_ptr<IRenderPassBase> subPass)
 {
 	subPass->mDependencyList << this;
 	mSubPassList << subPass;

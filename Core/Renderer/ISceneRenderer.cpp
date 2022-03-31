@@ -44,32 +44,3 @@ QShader ISceneRenderer::createShaderFromCode(QShader::Stage stage, const char* c
 
 	return shader;
 }
-
-std::shared_ptr<ISceneComponentRenderProxy> ISceneRenderer::createPrimitiveProxy(std::shared_ptr<QPrimitiveComponent> component)
-{
-	if (!component)
-		return nullptr;
-	std::shared_ptr<ISceneComponentRenderProxy> proxy;
-	switch (component->type())
-	{
-	case QSceneComponent::None:
-		return nullptr;
-		break;
-	case QSceneComponent::StaticMesh:
-		proxy = createStaticMeshProxy(std::dynamic_pointer_cast<QStaticMeshComponent>(component));
-		break;
-	case QSceneComponent::SkeletonMesh:
-		proxy = createSkeletonMeshProxy(std::dynamic_pointer_cast<QSkeletonModelComponent>(component));
-		break;
-	case QSceneComponent::Particle:
-		proxy = createParticleProxy(std::dynamic_pointer_cast<QParticleComponent>(component));
-		break;
-	default:
-		return nullptr;
-		break;
-	}
-	proxy->mComponent = component;
-	component->bNeedRecreateResource.active();
-	component->bNeedRecreatePipeline.active();
-	return std::dynamic_pointer_cast<ISceneComponentRenderProxy>(proxy);
-}

@@ -1,17 +1,17 @@
-﻿#ifndef QRenderPass_h__
-#define QRenderPass_h__
+﻿#ifndef IRenderPassBase_h__
+#define IRenderPassBase_h__
 
 #include "RHI/QRhiDefine.h"
 
-class QRenderPass {
+class IRenderPassBase {
 public:
 	virtual void compile() {}
 	virtual void execute() {}
-	void addSubPass(std::shared_ptr<QRenderPass> subPass);
+	void addSubPass(std::shared_ptr<IRenderPassBase> subPass);
 private:
 	std::function<void()> mFuncSetup;
-	QList<QRenderPass*> mDependencyList;
-	QList<std::shared_ptr<QRenderPass>> mSubPassList;
+	QList<IRenderPassBase*> mDependencyList;
+	QList<std::shared_ptr<IRenderPassBase>> mSubPassList;
 };
 
-#endif // QRenderPass_h__
+#endif // IRenderPassBase_h__

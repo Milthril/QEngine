@@ -4,6 +4,7 @@
 #include "Scene\Component\Particle\QParticleEmitter.h"
 #include "Scene\Component\Particle\QParticleComponent.h"
 #include "QDefaultProxyStaticMesh.h"
+#include "Renderer\ISceneRenderPass.h"
 
 QDefaultProxyParticle::QDefaultProxyParticle(std::shared_ptr<QParticleComponent> particle)
 	:mParticle(particle)
