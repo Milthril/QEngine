@@ -4,7 +4,6 @@
 #include "QDefaultRenderer.h"
 #include "Scene\Component\Particle\QParticleComponent.h"
 
-
 class QDefaultProxyStaticMesh;
 
 class QDefaultProxyParticle :public QRhiProxy {
@@ -40,7 +39,7 @@ private:
 	float mLastSecond;
 protected:
 	void recreateResource() override;
-	void recreatePipeline() override;
+	void recreatePipeline(const PipelineContext& ctx) override;
 	void updatePrePass(QRhiCommandBuffer* cmdBuffer) override;
 	void drawInPass(QRhiCommandBuffer* cmdBuffer, const QRhiViewport& viewport) override;
 	std::shared_ptr<QDefaultProxyStaticMesh> mStaticMeshProxy;

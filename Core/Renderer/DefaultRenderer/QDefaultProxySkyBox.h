@@ -13,7 +13,7 @@ private:
 	QRhiSPtr<QRhiShaderResourceBindings> mShaderResourceBindings;
 protected:
 	void recreateResource() override;
-	void recreatePipeline() override;
+	void recreatePipeline(const PipelineContext& ctx) override;
 	void uploadResource(QRhiResourceUpdateBatch* batch) override;
 	void updateResource(QRhiResourceUpdateBatch* batch) override;
 	void drawInPass(QRhiCommandBuffer* cmdBuffer, const QRhiViewport& viewport) override;

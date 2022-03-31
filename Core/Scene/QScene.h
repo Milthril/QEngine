@@ -30,6 +30,9 @@ public:
 	void setSkyBox(std::shared_ptr<QSkyBoxComponent> val);
 
 	std::shared_ptr<QSceneComponent> searchCompById(QSceneComponent::ComponentId id);
+
+	QMatrix4x4 getMatrixVP();
+
 private:
 	QList<std::shared_ptr<QPrimitiveComponent>> mPrimitiveList;
 	QList<std::shared_ptr<QLightComponent>> mLightList;

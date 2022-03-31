@@ -16,19 +16,27 @@ class DebugDrawPass;
 
 class QRhiProxy {
 public:
+	struct PipelineContext {
+		int sampleCount = 1;
+		bool outputDebugId = false;
+		QRhiRenderPassDescriptor* renderPassDesc;
+		QVector<QRhiGraphicsPipeline::TargetBlend> blendState;
+	};
 	virtual void recreateResource() {}
-	virtual void recreatePipeline() {}
+	virtual void recreatePipeline(const PipelineContext& ctx) {}
 	virtual void uploadResource(QRhiResourceUpdateBatch* batch) {}
 	virtual void updateResource(QRhiResourceUpdateBatch* batch) {}
 	virtual void updatePrePass(QRhiCommandBuffer* cmdBuffer) {}
 	virtual void drawInPass(QRhiCommandBuffer* cmdBuffer, const QRhiViewport& viewport) {}
+
 public:
-	QSceneRenderer* mRenderer;
 	std::shared_ptr<QSceneComponent> mComponent;
 	QRhiSPtr<QRhiGraphicsPipeline> mPipeline;
 	QRhiSPtr<QRhiBuffer> mUniformBuffer;
 	QRhiSPtr<QRhiBuffer> mVertexBuffer;
 	QRhiSPtr<QRhiBuffer> mIndexBuffer;
+protected:
+	;
 };
 
 class QSceneRenderer :public QObject {
@@ -80,7 +88,6 @@ private:
 	virtual std::shared_ptr<QRhiProxy> createSkeletonMeshProxy(std::shared_ptr<QSkeletonModelComponent>) = 0;
 	virtual std::shared_ptr<QRhiProxy> createParticleProxy(std::shared_ptr<QParticleComponent>) = 0;
 	virtual std::shared_ptr<QRhiProxy> createSkyBoxProxy(std::shared_ptr<QSkyBoxComponent>) = 0;
-
 protected:
 	std::shared_ptr<QScene> mScene;
 	int mSampleCount;

@@ -74,17 +74,16 @@ void QDefaultProxySkyBox::recreateResource()
 	mVertexBuffer->create();
 }
 
-void QDefaultProxySkyBox::recreatePipeline()
+void QDefaultProxySkyBox::recreatePipeline(const PipelineContext& ctx)
 {
 	mPipeline.reset(RHI->newGraphicsPipeline());
 
-	auto blends = mRenderer->getDefaultBlends();
-	mPipeline->setTargetBlends(blends.begin(), blends.end());
+	mPipeline->setTargetBlends(ctx.blendState.begin(), ctx.blendState.end());
 
 	mPipeline->setTopology(QRhiGraphicsPipeline::Triangles);
 	mPipeline->setDepthTest(true);
 	mPipeline->setDepthWrite(true);
-	mPipeline->setSampleCount(mRenderer->getSampleCount());
+	mPipeline->setSampleCount(ctx.sampleCount);
 
 	QVector<QRhiVertexInputBinding> inputBindings;
 	inputBindings << QRhiVertexInputBinding{ sizeof(float) * 3 };
@@ -125,7 +124,7 @@ void QDefaultProxySkyBox::recreatePipeline()
 		%2
 	}
 	)");
-	if (mRenderer->debugEnabled()) {
+	if (ctx.outputDebugId) {
 		fragShaderCode = fragShaderCode
 			.arg("layout (location = 1) out vec4 CompId;\n")
 			.arg("CompId = " + mSkyBox->getCompIdVec4String() + ";\n");
@@ -152,7 +151,7 @@ void QDefaultProxySkyBox::recreatePipeline()
 
 	mPipeline->setShaderResourceBindings(mShaderResourceBindings.get());
 
-	mPipeline->setRenderPassDescriptor(mRenderer->getRenderPassDescriptor().get());
+	mPipeline->setRenderPassDescriptor(ctx.renderPassDesc);
 
 	mPipeline->create();
 }
@@ -181,7 +180,7 @@ void QDefaultProxySkyBox::uploadResource(QRhiResourceUpdateBatch* batch)
 }
 
 void QDefaultProxySkyBox::updateResource(QRhiResourceUpdateBatch* batch) {
-	QMatrix4x4 MVP = mRenderer->getVP() * mSkyBox->calculateLocalMatrix();
+	QMatrix4x4 MVP = mSkyBox->calculateMVP();
 	batch->updateDynamicBuffer(mUniformBuffer.get(), 0, sizeof(QMatrix4x4), MVP.constData());
 }
 

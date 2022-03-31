@@ -140,7 +140,6 @@ void QSceneRenderer::tryResetSkyBox(QRhiResourceUpdateBatch* batch)
 {
 	if (!mSkyBoxProxy && mScene->getSkyBox()) {
 		mSkyBoxProxy = createSkyBoxProxy(mScene->getSkyBox());
-		mSkyBoxProxy->mRenderer = this;
 		mSkyBoxProxy->mComponent = mScene->getSkyBox();
 		mSkyBoxProxy->recreateResource();
 		mSkyBoxProxy->recreatePipeline();
@@ -206,7 +205,6 @@ std::shared_ptr<QRhiProxy> QSceneRenderer::createPrimitiveProxy(std::shared_ptr<
 		return nullptr;
 		break;
 	}
-	proxy->mRenderer = this;
 	proxy->mComponent = component;
 	component->bNeedRecreateResource.active();
 	component->bNeedRecreatePipeline.active();
@@ -217,7 +215,6 @@ void QSceneRenderer::resetPrimitiveProxy(std::shared_ptr<QPrimitiveComponent> co
 {
 	std::shared_ptr<QRhiProxy> newProxy = createPrimitiveProxy(component);
 	newProxy->mComponent = component;
-	newProxy->mRenderer = this;
 	newProxy->recreateResource();
 	newProxy->recreatePipeline();
 	mPrimitiveProxyMap[component->componentId()] = newProxy;

@@ -13,7 +13,6 @@ QDefaultProxyParticle::QDefaultProxyParticle(std::shared_ptr<QParticleComponent>
 void QDefaultProxyParticle::recreateResource() {
 	mStaticMeshProxy = std::make_shared<QDefaultProxyStaticMesh>(mParticle->getStaticMesh());
 	mStaticMeshProxy->setParentParticle(mParticle);
-	mStaticMeshProxy->mRenderer = mRenderer;
 	mStaticMeshProxy->recreateResource();
 	mParticlesBuffer[0].reset(RHI->newBuffer(QRhiBuffer::Static, QRhiBuffer::UsageFlag::VertexBuffer | QRhiBuffer::UsageFlag::StorageBuffer, sizeof(QParticleSystem::ParticleBuffer)));
 	mParticlesBuffer[0]->create();
@@ -27,7 +26,7 @@ void QDefaultProxyParticle::recreateResource() {
 	mMatrixBuffer->create();
 }
 
-void QDefaultProxyParticle::recreatePipeline()
+void QDefaultProxyParticle::recreatePipeline(const PipelineContext& ctx)
 {
 	QRhiUniformProxy::UniformInfo uniformInfo = mParticle->getParticleSystem()->getUpdater()->getProxy()->getUniformInfo(3, QRhiShaderResourceBinding::ComputeStage);
 
@@ -65,7 +64,7 @@ void QDefaultProxyParticle::recreatePipeline()
 		return;
 	}
 
-	mStaticMeshProxy->recreatePipeline();
+	mStaticMeshProxy->recreatePipeline(ctx);
 
 	mComputePipeline.reset(RHI->newComputePipeline());
 	mComputeBindings[0].reset(RHI->newShaderResourceBindings());
@@ -166,7 +165,6 @@ void QDefaultProxyParticle::updateResource(QRhiResourceUpdateBatch* batch)
 	if (mParticle->getStaticMesh()->bNeedRecreateResource.receive()) {
 		mStaticMeshProxy = std::make_shared<QDefaultProxyStaticMesh>(mParticle->getStaticMesh());
 		mStaticMeshProxy->setParentParticle(mParticle);
-		mStaticMeshProxy->mRenderer = mRenderer;
 		mStaticMeshProxy->recreateResource();
 		mStaticMeshProxy->uploadResource(batch);
 	}
@@ -234,5 +232,4 @@ void QDefaultProxyParticle::drawInPass(QRhiCommandBuffer* cmdBuffer, const QRhiV
 	};
 	cmdBuffer->setVertexInput(0, 2, VertexInputs, mStaticMeshProxy->mIndexBuffer.get(), 0, QRhiCommandBuffer::IndexUInt32);
 	cmdBuffer->drawIndexed(mStaticMeshProxy->mIndexBuffer->size() / sizeof(QPrimitiveComponent::Index), mCtx.inputCounter);
-	//qDebug() << mCtx.inputCounter;
 }

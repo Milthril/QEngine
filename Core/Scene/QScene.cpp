@@ -1,5 +1,6 @@
 #include "QScene.h"
 #include "Component\QPrimitiveComponent.h"
+#include "Component\Camera\QCameraComponent.h"
 #include "QQueue"
 
 void QScene::insertLight(uint32_t index, std::shared_ptr<QLightComponent> light)
@@ -64,7 +65,7 @@ std::shared_ptr<QSceneComponent> QScene::searchCompById(QSceneComponent::Compone
 {
 	QQueue<std::shared_ptr<QSceneComponent>> qObject;
 	for (auto comp : mPrimitiveList) {
-		qObject.push_back( comp );
+		qObject.push_back(comp);
 	}
 	while (!qObject.isEmpty()) {
 		std::shared_ptr<QSceneComponent> parent = qObject.takeFirst();
@@ -76,4 +77,11 @@ std::shared_ptr<QSceneComponent> QScene::searchCompById(QSceneComponent::Compone
 		}
 	}
 	return nullptr;
+}
+
+QMatrix4x4 QScene::getMatrixVP()
+{
+	if (mCamera)
+		return mCamera->getMatrixVP();
+	return QMatrix4x4();
 }

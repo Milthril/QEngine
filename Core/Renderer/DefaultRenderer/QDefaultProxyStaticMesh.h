@@ -6,7 +6,6 @@
 class QParticleComponent;
 
 class QDefaultProxyStaticMesh :public QRhiProxy {
-
 public:
 	QDefaultProxyStaticMesh(std::shared_ptr<QStaticMeshComponent> shape);
 
@@ -18,7 +17,7 @@ private:
 	QRhiSPtr<QRhiShaderResourceBindings> mShaderResourceBindings;
 public:
 	void recreateResource() override;
-	void recreatePipeline() override;
+	void recreatePipeline(const PipelineContext& ctx) override;
 	void uploadResource(QRhiResourceUpdateBatch* batch) override;
 	void updateResource(QRhiResourceUpdateBatch* batch) override;
 	void drawInPass(QRhiCommandBuffer* cmdBuffer, const QRhiViewport& viewport) override;

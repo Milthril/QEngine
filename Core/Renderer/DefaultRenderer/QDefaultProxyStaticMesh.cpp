@@ -24,7 +24,7 @@ void QDefaultProxyStaticMesh::recreateResource()
 	mIndexBuffer->create();
 }
 
-void QDefaultProxyStaticMesh::recreatePipeline()
+void QDefaultProxyStaticMesh::recreatePipeline(const PipelineContext& ctx)
 {
 	if (mStaticMesh->getVertexCount() == 0) {
 		return;
@@ -88,7 +88,7 @@ void QDefaultProxyStaticMesh::recreatePipeline()
 	QString defineCode = materialInfo.uniformDefineCode;
 	QString outputCode = mStaticMesh->getMaterial()->getShadingCode();
 
-	if (mRenderer->debugEnabled()) {
+	if (ctx.outputDebugId) {
 		defineCode.prepend("layout (location = 1) out vec4 CompId;\n");
 		if (mParentParticle) {
 			outputCode.append(QString("CompId = %1;\n").arg(mParentParticle->getCompIdVec4String()));
@@ -115,12 +115,11 @@ void QDefaultProxyStaticMesh::recreatePipeline()
 	mPipeline.reset(RHI->newGraphicsPipeline());
 
 	mPipeline->setVertexInputLayout(inputLayout);
-	auto blends = mRenderer->getDefaultBlends();
-	mPipeline->setTargetBlends(blends.begin(), blends.end());
+	mPipeline->setTargetBlends(ctx.blendState.begin(), ctx.blendState.end());
 	mPipeline->setTopology(mStaticMesh->getTopology());
 	mPipeline->setDepthTest(true);
 	mPipeline->setDepthWrite(true);
-	mPipeline->setSampleCount(mRenderer->getSampleCount());
+	mPipeline->setSampleCount(ctx.sampleCount);
 
 	mPipeline->setShaderStages({
 		{ QRhiShaderStage::Vertex, vs },
@@ -135,7 +134,7 @@ void QDefaultProxyStaticMesh::recreatePipeline()
 
 	mPipeline->setShaderResourceBindings(mShaderResourceBindings.get());
 
-	mPipeline->setRenderPassDescriptor(mRenderer->getRenderPassDescriptor().get());
+	mPipeline->setRenderPassDescriptor(ctx.renderPassDesc);
 
 	mPipeline->create();
 }
@@ -173,7 +172,7 @@ void QDefaultProxyStaticMesh::updateResource(QRhiResourceUpdateBatch* batch) {
 			batch->uploadStaticBuffer(mIndexBuffer.get(), mStaticMesh->getVertices().constData());
 	}
 
-	QMatrix4x4 MVP = mRenderer->getVP() * mStaticMesh->calculateWorldMatrix();
+	QMatrix4x4 MVP = mStaticMesh->calculateMVP();
 	batch->updateDynamicBuffer(mUniformBuffer.get(), 0, sizeof(QMatrix4x4), MVP.constData());
 }
 

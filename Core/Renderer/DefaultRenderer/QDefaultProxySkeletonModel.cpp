@@ -39,7 +39,7 @@ void QDefaultProxySkeletonModel::recreateResource()
 	mUniformBuffer->create();
 }
 
-void QDefaultProxySkeletonModel::recreatePipeline()
+void QDefaultProxySkeletonModel::recreatePipeline(const PipelineContext& ctx)
 {
 	for (int i = 0; i < mMeshProxyList.size(); i++) {
 		auto& meshProxy = mMeshProxyList[i];
@@ -48,12 +48,11 @@ void QDefaultProxySkeletonModel::recreatePipeline()
 		QRhiGraphicsPipeline::TargetBlend blendState;
 		blendState.enable = false;
 
-		auto blends = mRenderer->getDefaultBlends();
-		mPipeline->setTargetBlends(blends.begin(), blends.end());
+		mPipeline->setTargetBlends(ctx.blendState.begin(), ctx.blendState.end());
 		pipeline->setTopology(QRhiGraphicsPipeline::Topology::Triangles);
 		pipeline->setDepthTest(true);
 		pipeline->setDepthWrite(true);
-		pipeline->setSampleCount(mRenderer->getSampleCount());
+		pipeline->setSampleCount(ctx.sampleCount);
 
 		QVector<QRhiVertexInputBinding> inputBindings;
 		inputBindings << QRhiVertexInputBinding{ sizeof(QSkeletonModelComponent::Vertex) };
@@ -108,7 +107,7 @@ void QDefaultProxySkeletonModel::recreatePipeline()
 		QString defineCode = materialInfo.uniformDefineCode;
 		QString outputCode = meshProxy->mesh->getMaterial()->getShadingCode();
 
-		if (mRenderer->debugEnabled()) {
+		if (ctx.outputDebugId) {
 			defineCode.prepend("layout (location = 1) out vec4 CompId;\n");
 			outputCode.append(QString("CompId = %1;\n").arg(mSkeletonModel->componentId()));
 		}
@@ -139,7 +138,7 @@ void QDefaultProxySkeletonModel::recreatePipeline()
 
 		pipeline->setShaderResourceBindings(shaderResBindings.get());
 
-		pipeline->setRenderPassDescriptor(mRenderer->getRenderPassDescriptor().get());
+		pipeline->setRenderPassDescriptor(ctx.renderPassDesc);
 
 		pipeline->create();
 	}
@@ -154,7 +153,7 @@ void QDefaultProxySkeletonModel::uploadResource(QRhiResourceUpdateBatch* batch)
 }
 
 void QDefaultProxySkeletonModel::updateResource(QRhiResourceUpdateBatch* batch) {
-	QMatrix4x4 MVP = mRenderer->getVP() * mSkeletonModel->calculateWorldMatrix();
+	QMatrix4x4 MVP = mSkeletonModel->calculateMVP();
 	batch->updateDynamicBuffer(mUniformBuffer.get(), 0, sizeof(float) * 16, MVP.constData());
 	const auto& posesMatrix = mSkeletonModel->getSkeleton()->getCurrentPosesMatrix();
 	batch->updateDynamicBuffer(mUniformBuffer.get(), sizeof(float) * 16, sizeof(QSkeleton::Mat4) * posesMatrix.size(), posesMatrix.constData());

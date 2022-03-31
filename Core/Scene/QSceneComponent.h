@@ -45,7 +45,8 @@ public:
 
 	QMatrix4x4 calculateLocalMatrix();
 	QMatrix4x4 calculateParentMatrix();
-	QMatrix4x4 calculateWorldMatrix();
+	QMatrix4x4 calculateModelMatrix();
+	QMatrix4x4 calculateMVP();
 
 	const QVector3D& getPosition() const;
 	virtual void setPosition(const QVector3D& newPosition);

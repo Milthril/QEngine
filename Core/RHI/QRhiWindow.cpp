@@ -8,6 +8,7 @@
 #include <QPlatformSurfaceEvent>
 #include <QtGui/private/qrhinull_p.h>
 #include "QEngine.h"
+#include "Renderer\DefaultRenderer\QDefaultScenePass.h"
 
 QRhiWindow::QRhiWindow(QRhi::Implementation backend)
 	: mBackend(backend)
