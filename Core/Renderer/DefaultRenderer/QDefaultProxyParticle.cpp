@@ -14,8 +14,9 @@ QDefaultProxyParticle::QDefaultProxyParticle(std::shared_ptr<QParticleComponent>
 
 void QDefaultProxyParticle::recreateResource() {
 	mStaticMeshProxy = std::dynamic_pointer_cast<QDefaultProxyStaticMesh>(mRenderPass->createPrimitiveProxy(mParticle->getStaticMesh()));
+	mStaticMeshProxy->mComponent->setScene(mComponent->getScene());
 	mStaticMeshProxy->setParentParticle(mParticle);
-	mStaticMeshProxy->recreateResource();
+
 	mParticlesBuffer[0].reset(RHI->newBuffer(QRhiBuffer::Static, QRhiBuffer::UsageFlag::VertexBuffer | QRhiBuffer::UsageFlag::StorageBuffer, sizeof(QParticleSystem::ParticleBuffer)));
 	mParticlesBuffer[0]->create();
 	mParticlesBuffer[1].reset(RHI->newBuffer(QRhiBuffer::Static, QRhiBuffer::UsageFlag::VertexBuffer | QRhiBuffer::UsageFlag::StorageBuffer, sizeof(QParticleSystem::ParticleBuffer)));
@@ -65,9 +66,6 @@ void QDefaultProxyParticle::recreatePipeline()
 		mComputePipeline.reset(nullptr);
 		return;
 	}
-
-	mStaticMeshProxy->recreatePipeline();
-
 	mComputePipeline.reset(RHI->newComputePipeline());
 	mComputeBindings[0].reset(RHI->newShaderResourceBindings());
 	mComputeBindings[1].reset(RHI->newShaderResourceBindings());
@@ -159,14 +157,12 @@ void QDefaultProxyParticle::recreatePipeline()
 
 void QDefaultProxyParticle::uploadResource(QRhiResourceUpdateBatch* batch)
 {
-	mStaticMeshProxy->uploadResource(batch);
 }
 
 void QDefaultProxyParticle::updateResource(QRhiResourceUpdateBatch* batch)
 {
+	mParticle->getParticleSystem()->getUpdater()->getProxy()->updateResource(batch);
 	if (mParticle->getStaticMesh()->bNeedRecreateResource.receive()) {
-		mStaticMeshProxy = std::make_shared<QDefaultProxyStaticMesh>(mParticle->getStaticMesh());
-		mStaticMeshProxy->setParentParticle(mParticle);
 		mStaticMeshProxy->recreateResource();
 		mStaticMeshProxy->uploadResource(batch);
 	}
@@ -180,6 +176,7 @@ void QDefaultProxyParticle::updatePrePass(QRhiCommandBuffer* cmdBuffer)
 {
 	if (!mComputePipeline)
 		return;
+
 	float currentSecond = QTime::currentTime().msecsSinceStartOfDay() / 1000.0;
 	mDuration = currentSecond - mLastSecond;
 	mLastSecond = currentSecond;

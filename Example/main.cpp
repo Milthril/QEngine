@@ -27,13 +27,13 @@ public:
 	std::shared_ptr<QCameraComponent> mCamera;
 	std::shared_ptr<QSkyBoxComponent> mSkyBox;
 	std::shared_ptr<QCube> mCube;
-	//std::shared_ptr<QStaticModel> mStaticModel;
-	//std::shared_ptr<QSkeletonModelComponent> mSkeletonModel;
-	//std::shared_ptr<QParticleComponent> mGPUParticles;
-	//std::shared_ptr<QText2D> mText;
+	std::shared_ptr<QStaticModel> mStaticModel;
+	std::shared_ptr<QSkeletonModelComponent> mSkeletonModel;
+	std::shared_ptr<QParticleComponent> mGPUParticles;
+	std::shared_ptr<QText2D> mText;
 	std::shared_ptr<QMaterial> mMaterial;
-	//std::shared_ptr<QAudioSpectrum> mSpectrum;
-	//std::shared_ptr<TimeDomainProvider> mTimeDomainProvider;
+	std::shared_ptr<QAudioSpectrum> mSpectrum;
+	std::shared_ptr<TimeDomainProvider> mTimeDomainProvider;
 
 	QRandomGenerator rand;
 	MyGame(int argc, char** argv)
@@ -53,26 +53,25 @@ public:
 		mSkyBox->setSkyBoxImage(QImage(assetDir.filePath("sky.jpeg")));
 		scene()->addSceneComponent("Sky", mSkyBox);
 
-		//mGPUParticles = std::make_shared<QParticleComponent>();
-		//mGPUParticles->getParticleSystem()->getUpdater()->addDataVec3("force", QVector3D(0, 0.0098, 0));			//为粒子添加一个作用力，设置粒子的运动代码
-		//mGPUParticles->getParticleSystem()->getUpdater()->setUpdateCode(R"(
-		//	outParticle.position = inParticle.position + inParticle.velocity;
-		//	outParticle.velocity = inParticle.velocity + UBO.force;
-		//	outParticle.scaling  = inParticle.scaling;
-		//	outParticle.rotation = inParticle.rotation;
-		//)");
+		mGPUParticles = std::make_shared<QParticleComponent>();
+		mGPUParticles->getParticleSystem()->getUpdater()->addDataVec3("force", QVector3D(0, 0.0098, 0));			//为粒子添加一个作用力，设置粒子的运动代码
+		mGPUParticles->getParticleSystem()->getUpdater()->setUpdateCode(R"(
+			outParticle.position = inParticle.position + inParticle.velocity;
+			outParticle.velocity = inParticle.velocity + UBO.force;
+			outParticle.scaling  = inParticle.scaling;
+			outParticle.rotation = inParticle.rotation;
+		)");
 
-		//std::shared_ptr<QCubeGenerator> positionGenerator = std::make_shared<QCubeGenerator>();						//设置粒子的位置生成器，这部分用到了SubClass结构，可扩展
-		//positionGenerator->setWidth(1000);
-		//positionGenerator->setHeight(1000);
-		//positionGenerator->setDepth(1000);
-		//mGPUParticles->getParticleSystem()->getEmitter()->setPositionGenerator(positionGenerator);					//设置粒子存活时间
-		//mGPUParticles->getParticleSystem()->getEmitter()->setLifetime(2);
-		//mGPUParticles->getParticleSystem()->getEmitter()->setNumOfTick(2000);										//设置每帧发射数量，发射方式可扩展
-		//mGPUParticles->getParticleSystem()->getEmitter()->setScaling(QVector3D(0.1, 0.1, 0.1));
-		//mGPUParticles->setStaticMesh(std::make_shared<QCube>());													//设置粒子的形状（实例），可扩展
-		//mGPUParticles->getStaticMesh()->setMaterial(mMaterial);														//设置粒子材质
-		//scene()->addSceneComponent("GPU particles", mGPUParticles);
+		std::shared_ptr<QCubeGenerator> positionGenerator = std::make_shared<QCubeGenerator>();						//设置粒子的位置生成器，这部分用到了SubClass结构，可扩展
+		positionGenerator->setWidth(1000);
+		positionGenerator->setHeight(1000);
+		positionGenerator->setDepth(1000);
+		mGPUParticles->getParticleSystem()->getEmitter()->setPositionGenerator(positionGenerator);					//设置粒子存活时间
+		mGPUParticles->getParticleSystem()->getEmitter()->setLifetime(2);
+		mGPUParticles->getParticleSystem()->getEmitter()->setNumOfTick(2000);										//设置每帧发射数量，发射方式可扩展
+		mGPUParticles->getParticleSystem()->getEmitter()->setScaling(QVector3D(0.1, 0.1, 0.1));
+		mGPUParticles->setStaticMesh(std::make_shared<QCube>());													//设置粒子的形状（实例），可扩展
+		scene()->addSceneComponent("GPU particles", mGPUParticles);
 
 		mCube.reset(new QCube);
 		scene()->addSceneComponent(QString("Cube"), mCube);
@@ -81,23 +80,23 @@ public:
 		mMaterial->setShadingCode("FragColor = vec4(UBO.BaseColor,1);");											//设置材质的Shading代码
 		mCube->setMaterial(mMaterial);
 
-		//mText = std::make_shared<QText2D>(QString::fromUtf8("电脑放点音乐=.="));
-		//mText->setMaterial(mMaterial);
-		//mText->setPosition(QVector3D(0, -4, 0));
-		//mText->setRotation(QVector3D(0, 180, 0));
-		//mText->setScale(QVector3D(3, 3, 3));
-		//scene()->addSceneComponent("Text", mText);
+		mText = std::make_shared<QText2D>(QString::fromUtf8("电脑放点音乐=.="));
+		mText->setMaterial(mMaterial);
+		mText->setPosition(QVector3D(0, -4, 0));
+		mText->setRotation(QVector3D(0, 180, 0));
+		mText->setScale(QVector3D(3, 3, 3));
+		scene()->addSceneComponent("Text", mText);
 
-		//mSpectrum = std::make_shared<QAudioSpectrum>();
-		//mSpectrum->setPosition(QVector3D(0.0f, 0.0f, -4.0f));
-		//mSpectrum->setScale(QVector3D(0.1f, 0.1f, 0.1f));
-		//mSpectrum->setMaterial(mMaterial);
-		//scene()->addSceneComponent("Spectrum", mSpectrum);
+		mSpectrum = std::make_shared<QAudioSpectrum>();
+		mSpectrum->setPosition(QVector3D(0.0f, 0.0f, -4.0f));
+		mSpectrum->setScale(QVector3D(0.1f, 0.1f, 0.1f));
+		mSpectrum->setMaterial(mMaterial);
+		scene()->addSceneComponent("Spectrum", mSpectrum);
 
-		//mStaticModel = std::make_shared<QStaticModel>();
-		//mStaticModel->loadFromFile(assetDir.filePath("Model/FBX/Genji/Genji.FBX"));									//通过Assimp加载模型，材质也是根据Assmip解析创建默认的QMaterial
-		//mStaticModel->setRotation(QVector3D(-90, 0, 0));
-		//scene()->addSceneComponent("Model", mStaticModel);
+		mStaticModel = std::make_shared<QStaticModel>();
+		mStaticModel->loadFromFile(assetDir.filePath("Model/FBX/Genji/Genji.FBX"));									//通过Assimp加载模型，材质也是根据Assmip解析创建默认的QMaterial
+		mStaticModel->setRotation(QVector3D(-90, 0, 0));
+		scene()->addSceneComponent("Model", mStaticModel);
 
 		//mTimeDomainProvider = std::make_shared<TimeDomainProvider>();
 	}

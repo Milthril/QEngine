@@ -206,6 +206,5 @@ HRESULT STDMETHODCALLTYPE WinAudioCapture::OnDeviceStateChanged(LPCWSTR, DWORD)
 
 HRESULT STDMETHODCALLTYPE WinAudioCapture::OnPropertyValueChanged(LPCWSTR, const PROPERTYKEY)
 {
-	restart();
 	return 0;
 }

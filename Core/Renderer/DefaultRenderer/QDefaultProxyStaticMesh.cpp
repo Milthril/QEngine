@@ -169,7 +169,6 @@ void QDefaultProxyStaticMesh::updateResource(QRhiResourceUpdateBatch* batch) {
 			mIndexBuffer.reset(RHI->newBuffer(mStaticMesh->getBufferType(), QRhiBuffer::IndexBuffer, sizeof(QStaticMeshComponent::Index) * mStaticMesh->getIndices().size()));
 			mIndexBuffer->create();
 		}
-
 		if (mStaticMesh->getBufferType() == QRhiBuffer::Dynamic)
 			batch->updateDynamicBuffer(mIndexBuffer.get(), 0, sizeof(QStaticMeshComponent::Index) * mStaticMesh->getIndices().size(), mStaticMesh->getIndices().constData());
 		else
