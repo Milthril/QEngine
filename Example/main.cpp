@@ -31,7 +31,7 @@ public:
 	//std::shared_ptr<QSkeletonModelComponent> mSkeletonModel;
 	//std::shared_ptr<QParticleComponent> mGPUParticles;
 	//std::shared_ptr<QText2D> mText;
-	//std::shared_ptr<QMaterial> mMaterial;
+	std::shared_ptr<QMaterial> mMaterial;
 	//std::shared_ptr<QAudioSpectrum> mSpectrum;
 	//std::shared_ptr<TimeDomainProvider> mTimeDomainProvider;
 
@@ -52,10 +52,6 @@ public:
 		mSkyBox = std::make_shared<QSkyBoxComponent>();
 		mSkyBox->setSkyBoxImage(QImage(assetDir.filePath("sky.jpeg")));
 		scene()->addSceneComponent("Sky", mSkyBox);
-
-		//mMaterial = std::make_shared<QMaterial>();																	//新建材质
-		//mMaterial->addDataVec3("BaseColor", QVector3D(0.1, 0.5, 0.9));												//添加材质参数
-		//mMaterial->setShadingCode("FragColor = vec4(UBO.BaseColor,1);");											//设置材质的Shading代码
 
 		//mGPUParticles = std::make_shared<QParticleComponent>();
 		//mGPUParticles->getParticleSystem()->getUpdater()->addDataVec3("force", QVector3D(0, 0.0098, 0));			//为粒子添加一个作用力，设置粒子的运动代码
@@ -80,6 +76,10 @@ public:
 
 		mCube.reset(new QCube);
 		scene()->addSceneComponent(QString("Cube"), mCube);
+		mMaterial = std::make_shared<QMaterial>();																	//新建材质
+		mMaterial->addDataVec3("BaseColor", QVector3D(0.1, 0.5, 0.9));												//添加材质参数
+		mMaterial->setShadingCode("FragColor = vec4(UBO.BaseColor,1);");											//设置材质的Shading代码
+		mCube->setMaterial(mMaterial);
 
 		//mText = std::make_shared<QText2D>(QString::fromUtf8("电脑放点音乐=.="));
 		//mText->setMaterial(mMaterial);
@@ -105,7 +105,7 @@ public:
 	{
 		float time = QTime::currentTime().msecsSinceStartOfDay();
 
-		//mMaterial->setData<QVector3D>("BaseColor", QVector3D(0.1, 0.5, 0.9) * (sin(time / 1000) * 10 + 10));			//设置材质呼吸色，RGB最大值超出1.0具有Bloom效果
+		mMaterial->setData<QVector3D>("BaseColor", QVector3D(0.1, 0.5, 0.9) * (sin(time / 1000) * 10 + 10));			//设置材质呼吸色，RGB最大值超出1.0具有Bloom效果
 
 		////设置粒子的作用力参数
 		//mGPUParticles->getParticleSystem()->getUpdater()->setData<QVector3D>("force", QVector3D(0, mTimeDomainProvider->getPeak(), 0.0) * 0.8);

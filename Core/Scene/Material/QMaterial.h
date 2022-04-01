@@ -11,7 +11,6 @@ public:
 	QMaterial();
 	QByteArray getShadingCode() const { return mShadingCode; }
 	void setShadingCode(QByteArray val);
-
 protected:
 	QByteArray mShadingCode;
 };

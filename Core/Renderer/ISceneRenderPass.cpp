@@ -33,8 +33,9 @@ std::shared_ptr<ISceneComponentRenderProxy> ISceneRenderPass::createPrimitivePro
 	}
 	proxy->mComponent = component;
 	proxy->mRenderPass = this;
-	proxy->recreateResource();
-	proxy->recreatePipeline();
+
+	component->bNeedRecreatePipeline.active();
+	component->bNeedRecreateResource.active();
 	return std::dynamic_pointer_cast<ISceneComponentRenderProxy>(proxy);
 }
 
@@ -48,7 +49,6 @@ void ISceneRenderPass::execute()
 		for (int i = 0; i < primitiveList.size(); i++) {		//为新增的组件创建代理
 			if (!mPrimitiveProxyMap.contains(primitiveList[i]->componentId())) {
 				const auto& proxy = createPrimitiveProxy(primitiveList[i]);
-				proxy->uploadResource(resUpdateBatch);
 				mPrimitiveProxyMap[primitiveList[i]->componentId()] = proxy;
 			}
 			mValidId.insert(primitiveList[i]->componentId());
@@ -65,15 +65,24 @@ void ISceneRenderPass::execute()
 		}
 		resUpdateBatch = RHI->nextResourceUpdateBatch();
 		for (auto& proxy : mPrimitiveProxyMap) {
+			if (proxy->mComponent->bNeedRecreateResource.receive()) {
+				proxy->recreateResource();
+				proxy->uploadResource(resUpdateBatch);
+			}
 			proxy->updateResource(resUpdateBatch);
+			if (proxy->mComponent->bNeedRecreatePipeline.receive()) {
+				proxy->recreatePipeline();
+			}
 		}
 		cmdBuffer->beginPass(getRenderTarget(), QColor::fromRgbF(0.0f, 0.0f, 0.0f, 1.0f), { 1.0f, 0 }, resUpdateBatch);
 		QRhiViewport viewport(0, 0, getRenderTarget()->pixelSize().width(), getRenderTarget()->pixelSize().height());
 		for (auto& proxy : mPrimitiveProxyMap) {
+			if (proxy->mComponent->bNeedRecreatePipeline.receive()) {
+				proxy->recreatePipeline();
+			}
 			proxy->drawInPass(cmdBuffer, viewport);
 		}
 		cmdBuffer->endPass();
-
 		RHI->endOffscreenFrame();
 	}
 }

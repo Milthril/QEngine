@@ -22,20 +22,13 @@ public:
 	void setSkyBox(std::shared_ptr<QSkyBoxComponent> val);
 	std::shared_ptr<QSceneComponent> searchCompById(QSceneComponent::ComponentId id);
 	QMatrix4x4 getMatrixVP();
-
 	const QList<std::shared_ptr<QPrimitiveComponent>>& geyPrimitiveList() const { return mPrimitiveList; }
 private:
 	QList<std::shared_ptr<QSceneComponent>> mSceneCompList;
-
 	QList<std::shared_ptr<QPrimitiveComponent>> mPrimitiveList;
 	QList<std::shared_ptr<QLightComponent>> mLightList;
 	std::shared_ptr<QSkyBoxComponent> mSkyBox;
 	std::shared_ptr<QCameraComponent> mCamera;
-Q_SIGNALS:
-	void lightChanged();
-	void skyBoxChanged();
-	void primitiveInserted(int index, std::shared_ptr<QPrimitiveComponent>);
-	void primitiveRemoved(std::shared_ptr<QPrimitiveComponent>);
 };
 
 #endif // QScene_h__

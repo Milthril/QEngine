@@ -1,17 +1,14 @@
 ﻿#include "QRhiUniform.h"
-#include "QRhiUniformMgr.h"
 #include "Script\QLuaScriptFactory.h"
 
 QRhiUniform::QRhiUniform()
-	:mProxy(std::make_shared<QRhiUniformProxy>(this))
+	: mProxy(std::make_shared<QRhiUniformProxy>(this))
 	, mScript(QLuaScriptFactory::instance()->createUniformScript(this)) {
-	QRhiUniformMgr::instance()->AddUniform(this);
 	bNeedRecreate.active();
 }
 
 QRhiUniform::~QRhiUniform()
 {
-	QRhiUniformMgr::instance()->RemoveUniform(this);
 }
 
 void QRhiUniform::addDataFloat(const QString& name, float var)

@@ -4,7 +4,6 @@
 #include "ISceneComponentRenderProxy.h"
 #include "private/qshaderbaker_p.h"
 #include "QEngine.h"
-#include "RHI/QRhiUniformMgr.h"
 #include "Scene/Component/Camera/QCameraComponent.h"
 #include "Scene/Component/Light/QLightComponent.h"
 #include "Scene/Component/Particle/QParticleComponent.h"

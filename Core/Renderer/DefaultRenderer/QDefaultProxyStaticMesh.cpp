@@ -153,6 +153,7 @@ void QDefaultProxyStaticMesh::uploadResource(QRhiResourceUpdateBatch* batch)
 }
 
 void QDefaultProxyStaticMesh::updateResource(QRhiResourceUpdateBatch* batch) {
+	mStaticMesh->getMaterial()->getProxy()->updateResource(batch);
 	if (mStaticMesh->bNeedUpdateVertex.receive()) {
 		if (mStaticMesh->getBufferType() != QRhiBuffer::Dynamic || mVertexBuffer->size() != sizeof(QStaticMeshComponent::Vertex) * mStaticMesh->getVertices().size()) {
 			mVertexBuffer.reset(RHI->newBuffer(mStaticMesh->getBufferType(), QRhiBuffer::VertexBuffer, sizeof(QStaticMeshComponent::Vertex) * mStaticMesh->getVertices().size()));
