@@ -1,9 +1,8 @@
-#ifndef BloomPass_h__
-#define BloomPass_h__
+#ifndef BloomRenderPass_h__
+#define BloomRenderPass_h__
 
-#include "TextureDrawPass.h"
-#include "PixelSelectPass.h"
-#include "BlurPass.h"
+#include "Painter\BlurPainter.h"
+#include "Painter\PixelSelectPainter.h"
 
 class QBloomMeragePainter {
 public:
@@ -20,15 +19,15 @@ private:
 	QRhiSPtr<QRhiTexture> mBloomTexture;
 };
 
-class BloomPass {
+class BloomRenderPass {
 public:
-	BloomPass();
+	BloomRenderPass();
 	void makeBloom(QRhiCommandBuffer* cmdBuffer, QRhiSPtr<QRhiTexture> inputTexture, QRhiRenderTarget* renderTarget);
 	void drawInPass(QRhiCommandBuffer* cmdBuffer, QRhiRenderTarget* renderTarget);
 private:
-	BlurPass mBlurPass;
-	PixelSelectPass mPixelSelectPass;
+	BlurPainter mBlurPainter;
+	PixelSelectPainter mPixelSelectPainter;
 	QBloomMeragePainter mMeragePainter;
 };
 
-#endif // BloomPass_h__
+#endif // BloomRenderPass_h__

@@ -1,9 +1,9 @@
-#include "BloomPass.h"
+#include "BloomRenderPass.h"
 #include "Renderer\ISceneRenderer.h"
 #include "QEngine.h"
 
-BloomPass::BloomPass()
-	: mPixelSelectPass(R"(
+BloomRenderPass::BloomRenderPass()
+	: mPixelSelectPainter(R"(
 void main() {
 	vec4 color = texture(uTexture, vUV);
 	float value = max(max(color.r,color.g),color.b);
@@ -13,14 +13,14 @@ void main() {
 {
 }
 
-void BloomPass::makeBloom(QRhiCommandBuffer* cmdBuffer, QRhiSPtr<QRhiTexture> inputTexture, QRhiRenderTarget* renderTarget) {
-	mBlurPass.createOrResize(inputTexture->pixelSize() / 2);
-	mPixelSelectPass.drawCommand(cmdBuffer, inputTexture, mBlurPass.getInputRenderTaget().get());
-	mBlurPass.makeBlur(cmdBuffer, inputTexture);
-	mMeragePainter.updateTexture(inputTexture, mBlurPass.getOutputTexture(), renderTarget);
+void BloomRenderPass::makeBloom(QRhiCommandBuffer* cmdBuffer, QRhiSPtr<QRhiTexture> inputTexture, QRhiRenderTarget* renderTarget) {
+	mBlurPainter.createOrResize(inputTexture->pixelSize() / 2);
+	mPixelSelectPainter.drawCommand(cmdBuffer, inputTexture, mBlurPainter.getInputRenderTaget().get());
+	mBlurPainter.makeBlur(cmdBuffer, inputTexture);
+	mMeragePainter.updateTexture(inputTexture, mBlurPainter.getOutputTexture(), renderTarget);
 }
 
-void BloomPass::drawInPass(QRhiCommandBuffer* cmdBuffer, QRhiRenderTarget* renderTarget)
+void BloomRenderPass::drawInPass(QRhiCommandBuffer* cmdBuffer, QRhiRenderTarget* renderTarget)
 {
 	mMeragePainter.drawInPass(cmdBuffer, renderTarget);
 }

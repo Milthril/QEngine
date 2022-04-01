@@ -1,5 +1,4 @@
 #include "QEngine.h"
-#include "Renderer\CommonPass\DebugDrawPass.h"
 #include "EventHandler\QTickEventHandler.h"
 
 QEngine::QEngine(int argc, char** argv, bool enableDebug /*= false*/)
@@ -34,11 +33,6 @@ const std::shared_ptr<QRhiWindow>& QEngine::window()
 const std::shared_ptr<ISceneRenderer>& QEngine::renderer()
 {
 	return mRenderer;
-}
-
-const std::shared_ptr<DebugDrawPass>& QEngine::debugPainter()
-{
-	return mDebugPainter;
 }
 
 void QEngine::execGame()

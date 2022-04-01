@@ -1,11 +1,11 @@
-#ifndef PixelSelectPass_h__
-#define PixelSelectPass_h__
+#ifndef PixelSelectPainter_h__
+#define PixelSelectPainter_h__
 
 #include "RHI\QRhiDefine.h"
 
-class PixelSelectPass {
+class PixelSelectPainter {
 public:
-	PixelSelectPass(QByteArray code);
+	PixelSelectPainter(QByteArray code);
 	void drawCommand(QRhiCommandBuffer* cmdBuffer, QRhiSPtr<QRhiTexture> texture, QRhiRenderTarget* renderTarget);
 protected:
 	void initRhiResource(QRhiRenderPassDescriptor* renderPassDesc, QRhiRenderTarget* renderTarget, QRhiSPtr<QRhiTexture> texture);
@@ -18,4 +18,4 @@ private:
 	QByteArray mSelectCode;
 };
 
-#endif // PixelSelectPass_h__
+#endif // PixelSelectPainter_h__

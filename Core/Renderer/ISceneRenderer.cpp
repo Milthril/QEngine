@@ -1,16 +1,7 @@
 ﻿#include "ISceneRenderer.h"
-
-#include "CommonPass/DebugDrawPass.h"
-#include "ISceneComponentRenderProxy.h"
 #include "private/qshaderbaker_p.h"
 #include "QEngine.h"
-#include "Scene/Component/Camera/QCameraComponent.h"
-#include "Scene/Component/Light/QLightComponent.h"
-#include "Scene/Component/Particle/QParticleComponent.h"
-#include "Scene/Component/QPrimitiveComponent.h"
-#include "Scene/Component/SkeletonMesh/QSkeletonMeshComponent.h"
-#include "Scene/Component/SkyBox/QSkyBoxComponent.h"
-#include "Scene/Component/StaticMesh/QStaticMeshComponent.h"
+
 ISceneRenderer::ISceneRenderer()
 {
 }

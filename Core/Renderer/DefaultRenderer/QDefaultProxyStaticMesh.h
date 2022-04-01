@@ -1,12 +1,12 @@
 #ifndef QDefaultProxyStaticMesh_h__
 #define QDefaultProxyStaticMesh_h__
 
-#include "Renderer\ISceneComponentRenderProxy.h"
+#include "Renderer\IRhiProxy.h"
 #include "Scene\Component\StaticMesh\QStaticMeshComponent.h"
 
 class QParticleComponent;
 
-class QDefaultProxyStaticMesh :public ISceneComponentRenderProxy {
+class QDefaultProxyStaticMesh :public IRhiProxy {
 public:
 	QDefaultProxyStaticMesh(std::shared_ptr<QStaticMeshComponent> shape);
 

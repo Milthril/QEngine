@@ -1,11 +1,11 @@
-#ifndef SwapChainTextureDrawPass_h__
-#define SwapChainTextureDrawPass_h__
+#ifndef SwapChainRenderPass_h__
+#define SwapChainRenderPass_h__
 
 #include "Renderer\IRenderPassBase.h"
 
-class SwapChainTextureDrawPass :public IRenderPassBase {
+class SwapChainRenderPass :public IRenderPassBase {
 public:
-	SwapChainTextureDrawPass();
+	SwapChainRenderPass();
 	void setupTexture(QRhiTexture* texture);
 	void setupSwapChain(QRhiSwapChain* swapchain);
 	virtual void compile() override;
@@ -18,4 +18,5 @@ protected:
 	QRhiSPtr<QRhiShaderResourceBindings> mBindings;
 };
 
-#endif // SwapChainTextureDrawPass_h__
+
+#endif // SwapChainRenderPass_h__

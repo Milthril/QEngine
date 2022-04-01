@@ -1,10 +1,10 @@
 #ifndef QDefaultProxySkyBox_h__
 #define QDefaultProxySkyBox_h__
 
-#include "Renderer\ISceneComponentRenderProxy.h"
+#include "Renderer\IRhiProxy.h"
 #include "Scene\Component\SkyBox\QSkyBoxComponent.h"
 
-class QDefaultProxySkyBox :public ISceneComponentRenderProxy {
+class QDefaultProxySkyBox :public IRhiProxy {
 public:
 	QDefaultProxySkyBox(std::shared_ptr<QSkyBoxComponent> SkyBox);
 private:

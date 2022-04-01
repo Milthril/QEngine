@@ -1,6 +1,6 @@
 ﻿#include "QDefaultSceneRenderPass.h"
 #include "QEngine.h"
-#include "Renderer/ISceneComponentRenderProxy.h"
+#include "Renderer/IRhiProxy.h"
 #include "Scene/Component/QPrimitiveComponent.h"
 #include "QDefaultProxyStaticMesh.h"
 #include "QDefaultProxySkeletonModel.h"
@@ -8,24 +8,24 @@
 #include "QDefaultProxySkyBox.h"
 #include "QDefaultRenderer.h"
 
-QDefaultSceneRenderPass::QDefaultSceneRenderPass(QDefaultRenderer* renderer)
-	: ISceneRenderPass(renderer)
+QDefaultSceneRenderPass::QDefaultSceneRenderPass(std::shared_ptr<QScene> scene)
+	:ISceneRenderPass(scene)
 {
 }
 
-std::shared_ptr<ISceneComponentRenderProxy> QDefaultSceneRenderPass::createStaticMeshProxy(std::shared_ptr<QStaticMeshComponent> comp) {
+std::shared_ptr<IRhiProxy> QDefaultSceneRenderPass::createStaticMeshProxy(std::shared_ptr<QStaticMeshComponent> comp) {
 	return std::make_shared<QDefaultProxyStaticMesh>(comp);
 }
 
-std::shared_ptr<ISceneComponentRenderProxy> QDefaultSceneRenderPass::createSkeletonMeshProxy(std::shared_ptr<QSkeletonModelComponent> comp) {
+std::shared_ptr<IRhiProxy> QDefaultSceneRenderPass::createSkeletonMeshProxy(std::shared_ptr<QSkeletonModelComponent> comp) {
 	return std::make_shared<QDefaultProxySkeletonModel>(comp);
 }
 
-std::shared_ptr<ISceneComponentRenderProxy> QDefaultSceneRenderPass::createParticleProxy(std::shared_ptr<QParticleComponent> comp) {
+std::shared_ptr<IRhiProxy> QDefaultSceneRenderPass::createParticleProxy(std::shared_ptr<QParticleComponent> comp) {
 	return std::make_shared<QDefaultProxyParticle>(comp);
 }
 
-std::shared_ptr<ISceneComponentRenderProxy> QDefaultSceneRenderPass::createSkyBoxProxy(std::shared_ptr<QSkyBoxComponent> comp) {
+std::shared_ptr<IRhiProxy> QDefaultSceneRenderPass::createSkyBoxProxy(std::shared_ptr<QSkyBoxComponent> comp) {
 	return std::make_shared<QDefaultProxySkyBox>(comp);
 }
 

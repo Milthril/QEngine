@@ -15,7 +15,6 @@ class QSpectrumProvider :public QObject, public SpectrumProvider {
 	Q_PROPERTY(QBoundedDouble SmoothFactorRange  READ getSmoothRangeFactorLimit WRITE setSmoothRangeFactorLimit)
 	Q_PROPERTY(QBoundedDouble SmoothFactorRise  READ getSmoothFactorRiseLimit WRITE setSmoothFactorRiseLimit)
 	Q_PROPERTY(QBoundedDouble SmoothFactorFall  READ getSmoothFactorFallLimit WRITE setSmoothFactorFallLimit)
-
 public:
 	QBoundedInt getChannelIndexLimit();
 	void setChannelIndexLimit(QBoundedInt var);

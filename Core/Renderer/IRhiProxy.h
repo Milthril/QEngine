@@ -1,12 +1,12 @@
-﻿#ifndef QSceneRenderer_h__
-#define QSceneRenderer_h__
+﻿#ifndef IRhiProxy_h__
+#define IRhiProxy_h__
 
 #include "RHI/QRhiDefine.h"
 #include "Scene/QSceneComponent.h"
 
 class ISceneRenderPass;
 
-class ISceneComponentRenderProxy {
+class IRhiProxy {
 public:
 	virtual void recreateResource() {}
 	virtual void recreatePipeline() {}

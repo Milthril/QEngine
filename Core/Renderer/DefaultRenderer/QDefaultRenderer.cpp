@@ -1,35 +1,39 @@
 #include "QDefaultRenderer.h"
-#include "Scene\Component\StaticMesh\QStaticMeshComponent.h"
-#include "QDefaultProxyStaticMesh.h"
-#include "QDefaultProxyParticle.h"
-#include "QDefaultProxySkyBox.h"
+
 #include "QEngine.h"
-#include "QDefaultProxySkeletonModel.h"
-#include "Renderer/CommonPass/DebugDrawPass.h"
+#include "QDefaultSceneRenderPass.h"
+#include "..\CommonRenderPass\SwapChainRenderPass.h"
 
-QDefaultRenderer::QDefaultRenderer()
-	:mScenePass(this)
-{
+QDefaultRenderer::QDefaultRenderer() {
+
 }
 
-void QDefaultRenderer::setup() {
-	mScenePass.setupSampleCount(4);
-	mScenePass.setEnableOutputDebugId(true);
-	mScenePass.setupSceneFrameSize(QSize(800, 600));
-	mScenePass.compile();
+void QDefaultRenderer::buildFrameGraph() {
+	QFrameGraphBuilder builder;
+	std::shared_ptr<QDefaultSceneRenderPass> scenePass = std::make_shared<QDefaultSceneRenderPass>(mScene);
+	std::shared_ptr<SwapChainRenderPass> swapChainPass = std::make_shared<SwapChainRenderPass>();
 
-	mSwapChainDrawPass.setupSwapChain(Engine->window()->getSwapChain());
-	mSwapChainDrawPass.setupTexture(mScenePass.getOutputTexture());
-	mSwapChainDrawPass.compile();
+	mFrameGraph = builder.begin()
+		->node("Scene", scenePass,
+			   [self = scenePass.get()]() {
+		self->setupSampleCount(4);
+		self->setupSceneFrameSize(Engine->window()->getSwapChain()->currentPixelSize());
+	})
+		->node("Swapchain", swapChainPass,
+			   [self = swapChainPass.get(), scene = scenePass.get()]() {
+		self->setupSwapChain(Engine->window()->getSwapChain());
+		self->setupTexture(scene->getOutputTexture());
+	})
+		->dependency({ "Scene" })
+		->end();
+	mFrameGraph->compile();
 }
 
-void QDefaultRenderer::render()
-{
-	mScenePass.execute();
-	mSwapChainDrawPass.execute();
+
+void QDefaultRenderer::render() {
+	mFrameGraph->executable();
 }
 
-void QDefaultRenderer::requestReadbackCompId(const QPoint& screenPt)
-{
+void QDefaultRenderer::requestReadbackCompId(const QPoint& screenPt) {
 	mReadPoint = screenPt;
 }

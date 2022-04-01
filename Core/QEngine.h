@@ -19,7 +19,6 @@ public:
 	const std::shared_ptr<QScene>& scene();
 	const std::shared_ptr<QRhiWindow>& window();
 	const std::shared_ptr<ISceneRenderer>& renderer();
-	const std::shared_ptr<DebugDrawPass>& debugPainter();
 	void execGame();
 	QRhi* getRHI();
 Q_SIGNALS:
@@ -31,7 +30,6 @@ private:
 	std::shared_ptr<QRhiWindow> mWindow;
 	std::shared_ptr<QScene> mScene;
 	std::shared_ptr<ISceneRenderer>  mRenderer;
-	std::shared_ptr<DebugDrawPass> mDebugPainter;
 };
 
 #endif // QEngine_h__

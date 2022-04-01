@@ -1,15 +1,14 @@
 ﻿#include "ISceneRenderPass.h"
 #include "QEngine.h"
-
-ISceneRenderPass::ISceneRenderPass(ISceneRenderer* renderer) :mRenderer(renderer)
-{
+ISceneRenderPass::ISceneRenderPass(std::shared_ptr<QScene> scene)
+	: mScene(scene){
 }
 
-std::shared_ptr<ISceneComponentRenderProxy> ISceneRenderPass::createPrimitiveProxy(std::shared_ptr<QPrimitiveComponent> component)
+std::shared_ptr<IRhiProxy> ISceneRenderPass::createPrimitiveProxy(std::shared_ptr<QPrimitiveComponent> component)
 {
 	if (!component)
 		return nullptr;
-	std::shared_ptr<ISceneComponentRenderProxy> proxy;
+	std::shared_ptr<IRhiProxy> proxy;
 	switch (component->type())
 	{
 	case QSceneComponent::None:
@@ -36,14 +35,14 @@ std::shared_ptr<ISceneComponentRenderProxy> ISceneRenderPass::createPrimitivePro
 
 	component->bNeedRecreatePipeline.active();
 	component->bNeedRecreateResource.active();
-	return std::dynamic_pointer_cast<ISceneComponentRenderProxy>(proxy);
+	return std::dynamic_pointer_cast<IRhiProxy>(proxy);
 }
 
 void ISceneRenderPass::execute()
 {
 	QRhiCommandBuffer* cmdBuffer;
 	if (RHI->beginOffscreenFrame(&cmdBuffer) == QRhi::FrameOpSuccess) {
-		auto& primitiveList = mRenderer->getScene()->geyPrimitiveList();
+		auto& primitiveList = mScene->geyPrimitiveList();
 		QRhiResourceUpdateBatch* resUpdateBatch = RHI->nextResourceUpdateBatch();
 		QSet<QSceneComponent::ComponentId> mValidId;
 		for (int i = 0; i < primitiveList.size(); i++) {		//为新增的组件创建代理
@@ -84,5 +83,6 @@ void ISceneRenderPass::execute()
 		}
 		cmdBuffer->endPass();
 		RHI->endOffscreenFrame();
+		RHI->finish();
 	}
 }

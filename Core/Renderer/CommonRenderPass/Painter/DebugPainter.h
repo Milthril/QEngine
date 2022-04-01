@@ -1,15 +1,15 @@
-#ifndef DebugDrawPass_h__
-#define DebugDrawPass_h__
+#ifndef DebugPainter_h__
+#define DebugPainter_h__
 
 #include "QObject"
 #include "RHI\QRhiWindow.h"
-#include "ImGuiDrawPass.h"
+#include "ImGuiPainter.h"
 #include "ImGuizmo.h"
 
-class DebugDrawPass :public ImGuiDrawPass {
+class DebugPainter :public ImGuiPainter {
 	Q_OBJECT
 public:
-	DebugDrawPass();
+	DebugPainter();
 	void paint() override;
 	void setCurrentCompInternal(QSceneComponent* comp);
 protected:
@@ -21,4 +21,4 @@ private:
 	ImGuizmo::OPERATION mOpt = ImGuizmo::OPERATION::TRANSLATE;
 };
 
-#endif // DebugDrawPass_h__
+#endif // DebugPainter_h__

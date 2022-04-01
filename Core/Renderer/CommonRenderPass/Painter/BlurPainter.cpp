@@ -1,12 +1,12 @@
-#include "BlurPass.h"
+#include "BlurPainter.h"
 #include "Renderer\ISceneRenderer.h"
 #include "QEngine.h"
 
-BlurPass::BlurPass() {
+BlurPainter::BlurPainter() {
 	setBloomSize(10);
 }
 
-void BlurPass::makeBlur(QRhiCommandBuffer* cmdBuffer, QRhiSPtr<QRhiTexture> inputTexture)
+void BlurPainter::makeBlur(QRhiCommandBuffer* cmdBuffer, QRhiSPtr<QRhiTexture> inputTexture)
 {
 	if (!mPipelineH) {
 		initRhiResource();
@@ -33,7 +33,7 @@ void BlurPass::makeBlur(QRhiCommandBuffer* cmdBuffer, QRhiSPtr<QRhiTexture> inpu
 	}
 }
 
-void BlurPass::setBloomSize(int size)
+void BlurPainter::setBloomSize(int size)
 {
 	if (size <= 0 || size == mBloomState.size || size >= std::size(mBloomState.weight))
 		return;
@@ -52,7 +52,7 @@ void BlurPass::setBloomSize(int size)
 	bNeedUpdateBloomState = true;
 }
 
-void BlurPass::initRhiResource()
+void BlurPainter::initRhiResource()
 {
 	mSampler.reset(RHI->newSampler(QRhiSampler::Linear,
 				   QRhiSampler::Linear,
@@ -161,7 +161,7 @@ void main(){
 	mPipelineV->create();
 }
 
-void BlurPass::createOrResize(QSize size)
+void BlurPainter::createOrResize(QSize size)
 {
 	if (mBloomRT[0].colorAttachment && mBloomRT[0].colorAttachment->pixelSize() == size)
 		return;

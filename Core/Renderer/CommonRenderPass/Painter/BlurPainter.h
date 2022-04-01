@@ -1,12 +1,12 @@
-#ifndef BlurPass_h__
-#define BlurPass_h__
+#ifndef BlurPainter_h__
+#define BlurPainter_h__
 
 #include "RHI\QRhiSignal.h"
 #include "RHI\QRhiDefine.h"
 
-class BlurPass {
+class BlurPainter {
 public:
-	BlurPass();
+	BlurPainter();
 	void makeBlur(QRhiCommandBuffer* cmdBuffer, QRhiSPtr<QRhiTexture> inputTexture);
 	void setBloomSize(int size);
 	void createOrResize(QSize size);
@@ -37,4 +37,4 @@ private:
 	QRhiSignal bNeedUpdateBloomState;
 };
 
-#endif // BlurPass_h__
+#endif // BlurPainter_h__

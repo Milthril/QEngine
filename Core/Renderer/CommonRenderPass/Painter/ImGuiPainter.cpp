@@ -1,4 +1,4 @@
-#include "ImGuiDrawPass.h"
+#include "ImGuiPainter.h"
 #include "QApplication"
 #include "qevent.h"
 #include "QEngine.h"
@@ -48,7 +48,7 @@ const QHash<ImGuiMouseCursor, Qt::CursorShape> cursorMap = {
 
 QByteArray g_currentClipboardText;
 
-ImGuiDrawPass::ImGuiDrawPass()
+ImGuiPainter::ImGuiPainter()
 {
 	mImGuiContext = ImGui::CreateContext();
 	ImGui::SetCurrentContext(mImGuiContext);
@@ -69,7 +69,7 @@ ImGuiDrawPass::ImGuiDrawPass()
 	};
 }
 
-void ImGuiDrawPass::updatePrePass(QRhiResourceUpdateBatch* batch, QRhiRenderTarget* outputTarget)
+void ImGuiPainter::updatePrePass(QRhiResourceUpdateBatch* batch, QRhiRenderTarget* outputTarget)
 {
 	if (!mPipeline) {
 		initRhiResource(batch, outputTarget);
@@ -137,7 +137,7 @@ void ImGuiDrawPass::updatePrePass(QRhiResourceUpdateBatch* batch, QRhiRenderTarg
 	batch->updateDynamicBuffer(mUniformBuffer.get(), 0, sizeof(QMatrix4x4), MVP.constData());
 }
 
-void ImGuiDrawPass::drawInPass(QRhiCommandBuffer* cmdBuffer, QRhiRenderTarget* outputTarget)
+void ImGuiPainter::drawInPass(QRhiCommandBuffer* cmdBuffer, QRhiRenderTarget* outputTarget)
 {
 	ImDrawData* draw_data = ImGui::GetDrawData();
 	int64_t vertexBufferOffset = 0;
@@ -167,13 +167,13 @@ void ImGuiDrawPass::drawInPass(QRhiCommandBuffer* cmdBuffer, QRhiRenderTarget* o
 	}
 }
 
-void ImGuiDrawPass::setupWindow(QRhiWindow* window)
+void ImGuiPainter::setupWindow(QRhiWindow* window)
 {
 	mWindow = window;
 	mWindow->installEventFilter(this);
 }
 
-void ImGuiDrawPass::initRhiResource(QRhiResourceUpdateBatch* batch, QRhiRenderTarget* outputTarget)
+void ImGuiPainter::initRhiResource(QRhiResourceUpdateBatch* batch, QRhiRenderTarget* outputTarget)
 {
 	mVertexBuffer.reset(RHI->newBuffer(QRhiBuffer::Dynamic, QRhiBuffer::VertexBuffer, sizeof(ImDrawVert) * IMGUI_BUFFER_SIZE));
 	mVertexBuffer->create();
@@ -264,7 +264,7 @@ void main(){
 	batch->uploadTexture(mFontTexture.get(), fontImage);
 }
 
-bool ImGuiDrawPass::eventFilter(QObject* watched, QEvent* event)
+bool ImGuiPainter::eventFilter(QObject* watched, QEvent* event)
 {
 	if (watched != nullptr) {
 		switch (event->type()) {

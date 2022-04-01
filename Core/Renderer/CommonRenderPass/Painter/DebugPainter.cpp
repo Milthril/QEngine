@@ -1,10 +1,10 @@
-#include "DebugDrawPass.h"
+#include "DebugPainter.h"
 #include "QApplication"
 #include "qevent.h"
 #include "QEngine.h"
 #include "Scene/Component/Camera/QCameraComponent.h"
 
-DebugDrawPass::DebugDrawPass()
+DebugPainter::DebugPainter()
 {
 	connect(Engine->renderer().get(), &ISceneRenderer::readBackCompId, this, [this](QSceneComponent::ComponentId id) {
 		auto comp = Engine->scene()->searchCompById(id);
@@ -15,7 +15,7 @@ DebugDrawPass::DebugDrawPass()
 	});
 }
 
-void DebugDrawPass::paint()
+void DebugPainter::paint()
 {
 	auto& io = ImGui::GetIO();
 	ImGui::GetBackgroundDrawList()->AddText(ImGui::GetFont(), ImGui::GetFontSize(), ImVec2(1, 1), ImColor(0, 255, 0, 255), QString("FPS: %1").arg(Engine->window()->getFPS()).toLocal8Bit().data());
@@ -55,13 +55,13 @@ void DebugDrawPass::paint()
 	}
 }
 
-void DebugDrawPass::setCurrentCompInternal(QSceneComponent* comp)
+void DebugPainter::setCurrentCompInternal(QSceneComponent* comp)
 {
 	if (mCurrentComp != comp)
 		mCurrentComp = comp;
 }
 
-bool DebugDrawPass::eventFilter(QObject* watched, QEvent* event)
+bool DebugPainter::eventFilter(QObject* watched, QEvent* event)
 {
 	static QPoint pressedPos;
 	if (watched != nullptr) {
@@ -105,5 +105,5 @@ bool DebugDrawPass::eventFilter(QObject* watched, QEvent* event)
 		}
 		}
 	}
-	return ImGuiDrawPass::eventFilter(watched, event);
+	return ImGuiPainter::eventFilter(watched, event);
 }

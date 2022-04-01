@@ -5,13 +5,16 @@
 
 class IRenderPassBase {
 public:
+	virtual void setup() {
+		if(mFuncSetup)
+			mFuncSetup();
+	}
 	virtual void compile() {}
 	virtual void execute() {}
-	void addSubPass(std::shared_ptr<IRenderPassBase> subPass);
+
+	void setFuncSetup(std::function<void()> val) { mFuncSetup = val; }
 private:
 	std::function<void()> mFuncSetup;
-	QList<IRenderPassBase*> mDependencyList;
-	QList<std::shared_ptr<IRenderPassBase>> mSubPassList;
 };
 
 #endif // IRenderPassBase_h__

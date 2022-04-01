@@ -1,11 +1,11 @@
-#ifndef TextureDrawPass_h__
-#define TextureDrawPass_h__
+#ifndef TexturePainter_h__
+#define TexturePainter_h__
 
 #include "Renderer\IRenderPassBase.h"
 
-class TextureDrawPass :public IRenderPassBase {
+class TexturePainter :public IRenderPassBase {
 public:
-	TextureDrawPass();
+	TexturePainter();
 
 	void setupRenderTarget(QRhiRenderTarget* renderTarget);
 	void setupCmdBuffer(QRhiCommandBuffer* cmdBuffer);
@@ -23,4 +23,4 @@ protected:
 	QRhiSPtr<QRhiShaderResourceBindings> mBindings;
 };
 
-#endif // TextureDrawPass_h__
+#endif // TexturePainter_h__

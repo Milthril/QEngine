@@ -2,12 +2,12 @@
 #define QDefaultProxySkeletonModel_h__
 
 #include "QDefaultRenderer.h"
-#include "Renderer\ISceneComponentRenderProxy.h"
+#include "Renderer\IRhiProxy.h"
 
 class QSkeletonMesh;
 class QSkeletonModelComponent;
 
-class QDefaultProxySkeletonModel :public ISceneComponentRenderProxy {
+class QDefaultProxySkeletonModel :public IRhiProxy {
 public:
 	QDefaultProxySkeletonModel(std::shared_ptr<QSkeletonModelComponent> shape);
 private:

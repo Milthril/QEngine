@@ -88,7 +88,7 @@ void QRhiWindow::initInternal()
 	mSwapChain->setRenderPassDescriptor(mRenderPassDesciptor.get());
 	resizeSwapChain();
 	if (Engine->renderer()) {
-		Engine->renderer()->setup();
+		Engine->renderer()->buildFrameGraph();
 	}
 }
 
@@ -118,6 +118,9 @@ void QRhiWindow::renderInternal()
 void QRhiWindow::resizeSwapChain()
 {
 	mHasSwapChain = mSwapChain->createOrResize();
+	if (Engine->renderer()) {
+		Engine->renderer()->rebuild();
+	}
 	mFrameCount = 0;
 	mTimer.restart();
 }
