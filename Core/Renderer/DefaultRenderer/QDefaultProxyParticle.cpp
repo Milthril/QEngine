@@ -1,10 +1,11 @@
-﻿#include "QDateTime"
-#include "QDefaultProxyParticle.h"
-#include "QEngine.h"
-#include "Scene\Component\Particle\QParticleEmitter.h"
-#include "Scene\Component\Particle\QParticleComponent.h"
+﻿#include "QDefaultProxyParticle.h"
 #include "QDefaultProxyStaticMesh.h"
+#include "QEngine.h"
+#include "Renderer\DefaultRenderer\QDefaultProxyStaticMesh.h"
 #include "Renderer\ISceneRenderPass.h"
+#include "Scene\Component\Particle\QParticleComponent.h"
+#include "Scene\Component\Particle\QParticleEmitter.h"
+#include "QDateTime"
 
 QDefaultProxyParticle::QDefaultProxyParticle(std::shared_ptr<QParticleComponent> particle)
 	:mParticle(particle)
@@ -12,7 +13,7 @@ QDefaultProxyParticle::QDefaultProxyParticle(std::shared_ptr<QParticleComponent>
 }
 
 void QDefaultProxyParticle::recreateResource() {
-	mStaticMeshProxy = std::make_shared<QDefaultProxyStaticMesh>(mParticle->getStaticMesh());
+	mStaticMeshProxy = std::dynamic_pointer_cast<QDefaultProxyStaticMesh>(mRenderPass->createPrimitiveProxy(mParticle->getStaticMesh()));
 	mStaticMeshProxy->setParentParticle(mParticle);
 	mStaticMeshProxy->recreateResource();
 	mParticlesBuffer[0].reset(RHI->newBuffer(QRhiBuffer::Static, QRhiBuffer::UsageFlag::VertexBuffer | QRhiBuffer::UsageFlag::StorageBuffer, sizeof(QParticleSystem::ParticleBuffer)));

@@ -1,22 +1,11 @@
-#include "TextureDrawPass.h"
-#include "Renderer\ISceneRenderer.h"
+#include "SwapChainTextureDrawPass.h"
 #include "QEngine.h"
 
-TextureDrawPass::TextureDrawPass()
+SwapChainTextureDrawPass::SwapChainTextureDrawPass()
 {
 }
 
-void TextureDrawPass::setupRenderTarget(QRhiRenderTarget* renderTarget)
-{
-	mRenderTarget = renderTarget;
-}
-
-void TextureDrawPass::setupCmdBuffer(QRhiCommandBuffer* cmdBuffer)
-{
-	mCmdBuffer = cmdBuffer;
-}
-
-void TextureDrawPass::setupTexture(QRhiTexture* texture)
+void SwapChainTextureDrawPass::setupTexture(QRhiTexture* texture)
 {
 	mTexture = texture;
 	if (mBindings) {
@@ -28,7 +17,12 @@ void TextureDrawPass::setupTexture(QRhiTexture* texture)
 	}
 }
 
-void TextureDrawPass::compile()
+void SwapChainTextureDrawPass::setupSwapChain(QRhiSwapChain* swapchain)
+{
+	mSwapChain = swapchain;
+}
+
+void SwapChainTextureDrawPass::compile()
 {
 	mSampler.reset(RHI->newSampler(QRhiSampler::Linear,
 				   QRhiSampler::Linear,
@@ -40,7 +34,7 @@ void TextureDrawPass::compile()
 	QRhiGraphicsPipeline::TargetBlend blendState;
 	blendState.enable = true;
 	mPipeline->setTargetBlends({ blendState });
-	mPipeline->setSampleCount(mRenderTarget->sampleCount());
+	mPipeline->setSampleCount(mSwapChain->sampleCount());
 	QShader vs = ISceneRenderer::createShaderFromCode(QShader::VertexStage, R"(#version 450
 layout (location = 0) out vec2 vUV;
 out gl_PerVertex{
@@ -74,16 +68,20 @@ void main() {
 	mBindings->create();
 	mPipeline->setVertexInputLayout(inputLayout);
 	mPipeline->setShaderResourceBindings(mBindings.get());
-	mPipeline->setRenderPassDescriptor(mRenderTarget->renderPassDescriptor());
+	mPipeline->setRenderPassDescriptor(mSwapChain->renderPassDescriptor());
 	mPipeline->create();
 }
 
-void TextureDrawPass::execute()
+void SwapChainTextureDrawPass::execute()
 {
-	mCmdBuffer->beginPass(mRenderTarget, QColor::fromRgbF(0.0f, 0.0f, 0.0f, 0.0f), { 1.0f, 0 });
-	mCmdBuffer->setGraphicsPipeline(mPipeline.get());
-	mCmdBuffer->setViewport(QRhiViewport(0, 0, mRenderTarget->pixelSize().width(), mRenderTarget->pixelSize().height()));
-	mCmdBuffer->setShaderResources(mBindings.get());
-	mCmdBuffer->draw(4);
-	mCmdBuffer->endPass();
+	if (RHI->beginFrame(mSwapChain) == QRhi::FrameOpSuccess) {
+		QRhiCommandBuffer* cmdBuffer = mSwapChain->currentFrameCommandBuffer();
+		cmdBuffer->beginPass(mSwapChain->currentFrameRenderTarget(), QColor::fromRgbF(0.0f, 0.0f, 0.0f, 0.0f), { 1.0f, 0 });
+		cmdBuffer->setGraphicsPipeline(mPipeline.get());
+		cmdBuffer->setViewport(QRhiViewport(0, 0, mSwapChain->currentPixelSize().width(), mSwapChain->currentPixelSize().height()));
+		cmdBuffer->setShaderResources(mBindings.get());
+		cmdBuffer->draw(4);
+		cmdBuffer->endPass();
+		RHI->endFrame(mSwapChain);
+	}
 }

@@ -9,7 +9,7 @@
 #include "QDefaultRenderer.h"
 
 QDefaultSceneRenderPass::QDefaultSceneRenderPass(QDefaultRenderer* renderer)
-	: mRenderer(renderer)
+	: ISceneRenderPass(renderer)
 {
 }
 
@@ -32,12 +32,12 @@ std::shared_ptr<ISceneComponentRenderProxy> QDefaultSceneRenderPass::createSkyBo
 void QDefaultSceneRenderPass::compile() {		//创建默认的RT
 	if (mRT.colorAttachment && mRT.colorAttachment->pixelSize() == mSceneFrameSize)
 		return;
-	mRT.colorAttachment.reset(RHI->newTexture(QRhiTexture::RGBA32F, mSceneFrameSize, 1, QRhiTexture::RenderTarget | QRhiTexture::UsedAsTransferSource));
+	mRT.colorAttachment.reset(RHI->newTexture(QRhiTexture::RGBA8, mSceneFrameSize, 1, QRhiTexture::RenderTarget | QRhiTexture::UsedAsTransferSource));
 	mRT.colorAttachment->create();
 	QVector<QRhiColorAttachment> colorAttachments;
 	QRhiColorAttachment colorAttachment;
 	if (mSampleCount > 1) {
-		mRT.msaaBuffer.reset(RHI->newRenderBuffer(QRhiRenderBuffer::Color, mSceneFrameSize, mSampleCount, {}, QRhiTexture::RGBA32F));
+		mRT.msaaBuffer.reset(RHI->newRenderBuffer(QRhiRenderBuffer::Color, mSceneFrameSize, mSampleCount, {}, QRhiTexture::RGBA8));
 		mRT.msaaBuffer->create();
 		colorAttachment.setRenderBuffer(mRT.msaaBuffer.get());
 		colorAttachment.setResolveTexture(mRT.colorAttachment.get());
@@ -47,7 +47,11 @@ void QDefaultSceneRenderPass::compile() {		//创建默认的RT
 	}
 	colorAttachments << colorAttachment;
 
+	QRhiGraphicsPipeline::TargetBlend blendState;
+	blendState.enable = false;
+	mBlendStates << blendState;
 	if (mEnableOutputDebugId) {
+		mBlendStates << blendState;
 		QRhiColorAttachment debugAttachment;
 		mRT.debugTexture.reset(RHI->newTexture(QRhiTexture::RGBA8, mSceneFrameSize, 1, QRhiTexture::RenderTarget | QRhiTexture::UsedAsTransferSource));
 		mRT.debugTexture->create();
@@ -74,37 +78,6 @@ void QDefaultSceneRenderPass::compile() {		//创建默认的RT
 	mRT.renderTarget->create();
 }
 
-void QDefaultSceneRenderPass::execute()
-{
-	auto& primitiveList = mRenderer->getScene()->geyPrimitiveList();
-	QRhiCommandBuffer* cmdBuffer;
-	RHI->beginOffscreenFrame(&cmdBuffer);
-	QRhiResourceUpdateBatch* resUpdateBatch = RHI->nextResourceUpdateBatch();
-	for (int i = 0; i < primitiveList.size(); i++) {		//创建代理
-		if (!mPrimitiveProxyMap.contains(primitiveList[i]->componentId())) {
-			const auto& proxy = createPrimitiveProxy(primitiveList[i]);
-			proxy->uploadResource(resUpdateBatch);
-			mPrimitiveProxyMap[primitiveList[i]->componentId()] = proxy;
-		}
-	}
-	cmdBuffer->resourceUpdate(resUpdateBatch);
-
-	for (auto& proxy : mPrimitiveProxyMap) {
-		proxy->updatePrePass(cmdBuffer);
-	}
-	resUpdateBatch = RHI->nextResourceUpdateBatch();
-	for (auto& proxy : mPrimitiveProxyMap) {
-		proxy->updateResource(resUpdateBatch);
-	}
-	cmdBuffer->beginPass(mRT.renderTarget.get(), QColor::fromRgbF(0.0f, 0.0f, 0.0f, 0.0f), { 1.0f, 0 }, resUpdateBatch);
-	QRhiViewport viewport(0, 0, mSceneFrameSize.width(), mSceneFrameSize.height());
-	for (auto& proxy : mPrimitiveProxyMap) {
-		proxy->drawInPass(cmdBuffer, viewport);
-	}
-	cmdBuffer->endPass();
-	RHI->endOffscreenFrame();
-}
-
 void QDefaultSceneRenderPass::setupSceneFrameSize(QSize size)
 {
 	mSceneFrameSize = size;
@@ -115,22 +88,17 @@ void QDefaultSceneRenderPass::setupSampleCount(int count)
 	mSampleCount = count;
 }
 
-QRhiSPtr<QRhiTexture> QDefaultSceneRenderPass::getOutputTexture()
+QRhiTexture* QDefaultSceneRenderPass::getOutputTexture()
 {
-	return mRT.colorAttachment;
-}
-
-int QDefaultSceneRenderPass::getSampleCount()
-{
-	return mSampleCount;
-}
-
-QRhiRenderPassDescriptor* QDefaultSceneRenderPass::getRenderPassDescriptor()
-{
-	return mRT.renderPassDesc.get();
+	return mRT.colorAttachment.get();
 }
 
 QVector<QRhiGraphicsPipeline::TargetBlend> QDefaultSceneRenderPass::getBlendStates()
 {
-	return {};
+	return mBlendStates;
+}
+
+QRhiRenderTarget* QDefaultSceneRenderPass::getRenderTarget()
+{
+	return mRT.renderTarget.get();
 }

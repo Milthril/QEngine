@@ -21,8 +21,8 @@ public:
 	ISceneRenderer();
 	void setScene(std::shared_ptr<QScene> scene);
 	std::shared_ptr<QScene> getScene() { return mScene; }
-
 	static QShader createShaderFromCode(QShader::Stage stage, const char* code);
+	virtual void setup() {}
 	virtual void render() {}
 	virtual void requestReadbackCompId(const QPoint& screenPt) {}
 Q_SIGNALS:

@@ -11,6 +11,7 @@ public:
 	QRhiWindow(QRhi::Implementation backend);
 	void waitExposed();
 	int getFPS() const { return mFPS; }
+	QRhiSwapChain* getSwapChain() { return mSwapChain.get(); };
 private:
 	void initInternal();
 	void renderInternal();

@@ -10,23 +10,20 @@ class QDefaultRenderer;
 class QDefaultSceneRenderPass :public ISceneRenderPass {
 public:
 	QDefaultSceneRenderPass(QDefaultRenderer* renderer);
-
 	std::shared_ptr<ISceneComponentRenderProxy> createStaticMeshProxy(std::shared_ptr<QStaticMeshComponent>) override;
 	std::shared_ptr<ISceneComponentRenderProxy> createSkeletonMeshProxy(std::shared_ptr<QSkeletonModelComponent>) override;
 	std::shared_ptr<ISceneComponentRenderProxy> createParticleProxy(std::shared_ptr<QParticleComponent>) override;
 	std::shared_ptr<ISceneComponentRenderProxy> createSkyBoxProxy(std::shared_ptr<QSkyBoxComponent>) override;
 
 	virtual void compile() override;
-	virtual void execute() override;
 
 	void setupSceneFrameSize(QSize size);
 	void setupSampleCount(int count);
 
-	QRhiSPtr<QRhiTexture> getOutputTexture();
+	QRhiTexture* getOutputTexture();
 
-	virtual int getSampleCount() override;
-	virtual QRhiRenderPassDescriptor* getRenderPassDescriptor() override;
 	virtual QVector<QRhiGraphicsPipeline::TargetBlend> getBlendStates() override;
+	virtual QRhiRenderTarget* getRenderTarget() override;
 private:
 	QSize mSceneFrameSize;
 	int mSampleCount = 1;
@@ -41,12 +38,11 @@ private:
 		QRhiSPtr<QRhiRenderBuffer> debugMsaaBuffer;
 	};
 	RTResource mRT;
-	QDefaultRenderer* mRenderer = nullptr;
-
 	QRhiReadbackResult mReadReult;
 	QRhiReadbackDescription mReadDesc;
 	QPoint mReadPoint;
-	QHash<QSceneComponent::ComponentId, std::shared_ptr<ISceneComponentRenderProxy>> mPrimitiveProxyMap;
+
+	QVector<QRhiGraphicsPipeline::TargetBlend> mBlendStates;
 };
 
 #endif // QDefaultSceneRenderPass_h__

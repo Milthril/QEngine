@@ -119,6 +119,7 @@ void QDefaultProxyStaticMesh::recreatePipeline()
 	const auto& blendStates = mRenderPass->getBlendStates();
 	mPipeline->setTargetBlends(blendStates.begin(), blendStates.end());
 	mPipeline->setTopology(mStaticMesh->getTopology());
+	mPipeline->setDepthOp(QRhiGraphicsPipeline::LessOrEqual);
 	mPipeline->setDepthTest(true);
 	mPipeline->setDepthWrite(true);
 	mPipeline->setSampleCount(mRenderPass->getSampleCount());

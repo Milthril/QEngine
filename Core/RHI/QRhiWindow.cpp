@@ -87,6 +87,9 @@ void QRhiWindow::initInternal()
 	mRenderPassDesciptor.reset(mSwapChain->newCompatibleRenderPassDescriptor());
 	mSwapChain->setRenderPassDescriptor(mRenderPassDesciptor.get());
 	resizeSwapChain();
+	if (Engine->renderer()) {
+		Engine->renderer()->setup();
+	}
 }
 
 void QRhiWindow::renderInternal()

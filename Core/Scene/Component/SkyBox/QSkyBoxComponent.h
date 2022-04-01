@@ -3,10 +3,9 @@
 
 #include "Scene\Component\QPrimitiveComponent.h"
 
-class QSkyBoxComponent :public QSceneComponent {
+class QSkyBoxComponent :public QPrimitiveComponent {
 	Q_OBJECT
 		Q_PROPERTY(QImage SkyBoxImage READ getSkyBoxImage WRITE setSkyBoxImage)
-
 public:
 	QSceneComponent::ProxyType type() override { return QSceneComponent::SkyBox; }
 public:

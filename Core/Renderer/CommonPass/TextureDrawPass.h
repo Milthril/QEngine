@@ -1,20 +1,26 @@
 #ifndef TextureDrawPass_h__
 #define TextureDrawPass_h__
 
-#include "RHI\QRhiDefine.h"
+#include "Renderer\IRenderPassBase.h"
 
-class TextureDrawPass {
+class TextureDrawPass :public IRenderPassBase {
 public:
 	TextureDrawPass();
-	void drawCommand(QRhiCommandBuffer* cmdBuffer, QRhiSPtr<QRhiTexture> texture, QRhiRenderTarget* renderTarget);
+
+	void setupRenderTarget(QRhiRenderTarget* renderTarget);
+	void setupCmdBuffer(QRhiCommandBuffer* cmdBuffer);
+	void setupTexture(QRhiTexture* texture);
+
+	virtual void compile() override;
+	virtual void execute() override;
 protected:
-	void initRhiResource(QRhiRenderPassDescriptor* renderPassDesc, QRhiRenderTarget* renderTarget, QRhiSPtr<QRhiTexture> texture);
-	void updateTexture(QRhiSPtr<QRhiTexture> texture);
-private:
+	QRhiRenderTarget* mRenderTarget;
+	QRhiCommandBuffer* mCmdBuffer;
+	QRhiTexture* mTexture;
+
 	QRhiSPtr<QRhiGraphicsPipeline> mPipeline;
 	QRhiSPtr<QRhiSampler> mSampler;
 	QRhiSPtr<QRhiShaderResourceBindings> mBindings;
-	QRhiSPtr<QRhiTexture> mTexture;
 };
 
 #endif // TextureDrawPass_h__

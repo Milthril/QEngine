@@ -1,43 +1,56 @@
 #include "QScene.h"
 #include "Component\QPrimitiveComponent.h"
 #include "Component\Camera\QCameraComponent.h"
+#include "Component\SkyBox\QSkyBoxComponent.h"
 #include "QQueue"
 
-void QScene::insertLight(uint32_t index, std::shared_ptr<QLightComponent> light)
+void QScene::addSceneComponent(QString name, std::shared_ptr<QSceneComponent> comp)
 {
-	mLightList.insert(index, light);
-	Q_EMIT lightChanged();
-}
-
-void QScene::removeLight(std::shared_ptr<QLightComponent> light)
-{
-	if (mLightList.removeOne(light)) {
-		Q_EMIT lightChanged();
+	switch (comp->type())
+	{
+	case QSceneComponent::Camera: {
+		mCamera = std::dynamic_pointer_cast<QCameraComponent>(comp);
+		break;
+	}
+	case QSceneComponent::StaticMesh: {
+		mPrimitiveList << std::dynamic_pointer_cast<QPrimitiveComponent>(comp);
+		break;
+	}
+	case QSceneComponent::SkeletonMesh: {
+		mPrimitiveList << std::dynamic_pointer_cast<QPrimitiveComponent>(comp);
+		break;
+	}
+	case QSceneComponent::Light: {
+		//mLightList << std::dynamic_pointer_cast<QLightComponent>(comp);
+		break;
+	}
+	case QSceneComponent::Particle: {
+		mPrimitiveList << std::dynamic_pointer_cast<QPrimitiveComponent>(comp);;
+		break;
+	}
+	case QSceneComponent::SkyBox: {
+		if (mSkyBox == nullptr) {
+			mPrimitiveList << std::dynamic_pointer_cast<QPrimitiveComponent>(comp);
+			mSkyBox = std::dynamic_pointer_cast<QSkyBoxComponent>(comp);
+		}
+		else {
+			Q_ASSERT(false);
+		}
+		break;
+	}
+	default:
+		break;;
+	}
+	mSceneCompList << comp;
+	comp->setObjectName(name);
+	comp->setScene(this);
+	for (auto& child : comp->getChildren()) {
+		addSceneComponent(child->objectName(), child);
 	}
 }
 
-void QScene::insertPrimitive(uint32_t index, const QString& name, std::shared_ptr<QPrimitiveComponent> component)
+void QScene::removeSceneComponent(std::shared_ptr<QSceneComponent> comp)
 {
-	component->setObjectName(name);
-	mPrimitiveList.insert(index, component);
-	Q_EMIT primitiveInserted(index, component);
-}
-
-void QScene::removePrimitive(std::shared_ptr<QPrimitiveComponent> component)
-{
-	if (mPrimitiveList.removeOne(component)) {
-		Q_EMIT primitiveRemoved(component);
-	}
-}
-
-void QScene::addLight(std::shared_ptr<QLightComponent> light)
-{
-	insertLight(mLightList.size(), light);
-}
-
-void QScene::addPrimitive(const QString& name, std::shared_ptr<QPrimitiveComponent> component)
-{
-	insertPrimitive(mPrimitiveList.size(), name, component);
 }
 
 std::shared_ptr<QCameraComponent> QScene::getCamera() const
