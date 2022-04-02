@@ -105,12 +105,16 @@ void QRhiWindow::renderInternal()
 		mNewlyExposed = false;
 	}
 	if (Engine->renderer()) {
-		Engine->renderer()->render();
+		if (mRhi->beginFrame(mSwapChain.get()) == QRhi::FrameOpSuccess) {
+			mSwapChain->currentFrameRenderTarget()->setRenderPassDescriptor(mSwapChain->renderPassDescriptor());
+			Engine->renderer()->render(mSwapChain->currentFrameCommandBuffer());
+			mRhi->endFrame(mSwapChain.get());
+		}
 	}
 	mFrameCount += 1;
 	if (mTimer.elapsed() > 1000) {
 		mFPS = mFrameCount;
-		qDebug() << mFPS;
+		//qDebug() << mFPS;
 		mTimer.restart();
 		mFrameCount = 0;
 	}
@@ -118,8 +122,10 @@ void QRhiWindow::renderInternal()
 
 void QRhiWindow::resizeSwapChain()
 {
+	QSize lastSize = mSwapChain->currentPixelSize();
 	mHasSwapChain = mSwapChain->createOrResize();
-	if (Engine->renderer()) {
+	QSize currentSize = mSwapChain->currentPixelSize();
+	if (lastSize!=currentSize&&Engine ->renderer()) {
 		Engine->renderer()->rebuild();
 	}
 	mFrameCount = 0;

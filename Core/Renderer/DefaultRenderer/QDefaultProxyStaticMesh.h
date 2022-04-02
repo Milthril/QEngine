@@ -1,4 +1,4 @@
-#ifndef QDefaultProxyStaticMesh_h__
+ï»¿#ifndef QDefaultProxyStaticMesh_h__
 #define QDefaultProxyStaticMesh_h__
 
 #include "Renderer\IRhiProxy.h"
@@ -14,7 +14,7 @@ public:
 	void setParentParticle(std::shared_ptr<QParticleComponent> val) { mParentParticle = val; }
 private:
 	std::shared_ptr<QStaticMeshComponent> mStaticMesh;
-	std::shared_ptr<QParticleComponent> mParentParticle;		//ÓÃ×÷Á£×ÓÊµÀıÊ±ÉúĞ§
+	std::shared_ptr<QParticleComponent> mParentParticle;		//ç”¨ä½œç²’å­å®ä¾‹æ—¶ç”Ÿæ•ˆ
 	QRhiSPtr<QRhiShaderResourceBindings> mShaderResourceBindings;
 public:
 	void recreateResource() override;

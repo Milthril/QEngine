@@ -208,7 +208,7 @@ void QDefaultProxyParticle::updatePrePass(QRhiCommandBuffer* cmdBuffer)
 	};
 	u->readBackBuffer(mParticleCounterBuffer.get(), 0, sizeof(ParticleRunContext), &mCtxReader);
 	cmdBuffer->endComputePass(u);
-	//RHI->finish();
+	RHI->finish();
 	cmdBuffer->beginComputePass();
 	cmdBuffer->setComputePipeline(mMatrixComputePipline.get());
 	cmdBuffer->setShaderResources(mMatrixBindings[mInputIndex].get());

@@ -10,8 +10,7 @@ public:
 			mFuncSetup();
 	}
 	virtual void compile() {}
-	virtual void execute() {}
-
+	virtual void execute(QRhiCommandBuffer* cmdBuffer) {}
 	void setFuncSetup(std::function<void()> val) { mFuncSetup = val; }
 private:
 	std::function<void()> mFuncSetup;

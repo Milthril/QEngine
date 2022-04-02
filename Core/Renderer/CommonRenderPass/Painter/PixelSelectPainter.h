@@ -1,22 +1,23 @@
 #ifndef PixelSelectPainter_h__
 #define PixelSelectPainter_h__
 
-#include "IPainter.h"
+#include "Renderer/IRenderPassBase.h"
 
-class PixelSelectPainter :public IPainter{
+class PixelSelectPainter :public IRenderPassBase{
 public:
 	PixelSelectPainter();
 	void setupSelectCode(QByteArray code);
 	void setupInputTexture(QRhiTexture* texture);
 
 	virtual void compile() override;
-	virtual void paint(QRhiCommandBuffer* cmdBuffer) override;
+	virtual void execute(QRhiCommandBuffer* cmdBuffer) override;
 
 	QRhiTexture* getOutputTexture() { return mRT.colorAttachment.get(); }
 private:
 	struct RTResource {
 		QRhiSPtr<QRhiTexture> colorAttachment;
 		QRhiSPtr<QRhiTextureRenderTarget> renderTarget;
+		QRhiSPtr<QRhiRenderPassDescriptor> renderPassDesc;
 	};
 	RTResource mRT;
 	QRhiSPtr<QRhiGraphicsPipeline> mPipeline;

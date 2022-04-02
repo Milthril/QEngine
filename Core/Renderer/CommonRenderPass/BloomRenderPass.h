@@ -5,46 +5,27 @@
 #include "Painter\PixelSelectPainter.h"
 #include "Renderer\IRenderPassBase.h"
 
-class QBloomMeragePainter:public IPainter {
+class BloomMerageRenderPass:public IRenderPassBase {
 public:
-	QBloomMeragePainter();
-
-	void setupRenderTarget(QRhiRenderTarget* renderTarget);
+	BloomMerageRenderPass();
 	void setupSrcTexutre(QRhiTexture* texture);
 	void setupBloomTexutre(QRhiTexture* texture);
 
+	QRhiTexture* getOutputTexture() { return mRT.colorAttachment.get(); }
 	virtual void compile() override;
-	virtual void paint(QRhiCommandBuffer* cmdBuffer) override;
-private:
-	QRhiSPtr<QRhiGraphicsPipeline> mPipeline;
-	QRhiSPtr<QRhiSampler> mSampler;
-	QRhiSPtr<QRhiShaderResourceBindings> mBindings;
-	QRhiRenderTarget* mRenderTarget;
-	QRhiTexture* mSrcTexture;
-	QRhiTexture* mBloomTexture;
-};
-
-class BloomRenderPass: public IRenderPassBase {
-public:
-	BloomRenderPass();
-	void setupInputTexture(QRhiTexture* texture);
-
-	virtual void compile() override;
-	virtual void execute() override;
-
-	QRhiTexture* getOutputTexture();
-	QRhiTexture* getSelectTexture();
-	QRhiTexture* getBlurTexture();
+	virtual void execute(QRhiCommandBuffer* cmdBuffer) override;
 private:
 	struct RTResource {
 		QRhiSPtr<QRhiTexture> colorAttachment;
 		QRhiSPtr<QRhiTextureRenderTarget> renderTarget;
+		QRhiSPtr<QRhiRenderPassDescriptor> renderPassDesc;
 	};
 	RTResource mRT;
-	QRhiTexture* mInputTexture;
-	BlurPainter mBlurPainter;
-	PixelSelectPainter mPixelSelectPainter;
-	QBloomMeragePainter mMeragePainter;
+	QRhiSPtr<QRhiGraphicsPipeline> mPipeline;
+	QRhiSPtr<QRhiSampler> mSampler;
+	QRhiSPtr<QRhiShaderResourceBindings> mBindings;
+	QRhiTexture* mSrcTexture;
+	QRhiTexture* mBloomTexture;
 };
 
 #endif // BloomRenderPass_h__

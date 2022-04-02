@@ -18,13 +18,16 @@ void PixelSelectPainter::compile() {
 	mRT.colorAttachment.reset(RHI->newTexture(QRhiTexture::RGBA32F, mInputTexture->pixelSize(), 1, QRhiTexture::RenderTarget | QRhiTexture::UsedAsTransferSource));
 	mRT.colorAttachment->create();
 	mRT.renderTarget.reset(RHI->newTextureRenderTarget({ mRT.colorAttachment.get() }));
-	mRT.renderTarget->setRenderPassDescriptor(mRT.renderTarget->newCompatibleRenderPassDescriptor());
+	mRT.renderPassDesc.reset(mRT.renderTarget->newCompatibleRenderPassDescriptor());
+	mRT.renderTarget->setRenderPassDescriptor(mRT.renderPassDesc.get());
+	mRT.renderTarget->setRenderPassDescriptor(mRT.renderPassDesc.get());
 	mRT.renderTarget->create();
 	mSampler.reset(RHI->newSampler(QRhiSampler::Linear,
 				   QRhiSampler::Linear,
 				   QRhiSampler::None,
 				   QRhiSampler::ClampToEdge,
 				   QRhiSampler::ClampToEdge));
+
 	mSampler->create();
 	mPipeline.reset(RHI->newGraphicsPipeline());
 	QRhiGraphicsPipeline::TargetBlend blendState;
@@ -65,7 +68,7 @@ layout (location = 0) out vec4 outFragColor;
 	mPipeline->create();
 }
 
-void PixelSelectPainter::paint(QRhiCommandBuffer* cmdBuffer) {
+void PixelSelectPainter::execute(QRhiCommandBuffer* cmdBuffer) {
 	cmdBuffer->beginPass(mRT.renderTarget.get(), QColor::fromRgbF(0.0f, 0.0f, 0.0f, 0.0f), { 1.0f, 0 });
 	cmdBuffer->setGraphicsPipeline(mPipeline.get());
 	cmdBuffer->setViewport(QRhiViewport(0, 0, mRT.renderTarget->pixelSize().width(), mRT.renderTarget->pixelSize().height()));

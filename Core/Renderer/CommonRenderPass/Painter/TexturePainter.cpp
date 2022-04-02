@@ -6,26 +6,9 @@ TexturePainter::TexturePainter()
 {
 }
 
-void TexturePainter::setupRenderTarget(QRhiRenderTarget* renderTarget)
-{
-	mRenderTarget = renderTarget;
-}
-
-void TexturePainter::setupCmdBuffer(QRhiCommandBuffer* cmdBuffer)
-{
-	mCmdBuffer = cmdBuffer;
-}
-
 void TexturePainter::setupTexture(QRhiTexture* texture)
 {
 	mTexture = texture;
-	if (mBindings) {
-		mBindings->destroy();
-		mBindings->setBindings({
-			QRhiShaderResourceBinding::sampledTexture(0,QRhiShaderResourceBinding::FragmentStage,mTexture,mSampler.get())
-							   });
-		mBindings->create();
-	}
 }
 
 void TexturePainter::compile()
@@ -40,7 +23,7 @@ void TexturePainter::compile()
 	QRhiGraphicsPipeline::TargetBlend blendState;
 	blendState.enable = true;
 	mPipeline->setTargetBlends({ blendState });
-	mPipeline->setSampleCount(mRenderTarget->sampleCount());
+	mPipeline->setSampleCount(mSampleCount);
 	QShader vs = ISceneRenderer::createShaderFromCode(QShader::VertexStage, R"(#version 450
 layout (location = 0) out vec2 vUV;
 out gl_PerVertex{
@@ -74,16 +57,15 @@ void main() {
 	mBindings->create();
 	mPipeline->setVertexInputLayout(inputLayout);
 	mPipeline->setShaderResourceBindings(mBindings.get());
-	mPipeline->setRenderPassDescriptor(mRenderTarget->renderPassDescriptor());
+	mPipeline->setRenderPassDescriptor(mRenderPassDesc);
 	mPipeline->create();
 }
 
-void TexturePainter::execute()
-{
-	mCmdBuffer->beginPass(mRenderTarget, QColor::fromRgbF(0.0f, 0.0f, 0.0f, 0.0f), { 1.0f, 0 });
-	mCmdBuffer->setGraphicsPipeline(mPipeline.get());
-	mCmdBuffer->setViewport(QRhiViewport(0, 0, mRenderTarget->pixelSize().width(), mRenderTarget->pixelSize().height()));
-	mCmdBuffer->setShaderResources(mBindings.get());
-	mCmdBuffer->draw(4);
-	mCmdBuffer->endPass();
+void TexturePainter::paint(QRhiCommandBuffer* cmdBuffer, QRhiRenderTarget* renderTarget) {
+
+	cmdBuffer->setGraphicsPipeline(mPipeline.get());
+	cmdBuffer->setViewport(QRhiViewport(0, 0, renderTarget->pixelSize().width(), renderTarget->pixelSize().height()));
+	cmdBuffer->setShaderResources(mBindings.get());
+	cmdBuffer->draw(4);
 }
+

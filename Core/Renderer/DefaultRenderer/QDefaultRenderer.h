@@ -8,7 +8,7 @@ class QDefaultRenderer :public ISceneRenderer {
 public:
 	QDefaultRenderer();
 	virtual void buildFrameGraph() override;
-	virtual void render() override;
+	virtual void render(QRhiCommandBuffer* cmdBuffer) override;
 	virtual void requestReadbackCompId(const QPoint& screenPt) override;
 protected:
 	QRhiReadbackResult mReadReult;

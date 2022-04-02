@@ -18,7 +18,7 @@ public:
 	static QShader createShaderFromCode(QShader::Stage stage, const char* code);
 
 	virtual void buildFrameGraph() {}
-	virtual void render() {}
+	virtual void render(QRhiCommandBuffer* cmdBuffer) {}
 	virtual void rebuild() {
 		if (mFrameGraph)
 			mFrameGraph->compile();

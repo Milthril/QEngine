@@ -155,7 +155,7 @@ void main(){
 	mPipelineV->create();
 }
 
-void BlurPainter::paint(QRhiCommandBuffer* cmdBuffer) {
+void BlurPainter::execute(QRhiCommandBuffer* cmdBuffer) {
 	QRhiResourceUpdateBatch* copyBatch = RHI->nextResourceUpdateBatch();
 	copyBatch->copyTexture(mBloomRT[0].colorAttachment.get(), mInputTexture);
 	if (bNeedUpdateBloomState.receive()) {

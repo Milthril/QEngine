@@ -69,15 +69,13 @@ ImGuiPainter::ImGuiPainter()
 	};
 }
 
-void ImGuiPainter::setupWindow(QRhiWindow* window)
+void ImGuiPainter::setupWindow(QWindow* window)
 {
 	mWindow = window;
-	//mWindow->installEventFilter(this);
+	mWindow->installEventFilter(this);
 }
 
-void ImGuiPainter::setupRenderTarget(QRhiRenderTarget* renderTarget) {
-	mRenderTarget = renderTarget;
-}
+
 
 void ImGuiPainter::compile() {
 	mVertexBuffer.reset(RHI->newBuffer(QRhiBuffer::Dynamic, QRhiBuffer::VertexBuffer, sizeof(ImDrawVert) * IMGUI_BUFFER_SIZE));
@@ -112,7 +110,7 @@ void ImGuiPainter::compile() {
 	mPipeline->setDepthTest(false);
 	mPipeline->setTargetBlends({ blendState });
 	mPipeline->setFlags(QRhiGraphicsPipeline::UsesScissor);
-	mPipeline->setSampleCount(mRenderTarget->sampleCount());
+	mPipeline->setSampleCount(mSampleCount);
 	QShader vs = ISceneRenderer::createShaderFromCode(QShader::VertexStage, R"(#version 440
 layout(location = 0) in vec2 inPosition;
 layout(location = 1) in vec2 inUV;
@@ -164,61 +162,61 @@ void main(){
 							  });
 	mPipeline->setVertexInputLayout(inputLayout);
 	mPipeline->setShaderResourceBindings(mBindings.get());
-	mPipeline->setRenderPassDescriptor(mRenderTarget->renderPassDescriptor());
+	mPipeline->setRenderPassDescriptor(mRenderPassDesc);
 	mPipeline->create();
 }
 
-void ImGuiPainter::paint(QRhiCommandBuffer* cmdBuffer) {
+void ImGuiPainter::resourceUpdate(QRhiResourceUpdateBatch* batch) {
 	ImGui::SetCurrentContext(mImGuiContext);
 	ImGuiIO& io = ImGui::GetIO();
-	io.DisplaySize = ImVec2(mRenderTarget->pixelSize().width(), mRenderTarget->pixelSize().height());
+	QSize size = mWindow->size() * mWindow->devicePixelRatio();
+	io.DisplaySize = ImVec2(size.width(), size.height());
 	io.DisplayFramebufferScale = ImVec2(1, 1);
 	double current_time = QDateTime::currentMSecsSinceEpoch() / double(1000);
 	io.DeltaTime = mTime > 0.0 ? (float)(current_time - mTime) : (float)(1.0f / 60.0f);
 	mTime = current_time;
-	//if (io.WantSetMousePos) {
-	//	const QPoint global_pos = mWindow->mapToGlobal(QPoint{ (int)io.MousePos.x, (int)io.MousePos.y });
-	//	QCursor cursor = mWindow->cursor();
-	//	cursor.setPos(global_pos);
-	//	mWindow->setCursor(cursor);
-	//}
-	//if (mWindow->isActive()) {
-	//	const QPoint pos = mWindow->mapFromGlobal(QCursor::pos());
-	//	io.MousePos = ImVec2(pos.x() * mWindow->devicePixelRatio(), pos.y() * mWindow->devicePixelRatio());  // Mouse position in screen coordinates (set to -1,-1 if no mouse / on another screen, etc.)
-	//}
-	//else {
-	//	io.MousePos = ImVec2(-1, -1);
-	//}
-	//for (int i = 0; i < 3; i++) {
-	//	io.MouseDown[i] = mMousePressed[i];
-	//}
-	//io.MouseWheelH = mMouseWheelH;
-	//io.MouseWheel = mMouseWheel;
-	//mMouseWheelH = 0;
-	//mMouseWheel = 0;
-	//if (io.ConfigFlags & ImGuiConfigFlags_NoMouseCursorChange)
-	//	return;
-	//const ImGuiMouseCursor imgui_cursor = ImGui::GetMouseCursor();
-	//if (io.MouseDrawCursor || (imgui_cursor == ImGuiMouseCursor_None)) {
-	//	mWindow->setCursor(Qt::CursorShape::BlankCursor);
-	//}
-	//else {
-	//	const auto cursor_it = cursorMap.constFind(imgui_cursor);
-	//	if (cursor_it != cursorMap.constEnd()) {
-	//		const Qt::CursorShape qt_cursor_shape = *(cursor_it);
-	//		mWindow->setCursor(qt_cursor_shape);
-	//	}
-	//	else {
-	//		mWindow->setCursor(Qt::CursorShape::ArrowCursor);
-	//	}
-	//}
+	if (io.WantSetMousePos) {
+		const QPoint global_pos = mWindow->mapToGlobal(QPoint{ (int)io.MousePos.x, (int)io.MousePos.y });
+		QCursor cursor = mWindow->cursor();
+		cursor.setPos(global_pos);
+		mWindow->setCursor(cursor);
+	}
+	if (mWindow->isActive()) {
+		const QPoint pos = mWindow->mapFromGlobal(QCursor::pos());
+		io.MousePos = ImVec2(pos.x() * mWindow->devicePixelRatio(), pos.y() * mWindow->devicePixelRatio());  // Mouse position in screen coordinates (set to -1,-1 if no mouse / on another screen, etc.)
+	}
+	else {
+		io.MousePos = ImVec2(-1, -1);
+	}
+	for (int i = 0; i < 3; i++) {
+		io.MouseDown[i] = mMousePressed[i];
+	}
+	io.MouseWheelH = mMouseWheelH;
+	io.MouseWheel = mMouseWheel;
+	mMouseWheelH = 0;
+	mMouseWheel = 0;
+	if (io.ConfigFlags & ImGuiConfigFlags_NoMouseCursorChange)
+		return;
+	const ImGuiMouseCursor imgui_cursor = ImGui::GetMouseCursor();
+	if (io.MouseDrawCursor || (imgui_cursor == ImGuiMouseCursor_None)) {
+		mWindow->setCursor(Qt::CursorShape::BlankCursor);
+	}
+	else {
+		const auto cursor_it = cursorMap.constFind(imgui_cursor);
+		if (cursor_it != cursorMap.constEnd()) {
+			const Qt::CursorShape qt_cursor_shape = *(cursor_it);
+			mWindow->setCursor(qt_cursor_shape);
+		}
+		else {
+			mWindow->setCursor(Qt::CursorShape::ArrowCursor);
+		}
+	}
 	ImGui::SetCurrentContext(mImGuiContext);
 	ImGui::NewFrame();
 	paintImgui();
 	ImGui::EndFrame();
 	ImGui::Render();
 
-	QRhiResourceUpdateBatch* batch = RHI->nextResourceUpdateBatch();
 	ImDrawData* draw_data = ImGui::GetDrawData();
 	int64_t vertexBufferOffset = 0;
 	int64_t indexBufferOffset = 0;
@@ -230,19 +228,26 @@ void ImGuiPainter::paint(QRhiCommandBuffer* cmdBuffer) {
 		indexBufferOffset += cmd_list->IdxBuffer.size_in_bytes();
 	}
 	QMatrix4x4 MVP = RHI->clipSpaceCorrMatrix();
-	QRect rect(0, 0, mRenderTarget->pixelSize().width(), mRenderTarget->pixelSize().height());
+	QRect rect(0, 0, size.width(), size.height());
 	MVP.ortho(rect);
 	batch->updateDynamicBuffer(mUniformBuffer.get(), 0, sizeof(QMatrix4x4), MVP.constData());
 
 	if (!mFontImage.isNull()) {
 		batch->uploadTexture(mFontTexture.get(), mFontImage);
+		mFontImage = {};
 	}
+}
 
-	cmdBuffer->beginPass(mRenderTarget, QColor::fromRgbF(0.0f, 0.0f, 0.0f, 0.0f), { 1.0f, 0 }, batch);
+
+
+void ImGuiPainter::paint(QRhiCommandBuffer* cmdBuffer, QRhiRenderTarget* renderTarget) {
+	ImDrawData* draw_data = ImGui::GetDrawData();
+	int64_t vertexBufferOffset = 0;
+	int64_t indexBufferOffset = 0;
 	for (int i = 0; i < draw_data->CmdListsCount; i++) {
 		const ImDrawList* cmd_list = draw_data->CmdLists[i];
 		cmdBuffer->setGraphicsPipeline(mPipeline.get());
-		cmdBuffer->setViewport(QRhiViewport(0, 0, mRenderTarget->pixelSize().width(), mRenderTarget->pixelSize().height()));
+		cmdBuffer->setViewport(QRhiViewport(0, 0, renderTarget->pixelSize().width(), renderTarget->pixelSize().height()));
 		cmdBuffer->setShaderResources();
 		const QRhiCommandBuffer::VertexInput VertexInput(mVertexBuffer.get(), vertexBufferOffset);
 		cmdBuffer->setVertexInput(0, 1, &VertexInput, mIndexBuffer.get(), indexBufferOffset, sizeof(ImDrawIdx) == 2 ? QRhiCommandBuffer::IndexUInt16 : QRhiCommandBuffer::IndexUInt32);
@@ -255,14 +260,13 @@ void ImGuiPainter::paint(QRhiCommandBuffer* cmdBuffer) {
 			}
 			else {
 				QRect rect0(pcmd->ClipRect.x, pcmd->ClipRect.y, pcmd->ClipRect.z, pcmd->ClipRect.w);
-				QRhiScissor scissor(pcmd->ClipRect.x, mRenderTarget->pixelSize().height() - pcmd->ClipRect.y - pcmd->ClipRect.w, pcmd->ClipRect.z, pcmd->ClipRect.w);
+				QRhiScissor scissor(pcmd->ClipRect.x, renderTarget->pixelSize().height() - pcmd->ClipRect.y - pcmd->ClipRect.w, pcmd->ClipRect.z, pcmd->ClipRect.w);
 				QRect rect1(pcmd->ClipRect.x, pcmd->ClipRect.y, pcmd->ClipRect.z, pcmd->ClipRect.w);
 				cmdBuffer->setScissor(scissor);
 				cmdBuffer->drawIndexed(pcmd->ElemCount, 1, pcmd->IdxOffset, pcmd->VtxOffset, 0);
 			}
 		}
 	}
-	cmdBuffer->endPass();
 }
 
 

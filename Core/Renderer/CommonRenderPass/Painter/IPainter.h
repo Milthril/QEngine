@@ -5,8 +5,19 @@
 
 class IPainter {
 public:
+	void setupRenderPassDesc(QRhiRenderPassDescriptor* desc) {
+		mRenderPassDesc = desc;
+	}
+	void setupSampleCount(int sampleCount) {
+		mSampleCount = sampleCount;
+	}
+
 	virtual void compile() = 0;
-	virtual void paint(QRhiCommandBuffer* cmdBuffer) = 0;
+	virtual void resourceUpdate(QRhiResourceUpdateBatch* batch) {}
+	virtual void paint(QRhiCommandBuffer* cmdBuffer,QRhiRenderTarget *renderTarget) = 0;
+protected:
+	QRhiRenderPassDescriptor* mRenderPassDesc;
+	int mSampleCount;
 };
 
 

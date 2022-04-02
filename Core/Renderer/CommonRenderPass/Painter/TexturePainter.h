@@ -1,23 +1,18 @@
 #ifndef TexturePainter_h__
 #define TexturePainter_h__
 
-#include "Renderer\IRenderPassBase.h"
+#include "IPainter.h"
 
-class TexturePainter :public IRenderPassBase {
+class TexturePainter :public IPainter {
 public:
 	TexturePainter();
 
-	void setupRenderTarget(QRhiRenderTarget* renderTarget);
-	void setupCmdBuffer(QRhiCommandBuffer* cmdBuffer);
 	void setupTexture(QRhiTexture* texture);
 
 	virtual void compile() override;
-	virtual void execute() override;
+	virtual void paint(QRhiCommandBuffer* cmdBuffer, QRhiRenderTarget* renderTarget) override;
 protected:
-	QRhiRenderTarget* mRenderTarget;
-	QRhiCommandBuffer* mCmdBuffer;
 	QRhiTexture* mTexture;
-
 	QRhiSPtr<QRhiGraphicsPipeline> mPipeline;
 	QRhiSPtr<QRhiSampler> mSampler;
 	QRhiSPtr<QRhiShaderResourceBindings> mBindings;

@@ -1,17 +1,16 @@
 #ifndef BlurPainter_h__
 #define BlurPainter_h__
 
+#include "Renderer/IRenderPassBase.h"
 
-#include "IPainter.h"
-
-class BlurPainter: public IPainter {
+class BlurPainter: public IRenderPassBase {
 public:
 	BlurPainter();
 
 	void setupInputTexture(QRhiTexture* inputTexture);
 
 	virtual void compile() override;
-	virtual void paint(QRhiCommandBuffer* cmdBuffer) override;
+	virtual void execute(QRhiCommandBuffer* cmdBuffer) override;
 
 	void setBloomSize(int size);
 	int getBoommIter() const { return mBoommIter; }
@@ -32,9 +31,7 @@ private:
 	QRhiSPtr<QRhiGraphicsPipeline> mPipelineV;
 	QRhiSPtr<QRhiShaderResourceBindings> mBindingsH;
 	QRhiSPtr<QRhiShaderResourceBindings> mBindingsV;
-
 	QRhiTexture* mInputTexture;
-
 	struct BloomState {
 		uint32_t size = 0;
 		uint32_t padding[3];

@@ -1,7 +1,7 @@
 ﻿#ifndef ISceneRenderPass_h__
 #define ISceneRenderPass_h__
 
-#include "IRenderPassBase.h"
+#include "Renderer/IRenderPassBase.h"
 #include "Scene\Component\QPrimitiveComponent.h"
 #include "IRhiProxy.h"
 #include "Scene\Component\StaticMesh\QStaticMeshComponent.h"
@@ -14,7 +14,7 @@ public:
 	ISceneRenderPass(std::shared_ptr<QScene> scene);
 
 	std::shared_ptr<IRhiProxy> createPrimitiveProxy(std::shared_ptr<QPrimitiveComponent> component);
-	virtual void execute() override final;
+	virtual void execute(QRhiCommandBuffer* cmdBuffer) override final;
 	virtual std::shared_ptr<IRhiProxy> createStaticMeshProxy(std::shared_ptr<QStaticMeshComponent>) = 0;
 	virtual std::shared_ptr<IRhiProxy> createSkeletonMeshProxy(std::shared_ptr<QSkeletonModelComponent>) = 0;
 	virtual std::shared_ptr<IRhiProxy> createParticleProxy(std::shared_ptr<QParticleComponent>) = 0;

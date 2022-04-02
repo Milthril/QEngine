@@ -1,20 +1,16 @@
 ﻿#ifndef QFrameGraph_h__
 #define QFrameGraph_h__
-#include "IRenderPassBase.h"
+#include "Renderer/IRenderPassBase.h"
 
 class QFrameGraphNode {
 	friend class QFrameGraph;
 private:
 	void tryCompile();
-	void tryExec();
-	void executableNewThread();
 public:
 	QString mName;
 	std::shared_ptr<IRenderPassBase> mRenderPass;
 	QList<QFrameGraphNode*> mDependencyList;
-	QList<std::shared_ptr<QFrameGraphNode>> mSubPassList;
-	std::shared_ptr<std::thread> mThread;
-	std::atomic_bool isFinished = false;
+	QList<QFrameGraphNode*> mSubPassList;
 	std::atomic_bool isCompiled = false;
 };
 
@@ -22,11 +18,10 @@ class QFrameGraph {
 	friend class QFrameGraphBuilder;
 public:
 	void compile();
-	void executable();
+	void executable(QRhiCommandBuffer* cmdBuffer);
 private:
 	QHash<QString, std::shared_ptr<QFrameGraphNode>> mGraphNodeMap;
-	std::mutex mMutex;
-	std::condition_variable mConditionVar;
+	QList<std::shared_ptr<QFrameGraphNode>> mRenderQueue;
 };
 
 class QFrameGraphBuilder {
