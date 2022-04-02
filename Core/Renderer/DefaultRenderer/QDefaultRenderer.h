@@ -10,10 +10,6 @@ public:
 	virtual void buildFrameGraph() override;
 	virtual void render(QRhiCommandBuffer* cmdBuffer) override;
 	virtual void requestReadbackCompId(const QPoint& screenPt) override;
-protected:
-	QRhiReadbackResult mReadReult;
-	QRhiReadbackDescription mReadDesc;
-	QPoint mReadPoint;
 };
 
 #endif // QDefaultRenderer_h__

@@ -16,9 +16,12 @@ void QDefaultRenderer::buildFrameGraph() {
 	std::shared_ptr<SwapChainRenderPass> swapChainPass = std::make_shared<SwapChainRenderPass>();
 	mFrameGraph = builder.begin()
 		->node("Scene", scenePass,
-			   [self = scenePass.get()]() {
+			   [self = scenePass.get(),renderer = this]() {
 					self->setupSampleCount(4);
 					self->setupSceneFrameSize(Engine->window()->getSwapChain()->currentPixelSize());
+					if (renderer->getEnableDebug()) {
+						self->setEnableOutputDebugId(true);
+					}
 				})
 		->node("BloomPixelSelector", bloomPixelSelectPass,
 			   [self = bloomPixelSelectPass.get(), scene = scenePass.get()]() {
@@ -35,6 +38,8 @@ void QDefaultRenderer::buildFrameGraph() {
 		->node("BloomBlurPass", bloomBlurPass,
 				[self = bloomBlurPass.get(),pixel = bloomPixelSelectPass.get()]() {
 					self->setupInputTexture(pixel->getOutputTexture());
+					self->setupBloomSize(20);
+					self->setupBoommIter(2);
 				})
 			->dependency({ "BloomPixelSelector" })
 
@@ -45,16 +50,14 @@ void QDefaultRenderer::buildFrameGraph() {
 				})
 			->dependency({ "Scene","BloomBlurPass"})
 		->node("Swapchain", swapChainPass,
-			   [self = swapChainPass.get(), bloom = bloomMeragePass.get()]() {
+			   [self = swapChainPass.get(), bloom = bloomMeragePass.get(), renderer = this, scene = scenePass.get()]() {
 					self->setupSwapChain(Engine->window()->getSwapChain());
 					self->setupTexture(bloom->getOutputTexture());
+					if (renderer->getEnableDebug()) {
+						self->setupDebugTexture(scene->getDebugTexutre());
+					}
 				})
 			->dependency({ "BloomMeragePass" })
-		//->node("Debug", debugPass,
-		//				   [self = debugPass.get()]() {
-		//			self->setupWindow(Engine->window().get());
-		//		})
-		//	->dependency({ "Swapchain" })
 		->end();
 
 	mFrameGraph->compile();
@@ -62,8 +65,9 @@ void QDefaultRenderer::buildFrameGraph() {
 
 void QDefaultRenderer::render(QRhiCommandBuffer* cmdBuffer) {
 	mFrameGraph->executable(cmdBuffer);
+
 }
 
 void QDefaultRenderer::requestReadbackCompId(const QPoint& screenPt) {
-	mReadPoint = screenPt;
+
 }

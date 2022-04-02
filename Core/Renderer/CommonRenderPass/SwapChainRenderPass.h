@@ -8,6 +8,7 @@
 class SwapChainRenderPass :public IRenderPassBase {
 public:
 	SwapChainRenderPass();
+	void setupDebugTexture(QRhiTexture* texture);
 	void setupTexture(QRhiTexture* texture);
 	void setupSwapChain(QRhiSwapChain* swapchain);
 	virtual void compile() override;

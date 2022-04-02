@@ -8,14 +8,13 @@ public:
 	BlurPainter();
 
 	void setupInputTexture(QRhiTexture* inputTexture);
+	void setupBloomSize(int size);
+	void setupBoommIter(int val) { mBoommIter = val; }
 
 	virtual void compile() override;
 	virtual void execute(QRhiCommandBuffer* cmdBuffer) override;
 
-	void setBloomSize(int size);
 	int getBoommIter() const { return mBoommIter; }
-	void setBoommIter(int val) { mBoommIter = val; }
-
 	QRhiTextureRenderTarget* getInputRenderTaget() { return mBloomRT[0].renderTarget.get(); }
 	QRhiTexture* getOutputTexture() { return mBloomRT[0].colorAttachment.get(); }
 private:

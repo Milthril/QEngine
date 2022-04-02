@@ -3,15 +3,13 @@
 #include "QEngine.h"
 
 BlurPainter::BlurPainter() {
-	setBloomSize(10);
 }
 
 void BlurPainter::setupInputTexture(QRhiTexture* inputTexture) {
 	mInputTexture = inputTexture;
 }
 
-void BlurPainter::setBloomSize(int size)
-{
+void BlurPainter::setupBloomSize(int size) {
 	if (size <= 0 || size == mBloomState.size || size >= std::size(mBloomState.weight))
 		return;
 	mBloomState.size = size;
@@ -26,9 +24,8 @@ void BlurPainter::setBloomSize(int size)
 	for (int i = 1; i < size; i++) {
 		mBloomState.weight[i] /= sum;
 	}
-	bNeedUpdateBloomState = true;
+	bNeedUpdateBloomState.active();
 }
-
 
 void BlurPainter::compile() {
 
@@ -153,6 +150,7 @@ void main(){
 	mPipelineV->setShaderResourceBindings(mBindingsV.get());
 	mPipelineV->setRenderPassDescriptor(renderPassDesc.get());
 	mPipelineV->create();
+	bNeedUpdateBloomState.active();
 }
 
 void BlurPainter::execute(QRhiCommandBuffer* cmdBuffer) {

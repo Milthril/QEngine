@@ -8,8 +8,7 @@ QEngine::QEngine(int argc, char** argv, bool enableDebug /*= false*/)
 	, mRenderer(std::make_shared<QDefaultRenderer>())
 {
 	mRenderer->setScene(mScene);
-	if (enableDebug) {
-	}
+	mRenderer->setEnableDebug(enableDebug);
 }
 
 void QEngine::init()

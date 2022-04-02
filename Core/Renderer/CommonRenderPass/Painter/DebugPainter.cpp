@@ -5,13 +5,7 @@
 #include "Scene/Component/Camera/QCameraComponent.h"
 
 DebugPainter::DebugPainter() {
-	connect(Engine->renderer().get(), &ISceneRenderer::readBackCompId, this, [this](QSceneComponent::ComponentId id) {
-		auto comp = Engine->scene()->searchCompById(id);
-		if (comp.get() != mCurrentComp) {
-			mCurrentComp = comp.get();
-			Q_EMIT currentCompChanged(mCurrentComp);
-		}
-	});
+
 }
 
 void DebugPainter::paintImgui() {
@@ -58,6 +52,23 @@ void DebugPainter::setCurrentCompInternal(QSceneComponent* comp) {
 		mCurrentComp = comp;
 }
 
+void DebugPainter::resourceUpdate(QRhiResourceUpdateBatch* batch) {
+	if (!mReadPoint.isNull()) {
+		mReadDesc.setTexture(mDebugTexture);
+		mReadReult.completed = [this]() {
+			const uchar* p = reinterpret_cast<const uchar*>(mReadReult.data.constData());
+			int offset = (mReadReult.pixelSize.width() * mReadPoint.y() + mReadPoint.x()) * 4;
+			uint32_t id = p[offset] + p[offset + 1] * 256 + p[offset + 2] * 256 * 256 + p[offset + 3] * 256 * 256 * 256;
+			qDebug() << id;
+			auto comp = Engine->scene()->searchCompById(id);
+			Q_EMIT currentCompChanged(comp.get());
+		};
+		batch->readBackTexture(mReadDesc,&mReadReult);
+		mReadPoint = {0,0};
+	}
+	ImGuiPainter::resourceUpdate(batch);
+}
+
 bool DebugPainter::eventFilter(QObject* watched, QEvent* event) {
 	static QPoint pressedPos;
 	if (watched != nullptr) {
@@ -72,7 +83,7 @@ bool DebugPainter::eventFilter(QObject* watched, QEvent* event) {
 				if (RHI->isYUpInNDC()) {
 					pt.setY(mWindow->height() - pt.y());
 				}
-				Engine->renderer()->requestReadbackCompId(pt);
+				mReadPoint = pt;
 			}
 			pressedPos = { 0,0 };
 			break;

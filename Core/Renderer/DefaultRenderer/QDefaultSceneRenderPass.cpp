@@ -53,10 +53,10 @@ void QDefaultSceneRenderPass::compile() {		//创建默认的RT
 	if (mEnableOutputDebugId) {
 		mBlendStates << blendState;
 		QRhiColorAttachment debugAttachment;
-		mRT.debugTexture.reset(RHI->newTexture(QRhiTexture::RGBA32F, mSceneFrameSize, 1, QRhiTexture::RenderTarget | QRhiTexture::UsedAsTransferSource));
+		mRT.debugTexture.reset(RHI->newTexture(QRhiTexture::RGBA8, mSceneFrameSize, 1, QRhiTexture::RenderTarget | QRhiTexture::UsedAsTransferSource));
 		mRT.debugTexture->create();
 		if (mSampleCount > 1) {
-			mRT.debugMsaaBuffer.reset(RHI->newRenderBuffer(QRhiRenderBuffer::Color, mSceneFrameSize, mSampleCount, {}, QRhiTexture::RGBA32F));
+			mRT.debugMsaaBuffer.reset(RHI->newRenderBuffer(QRhiRenderBuffer::Color, mSceneFrameSize, mSampleCount, {}, QRhiTexture::RGBA8));
 			mRT.debugMsaaBuffer->create();
 			debugAttachment.setRenderBuffer(mRT.debugMsaaBuffer.get());
 			debugAttachment.setResolveTexture(mRT.debugTexture.get());
@@ -65,7 +65,6 @@ void QDefaultSceneRenderPass::compile() {		//创建默认的RT
 			debugAttachment.setTexture(mRT.debugTexture.get());
 		}
 		colorAttachments << debugAttachment;
-		mReadDesc.setTexture(mRT.debugTexture.get());
 	}
 	QRhiTextureRenderTargetDescription RTDesc;
 	RTDesc.setColorAttachments(colorAttachments.begin(), colorAttachments.end());
@@ -91,6 +90,10 @@ void QDefaultSceneRenderPass::setupSampleCount(int count)
 QRhiTexture* QDefaultSceneRenderPass::getOutputTexture()
 {
 	return mRT.colorAttachment.get();
+}
+
+QRhiTexture* QDefaultSceneRenderPass::getDebugTexutre() {
+	return mRT.debugTexture.get();
 }
 
 QVector<QRhiGraphicsPipeline::TargetBlend> QDefaultSceneRenderPass::getBlendStates()

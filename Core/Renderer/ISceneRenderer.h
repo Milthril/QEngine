@@ -19,16 +19,22 @@ public:
 
 	virtual void buildFrameGraph() {}
 	virtual void render(QRhiCommandBuffer* cmdBuffer) {}
+
 	virtual void rebuild() {
 		if (mFrameGraph)
 			mFrameGraph->compile();
 	}
 	virtual void requestReadbackCompId(const QPoint& screenPt) {}
+	
+	bool getEnableDebug() const { return mEnableDebug; }
+	void setEnableDebug(bool val) { mEnableDebug = val; }
+
 Q_SIGNALS:
 	void readBackCompId(QSceneComponent::ComponentId);
 protected:
 	std::shared_ptr<QScene> mScene;
 	std::shared_ptr<QFrameGraph> mFrameGraph;
+	bool mEnableDebug = false;
 };
 
 #endif // ISceneRenderer_h__

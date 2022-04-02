@@ -21,6 +21,7 @@ public:
 	void setupSampleCount(int count);
 
 	QRhiTexture* getOutputTexture();
+	QRhiTexture* getDebugTexutre();
 
 	virtual QVector<QRhiGraphicsPipeline::TargetBlend> getBlendStates() override;
 	virtual QRhiRenderTarget* getRenderTarget() override;
@@ -38,10 +39,6 @@ private:
 		QRhiSPtr<QRhiRenderBuffer> debugMsaaBuffer;
 	};
 	RTResource mRT;
-	QRhiReadbackResult mReadReult;
-	QRhiReadbackDescription mReadDesc;
-	QPoint mReadPoint;
-
 	QVector<QRhiGraphicsPipeline::TargetBlend> mBlendStates;
 };
 

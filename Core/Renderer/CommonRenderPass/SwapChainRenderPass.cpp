@@ -6,6 +6,10 @@ SwapChainRenderPass::SwapChainRenderPass()
 {
 }
 
+void SwapChainRenderPass::setupDebugTexture(QRhiTexture* texture) {
+	mDebugPainter.setupDebugTexture(texture);
+}
+
 void SwapChainRenderPass::setupTexture(QRhiTexture* texture)
 {
 	mTexture = texture;
