@@ -39,32 +39,35 @@ public:
 		: QEngine(argc, argv, true) {
 	}
 	virtual void init() override {
+		renderer()->setEnableDebug(true);
+
 		QDir assetDir(ASSET_DIR);
 		if (!assetDir.exists()) {
 			assetDir.setPath("../Asset");
 		}
 
+
 		mCamera = std::make_shared<QCameraComponent>();
-		mCamera->setupWindow(window().get());		//将相机与窗口绑定，使用WASD Shift 空格可进行移动，鼠标左键按住窗口可调整视角
-		scene()->setCamera(mCamera);				//设置场景相机
+		mCamera->setupWindow(window().get());						//将相机与窗口绑定，使用WASD Shift 空格可进行移动，鼠标左键按住窗口可调整视角
+		scene()->addSceneComponent("Camera", mCamera);				//设置场景相机
 
 		mSkyBox = std::make_shared<QSkyBoxComponent>();
 		mSkyBox->setSkyBoxImage(QImage(assetDir.filePath("sky.jpeg")));
-		scene()->setSkyBox(mSkyBox);
+		scene()->addSceneComponent("SkyBox", mSkyBox);
 
 		for (int i = 0; i < CUBE_MAT_SIZE; i++) {
 			for (int j = 0; j < CUBE_MAT_SIZE; j++) {
 				std::shared_ptr<QCube>& cube = mCube[i][j];
 				cube.reset(new QCube);
 				cube->setPosition(QVector3D((i - CUBE_MAT_SIZE / 2.0) * CUBE_MAT_SPACING, (j - CUBE_MAT_SIZE / 2.0) * CUBE_MAT_SPACING, -10));
-				scene()->addPrimitive(QString("cube(%1,%2)").arg(i).arg(j), cube);
+				scene()->addSceneComponent(QString("cube(%1,%2)").arg(i).arg(j), cube);
 			}
 		}
 
 		mStaticModel = std::make_shared<QStaticModel>();
 		mStaticModel->loadFromFile(assetDir.filePath("Model/FBX/Genji/Genji.FBX"));
 		mStaticModel->setRotation(QVector3D(-90, 0, 0));
-		scene()->addPrimitive("StaticModel", mStaticModel);
+		scene()->addSceneComponent("StaticModel", mStaticModel);
 
 		mText = std::make_shared<QText2D>(QString::fromUtf8("电脑放点音乐=.="));
 		mText->setPosition(QVector3D(0, -5, 0));
@@ -75,17 +78,17 @@ public:
 		mTextMaterial->addDataVec3("BaseColor", QVector3D(1, 5, 9));					//设置材质参数
 		mTextMaterial->setShadingCode("FragColor = vec4(UBO.BaseColor,1);");				//设置材质的Shading代码
 		mText->setMaterial(mTextMaterial);
-		scene()->addPrimitive("Text", mText);
+		scene()->addSceneComponent("Text", mText);
 
 		mSpectrum = std::make_shared<QAudioSpectrum>();
 		mSpectrum->setPosition(QVector3D(0.0f, 0.0f, -4.0f));
 		mSpectrum->setScale(QVector3D(0.1f, 0.1f, 0.1f));
 		mSpectrum->setMaterial(mTextMaterial);
-		scene()->addPrimitive("Spectrum", mSpectrum);
+		scene()->addSceneComponent("Spectrum", mSpectrum);
 
 		mGPUParticles = std::make_shared<QParticleComponent>();
 		mGPUParticles->setPosition(QVector3D(0, -15, 0));
-		scene()->addPrimitive("GPU Particles", mGPUParticles);
+		scene()->addSceneComponent("GPU Particles", mGPUParticles);
 	}
 protected:
 	void update() override

@@ -59,12 +59,11 @@ void DebugPainter::resourceUpdate(QRhiResourceUpdateBatch* batch) {
 			const uchar* p = reinterpret_cast<const uchar*>(mReadReult.data.constData());
 			int offset = (mReadReult.pixelSize.width() * mReadPoint.y() + mReadPoint.x()) * 4;
 			uint32_t id = p[offset] + p[offset + 1] * 256 + p[offset + 2] * 256 * 256 + p[offset + 3] * 256 * 256 * 256;
-			qDebug() << id;
 			auto comp = Engine->scene()->searchCompById(id);
 			Q_EMIT currentCompChanged(comp.get());
+			mReadPoint = { 0,0 };
 		};
 		batch->readBackTexture(mReadDesc,&mReadReult);
-		mReadPoint = {0,0};
 	}
 	ImGuiPainter::resourceUpdate(batch);
 }

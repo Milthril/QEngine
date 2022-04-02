@@ -5,7 +5,6 @@
 #include <memory>
 #include <QQueue>
 #include "Scene/QSceneComponent.h"
-#include "Renderer/CommonPass/DebugPainter.h"
 
 QScenePanel::QScenePanel(std::shared_ptr<QScene> scene)
 	:mScene(scene)
@@ -28,17 +27,17 @@ void QScenePanel::createUI() {
 		Q_EMIT objectChanged(oPtr);
 	});
 
-	connect(Engine->debugPainter().get(), &DebugPainter::currentCompChanged, this, [this](QSceneComponent* comp) {
-		QTreeWidgetItemIterator iter(this);
-		while (*iter) {
-			QObject* oPtr = (*iter)->data(1, 0).value<QObject*>();
-			if (oPtr == comp) {
-				setCurrentItem(*iter);
-				return;
-			}
-			iter++;
-		}
-	});
+	//connect(Engine->debugPainter().get(), &DebugPainter::currentCompChanged, this, [this](QSceneComponent* comp) {
+	//	QTreeWidgetItemIterator iter(this);
+	//	while (*iter) {
+	//		QObject* oPtr = (*iter)->data(1, 0).value<QObject*>();
+	//		if (oPtr == comp) {
+	//			setCurrentItem(*iter);
+	//			return;
+	//		}
+	//		iter++;
+	//	}
+	//});
 
 	connect(this, &QTreeWidget::itemPressed, this, [](QTreeWidgetItem* item, int) {
 		if (qApp->mouseButtons() & Qt::RightButton) {
@@ -46,9 +45,9 @@ void QScenePanel::createUI() {
 		}
 	});
 
-	connect(mScene.get(), &QScene::primitiveInserted, this, [this](int, std::shared_ptr<QPrimitiveComponent>) {
-		updateUI();
-	});
+	//connect(mScene.get(), &QScene::primitiveInserted, this, [this](int, std::shared_ptr<QPrimitiveComponent>) {
+	//	updateUI();
+	//});
 }
 
 void QScenePanel::updateUI()
