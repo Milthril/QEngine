@@ -44,9 +44,12 @@ void QScene::addSceneComponent(QString name, std::shared_ptr<QSceneComponent> co
 	mSceneCompList << comp;
 	comp->setObjectName(name);
 	comp->setScene(this);
+	this->blockSignals(true);
 	for (auto& child : comp->getChildren()) {
 		addSceneComponent(child->objectName(), child);
 	}
+	this->blockSignals(false);
+	Q_EMIT sceneChanged();
 }
 
 void QScene::removeSceneComponent(std::shared_ptr<QSceneComponent> comp)
@@ -96,4 +99,11 @@ QMatrix4x4 QScene::getMatrixVP()
 	if (mCamera)
 		return mCamera->getMatrixVP();
 	return QMatrix4x4();
+}
+
+void QScene::setCurrent(QSceneComponent* val) {
+	if (val != mCurrent) {
+		mCurrent = val;
+		Q_EMIT currentChanged(mCurrent);
+	}
 }

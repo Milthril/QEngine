@@ -31,6 +31,7 @@ void EditorWindow::preInitConfig()
 		| KDDockWidgets::Config::Flag_ShowButtonsOnTabBarIfTitleBarHidden
 		//| KDDockWidgets::Config::Flag_AlwaysTitleBarWhenFloating
 		//| KDDockWidgets::Config::Flag_TabsHaveCloseButton
+		| KDDockWidgets::Config::Flag::Flag_LazyResize
 		;
 
 	KDDockWidgets::Config::self().setFlags(flags);
