@@ -72,7 +72,11 @@ ImGuiPainter::ImGuiPainter()
 void ImGuiPainter::setupWindow(QRhiWindow* window)
 {
 	mWindow = window;
-	mWindow->installEventFilter(this);
+	//mWindow->installEventFilter(this);
+}
+
+void ImGuiPainter::setupRenderTarget(QRhiRenderTarget* renderTarget) {
+	mRenderTarget = renderTarget;
 }
 
 void ImGuiPainter::compile() {
@@ -172,42 +176,42 @@ void ImGuiPainter::paint(QRhiCommandBuffer* cmdBuffer) {
 	double current_time = QDateTime::currentMSecsSinceEpoch() / double(1000);
 	io.DeltaTime = mTime > 0.0 ? (float)(current_time - mTime) : (float)(1.0f / 60.0f);
 	mTime = current_time;
-	if (io.WantSetMousePos) {
-		const QPoint global_pos = mWindow->mapToGlobal(QPoint{ (int)io.MousePos.x, (int)io.MousePos.y });
-		QCursor cursor = mWindow->cursor();
-		cursor.setPos(global_pos);
-		mWindow->setCursor(cursor);
-	}
-	if (mWindow->isActive()) {
-		const QPoint pos = mWindow->mapFromGlobal(QCursor::pos());
-		io.MousePos = ImVec2(pos.x() * mWindow->devicePixelRatio(), pos.y() * mWindow->devicePixelRatio());  // Mouse position in screen coordinates (set to -1,-1 if no mouse / on another screen, etc.)
-	}
-	else {
-		io.MousePos = ImVec2(-1, -1);
-	}
-	for (int i = 0; i < 3; i++) {
-		io.MouseDown[i] = mMousePressed[i];
-	}
-	io.MouseWheelH = mMouseWheelH;
-	io.MouseWheel = mMouseWheel;
-	mMouseWheelH = 0;
-	mMouseWheel = 0;
-	if (io.ConfigFlags & ImGuiConfigFlags_NoMouseCursorChange)
-		return;
-	const ImGuiMouseCursor imgui_cursor = ImGui::GetMouseCursor();
-	if (io.MouseDrawCursor || (imgui_cursor == ImGuiMouseCursor_None)) {
-		mWindow->setCursor(Qt::CursorShape::BlankCursor);
-	}
-	else {
-		const auto cursor_it = cursorMap.constFind(imgui_cursor);
-		if (cursor_it != cursorMap.constEnd()) {
-			const Qt::CursorShape qt_cursor_shape = *(cursor_it);
-			mWindow->setCursor(qt_cursor_shape);
-		}
-		else {
-			mWindow->setCursor(Qt::CursorShape::ArrowCursor);
-		}
-	}
+	//if (io.WantSetMousePos) {
+	//	const QPoint global_pos = mWindow->mapToGlobal(QPoint{ (int)io.MousePos.x, (int)io.MousePos.y });
+	//	QCursor cursor = mWindow->cursor();
+	//	cursor.setPos(global_pos);
+	//	mWindow->setCursor(cursor);
+	//}
+	//if (mWindow->isActive()) {
+	//	const QPoint pos = mWindow->mapFromGlobal(QCursor::pos());
+	//	io.MousePos = ImVec2(pos.x() * mWindow->devicePixelRatio(), pos.y() * mWindow->devicePixelRatio());  // Mouse position in screen coordinates (set to -1,-1 if no mouse / on another screen, etc.)
+	//}
+	//else {
+	//	io.MousePos = ImVec2(-1, -1);
+	//}
+	//for (int i = 0; i < 3; i++) {
+	//	io.MouseDown[i] = mMousePressed[i];
+	//}
+	//io.MouseWheelH = mMouseWheelH;
+	//io.MouseWheel = mMouseWheel;
+	//mMouseWheelH = 0;
+	//mMouseWheel = 0;
+	//if (io.ConfigFlags & ImGuiConfigFlags_NoMouseCursorChange)
+	//	return;
+	//const ImGuiMouseCursor imgui_cursor = ImGui::GetMouseCursor();
+	//if (io.MouseDrawCursor || (imgui_cursor == ImGuiMouseCursor_None)) {
+	//	mWindow->setCursor(Qt::CursorShape::BlankCursor);
+	//}
+	//else {
+	//	const auto cursor_it = cursorMap.constFind(imgui_cursor);
+	//	if (cursor_it != cursorMap.constEnd()) {
+	//		const Qt::CursorShape qt_cursor_shape = *(cursor_it);
+	//		mWindow->setCursor(qt_cursor_shape);
+	//	}
+	//	else {
+	//		mWindow->setCursor(Qt::CursorShape::ArrowCursor);
+	//	}
+	//}
 	ImGui::SetCurrentContext(mImGuiContext);
 	ImGui::NewFrame();
 	paintImgui();
@@ -234,7 +238,7 @@ void ImGuiPainter::paint(QRhiCommandBuffer* cmdBuffer) {
 		batch->uploadTexture(mFontTexture.get(), mFontImage);
 	}
 
-	cmdBuffer->beginPass(mRenderTarget, QColor::fromRgbF(0.0f, 0.0f, 0.0f, 0.0f), { 1.0f, 0 });
+	cmdBuffer->beginPass(mRenderTarget, QColor::fromRgbF(0.0f, 0.0f, 0.0f, 0.0f), { 1.0f, 0 }, batch);
 	for (int i = 0; i < draw_data->CmdListsCount; i++) {
 		const ImDrawList* cmd_list = draw_data->CmdLists[i];
 		cmdBuffer->setGraphicsPipeline(mPipeline.get());

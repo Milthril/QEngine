@@ -43,16 +43,6 @@ void BloomRenderPass::execute() {
 		mPixelSelectPainter.paint(cmdBuffer);
 		mBlurPainter.paint(cmdBuffer);
 		mMeragePainter.paint(cmdBuffer);
-		//QRhiResourceUpdateBatch* u = RHI->nextResourceUpdateBatch();
-		//QRhiReadbackDescription desc(mPixelSelectPainter.getOutputTexture());
-		//QRhiReadbackResult* ret =new QRhiReadbackResult;
-		//ret->completed = [ret]() {
-		//	QImage image((uchar*)ret->data.data(), ret->pixelSize.width(), ret->pixelSize.height(), QImage::Format_RGBA8888);
-		//	image.save("tem.png");
-		//};
-
-		//u->readBackTexture(desc, ret);
-		//cmdBuffer->resourceUpdate(u);
 		RHI->endOffscreenFrame();
 	}
 }

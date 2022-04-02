@@ -11,6 +11,7 @@ class ImGuiPainter :public QObject ,public IPainter{
 public:
 	ImGuiPainter();
 	void setupWindow(QRhiWindow* window);
+	void setupRenderTarget(QRhiRenderTarget* renderTarget);
 
 	virtual void compile() override;
 	virtual void paint(QRhiCommandBuffer* cmdBuffer) override;

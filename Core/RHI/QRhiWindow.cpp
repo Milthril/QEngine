@@ -110,6 +110,7 @@ void QRhiWindow::renderInternal()
 	mFrameCount += 1;
 	if (mTimer.elapsed() > 1000) {
 		mFPS = mFrameCount;
+		qDebug() << mFPS;
 		mTimer.restart();
 		mFrameCount = 0;
 	}

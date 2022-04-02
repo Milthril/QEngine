@@ -17,6 +17,4 @@ inline QMatrix4x4 converter(const aiMatrix4x4& aiMat4) {
 	return mat4;
 }
 
-
-
 #endif // Converter_h__
