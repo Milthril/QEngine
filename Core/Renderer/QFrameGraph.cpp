@@ -33,7 +33,7 @@ void QFrameGraphNode::executableNewThread() {
 	mThread = std::make_shared<std::thread>([this]() {
 		mRenderPass->execute();
 		isFinished = true;
-		for (int i = 0; i < mSubPassList.size(); i++) {
+		for (int i = 0; i < mSubPassList.size(); i++) {		//
 			mSubPassList[i]->tryExec();
 		}
 	});

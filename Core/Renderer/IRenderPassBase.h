@@ -5,7 +5,7 @@
 
 class IRenderPassBase {
 public:
-	virtual void setup() {
+	void setup() {
 		if(mFuncSetup)
 			mFuncSetup();
 	}

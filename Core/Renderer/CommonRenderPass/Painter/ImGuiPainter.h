@@ -4,17 +4,19 @@
 #include "QObject"
 #include "RHI\QRhiWindow.h"
 #include "imgui_internal.h"
+#include "IPainter.h"
 
-class ImGuiPainter :public QObject {
+class ImGuiPainter :public QObject ,public IPainter{
 	Q_OBJECT
 public:
 	ImGuiPainter();
-	virtual void paint() = 0;
-	void updatePrePass(QRhiResourceUpdateBatch* batch, QRhiRenderTarget* outputTarget);
-	void drawInPass(QRhiCommandBuffer* cmdBuffer, QRhiRenderTarget* outputTarget);
 	void setupWindow(QRhiWindow* window);
+
+	virtual void compile() override;
+	virtual void paint(QRhiCommandBuffer* cmdBuffer) override;
+
+	virtual void paintImgui() = 0;
 protected:
-	void initRhiResource(QRhiResourceUpdateBatch* batch, QRhiRenderTarget* outputTarget);
 	virtual bool eventFilter(QObject* watched, QEvent* event) override;
 Q_SIGNALS:
 	void currentCompChanged(std::shared_ptr<QSceneComponent>);
@@ -28,6 +30,8 @@ protected:
 	QRhiSPtr<QRhiTexture> mFontTexture;
 	QRhiSPtr<QRhiSampler> mSampler;
 	QRhiWindow* mWindow;
+	QImage mFontImage;
+	QRhiRenderTarget* mRenderTarget;
 	ImGuiContext* mImGuiContext = nullptr;
 	double       mTime = 0.0f;
 	bool         mMousePressed[3] = { false, false, false };

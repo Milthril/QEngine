@@ -83,6 +83,5 @@ void ISceneRenderPass::execute()
 		}
 		cmdBuffer->endPass();
 		RHI->endOffscreenFrame();
-		RHI->finish();
 	}
 }

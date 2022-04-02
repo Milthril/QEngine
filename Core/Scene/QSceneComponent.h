@@ -4,7 +4,7 @@
 #include "QObject"
 #include "qvectornd.h"
 #include "QMatrix4x4"
-#include "RHI\QRhiSignal.h"
+#include "RHI\QRhiDefine.h"
 
 class QScene;
 

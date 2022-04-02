@@ -5,7 +5,7 @@
 #include <memory>
 #include <QQueue>
 #include "Scene/QSceneComponent.h"
-#include "Renderer/CommonPass/DebugDrawPass.h"
+#include "Renderer/CommonPass/DebugPainter.h"
 
 QScenePanel::QScenePanel(std::shared_ptr<QScene> scene)
 	:mScene(scene)
@@ -28,7 +28,7 @@ void QScenePanel::createUI() {
 		Q_EMIT objectChanged(oPtr);
 	});
 
-	connect(Engine->debugPainter().get(), &DebugDrawPass::currentCompChanged, this, [this](QSceneComponent* comp) {
+	connect(Engine->debugPainter().get(), &DebugPainter::currentCompChanged, this, [this](QSceneComponent* comp) {
 		QTreeWidgetItemIterator iter(this);
 		while (*iter) {
 			QObject* oPtr = (*iter)->data(1, 0).value<QObject*>();

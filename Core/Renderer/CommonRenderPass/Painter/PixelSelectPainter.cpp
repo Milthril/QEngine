@@ -2,14 +2,24 @@
 #include "Renderer\ISceneRenderer.h"
 #include "QEngine.h"
 
-PixelSelectPainter::PixelSelectPainter(QByteArray code)
-	: mSelectCode(code)
-{
+PixelSelectPainter::PixelSelectPainter() {
+
 }
 
-void PixelSelectPainter::initRhiResource(QRhiRenderPassDescriptor* renderPassDesc, QRhiRenderTarget* renderTarget, QRhiSPtr<QRhiTexture> texture)
-{
-	mTexture = texture;
+void PixelSelectPainter::setupSelectCode(QByteArray code) {
+	mSelectCode = code;
+}
+
+void PixelSelectPainter::setupInputTexture(QRhiTexture* texture) {
+	mInputTexture = texture;
+}
+
+void PixelSelectPainter::compile() {
+	mRT.colorAttachment.reset(RHI->newTexture(QRhiTexture::RGBA32F, mInputTexture->pixelSize(), 1, QRhiTexture::RenderTarget | QRhiTexture::UsedAsTransferSource));
+	mRT.colorAttachment->create();
+	mRT.renderTarget.reset(RHI->newTextureRenderTarget({ mRT.colorAttachment.get() }));
+	mRT.renderTarget->setRenderPassDescriptor(mRT.renderTarget->newCompatibleRenderPassDescriptor());
+	mRT.renderTarget->create();
 	mSampler.reset(RHI->newSampler(QRhiSampler::Linear,
 				   QRhiSampler::Linear,
 				   QRhiSampler::None,
@@ -20,7 +30,7 @@ void PixelSelectPainter::initRhiResource(QRhiRenderPassDescriptor* renderPassDes
 	QRhiGraphicsPipeline::TargetBlend blendState;
 	blendState.enable = true;
 	mPipeline->setTargetBlends({ blendState });
-	mPipeline->setSampleCount(renderTarget->sampleCount());
+	mPipeline->setSampleCount(mRT.renderTarget->sampleCount());
 	QShader vs = ISceneRenderer::createShaderFromCode(QShader::VertexStage, R"(#version 450
 layout (location = 0) out vec2 vUV;
 out gl_PerVertex{
@@ -46,39 +56,21 @@ layout (location = 0) out vec4 outFragColor;
 
 	mBindings.reset(RHI->newShaderResourceBindings());
 	mBindings->setBindings({
-		QRhiShaderResourceBinding::sampledTexture(0,QRhiShaderResourceBinding::FragmentStage,mTexture.get(),mSampler.get())
+		QRhiShaderResourceBinding::sampledTexture(0,QRhiShaderResourceBinding::FragmentStage,mInputTexture,mSampler.get())
 						   });
 	mBindings->create();
 	mPipeline->setVertexInputLayout(inputLayout);
 	mPipeline->setShaderResourceBindings(mBindings.get());
-	mPipeline->setRenderPassDescriptor(renderPassDesc);
+	mPipeline->setRenderPassDescriptor(mRT.renderTarget->renderPassDescriptor());
 	mPipeline->create();
 }
 
-void PixelSelectPainter::updateTexture(QRhiSPtr<QRhiTexture> texture)
-{
-	mTexture = texture;
-	if (mBindings) {
-		mBindings->destroy();
-		mBindings->setBindings({
-			QRhiShaderResourceBinding::sampledTexture(0,QRhiShaderResourceBinding::FragmentStage,mTexture.get(),mSampler.get())
-							   });
-		mBindings->create();
-	}
-}
-
-void PixelSelectPainter::drawCommand(QRhiCommandBuffer* cmdBuffer, QRhiSPtr<QRhiTexture> texture, QRhiRenderTarget* renderTarget)
-{
-	if (texture != mTexture) {
-		if (!mTexture)
-			initRhiResource(renderTarget->renderPassDescriptor(), renderTarget, texture);
-		else
-			updateTexture(texture);
-	}
-	cmdBuffer->beginPass(renderTarget, QColor::fromRgbF(0.0f, 0.0f, 0.0f, 0.0f), { 1.0f, 0 });
+void PixelSelectPainter::paint(QRhiCommandBuffer* cmdBuffer) {
+	cmdBuffer->beginPass(mRT.renderTarget.get(), QColor::fromRgbF(0.0f, 0.0f, 0.0f, 0.0f), { 1.0f, 0 });
 	cmdBuffer->setGraphicsPipeline(mPipeline.get());
-	cmdBuffer->setViewport(QRhiViewport(0, 0, renderTarget->pixelSize().width(), renderTarget->pixelSize().height()));
+	cmdBuffer->setViewport(QRhiViewport(0, 0, mRT.renderTarget->pixelSize().width(), mRT.renderTarget->pixelSize().height()));
 	cmdBuffer->setShaderResources(mBindings.get());
 	cmdBuffer->draw(4);
 	cmdBuffer->endPass();
 }
+

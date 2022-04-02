@@ -3,36 +3,87 @@
 #include "QEngine.h"
 
 BloomRenderPass::BloomRenderPass()
-	: mPixelSelectPainter(R"(
+	: mPixelSelectPainter()
+{
+}
+
+void BloomRenderPass::setupInputTexture(QRhiTexture* texture) {
+	mInputTexture = texture;
+}
+
+void BloomRenderPass::compile() {
+	mRT.colorAttachment.reset(RHI->newTexture(QRhiTexture::RGBA32F, mInputTexture->pixelSize(), 1, QRhiTexture::RenderTarget | QRhiTexture::UsedAsTransferSource));
+	mRT.colorAttachment->create();
+	mRT.renderTarget.reset(RHI->newTextureRenderTarget({ mRT.colorAttachment.get() }));
+	mRT.renderTarget->setRenderPassDescriptor(mRT.renderTarget->newCompatibleRenderPassDescriptor());
+	mRT.renderTarget->create();
+
+	mPixelSelectPainter.setupInputTexture(mInputTexture);
+	mPixelSelectPainter.setupSelectCode(R"(
 void main() {
 	vec4 color = texture(uTexture, vUV);
 	float value = max(max(color.r,color.g),color.b);
 	outFragColor = (1-step(value,1.0f)) * color;
 }
-)")
-{
+)");
+	mPixelSelectPainter.compile();
+
+	mBlurPainter.setupInputTexture(mPixelSelectPainter.getOutputTexture());
+	mBlurPainter.compile();
+
+	mMeragePainter.setupBloomTexutre(mBlurPainter.getOutputTexture());
+	mMeragePainter.setupSrcTexutre(mInputTexture);
+	mMeragePainter.setupRenderTarget(mRT.renderTarget.get());		
+	mMeragePainter.compile();
 }
 
-void BloomRenderPass::makeBloom(QRhiCommandBuffer* cmdBuffer, QRhiSPtr<QRhiTexture> inputTexture, QRhiRenderTarget* renderTarget) {
-	mBlurPainter.createOrResize(inputTexture->pixelSize() / 2);
-	mPixelSelectPainter.drawCommand(cmdBuffer, inputTexture, mBlurPainter.getInputRenderTaget().get());
-	mBlurPainter.makeBlur(cmdBuffer, inputTexture);
-	mMeragePainter.updateTexture(inputTexture, mBlurPainter.getOutputTexture(), renderTarget);
+void BloomRenderPass::execute() {
+	QRhiCommandBuffer* cmdBuffer;
+	if (RHI->beginOffscreenFrame(&cmdBuffer) == QRhi::FrameOpSuccess) {
+		mPixelSelectPainter.paint(cmdBuffer);
+		mBlurPainter.paint(cmdBuffer);
+		mMeragePainter.paint(cmdBuffer);
+		//QRhiResourceUpdateBatch* u = RHI->nextResourceUpdateBatch();
+		//QRhiReadbackDescription desc(mPixelSelectPainter.getOutputTexture());
+		//QRhiReadbackResult* ret =new QRhiReadbackResult;
+		//ret->completed = [ret]() {
+		//	QImage image((uchar*)ret->data.data(), ret->pixelSize.width(), ret->pixelSize.height(), QImage::Format_RGBA8888);
+		//	image.save("tem.png");
+		//};
+
+		//u->readBackTexture(desc, ret);
+		//cmdBuffer->resourceUpdate(u);
+		RHI->endOffscreenFrame();
+	}
 }
 
-void BloomRenderPass::drawInPass(QRhiCommandBuffer* cmdBuffer, QRhiRenderTarget* renderTarget)
-{
-	mMeragePainter.drawInPass(cmdBuffer, renderTarget);
+QRhiTexture* BloomRenderPass::getOutputTexture() {
+	return mRT.colorAttachment.get();
 }
 
-QBloomMeragePainter::QBloomMeragePainter()
-{
+QRhiTexture* BloomRenderPass::getSelectTexture() {
+	return mPixelSelectPainter.getOutputTexture();
 }
 
-void QBloomMeragePainter::initRhiResource(QRhiRenderPassDescriptor* renderPassDesc, QRhiRenderTarget* renderTarget, QRhiSPtr<QRhiTexture> src, QRhiSPtr<QRhiTexture> bloom)
-{
-	mSrcTexture = src;
-	mBloomTexture = bloom;
+QRhiTexture* BloomRenderPass::getBlurTexture() {
+	return mBlurPainter.getOutputTexture();
+}
+
+QBloomMeragePainter::QBloomMeragePainter(){}
+
+void QBloomMeragePainter::setupRenderTarget(QRhiRenderTarget* renderTarget) {
+	mRenderTarget = renderTarget;
+}
+
+void QBloomMeragePainter::setupSrcTexutre(QRhiTexture* texture) {
+	mSrcTexture = texture;
+}
+
+void QBloomMeragePainter::setupBloomTexutre(QRhiTexture* texture) {
+	mBloomTexture = texture;
+}
+
+void QBloomMeragePainter::compile() {
 	mSampler.reset(RHI->newSampler(QRhiSampler::Linear,
 				   QRhiSampler::Linear,
 				   QRhiSampler::None,
@@ -43,7 +94,7 @@ void QBloomMeragePainter::initRhiResource(QRhiRenderPassDescriptor* renderPassDe
 	QRhiGraphicsPipeline::TargetBlend blendState;
 	blendState.enable = true;
 	mPipeline->setTargetBlends({ blendState });
-	mPipeline->setSampleCount(renderTarget->sampleCount());
+	mPipeline->setSampleCount(mRenderTarget->sampleCount());
 	QShader vs = ISceneRenderer::createShaderFromCode(QShader::VertexStage, R"(#version 450
 layout (location = 0) out vec2 vUV;
 out gl_PerVertex{
@@ -80,41 +131,22 @@ void main() {
 
 	mBindings.reset(RHI->newShaderResourceBindings());
 	mBindings->setBindings({
-		QRhiShaderResourceBinding::sampledTexture(0,QRhiShaderResourceBinding::FragmentStage,mSrcTexture.get(),mSampler.get()),
-		QRhiShaderResourceBinding::sampledTexture(1,QRhiShaderResourceBinding::FragmentStage,mBloomTexture.get(),mSampler.get())
+		QRhiShaderResourceBinding::sampledTexture(0,QRhiShaderResourceBinding::FragmentStage,mSrcTexture,mSampler.get()),
+		QRhiShaderResourceBinding::sampledTexture(1,QRhiShaderResourceBinding::FragmentStage,mBloomTexture,mSampler.get())
 						   });
 
 	mBindings->create();
 	mPipeline->setVertexInputLayout(inputLayout);
 	mPipeline->setShaderResourceBindings(mBindings.get());
-	mPipeline->setRenderPassDescriptor(renderPassDesc);
+	mPipeline->setRenderPassDescriptor(mRenderTarget->renderPassDescriptor());
 	mPipeline->create();
 }
 
-void QBloomMeragePainter::updateTexture(QRhiSPtr<QRhiTexture> src, QRhiSPtr<QRhiTexture> bloom, QRhiRenderTarget* renderTarget)
-{
-	if (src != mSrcTexture) {
-		if (!mSrcTexture)
-			initRhiResource(renderTarget->renderPassDescriptor(), renderTarget, src, bloom);
-		else {
-			mSrcTexture = src;
-			mBloomTexture = bloom;
-			if (mBindings) {
-				mBindings->destroy();
-				mBindings->setBindings({
-					QRhiShaderResourceBinding::sampledTexture(0,QRhiShaderResourceBinding::FragmentStage,mSrcTexture.get(),mSampler.get()),
-					QRhiShaderResourceBinding::sampledTexture(1,QRhiShaderResourceBinding::FragmentStage,mBloomTexture.get(),mSampler.get())
-									   });
-				mBindings->create();
-			}
-		}
-	}
-}
-
-void QBloomMeragePainter::drawInPass(QRhiCommandBuffer* cmdBuffer, QRhiRenderTarget* renderTarget)
-{
+void QBloomMeragePainter::paint(QRhiCommandBuffer* cmdBuffer) {
+	cmdBuffer->beginPass(mRenderTarget, QColor::fromRgbF(0.0f, 0.0f, 0.0f, 0.0f), { 1.0f, 0 });
 	cmdBuffer->setGraphicsPipeline(mPipeline.get());
-	cmdBuffer->setViewport(QRhiViewport(0, 0, renderTarget->pixelSize().width(), renderTarget->pixelSize().height()));
+	cmdBuffer->setViewport(QRhiViewport(0, 0, mRenderTarget->pixelSize().width(),mRenderTarget->pixelSize().height()));
 	cmdBuffer->setShaderResources(mBindings.get());
 	cmdBuffer->draw(4);
+	cmdBuffer->endPass();
 }
