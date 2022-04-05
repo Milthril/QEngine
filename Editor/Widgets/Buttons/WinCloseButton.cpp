@@ -4,20 +4,24 @@
 
 WinCloseButton::WinCloseButton()
 {
-	hoverColor = Qt::red;
 }
 
 void WinCloseButton::paintEvent(QPaintEvent* e)
 {
-	HoverButton::paintEvent(e);
 	QPainter painter(this);
 	painter.setRenderHint(QPainter::Antialiasing);
 	QPen pen;
 	QStyleOption options;
 	options.initFrom(this);
-	pen.setBrush(options.palette.color(QPalette::Text));
+	if (hovered) {
+		pen.setBrush(QColor(221, 83, 71));
+		pen.setWidth(3);
+	}
+	else {
+		pen.setBrush(options.palette.color(QPalette::Text));
+		pen.setWidth(1);
+	}
 	pen.setCapStyle(Qt::RoundCap);
-	pen.setWidth(2);
 	QRect re = rect().adjusted(4, 4, -4, -4);
 	painter.setPen(pen);
 	painter.drawLine(QPoint(re.left(), re.bottom()), QPoint(re.right(), re.top()));

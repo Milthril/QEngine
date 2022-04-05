@@ -16,6 +16,8 @@
 #include "Scene\Component\SkeletonMesh\QMMDModel.h"
 #include "Window\MaterialEditor\QMaterialEditor.h"
 #include "Scene\Component\StaticMesh\QAudioSpectrum.h"
+#include "Window\WindowToolkit\FramlessWindow.h"
+#include "..\private\widgets\FloatingWindowWidget_p.h"
 
 const int CUBE_MAT_SIZE = 10;
 const int CUBE_MAT_SPACING = 5;
@@ -45,7 +47,6 @@ public:
 		if (!assetDir.exists()) {
 			assetDir.setPath("../Asset");
 		}
-
 
 		mCamera = std::make_shared<QCameraComponent>();
 		mCamera->setupWindow(window().get());						//将相机与窗口绑定，使用WASD Shift 空格可进行移动，鼠标左键按住窗口可调整视角
@@ -100,5 +101,6 @@ int main(int argc, char** argv) {
 	EditorWindow::preInitConfig();
 	EditorWindow w;
 	w.show();
+	
 	engine.execGame();
 }

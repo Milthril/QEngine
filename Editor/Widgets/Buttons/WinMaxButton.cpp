@@ -16,7 +16,7 @@ void WinMaxButton::paintEvent(QPaintEvent* e) {
 	pen.setBrush(options.palette.color(QPalette::Text));
 	pen.setCapStyle(Qt::RoundCap);
 	pen.setJoinStyle(Qt::RoundJoin);
-	pen.setWidth(2);
+	pen.setWidth(1);
 	painter.setRenderHint(QPainter::Antialiasing);
 	painter.setPen(pen);
 	painter.drawRect(rect().adjusted(5, 5, -5, -5));

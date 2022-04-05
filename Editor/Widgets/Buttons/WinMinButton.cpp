@@ -16,8 +16,8 @@ void WinMinButton::paintEvent(QPaintEvent* e) {
 	pen.setBrush(options.palette.color(QPalette::Text));
 	pen.setCapStyle(Qt::RoundCap);
 	pen.setJoinStyle(Qt::RoundJoin);
-	pen.setWidth(2);
+	pen.setWidth(1);
 	painter.setRenderHint(QPainter::Antialiasing);
 	painter.setPen(pen);
-	painter.drawRect(rect().adjusted(5, 10, -5, -10));
+	painter.drawRect(rect().adjusted(5, 11, -5, -11));
 }

@@ -6,6 +6,9 @@
 #include "Widgets\Buttons\WinMinButton.h"
 #include "Widgets\Buttons\WinMaxButton.h"
 #include "QJsonDocument"
+#include "QFontDatabase"
+#include "kddockwidgets\private\widgets\FloatingWindowWidget_p.h"
+#include "QAeroWindowMaker.h"
 
 EditorAttributeMgr::EditorAttributeMgr()
 {
@@ -16,6 +19,7 @@ void EditorAttributeMgr::initConfig()
 	initDefaultAttribute();
 	loadCurrentCtx();
 	loadAllStyleSheet();
+	loadFont();
 }
 
 QDir EditorAttributeMgr::getLayoutDir() {
@@ -30,14 +34,11 @@ void EditorAttributeMgr::initDefaultAttribute() {
 	if (mSaveDir.exists())
 		return;
 	mSaveDir.mkpath(getLayoutDir().path());
-	mSaveDir.mkpath(getStyleSheetDir().path());
-
-	mSaver.saveToFile(getLayoutDir().filePath("DefaultWindowLayout"));
+	mSaveDir.mkpath(getStyleSheetDir().path());;
 
 	writeFile(getStyleSheetDir().filePath("Dark.qss"), R"(
 
 QWidget{
-	font-family:Ebrima;
 	font-size: 10pt;
 	background-color:rgb(45,45,48);
 	color:white;
@@ -120,7 +121,6 @@ QMenu::item:selected,QMenuBar::item:selected {
 
 	writeFile(getStyleSheetDir().filePath("Light.qss"), R"(
 QWidget{
-	font-family:Ebrima;
 	font-size: 10pt;
 	background-color:rgb(238,238,242);
 	color:black;
@@ -269,6 +269,13 @@ void EditorAttributeMgr::loadStyleSheet(QString filePath)
 	}
 }
 
+void EditorAttributeMgr::loadFont() {
+	int id = QFontDatabase::addApplicationFont(":/Resources/Fonts/Barlow-Regular.ttf");
+	QStringList fontList = QFontDatabase::applicationFontFamilies(id);
+	QFont font(fontList.first());
+	qApp->setFont(font);
+}
+
 void EditorAttributeMgr::saveCurrentCtx()
 {
 	writeFile(mSaveDir.filePath("Config.json"), QJsonDocument(mCurrentCtx).toJson());
@@ -299,6 +306,12 @@ void EditorAttributeMgr::saveCurrentLayout()
 				saveCurrentCtx();
 			});
 		}
+	}
+}
+
+void EditorAttributeMgr::tryCreateDefaultLayout() {
+	if (!QFile::exists(getLayoutDir().filePath("DefaultWindowLayout"))) {
+		mSaver.saveToFile(getLayoutDir().filePath("DefaultWindowLayout"));
 	}
 }
 
@@ -335,7 +348,14 @@ QAbstractButton* WindowStyleFactory::createTitleBarButton(QWidget* parent, KDDoc
 		break;
 	}
 	if (button) {
-		button->setFixedSize(20, 20);
+		button->setFixedSize(21, 21);
 	}
 	return button ? button : new QPushButton();
+}
+using namespace KDDockWidgets;
+
+KDDockWidgets::FloatingWindow* WindowStyleFactory::createFloatingWindow(KDDockWidgets::Frame* frame, KDDockWidgets::MainWindowBase* parent /*= nullptr*/, QRect suggestedGeometry /*= {}*/) const {
+	KDDockWidgets::FloatingWindow* window = new FloatingWindowWidget(frame, suggestedGeometry, parent);
+	QAeroWindowMaker::make((HWND)window->winId());
+	return	window;
 }
