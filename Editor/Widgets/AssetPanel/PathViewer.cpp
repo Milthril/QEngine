@@ -1,6 +1,7 @@
 #include "PathViewer.h"
 #include "QPushButton"
 #include "QMenu"
+#include "Widgets\Buttons\ImageButton.h"
 
 PathViewer::PathViewer(QString rootDir)
 	: hLayout(new QHBoxLayout(this))
@@ -37,16 +38,14 @@ void PathViewer::setCurrentDir(QString dir)
 		});
 		if (QDir(path).entryInfoList(QDir::Filter::Dirs | QDir::Filter::NoDotAndDotDot).isEmpty())
 			return;
-		QPushButton* btImage = new QPushButton();
-		btImage->setIcon(QIcon(":/Resources/Iconright_arrow.png"));
-		btImage->setIconSize({ 10, 10 });
-		btImage->setFixedSize(20, 20);
+		ImageButton* btImage = new ImageButton(":/Resources/Icons/right_arrow.png");
+		btImage->setFixedSize(15, 15);
 		hLayout->addWidget(btImage);
 		connect(btImage, &QPushButton::clicked, this, [this, path, btImage]() {
 			QMenu menu;
-			QIcon icon(":/Resources/Icon24gf-folderMinus.png");
+			QSvgIcon icon(":/Resources/Icon24gf-folderMinus.png");
 			for (auto& subDir : QDir(path).entryInfoList(QDir::Filter::Dirs | QDir::Filter::NoDotAndDotDot)) {
-				menu.addAction(icon, subDir.fileName(), [this, subDir]() {
+				menu.addAction(icon.getIcon(), subDir.fileName(), [this, subDir]() {
 					Q_EMIT pathClicked(subDir.filePath());
 				});
 			}

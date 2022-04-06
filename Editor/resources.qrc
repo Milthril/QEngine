@@ -1,21 +1,35 @@
 <RCC>
     <qresource prefix="/">
-        <file>Resources/Icons/hide_right.png</file>
-        <file>Resources/Icons/alphaback.png</file>
-        <file>Resources/Icons/box_arrow.png</file>
-        <file>Resources/Icons/redo.png</file>
-        <file>Resources/Icons/24gf-folderMinus.png</file>
-        <file>Resources/Icons/24gf-folderOpen.png</file>
+        <file>Resources/Icons/24gf-eye.png</file>
+        <file>Resources/Icons/24gf-eyeHide.png</file>
         <file>Resources/Icons/24gf-fileEmpty.png</file>
         <file>Resources/Icons/24gf-fileText.png</file>
-        <file>Resources/Icons/right_arrow.png</file>
-        <file>Resources/Icons/Filter.png</file>
-        <file>Resources/Icons/case.png</file>
+        <file>Resources/Icons/24gf-folder.png</file>
+        <file>Resources/Icons/24gf-folder3.png</file>
+        <file>Resources/Icons/24gf-folder4.png</file>
+        <file>Resources/Icons/24gf-folderOpen.png</file>
+        <file>Resources/Icons/24gf-funnel.png</file>
+        <file>Resources/Icons/24gf-gear.png</file>
+        <file>Resources/Icons/24gf-heartPulse2.png</file>
+        <file>Resources/Icons/24gf-lock2.png</file>
+        <file>Resources/Icons/24gf-search2.png</file>
+        <file>Resources/Icons/24gf-unlock4.png</file>
+        <file>Resources/Icons/alphaback.png</file>
         <file>Resources/Icons/arrow-left-l.png</file>
         <file>Resources/Icons/arrow-right-l.png</file>
+        <file>Resources/Icons/box_arrow.png</file>
+        <file>Resources/Icons/case.png</file>
+        <file>Resources/Icons/Filter.png</file>
+        <file>Resources/Icons/hide_right.png</file>
         <file>Resources/Icons/ic_exp.png</file>
-        <file>Resources/Icons/text-format.png</file>
+        <file>Resources/Icons/redo.png</file>
         <file>Resources/Icons/replace.png</file>
+        <file>Resources/Icons/right_arrow.png</file>
+        <file>Resources/Icons/text-format.png</file>
         <file>Resources/Fonts/Barlow-Regular.ttf</file>
+        <file>Resources/Icons/Maximize-1.png</file>
+        <file>Resources/Icons/Maximize-3.png</file>
+        <file>Resources/Icons/Minimize-2.png</file>
+        <file>Resources/Icons/Shut down-2.png</file>
     </qresource>
 </RCC>

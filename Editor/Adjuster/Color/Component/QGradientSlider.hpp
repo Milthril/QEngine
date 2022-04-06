@@ -4,6 +4,7 @@
 #include <QWidget>
 #include "Adjuster\Adjuster.h"
 #include "Adjuster\QFocusLineEdit.h"
+#include "Toolkit\QSvgIcon.h"
 
 class QFocusLineEdit;
 class QLabel;
@@ -35,6 +36,7 @@ protected:
 	QLabel* nameLabel_;
 	QFocusLineEdit* numberEditer_;
 	QLabel* arrowLabel_;
+	QSvgIcon mSvgIcon;
 	QPointF clickPosition_;
 	QBrush mBrush = QColor(200, 200, 200);
 };

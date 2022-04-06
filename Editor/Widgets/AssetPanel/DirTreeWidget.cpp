@@ -1,6 +1,7 @@
 #include "DirTreeWidget.h"
 #include "QStyledItemDelegate"
 #include "QPainter"
+#include "Toolkit\QSvgIcon.h"
 
 class DireTreeItemDelegate :public QStyledItemDelegate {
 protected:
@@ -23,9 +24,9 @@ protected:
 		iconRect.setWidth(iconRect.height());
 		iconRect.adjust(1, 1, -1, -1);
 		if (option.state & QStyle::State_Open)
-			painter->drawPixmap(iconRect, QPixmap(":/Resources/Icons/24gf-folderOpen.png"));
+			mDirOpenIcon.getIcon().paint(painter, iconRect);
 		else
-			painter->drawPixmap(iconRect, QPixmap(":/Resources/Icons/24gf-folderMinus.png"));
+			mDirCloseIcon.getIcon().paint(painter, iconRect);
 		QRect textRect = option.rect;
 		textRect.setLeft(textRect.left() + textRect.height() + 5);
 		painter->setPen(option.palette.brush(QPalette::Text).color());
@@ -36,6 +37,9 @@ protected:
 	QSize sizeHint(const QStyleOptionViewItem& option, const QModelIndex& index) const override {
 		return QStyledItemDelegate::sizeHint(option, index);
 	}
+private:
+	QSvgIcon mDirOpenIcon = QSvgIcon(":/Resources/Icons/24gf-folderOpen.png");
+	QSvgIcon mDirCloseIcon = QSvgIcon(":/Resources/Icons/24gf-folder3.png");
 };
 
 DirTreeWidget::DirTreeWidget(QString rootDir)

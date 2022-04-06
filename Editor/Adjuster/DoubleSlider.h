@@ -3,6 +3,7 @@
 
 #include "Adjuster.h"
 #include "ExtType/QBoundedDouble.h"
+#include "Toolkit/QSvgIcon.h"
 
 class QFocusLineEdit;
 class QLabel;
@@ -33,6 +34,7 @@ protected:
 	QLabel* arrowLabel_;
 	QPointF clickPosition_;
 	QBrush mBrush = QColor(200,200,200);
+	QSvgIcon mSvgIcon;
 };
 
 #endif // DoubleSlider_h__

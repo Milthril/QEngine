@@ -8,8 +8,10 @@
 #include "QPushButton"
 #include "FileFliter.h"
 #include "QStatusBar"
+#include "Toolkit\QSvgIcon.h"
 
 class AssetPanel : public QWidget {
+	Q_OBJECT
 public:
 	AssetPanel(QString rootDir);
 private:
@@ -21,6 +23,7 @@ private:
 	QLineEdit directorySeacher_;
 	FileListWidget fileWidget_;
 	QLineEdit fileSearcher_;
+	QSvgIcon mFileFileterIcon;
 	QPushButton btFileFilter_;
 	FileFilterMenu fileFliterMenu_;
 	QStatusBar fileStatusBar_;

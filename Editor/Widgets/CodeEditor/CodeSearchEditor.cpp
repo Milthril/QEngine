@@ -7,13 +7,13 @@
 
 CodeSearchEditor::CodeSearchEditor()
 	: mSearchEdit(new QLineEdit)
-	, btCaseSensitive(new ImageButton(QPixmap(":/Resources/Icons/case.png")))
-	, btWholeMatching(new ImageButton(QPixmap(":/Resources/Icons/text-format.png")))
-	, btUseRegExp(new ImageButton(QPixmap(":/Resources/Icons/ic_exp.png")))
-	, btLast(new ImageButton(QPixmap(":/Resources/Icons/arrow-left-l.png")))
-	, btNext(new ImageButton(QPixmap(":/Resources/Icons/arrow-right-l.png")))
+	, btCaseSensitive(new ImageButton((":/Resources/Icons/case.png")))
+	, btWholeMatching(new ImageButton((":/Resources/Icons/text-format.png")))
+	, btUseRegExp(new ImageButton((":/Resources/Icons/ic_exp.png")))
+	, btLast(new ImageButton((":/Resources/Icons/arrow-left-l.png")))
+	, btNext(new ImageButton((":/Resources/Icons/arrow-right-l.png")))
+	, btReplaceNext(new ImageButton((":/Resources/Icons/replace.png")))
 	, btClose(new WinCloseButton)
-	, btReplaceNext(new ImageButton(QPixmap(":/Resources/Icons/replace.png")))
 	, mReplaceEdit(new QLineEdit)
 {
 	setFixedSize(250, 80);

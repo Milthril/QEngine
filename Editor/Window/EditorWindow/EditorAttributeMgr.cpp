@@ -8,7 +8,7 @@
 #include "QJsonDocument"
 #include "QFontDatabase"
 #include "kddockwidgets\private\widgets\FloatingWindowWidget_p.h"
-#include "QAeroWindowMaker.h"
+#include "Toolkit\QAeroWindowMaker.h"
 
 EditorAttributeMgr::EditorAttributeMgr()
 {

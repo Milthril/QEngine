@@ -5,7 +5,7 @@
 #include "QApplication"
 #include "QStyleFactory"
 #include "QEngine.h"
-#include "QAeroWindowMaker.h"
+#include "Toolkit/QAeroWindowMaker.h"
 
 EditorWindow::EditorWindow()
 	: KDDockWidgets::FloatingWindowWidget({})

@@ -2,6 +2,7 @@
 #define DoubleBox_h__
 
 #include "Adjuster.h"
+#include "Toolkit\QSvgIcon.h"
 
 class QFocusLineEdit;
 class QLabel;
@@ -29,6 +30,7 @@ private:
 	QFocusLineEdit* numberEditer_;
 	QLabel* arrowLabel_;
 	QPointF clickPosition_;
+	QSvgIcon mSvgIcon;
 };
 
 #endif // DoubleBox_h__

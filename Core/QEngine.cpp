@@ -1,6 +1,5 @@
 #include "QEngine.h"
 #include "EventHandler\QTickEventHandler.h"
-#include "RHI\QRhiUniformMgr.h"
 
 QEngine::QEngine(int argc, char** argv, bool enableDebug /*= false*/)
 	: QApplication(argc, argv)
@@ -47,7 +46,6 @@ void QEngine::execGame()
 		QGuiApplication::processEvents();
 		QTickEventHandler::processEvent();
 	}
-	QRhiUniformMgr::instance()->deleteAll();
 }
 
 QRhi* QEngine::getRHI()

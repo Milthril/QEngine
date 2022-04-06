@@ -16,6 +16,8 @@ QGradientSlider::QGradientSlider(QString name /*= ""*/, float var /*= 0.0f*/, fl
 	, min_(min)
 	, max_(max)
 	, limited_(limited)
+	, mSvgIcon(":/Resources/Icons/box_arrow.png")
+
 {
 	setFixedHeight(20);
 	setGraphicsEffect(new QNeumorphism);
@@ -31,7 +33,10 @@ QGradientSlider::QGradientSlider(QString name /*= ""*/, float var /*= 0.0f*/, fl
 	nameLabel_->setAlignment(Qt::AlignCenter);
 	nameLabel_->setFixedHeight(height());
 	arrowLabel_->setFixedSize(height(), height());
-	arrowLabel_->setPixmap(QPixmap(":/Resources/Icons/box_arrow").scaled(arrowLabel_->size(), Qt::IgnoreAspectRatio, Qt::TransformationMode::SmoothTransformation));
+	mSvgIcon.setUpdateCallBack([this]() {
+		arrowLabel_->setPixmap(mSvgIcon.getIcon().pixmap(arrowLabel_->size()));
+							   });
+
 	arrowLabel_->setCursor(Qt::CursorShape::SizeHorCursor);
 	numberEditer_->setFixedHeight(height());
 	numberEditer_->setFrame(QFrame::NoFrame);

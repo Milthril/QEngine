@@ -14,6 +14,7 @@ DoubleBox::DoubleBox(double value /*= 0*/, QString name, QWidget* parent /*= nul
 	, nameLabel_(new QLabel(name))
 	, numberEditer_(new QFocusLineEdit)
 	, arrowLabel_(new QLabel)
+	, mSvgIcon(":/Resources/Icons/box_arrow.png")
 {
 	setFixedHeight(20);
 	setGraphicsEffect(new QNeumorphism);
@@ -28,7 +29,10 @@ DoubleBox::DoubleBox(double value /*= 0*/, QString name, QWidget* parent /*= nul
 	if (nameLabel_->text().isEmpty())
 		nameLabel_->setVisible(false);
 	arrowLabel_->setFixedSize(height(), height());
-	arrowLabel_->setPixmap(QPixmap(":/Resources/Icons/box_arrow").scaled(arrowLabel_->size(), Qt::IgnoreAspectRatio, Qt::TransformationMode::SmoothTransformation));
+	mSvgIcon.setUpdateCallBack([this]() {
+		arrowLabel_->setPixmap(mSvgIcon.getIcon().pixmap(arrowLabel_->size()));
+	});
+
 	arrowLabel_->setCursor(Qt::CursorShape::SizeHorCursor);
 	numberEditer_->setFixedHeight(height());
 	numberEditer_->setFrame(QFrame::NoFrame);

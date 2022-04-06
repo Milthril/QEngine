@@ -4,6 +4,7 @@
 #include <QQueue>
 #include <QtConcurrent/QtConcurrent>
 #include <QScrollBar>
+#include "Toolkit/QSvgIcon.h"
 
 const QSize GridSize(80, 100);
 
@@ -27,13 +28,13 @@ protected:
 		QIcon icon;
 		QFileInfo fileInfo(index.data(Qt::ToolTipRole).toString());
 		if (fileInfo.isDir()) {
-			icon = dirType;
+			icon = mDirIcon.getIcon();
 		}
 		else {
 			if (fileInfo.suffix() == "png" || fileInfo.suffix() == "jpg" || fileInfo.suffix() == "jepg")
 				icon = cacheTask_->getIcon(fileInfo.filePath());
 			if (icon.isNull())
-				icon = fileType;
+				icon = mFileIcon.getIcon();
 		}
 		icon.paint(painter, QRect(expendRect.x(), expendRect.y() + 5, GridSize.width(), option.decorationSize.height()), Qt::AlignCenter, QIcon::Normal, option.state & QStyle::State_Open ? QIcon::On : QIcon::Off);
 
@@ -47,8 +48,8 @@ protected:
 		return GridSize;
 	}
 public:
-	QIcon fileType = QIcon(":/Resources/Icons/24gf-fileEmpty.png");
-	QIcon dirType = QIcon(":/Resources/Icons/24gf-folderMinus.png");
+	QSvgIcon mFileIcon = QSvgIcon(":/Resources/Icons/24gf-fileEmpty.png");
+	QSvgIcon mDirIcon = QSvgIcon(":/Resources/Icons/24gf-folder4.png");
 	FileListWidegtThreadTask* cacheTask_;
 };
 

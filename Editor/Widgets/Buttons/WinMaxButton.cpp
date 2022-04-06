@@ -3,21 +3,29 @@
 #include <QStyleOption>
 
 WinMaxButton::WinMaxButton()
+	:mFullScreen(":/Resources/Icons/Maximize-3.png")
+	,mWindow(":/Resources/Icons/Maximize-1.png")
 {
 }
 
 void WinMaxButton::paintEvent(QPaintEvent* e) {
 	HoverButton::paintEvent(e);
 	QPainter painter(this);
-	painter.setRenderHint(QPainter::Antialiasing);
-	QPen pen;
-	QStyleOption options;
-	options.initFrom(this);
-	pen.setBrush(options.palette.color(QPalette::Text));
-	pen.setCapStyle(Qt::RoundCap);
-	pen.setJoinStyle(Qt::RoundJoin);
-	pen.setWidth(1);
-	painter.setRenderHint(QPainter::Antialiasing);
-	painter.setPen(pen);
-	painter.drawRect(rect().adjusted(5, 5, -5, -5));
+	updateTopLevelWidget();
+	if(mTopLevelWidget && mTopLevelWidget->isMaximized())
+		mFullScreen.getIcon().paint(&painter, rect().adjusted(2, 2, -2, -2));
+	else 
+		mWindow.getIcon().paint(&painter, rect().adjusted(2, 2, -2, -2));
+}
+
+void WinMaxButton::updateTopLevelWidget() {
+	if (mTopLevelWidget == nullptr) {
+		QWidget* parent = parentWidget();
+		if (parent == nullptr)
+			return;
+		while (parent->parentWidget() != nullptr) {
+			parent = parent->parentWidget();
+		}
+		mTopLevelWidget = parent;
+	}
 }

@@ -44,6 +44,7 @@ AssetPanel::AssetPanel(QString rootDir)
 	: rootDir_(rootDir)
 	, directoryWidget_(rootDir)
 	, pathViewer_(rootDir)
+	, mFileFileterIcon(":/Resources/Icons/Filter.png")
 {
 	if (!rootDir_.exists()) {
 		rootDir_ = QDir::home();
@@ -69,7 +70,10 @@ void AssetPanel::createUI()
 
 	btFileFilter_.setText("Filter");
 	btFileFilter_.setFixedHeight(20);
-	btFileFilter_.setIcon(QIcon(":/Resources/IconFilter.png"));
+	mFileFileterIcon.setUpdateCallBack([this]() {
+		btFileFilter_.setIcon(mFileFileterIcon.getIcon());
+	 });
+
 
 	QWidget* rightPanel = new QWidget;
 	QVBoxLayout* rightLayout = new QVBoxLayout(rightPanel);

@@ -14,6 +14,7 @@ IntSlider::IntSlider(QBoundedInt number  /*= 0*/, QString name, QWidget* parent 
 	, numberEditer_(new QFocusLineEdit)
 	, arrowLabel_(new QLabel)
 	, value_(number)
+	, mSvgIcon(":/Resources/Icons/box_arrow.png")
 {
 	setFixedHeight(20);
 	setGraphicsEffect(new QNeumorphism);
@@ -29,7 +30,9 @@ IntSlider::IntSlider(QBoundedInt number  /*= 0*/, QString name, QWidget* parent 
 	nameLabel_->setAlignment(Qt::AlignCenter);
 	nameLabel_->setFixedHeight(height());
 	arrowLabel_->setFixedSize(height(), height());
-	arrowLabel_->setPixmap(QPixmap(":/Resources/Icons/box_arrow").scaled(arrowLabel_->size(), Qt::IgnoreAspectRatio, Qt::TransformationMode::SmoothTransformation));
+	mSvgIcon.setUpdateCallBack([this]() {
+		arrowLabel_->setPixmap(mSvgIcon.getIcon().pixmap(arrowLabel_->size()));
+							   });
 	arrowLabel_->setCursor(Qt::CursorShape::SizeHorCursor);
 	numberEditer_->setFixedHeight(height());
 	numberEditer_->setFrame(QFrame::NoFrame);

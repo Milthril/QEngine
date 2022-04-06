@@ -3,6 +3,7 @@
 
 #include "Adjuster.h"
 #include "ExtType/QBoundedInt.h"
+#include "Toolkit/QSvgIcon.h"
 
 class QFocusLineEdit;
 class QLabel;
@@ -32,6 +33,7 @@ private:
 	QFocusLineEdit* numberEditer_;
 	QLabel* arrowLabel_;
 	QPointF clickPosition_;
+	QSvgIcon mSvgIcon;
 };
 
 #endif // IntSlider_h__
