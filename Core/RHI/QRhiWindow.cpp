@@ -8,8 +8,6 @@
 #include <QPlatformSurfaceEvent>
 #include <QtGui/private/qrhinull_p.h>
 #include "QEngine.h"
-#include "Renderer\DefaultRenderer\QDefaultSceneRenderPass.h"
-
 QRhiWindow::QRhiWindow(QRhi::Implementation backend)
 	: mBackend(backend)
 {
@@ -170,12 +168,17 @@ bool QRhiWindow::event(QEvent* e)
 		renderInternal();
 		break;
 	case QEvent::Close:
+		mHasSwapChain = false;
+		mRunning = false;
+		mNotExposed = false;
 		mHasClosed = true;
 		break;
 	case QEvent::PlatformSurface:
 		// this is the proper time to tear down the swapchain (while the native window and surface are still around)
 		if (static_cast<QPlatformSurfaceEvent*>(e)->surfaceEventType() == QPlatformSurfaceEvent::SurfaceAboutToBeDestroyed) {
 			mHasSwapChain = false;
+			mDepthStencilFrameBuffer.reset(nullptr);
+			mRenderPassDesciptor.reset(nullptr);
 			mSwapChain.reset(nullptr);
 		}
 		break;

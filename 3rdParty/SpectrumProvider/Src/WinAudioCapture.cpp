@@ -15,6 +15,11 @@ WinAudioCapture::WinAudioCapture()
 {
 }
 
+WinAudioCapture::~WinAudioCapture()
+{
+	stop();
+}
+
 void WinAudioCapture::start()
 {
 	CoInitialize(NULL);

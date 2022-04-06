@@ -15,6 +15,7 @@ class WinAudioCapture : public IMMNotificationClient {
 	friend class SpectrumMgr;
 public:
 	WinAudioCapture();
+	~WinAudioCapture();
 	struct AudioFormat {
 		unsigned int nChannels;          /* number of channels (i.e. mono, stereo...) */
 		unsigned int nSamplesPerSec;     /* sample rate */
