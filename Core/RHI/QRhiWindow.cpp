@@ -8,6 +8,7 @@
 #include <QPlatformSurfaceEvent>
 #include <QtGui/private/qrhinull_p.h>
 #include "QEngine.h"
+#include "Renderer\DefaultRenderer\QDefaultSceneRenderPass.h"
 
 QRhiWindow::QRhiWindow(QRhi::Implementation backend)
 	: mBackend(backend)
@@ -87,8 +88,7 @@ void QRhiWindow::initInternal()
 	mSwapChain->setRenderPassDescriptor(mRenderPassDesciptor.get());
 	resizeSwapChain();
 	if (Engine->renderer()) {
-		Engine->renderer()->setSampleCount(mSwapChain->sampleCount());
-		Engine->renderer()->setRootRenderPassDescriptor(mRenderPassDesciptor);
+		Engine->renderer()->buildFrameGraph();
 	}
 }
 
@@ -104,27 +104,17 @@ void QRhiWindow::renderInternal()
 			return;
 		mNewlyExposed = false;
 	}
-	QRhi::FrameOpResult ret = mRhi->beginFrame(mSwapChain.get());
-	if (ret == QRhi::FrameOpSwapChainOutOfDate) {
-		resizeSwapChain();
-		if (!mHasSwapChain)
-			return;
-		mRhi->beginFrame(mSwapChain.get());;
-	}
-	if (ret != QRhi::FrameOpSuccess) {
-		qDebug("beginFrame failed with %d, retry", ret);
-		return;
-	}
 	if (Engine->renderer()) {
-		QRhiCommandBuffer* cmdBuffer = mSwapChain->currentFrameCommandBuffer();
-		mSwapChain->currentFrameRenderTarget()->setRenderPassDescriptor(mRenderPassDesciptor.get());
-		Engine->renderer()->renderInternal(cmdBuffer, mSwapChain->currentFrameRenderTarget());
+		if (mRhi->beginFrame(mSwapChain.get()) == QRhi::FrameOpSuccess) {
+			mSwapChain->currentFrameRenderTarget()->setRenderPassDescriptor(mSwapChain->renderPassDescriptor());
+			Engine->renderer()->render(mSwapChain->currentFrameCommandBuffer());
+			mRhi->endFrame(mSwapChain.get());
+		}
 	}
-	mRhi->endFrame(mSwapChain.get());
-
 	mFrameCount += 1;
 	if (mTimer.elapsed() > 1000) {
 		mFPS = mFrameCount;
+		//qDebug() << mFPS;
 		mTimer.restart();
 		mFrameCount = 0;
 	}
@@ -132,7 +122,12 @@ void QRhiWindow::renderInternal()
 
 void QRhiWindow::resizeSwapChain()
 {
+	QSize lastSize = mSwapChain->currentPixelSize();
 	mHasSwapChain = mSwapChain->createOrResize();
+	QSize currentSize = mSwapChain->currentPixelSize();
+	if (lastSize!=currentSize&&Engine ->renderer()) {
+		Engine->renderer()->rebuild();
+	}
 	mFrameCount = 0;
 	mTimer.restart();
 }
@@ -146,7 +141,6 @@ void QRhiWindow::exposeEvent(QExposeEvent*)
 		}
 		resizeSwapChain();
 	}
-
 	const QSize surfaceSize = mHasSwapChain ? mSwapChain->surfacePixelSize() : QSize();
 	// stop pushing frames when not exposed (or size is 0)
 	if ((!isExposed() || (mHasSwapChain && surfaceSize.isEmpty())) && mRunning && !mNotExposed) {
@@ -185,7 +179,6 @@ bool QRhiWindow::event(QEvent* e)
 			mSwapChain.reset(nullptr);
 		}
 		break;
-
 	default:
 		break;
 	}

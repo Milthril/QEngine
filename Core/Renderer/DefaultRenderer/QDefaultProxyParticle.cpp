@@ -1,9 +1,11 @@
-﻿#include "QDateTime"
-#include "QDefaultProxyParticle.h"
-#include "QEngine.h"
-#include "Scene\Component\Particle\QParticleEmitter.h"
-#include "Scene\Component\Particle\QParticleComponent.h"
+﻿#include "QDefaultProxyParticle.h"
 #include "QDefaultProxyStaticMesh.h"
+#include "QEngine.h"
+#include "Renderer\DefaultRenderer\QDefaultProxyStaticMesh.h"
+#include "Renderer\ISceneRenderPass.h"
+#include "Scene\Component\Particle\QParticleComponent.h"
+#include "Scene\Component\Particle\QParticleEmitter.h"
+#include "QDateTime"
 
 QDefaultProxyParticle::QDefaultProxyParticle(std::shared_ptr<QParticleComponent> particle)
 	:mParticle(particle)
@@ -11,10 +13,10 @@ QDefaultProxyParticle::QDefaultProxyParticle(std::shared_ptr<QParticleComponent>
 }
 
 void QDefaultProxyParticle::recreateResource() {
-	mStaticMeshProxy = std::make_shared<QDefaultProxyStaticMesh>(mParticle->getStaticMesh());
+	mStaticMeshProxy = std::dynamic_pointer_cast<QDefaultProxyStaticMesh>(mRenderPass->createPrimitiveProxy(mParticle->getStaticMesh()));
+	mStaticMeshProxy->mComponent->setScene(mComponent->getScene());
 	mStaticMeshProxy->setParentParticle(mParticle);
-	mStaticMeshProxy->mRenderer = mRenderer;
-	mStaticMeshProxy->recreateResource();
+
 	mParticlesBuffer[0].reset(RHI->newBuffer(QRhiBuffer::Static, QRhiBuffer::UsageFlag::VertexBuffer | QRhiBuffer::UsageFlag::StorageBuffer, sizeof(QParticleSystem::ParticleBuffer)));
 	mParticlesBuffer[0]->create();
 	mParticlesBuffer[1].reset(RHI->newBuffer(QRhiBuffer::Static, QRhiBuffer::UsageFlag::VertexBuffer | QRhiBuffer::UsageFlag::StorageBuffer, sizeof(QParticleSystem::ParticleBuffer)));
@@ -59,14 +61,11 @@ void QDefaultProxyParticle::recreatePipeline()
 		%3
 	}
 	)").arg(getParticleDefine(), uniformInfo.uniformDefineCode, mParticle->getParticleSystem()->getUpdater()->getUpdateCode());
-	QShader computeUpdater = QSceneRenderer::createShaderFromCode(QShader::ComputeStage, particleRunCode.toLocal8Bit());
+	QShader computeUpdater = ISceneRenderer::createShaderFromCode(QShader::ComputeStage, particleRunCode.toLocal8Bit());
 	if (!computeUpdater.isValid()) {
 		mComputePipeline.reset(nullptr);
 		return;
 	}
-
-	mStaticMeshProxy->recreatePipeline();
-
 	mComputePipeline.reset(RHI->newComputePipeline());
 	mComputeBindings[0].reset(RHI->newShaderResourceBindings());
 	mComputeBindings[1].reset(RHI->newShaderResourceBindings());
@@ -103,7 +102,7 @@ void QDefaultProxyParticle::recreatePipeline()
 	mMatrixBindings[1]->create();
 
 	mMatrixComputePipline->setShaderResourceBindings(mMatrixBindings[0].get());
-	QShader matrixCompute = QSceneRenderer::createShaderFromCode(QShader::ComputeStage, R"(
+	QShader matrixCompute = ISceneRenderer::createShaderFromCode(QShader::ComputeStage, R"(
 		#version 450
 		#define LOCAL_SIZE 256
 		#define PARTICLE_MAX_SIZE 1000000
@@ -158,15 +157,12 @@ void QDefaultProxyParticle::recreatePipeline()
 
 void QDefaultProxyParticle::uploadResource(QRhiResourceUpdateBatch* batch)
 {
-	mStaticMeshProxy->uploadResource(batch);
 }
 
 void QDefaultProxyParticle::updateResource(QRhiResourceUpdateBatch* batch)
 {
+	mParticle->getParticleSystem()->getUpdater()->getProxy()->updateResource(batch);
 	if (mParticle->getStaticMesh()->bNeedRecreateResource.receive()) {
-		mStaticMeshProxy = std::make_shared<QDefaultProxyStaticMesh>(mParticle->getStaticMesh());
-		mStaticMeshProxy->setParentParticle(mParticle);
-		mStaticMeshProxy->mRenderer = mRenderer;
 		mStaticMeshProxy->recreateResource();
 		mStaticMeshProxy->uploadResource(batch);
 	}
@@ -180,6 +176,7 @@ void QDefaultProxyParticle::updatePrePass(QRhiCommandBuffer* cmdBuffer)
 {
 	if (!mComputePipeline)
 		return;
+
 	float currentSecond = QTime::currentTime().msecsSinceStartOfDay() / 1000.0;
 	mDuration = currentSecond - mLastSecond;
 	mLastSecond = currentSecond;
@@ -212,7 +209,6 @@ void QDefaultProxyParticle::updatePrePass(QRhiCommandBuffer* cmdBuffer)
 	u->readBackBuffer(mParticleCounterBuffer.get(), 0, sizeof(ParticleRunContext), &mCtxReader);
 	cmdBuffer->endComputePass(u);
 	RHI->finish();
-
 	cmdBuffer->beginComputePass();
 	cmdBuffer->setComputePipeline(mMatrixComputePipline.get());
 	cmdBuffer->setShaderResources(mMatrixBindings[mInputIndex].get());
@@ -234,5 +230,4 @@ void QDefaultProxyParticle::drawInPass(QRhiCommandBuffer* cmdBuffer, const QRhiV
 	};
 	cmdBuffer->setVertexInput(0, 2, VertexInputs, mStaticMeshProxy->mIndexBuffer.get(), 0, QRhiCommandBuffer::IndexUInt32);
 	cmdBuffer->drawIndexed(mStaticMeshProxy->mIndexBuffer->size() / sizeof(QPrimitiveComponent::Index), mCtx.inputCounter);
-	//qDebug() << mCtx.inputCounter;
 }

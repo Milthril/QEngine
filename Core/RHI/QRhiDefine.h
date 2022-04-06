@@ -3,7 +3,6 @@
 
 #include <memory>
 #include "private/qrhi_p.h"
-#include "RHI\QRhiSignal.h"
 
 template<typename _Ty>
 class QRhiSPtr :public std::shared_ptr<_Ty> {
@@ -19,5 +18,22 @@ public:
 		}
 	}
 };
+
+class QRhiSignal {
+public:
+	QRhiSignal(bool var = false) :bSignal(var) {};
+	void active() {
+		bSignal = true;
+	}
+	bool receive() {
+		bool var = bSignal;
+		bSignal = false;
+		return var;
+	}
+
+private:
+	bool bSignal = false;
+};
+
 
 #endif // QRhiInclude_h__

@@ -1,4 +1,4 @@
-#include "ImGuiDrawPass.h"
+#include "ImGuiPainter.h"
 #include "QApplication"
 #include "qevent.h"
 #include "QEngine.h"
@@ -48,7 +48,7 @@ const QHash<ImGuiMouseCursor, Qt::CursorShape> cursorMap = {
 
 QByteArray g_currentClipboardText;
 
-ImGuiDrawPass::ImGuiDrawPass()
+ImGuiPainter::ImGuiPainter()
 {
 	mImGuiContext = ImGui::CreateContext();
 	ImGui::SetCurrentContext(mImGuiContext);
@@ -69,14 +69,108 @@ ImGuiDrawPass::ImGuiDrawPass()
 	};
 }
 
-void ImGuiDrawPass::updatePrePass(QRhiResourceUpdateBatch* batch, QRhiRenderTarget* outputTarget)
+void ImGuiPainter::setupWindow(QWindow* window)
 {
-	if (!mPipeline) {
-		initRhiResource(batch, outputTarget);
-	}
+	mWindow = window;
+	mWindow->installEventFilter(this);
+}
+
+
+
+void ImGuiPainter::compile() {
+	mVertexBuffer.reset(RHI->newBuffer(QRhiBuffer::Dynamic, QRhiBuffer::VertexBuffer, sizeof(ImDrawVert) * IMGUI_BUFFER_SIZE));
+	mVertexBuffer->create();
+
+	mIndexBuffer.reset(RHI->newBuffer(QRhiBuffer::Dynamic, QRhiBuffer::IndexBuffer, sizeof(ImDrawIdx) * IMGUI_BUFFER_SIZE));
+	mIndexBuffer->create();
+
+	mUniformBuffer.reset(RHI->newBuffer(QRhiBuffer::Type::Dynamic, QRhiBuffer::UniformBuffer, sizeof(QMatrix4x4)));
+	mUniformBuffer->create();
+
+	mSampler.reset(RHI->newSampler(QRhiSampler::Linear,
+				   QRhiSampler::Linear,
+				   QRhiSampler::None,
+				   QRhiSampler::ClampToEdge,
+				   QRhiSampler::ClampToEdge));
+	mSampler->create();
+
+	unsigned char* pixels;
+	int width, height;
 	ImGui::SetCurrentContext(mImGuiContext);
 	ImGuiIO& io = ImGui::GetIO();
-	io.DisplaySize = ImVec2(outputTarget->pixelSize().width(), outputTarget->pixelSize().height());
+	io.Fonts->GetTexDataAsRGBA32(&pixels, &width, &height);
+	mFontImage = QImage(pixels, width, height, QImage::Format::Format_RGBA8888);
+	mFontTexture.reset(RHI->newTexture(QRhiTexture::RGBA8, QSize(width, height), 1));
+	mFontTexture->create();
+	mPipeline.reset(RHI->newGraphicsPipeline());
+	QRhiGraphicsPipeline::TargetBlend blendState;
+	blendState.srcColor = QRhiGraphicsPipeline::SrcAlpha;
+	blendState.dstAlpha = QRhiGraphicsPipeline::Zero;
+	blendState.enable = true;
+	mPipeline->setDepthTest(false);
+	mPipeline->setTargetBlends({ blendState });
+	mPipeline->setFlags(QRhiGraphicsPipeline::UsesScissor);
+	mPipeline->setSampleCount(mSampleCount);
+	QShader vs = ISceneRenderer::createShaderFromCode(QShader::VertexStage, R"(#version 440
+layout(location = 0) in vec2 inPosition;
+layout(location = 1) in vec2 inUV;
+layout(location = 2) in vec4 inColor;
+
+layout(location = 0)out vec2 vUV;
+layout(location = 1)out vec4 vColor;
+layout(std140,binding = 0) uniform buf{
+	mat4 mvp;
+}ubuf;
+
+out gl_PerVertex { vec4 gl_Position; };
+
+void main(){
+	vUV = inUV;
+	vColor = inColor;
+	gl_Position = ubuf.mvp*vec4(inPosition,0,1);
+}
+)");
+
+	QShader fs = ISceneRenderer::createShaderFromCode(QShader::FragmentStage, R"(#version 440
+layout(location = 0) in vec2 vUV;
+layout(location = 1) in vec4 vColor;
+layout(binding = 1) uniform sampler2D uTexture;
+layout(location = 0) out vec4 OutColor;
+void main(){
+	OutColor = vColor * texture(uTexture,vUV);
+}
+)");
+
+	mPipeline->setShaderStages({
+		{ QRhiShaderStage::Vertex, vs },
+		{ QRhiShaderStage::Fragment, fs }
+	});
+
+	mBindings.reset(RHI->newShaderResourceBindings());
+	mBindings->setBindings({
+		QRhiShaderResourceBinding::uniformBuffer(0,QRhiShaderResourceBinding::VertexStage,mUniformBuffer.get()),
+		QRhiShaderResourceBinding::sampledTexture(1,QRhiShaderResourceBinding::FragmentStage,mFontTexture.get(),mSampler.get())
+						   });
+	mBindings->create();
+
+	QRhiVertexInputLayout inputLayout;
+	inputLayout.setBindings({ QRhiVertexInputBinding(sizeof(ImDrawVert)) });
+	inputLayout.setAttributes({
+		QRhiVertexInputAttribute{ 0, 0, QRhiVertexInputAttribute::Float2, offsetof(ImDrawVert, pos) },
+		QRhiVertexInputAttribute{ 0, 1, QRhiVertexInputAttribute::Float2, offsetof(ImDrawVert, uv) },
+		QRhiVertexInputAttribute{ 0, 2, QRhiVertexInputAttribute::UNormByte4, offsetof(ImDrawVert, col) },
+							  });
+	mPipeline->setVertexInputLayout(inputLayout);
+	mPipeline->setShaderResourceBindings(mBindings.get());
+	mPipeline->setRenderPassDescriptor(mRenderPassDesc);
+	mPipeline->create();
+}
+
+void ImGuiPainter::resourceUpdate(QRhiResourceUpdateBatch* batch) {
+	ImGui::SetCurrentContext(mImGuiContext);
+	ImGuiIO& io = ImGui::GetIO();
+	QSize size = mWindow->size() * mWindow->devicePixelRatio();
+	io.DisplaySize = ImVec2(size.width(), size.height());
 	io.DisplayFramebufferScale = ImVec2(1, 1);
 	double current_time = QDateTime::currentMSecsSinceEpoch() / double(1000);
 	io.DeltaTime = mTime > 0.0 ? (float)(current_time - mTime) : (float)(1.0f / 60.0f);
@@ -119,8 +213,10 @@ void ImGuiDrawPass::updatePrePass(QRhiResourceUpdateBatch* batch, QRhiRenderTarg
 	}
 	ImGui::SetCurrentContext(mImGuiContext);
 	ImGui::NewFrame();
-	paint();
+	paintImgui();
+	ImGui::EndFrame();
 	ImGui::Render();
+
 	ImDrawData* draw_data = ImGui::GetDrawData();
 	int64_t vertexBufferOffset = 0;
 	int64_t indexBufferOffset = 0;
@@ -132,20 +228,26 @@ void ImGuiDrawPass::updatePrePass(QRhiResourceUpdateBatch* batch, QRhiRenderTarg
 		indexBufferOffset += cmd_list->IdxBuffer.size_in_bytes();
 	}
 	QMatrix4x4 MVP = RHI->clipSpaceCorrMatrix();
-	QRect rect(0, 0, outputTarget->pixelSize().width(), outputTarget->pixelSize().height());
+	QRect rect(0, 0, size.width(), size.height());
 	MVP.ortho(rect);
 	batch->updateDynamicBuffer(mUniformBuffer.get(), 0, sizeof(QMatrix4x4), MVP.constData());
+
+	if (!mFontImage.isNull()) {
+		batch->uploadTexture(mFontTexture.get(), mFontImage);
+		mFontImage = {};
+	}
 }
 
-void ImGuiDrawPass::drawInPass(QRhiCommandBuffer* cmdBuffer, QRhiRenderTarget* outputTarget)
-{
+
+
+void ImGuiPainter::paint(QRhiCommandBuffer* cmdBuffer, QRhiRenderTarget* renderTarget) {
 	ImDrawData* draw_data = ImGui::GetDrawData();
 	int64_t vertexBufferOffset = 0;
 	int64_t indexBufferOffset = 0;
 	for (int i = 0; i < draw_data->CmdListsCount; i++) {
 		const ImDrawList* cmd_list = draw_data->CmdLists[i];
 		cmdBuffer->setGraphicsPipeline(mPipeline.get());
-		cmdBuffer->setViewport(QRhiViewport(0, 0, outputTarget->pixelSize().width(), outputTarget->pixelSize().height()));
+		cmdBuffer->setViewport(QRhiViewport(0, 0, renderTarget->pixelSize().width(), renderTarget->pixelSize().height()));
 		cmdBuffer->setShaderResources();
 		const QRhiCommandBuffer::VertexInput VertexInput(mVertexBuffer.get(), vertexBufferOffset);
 		cmdBuffer->setVertexInput(0, 1, &VertexInput, mIndexBuffer.get(), indexBufferOffset, sizeof(ImDrawIdx) == 2 ? QRhiCommandBuffer::IndexUInt16 : QRhiCommandBuffer::IndexUInt32);
@@ -158,7 +260,7 @@ void ImGuiDrawPass::drawInPass(QRhiCommandBuffer* cmdBuffer, QRhiRenderTarget* o
 			}
 			else {
 				QRect rect0(pcmd->ClipRect.x, pcmd->ClipRect.y, pcmd->ClipRect.z, pcmd->ClipRect.w);
-				QRhiScissor scissor(pcmd->ClipRect.x, outputTarget->pixelSize().height() - pcmd->ClipRect.y - pcmd->ClipRect.w, pcmd->ClipRect.z, pcmd->ClipRect.w);
+				QRhiScissor scissor(pcmd->ClipRect.x, renderTarget->pixelSize().height() - pcmd->ClipRect.y - pcmd->ClipRect.w, pcmd->ClipRect.z, pcmd->ClipRect.w);
 				QRect rect1(pcmd->ClipRect.x, pcmd->ClipRect.y, pcmd->ClipRect.z, pcmd->ClipRect.w);
 				cmdBuffer->setScissor(scissor);
 				cmdBuffer->drawIndexed(pcmd->ElemCount, 1, pcmd->IdxOffset, pcmd->VtxOffset, 0);
@@ -167,104 +269,8 @@ void ImGuiDrawPass::drawInPass(QRhiCommandBuffer* cmdBuffer, QRhiRenderTarget* o
 	}
 }
 
-void ImGuiDrawPass::setupWindow(QRhiWindow* window)
-{
-	mWindow = window;
-	mWindow->installEventFilter(this);
-}
 
-void ImGuiDrawPass::initRhiResource(QRhiResourceUpdateBatch* batch, QRhiRenderTarget* outputTarget)
-{
-	mVertexBuffer.reset(RHI->newBuffer(QRhiBuffer::Dynamic, QRhiBuffer::VertexBuffer, sizeof(ImDrawVert) * IMGUI_BUFFER_SIZE));
-	mVertexBuffer->create();
-
-	mIndexBuffer.reset(RHI->newBuffer(QRhiBuffer::Dynamic, QRhiBuffer::IndexBuffer, sizeof(ImDrawIdx) * IMGUI_BUFFER_SIZE));
-	mIndexBuffer->create();
-
-	mUniformBuffer.reset(RHI->newBuffer(QRhiBuffer::Type::Dynamic, QRhiBuffer::UniformBuffer, sizeof(QMatrix4x4)));
-	mUniformBuffer->create();
-
-	mSampler.reset(RHI->newSampler(QRhiSampler::Linear,
-				   QRhiSampler::Linear,
-				   QRhiSampler::None,
-				   QRhiSampler::ClampToEdge,
-				   QRhiSampler::ClampToEdge));
-	mSampler->create();
-
-	unsigned char* pixels;
-	int width, height;
-	ImGui::SetCurrentContext(mImGuiContext);
-	ImGuiIO& io = ImGui::GetIO();
-	io.Fonts->GetTexDataAsRGBA32(&pixels, &width, &height);
-	QImage fontImage(pixels, width, height, QImage::Format::Format_RGBA8888);
-	mFontTexture.reset(RHI->newTexture(QRhiTexture::RGBA8, QSize(width, height), 1));
-	mFontTexture->create();
-	mPipeline.reset(RHI->newGraphicsPipeline());
-	QRhiGraphicsPipeline::TargetBlend blendState;
-	blendState.srcColor = QRhiGraphicsPipeline::SrcAlpha;
-	blendState.dstAlpha = QRhiGraphicsPipeline::Zero;
-	blendState.enable = true;
-	mPipeline->setDepthTest(false);
-	mPipeline->setTargetBlends({ blendState });
-	mPipeline->setFlags(QRhiGraphicsPipeline::UsesScissor);
-	mPipeline->setSampleCount(outputTarget->sampleCount());
-	QShader vs = QSceneRenderer::createShaderFromCode(QShader::VertexStage, R"(#version 440
-layout(location = 0) in vec2 inPosition;
-layout(location = 1) in vec2 inUV;
-layout(location = 2) in vec4 inColor;
-
-layout(location = 0)out vec2 vUV;
-layout(location = 1)out vec4 vColor;
-layout(std140,binding = 0) uniform buf{
-	mat4 mvp;
-}ubuf;
-
-out gl_PerVertex { vec4 gl_Position; };
-
-void main(){
-	vUV = inUV;
-	vColor = inColor;
-	gl_Position = ubuf.mvp*vec4(inPosition,0,1);
-}
-)");
-
-	QShader fs = QSceneRenderer::createShaderFromCode(QShader::FragmentStage, R"(#version 440
-layout(location = 0) in vec2 vUV;
-layout(location = 1) in vec4 vColor;
-layout(binding = 1) uniform sampler2D uTexture;
-layout(location = 0) out vec4 OutColor;
-void main(){
-	OutColor = vColor * texture(uTexture,vUV);
-}
-)");
-
-	mPipeline->setShaderStages({
-		{ QRhiShaderStage::Vertex, vs },
-		{ QRhiShaderStage::Fragment, fs }
-							   });
-
-	mBindings.reset(RHI->newShaderResourceBindings());
-	mBindings->setBindings({
-		QRhiShaderResourceBinding::uniformBuffer(0,QRhiShaderResourceBinding::VertexStage,mUniformBuffer.get()),
-		QRhiShaderResourceBinding::sampledTexture(1,QRhiShaderResourceBinding::FragmentStage,mFontTexture.get(),mSampler.get())
-						   });
-	mBindings->create();
-
-	QRhiVertexInputLayout inputLayout;
-	inputLayout.setBindings({ QRhiVertexInputBinding(sizeof(ImDrawVert)) });
-	inputLayout.setAttributes({
-		QRhiVertexInputAttribute{ 0, 0, QRhiVertexInputAttribute::Float2, offsetof(ImDrawVert, pos) },
-		QRhiVertexInputAttribute{ 0, 1, QRhiVertexInputAttribute::Float2, offsetof(ImDrawVert, uv) },
-		QRhiVertexInputAttribute{ 0, 2, QRhiVertexInputAttribute::UNormByte4, offsetof(ImDrawVert, col) },
-							  });
-	mPipeline->setVertexInputLayout(inputLayout);
-	mPipeline->setShaderResourceBindings(mBindings.get());
-	mPipeline->setRenderPassDescriptor(outputTarget->renderPassDescriptor());
-	mPipeline->create();
-	batch->uploadTexture(mFontTexture.get(), fontImage);
-}
-
-bool ImGuiDrawPass::eventFilter(QObject* watched, QEvent* event)
+bool ImGuiPainter::eventFilter(QObject* watched, QEvent* event)
 {
 	if (watched != nullptr) {
 		switch (event->type()) {

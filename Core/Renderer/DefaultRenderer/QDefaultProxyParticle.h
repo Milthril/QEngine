@@ -1,13 +1,12 @@
 #ifndef QDefaultProxyParticle_h__
 #define QDefaultProxyParticle_h__
 
-#include "QDefaultRenderer.h"
 #include "Scene\Component\Particle\QParticleComponent.h"
-
+#include "Renderer\IRhiProxy.h"
 
 class QDefaultProxyStaticMesh;
 
-class QDefaultProxyParticle :public QRhiProxy {
+class QDefaultProxyParticle :public IRhiProxy {
 public:
 	QDefaultProxyParticle(std::shared_ptr<QParticleComponent> shape);
 	void uploadResource(QRhiResourceUpdateBatch* batch) override;

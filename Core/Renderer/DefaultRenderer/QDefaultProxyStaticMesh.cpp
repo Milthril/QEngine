@@ -3,6 +3,7 @@
 #include "Scene\Component\StaticMesh\QStaticMeshComponent.h"
 #include "Scene\Component\Particle\QParticleComponent.h"
 #include "QEngine.h"
+#include "Renderer\ISceneRenderPass.h"
 
 QDefaultProxyStaticMesh::QDefaultProxyStaticMesh(std::shared_ptr<QStaticMeshComponent> mesh)
 	: mStaticMesh(mesh)
@@ -78,7 +79,7 @@ void QDefaultProxyStaticMesh::recreatePipeline()
 	QRhiVertexInputLayout inputLayout;
 	inputLayout.setBindings(inputBindings.begin(), inputBindings.end());
 	inputLayout.setAttributes(attributeList.begin(), attributeList.end());
-	QShader vs = QSceneRenderer::createShaderFromCode(QShader::Stage::VertexStage, vertexShaderCode.toLocal8Bit());
+	QShader vs = ISceneRenderer::createShaderFromCode(QShader::Stage::VertexStage, vertexShaderCode.toLocal8Bit());
 	if (!vs.isValid()) {
 		mPipeline.reset(nullptr);
 		return;
@@ -88,7 +89,7 @@ void QDefaultProxyStaticMesh::recreatePipeline()
 	QString defineCode = materialInfo.uniformDefineCode;
 	QString outputCode = mStaticMesh->getMaterial()->getShadingCode();
 
-	if (mRenderer->debugEnabled()) {
+	if (mRenderPass->getEnableOutputDebugId()) {
 		defineCode.prepend("layout (location = 1) out vec4 CompId;\n");
 		if (mParentParticle) {
 			outputCode.append(QString("CompId = %1;\n").arg(mParentParticle->getCompIdVec4String()));
@@ -106,7 +107,7 @@ void QDefaultProxyStaticMesh::recreatePipeline()
 	}
 	)").arg(defineCode).arg(outputCode);
 
-	QShader fs = QSceneRenderer::createShaderFromCode(QShader::Stage::FragmentStage, fragShaderCode.toLocal8Bit());
+	QShader fs = ISceneRenderer::createShaderFromCode(QShader::Stage::FragmentStage, fragShaderCode.toLocal8Bit());
 	if (!fs.isValid()) {
 		mPipeline.reset(nullptr);
 		return;
@@ -115,12 +116,13 @@ void QDefaultProxyStaticMesh::recreatePipeline()
 	mPipeline.reset(RHI->newGraphicsPipeline());
 
 	mPipeline->setVertexInputLayout(inputLayout);
-	auto blends = mRenderer->getDefaultBlends();
-	mPipeline->setTargetBlends(blends.begin(), blends.end());
+	const auto& blendStates = mRenderPass->getBlendStates();
+	mPipeline->setTargetBlends(blendStates.begin(), blendStates.end());
 	mPipeline->setTopology(mStaticMesh->getTopology());
+	mPipeline->setDepthOp(QRhiGraphicsPipeline::LessOrEqual);
 	mPipeline->setDepthTest(true);
 	mPipeline->setDepthWrite(true);
-	mPipeline->setSampleCount(mRenderer->getSampleCount());
+	mPipeline->setSampleCount(mRenderPass->getSampleCount());
 
 	mPipeline->setShaderStages({
 		{ QRhiShaderStage::Vertex, vs },
@@ -135,7 +137,7 @@ void QDefaultProxyStaticMesh::recreatePipeline()
 
 	mPipeline->setShaderResourceBindings(mShaderResourceBindings.get());
 
-	mPipeline->setRenderPassDescriptor(mRenderer->getRenderPassDescriptor().get());
+	mPipeline->setRenderPassDescriptor(mRenderPass->getRenderPassDescriptor());
 
 	mPipeline->create();
 }
@@ -151,6 +153,7 @@ void QDefaultProxyStaticMesh::uploadResource(QRhiResourceUpdateBatch* batch)
 }
 
 void QDefaultProxyStaticMesh::updateResource(QRhiResourceUpdateBatch* batch) {
+	mStaticMesh->getMaterial()->getProxy()->updateResource(batch);
 	if (mStaticMesh->bNeedUpdateVertex.receive()) {
 		if (mStaticMesh->getBufferType() != QRhiBuffer::Dynamic || mVertexBuffer->size() != sizeof(QStaticMeshComponent::Vertex) * mStaticMesh->getVertices().size()) {
 			mVertexBuffer.reset(RHI->newBuffer(mStaticMesh->getBufferType(), QRhiBuffer::VertexBuffer, sizeof(QStaticMeshComponent::Vertex) * mStaticMesh->getVertices().size()));
@@ -166,14 +169,13 @@ void QDefaultProxyStaticMesh::updateResource(QRhiResourceUpdateBatch* batch) {
 			mIndexBuffer.reset(RHI->newBuffer(mStaticMesh->getBufferType(), QRhiBuffer::IndexBuffer, sizeof(QStaticMeshComponent::Index) * mStaticMesh->getIndices().size()));
 			mIndexBuffer->create();
 		}
-
 		if (mStaticMesh->getBufferType() == QRhiBuffer::Dynamic)
 			batch->updateDynamicBuffer(mIndexBuffer.get(), 0, sizeof(QStaticMeshComponent::Index) * mStaticMesh->getIndices().size(), mStaticMesh->getIndices().constData());
 		else
 			batch->uploadStaticBuffer(mIndexBuffer.get(), mStaticMesh->getVertices().constData());
 	}
 
-	QMatrix4x4 MVP = mRenderer->getVP() * mStaticMesh->calculateWorldMatrix();
+	QMatrix4x4 MVP = mStaticMesh->calculateMVP();
 	batch->updateDynamicBuffer(mUniformBuffer.get(), 0, sizeof(QMatrix4x4), MVP.constData());
 }
 

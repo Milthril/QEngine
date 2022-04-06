@@ -1,6 +1,7 @@
 #include "QSceneComponent.h"
 #include "imgui.h"
 #include "ImGuizmo.h"
+#include "Scene/QScene.h"
 
 QScene* QSceneComponent::getScene() const
 {
@@ -30,9 +31,14 @@ QMatrix4x4 QSceneComponent::calculateParentMatrix()
 	return matrix;
 }
 
-QMatrix4x4 QSceneComponent::calculateWorldMatrix()
+QMatrix4x4 QSceneComponent::calculateModelMatrix()
 {
 	return calculateParentMatrix() * calculateLocalMatrix();
+}
+
+QMatrix4x4 QSceneComponent::calculateMVP()
+{
+	return mScene->getMatrixVP() * calculateModelMatrix();
 }
 
 const QVector3D& QSceneComponent::getPosition() const

@@ -30,6 +30,12 @@ void QRhiUniformProxy::recreateResource()
 
 void QRhiUniformProxy::updateResource(QRhiResourceUpdateBatch* batch)
 {
+	if (mMaterial->bNeedRecreate.receive()) {
+		recreateResource();
+		for (auto& ref : mMaterial->mRef) {
+			ref->bNeedRecreatePipeline.active();
+		}
+	}
 	for (auto& params : mMaterial->getAllDataDesc()) {
 		if (params->needUpdate.receive()) {
 			batch->updateDynamicBuffer(mUniformBlock.get(), params->offsetInByte, params->sizeInByte, mMaterial->mData.data() + params->offsetInByte);

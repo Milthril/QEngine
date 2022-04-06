@@ -16,6 +16,9 @@ private:
 	QTreeWidgetItem* mRoot;
 Q_SIGNALS:
 	void objectChanged(QObject* obejct);
+protected:
+	void showEvent(QShowEvent* event) override;
+
 };
 
 #endif // QScenePanel_h__

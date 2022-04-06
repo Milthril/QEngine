@@ -2,7 +2,7 @@
 
 QMaterial::QMaterial()
 {
-	mShadingCode = "FragColor = vec4(1);";
+	mShadingCode = "FragColor = vec4(0.1,0.5,0.9,1.0);";
 }
 
 void QMaterial::setShadingCode(QByteArray val)

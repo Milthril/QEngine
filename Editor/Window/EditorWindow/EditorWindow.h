@@ -7,8 +7,9 @@
 #include "Widgets/ScenePanel/QScenePanel.h"
 #include <kddockwidgets/DockWidget.h>
 #include <kddockwidgets/MainWindow.h>
+#include "kddockwidgets/private/widgets/FloatingWindowWidget_p.h"
 
-class EditorWindow : public KDDockWidgets::MainWindow {
+class EditorWindow : public KDDockWidgets::FloatingWindowWidget{
 	Q_OBJECT
 public:
 	EditorWindow();
@@ -18,6 +19,7 @@ protected:
 	void connectUI();
 	void showEvent(QShowEvent* event) override;
 private:
+	KDDockWidgets::MainWindow mMainWindow;
 	QScenePanel mQScenePanel;
 	QPropertyPanel mPropertyPanel;
 	AssetPanel mAssetPanel;

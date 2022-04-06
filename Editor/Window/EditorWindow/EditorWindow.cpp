@@ -5,9 +5,11 @@
 #include "QApplication"
 #include "QStyleFactory"
 #include "QEngine.h"
+#include "QAeroWindowMaker.h"
 
 EditorWindow::EditorWindow()
-	: KDDockWidgets::MainWindow("QEngine Editor")
+	: KDDockWidgets::FloatingWindowWidget({})
+	, mMainWindow(KDDockWidgets::MainWindow("QEngine Editor"))
 	, mAssetPanel(ASSET_DIR)
 	, mFile("File")
 	, mEdit("Edit")
@@ -31,6 +33,7 @@ void EditorWindow::preInitConfig()
 		| KDDockWidgets::Config::Flag_ShowButtonsOnTabBarIfTitleBarHidden
 		//| KDDockWidgets::Config::Flag_AlwaysTitleBarWhenFloating
 		//| KDDockWidgets::Config::Flag_TabsHaveCloseButton
+		| KDDockWidgets::Config::Flag::Flag_LazyResize
 		;
 
 	KDDockWidgets::Config::self().setFlags(flags);
@@ -40,10 +43,14 @@ void EditorWindow::preInitConfig()
 void EditorWindow::createUI()
 {
 	mWindowLayoutMgr.initConfig();
-
-	menuBar()->addMenu(&mFile);
-	menuBar()->addMenu(&mEdit);
-	menuBar()->addMenu(&mWindow);
+	m_vlayout->addWidget(&mMainWindow);
+	m_vlayout->setContentsMargins(0, 0, 0, 0);
+	QAeroWindowMaker::make((HWND)this->winId());
+	this->setObjectName("KDFloatingWindow");
+	mMainWindow.setObjectName("KDMainWindow");
+	mMainWindow.menuBar()->addMenu(&mFile);
+	mMainWindow.menuBar()->addMenu(&mEdit);
+	mMainWindow.menuBar()->addMenu(&mWindow);
 	this->
 		mWindow.addAction("New Window", [this]() {
 		static int counter;
@@ -63,28 +70,29 @@ void EditorWindow::createUI()
 	KDDockWidgets::DockWidget::LayoutSaverOptions layoutSaverOptions = KDDockWidgets::DockWidget::LayoutSaverOption::None;
 
 	auto dockAssetPanel = new KDDockWidgets::DockWidget("Asset", KDDockWidgets::DockWidget::Option_None, layoutSaverOptions);
-	dockAssetPanel->setAffinities(affinities());
+	dockAssetPanel->setAffinities(mMainWindow.affinities());
 	dockAssetPanel->setWidget(&mAssetPanel);
-	addDockWidget(dockAssetPanel, KDDockWidgets::Location::Location_OnBottom);
+	mMainWindow.addDockWidget(dockAssetPanel, KDDockWidgets::Location::Location_OnBottom);
 
 	auto dockScene = new KDDockWidgets::DockWidget("Scene", KDDockWidgets::DockWidget::Option_None, layoutSaverOptions);
-	dockScene->setAffinities(affinities());
+	dockScene->setAffinities(mMainWindow.affinities());
 	dockScene->setWidget(&mQScenePanel);
-	addDockWidget(dockScene, KDDockWidgets::Location::Location_OnTop);
+	mMainWindow.addDockWidget(dockScene, KDDockWidgets::Location::Location_OnTop);
 
 	auto dockProperty = new KDDockWidgets::DockWidget("Property", KDDockWidgets::DockWidget::Option_None, layoutSaverOptions);
-	dockProperty->setAffinities(affinities());
+	dockProperty->setAffinities(mMainWindow.affinities());
 	dockProperty->setWidget(&mPropertyPanel);
-	addDockWidget(dockProperty, KDDockWidgets::Location::Location_OnRight);
+	mMainWindow.addDockWidget(dockProperty, KDDockWidgets::Location::Location_OnRight);
 
 	auto dockViewport = new KDDockWidgets::DockWidget("Viewport", KDDockWidgets::DockWidget::Option_None, layoutSaverOptions);
-	dockViewport->setAffinities(affinities());
-	addDockWidget(dockViewport, KDDockWidgets::Location::Location_OnRight, dockScene);
+	dockViewport->setAffinities(mMainWindow.affinities());
+	mMainWindow.addDockWidget(dockViewport, KDDockWidgets::Location::Location_OnRight, dockScene);
 	auto viewportContainter = QWidget::createWindowContainer(Engine->window().get());
 	viewportContainter->setMinimumSize(400, 300);
 	dockViewport->setWidget(viewportContainter);
 
 	mWindowLayoutMgr.loadAllLayout();
+	mWindowLayoutMgr.tryCreateDefaultLayout();
 }
 
 void EditorWindow::connectUI()

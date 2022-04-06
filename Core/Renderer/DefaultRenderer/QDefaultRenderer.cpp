@@ -1,155 +1,73 @@
 #include "QDefaultRenderer.h"
-#include "Scene\Component\StaticMesh\QStaticMeshComponent.h"
-#include "QDefaultProxyStaticMesh.h"
-#include "QDefaultProxyParticle.h"
-#include "QDefaultProxySkyBox.h"
+
 #include "QEngine.h"
-#include "QDefaultProxySkeletonModel.h"
-#include "Renderer/CommonPass/DebugDrawPass.h"
+#include "QDefaultSceneRenderPass.h"
+#include "Renderer\CommonRenderPass\SwapChainRenderPass.h"
+#include "Renderer\CommonRenderPass\BloomRenderPass.h"
 
-QDefaultRenderer::QDefaultRenderer()
-	: mBloomPainter(new BloomPass())
-{
-	mReadReult.completed = [this]() {
-		const uchar* p = reinterpret_cast<const uchar*>(mReadReult.data.constData());
-		int offset = (mReadReult.pixelSize.width() * mReadPoint.y() + mReadPoint.x()) * 4;
-		uint32_t id = p[offset] + p[offset + 1] * 256 + p[offset + 2] * 256 * 256 + p[offset + 3] * 256 * 256 * 256;
-		mReadPoint = { 0,0 };
-		Q_EMIT readBackCompId(id);
-	};
+QDefaultRenderer::QDefaultRenderer() {}
+
+void QDefaultRenderer::buildFrameGraph() {
+	QFrameGraphBuilder builder;
+	std::shared_ptr<QDefaultSceneRenderPass> scenePass = std::make_shared<QDefaultSceneRenderPass>(mScene);
+	std::shared_ptr<PixelSelectPainter> bloomPixelSelectPass = std::make_shared<PixelSelectPainter>();
+	std::shared_ptr<BlurPainter> bloomBlurPass = std::make_shared<BlurPainter>();
+	std::shared_ptr<BloomMerageRenderPass> bloomMeragePass = std::make_shared<BloomMerageRenderPass>();
+	std::shared_ptr<SwapChainRenderPass> swapChainPass = std::make_shared<SwapChainRenderPass>();
+	mFrameGraph = builder.begin()
+		->node("Scene", scenePass,
+			   [self = scenePass.get(),renderer = this]() {
+					self->setupSampleCount(4);
+					self->setupSceneFrameSize(Engine->window()->getSwapChain()->currentPixelSize());
+					if (renderer->getEnableDebug()) {
+						self->setEnableOutputDebugId(true);
+					}
+				})
+		->node("BloomPixelSelector", bloomPixelSelectPass,
+			   [self = bloomPixelSelectPass.get(), scene = scenePass.get()]() {
+					self->setupSelectCode(R"(
+						void main() {
+							vec4 color = texture(uTexture, vUV);
+							float value = max(max(color.r,color.g),color.b);
+							outFragColor = (1-step(value,1.0f)) * color;
+						}
+					)");
+					self->setupInputTexture(scene->getOutputTexture());
+				})
+			->dependency({ "Scene" })
+		->node("BloomBlurPass", bloomBlurPass,
+				[self = bloomBlurPass.get(),pixel = bloomPixelSelectPass.get()]() {
+					self->setupInputTexture(pixel->getOutputTexture());
+					self->setupBloomSize(20);
+					self->setupBoommIter(2);
+				})
+			->dependency({ "BloomPixelSelector" })
+
+		->node("BloomMeragePass", bloomMeragePass,
+				[self = bloomMeragePass.get(), scene = scenePass.get(),blur = bloomBlurPass]() {
+					self->setupBloomTexutre(blur->getOutputTexture());
+					self->setupSrcTexutre(scene->getOutputTexture());
+				})
+			->dependency({ "Scene","BloomBlurPass"})
+		->node("Swapchain", swapChainPass,
+			   [self = swapChainPass.get(), bloom = bloomMeragePass.get(), renderer = this, scene = scenePass.get()]() {
+					self->setupSwapChain(Engine->window()->getSwapChain());
+					self->setupTexture(bloom->getOutputTexture());
+					if (renderer->getEnableDebug()) {
+						self->setupDebugTexture(scene->getDebugTexutre());
+					}
+				})
+			->dependency({ "BloomMeragePass" })
+		->end();
+
+	mFrameGraph->compile();
 }
 
-void QDefaultRenderer::render(QRhiCommandBuffer* cmdBuffer, QRhiRenderTarget* renderTarget)
-{
-	QSize size = renderTarget->pixelSize();
-	createOrResizeRenderTarget(size);
-	for (auto& it : mPrimitiveProxyMap) {
-		it->updatePrePass(cmdBuffer);
-	}
-	QRhiResourceUpdateBatch* batch = RHI->nextResourceUpdateBatch();
-	for (auto& it : mPrimitiveProxyMap) {
-		it->updateResource(batch);
-	}
-	if (mSkyBoxProxy) {
-		mSkyBoxProxy->updateResource(batch);
-	}
+void QDefaultRenderer::render(QRhiCommandBuffer* cmdBuffer) {
+	mFrameGraph->executable(cmdBuffer);
 
-	cmdBuffer->beginPass(mRT.renderTarget.get(), QColor::fromRgbF(0.0f, 0.0f, 0.0f, 0.0f), { 1.0f, 0 }, batch);
-
-	QRhiViewport viewport(0, 0, size.width(), size.height());
-	for (auto& proxy : mPrimitiveProxyMap) {
-		proxy->drawInPass(cmdBuffer, viewport);
-	}
-	if (mSkyBoxProxy) {
-		mSkyBoxProxy->drawInPass(cmdBuffer, viewport);
-	}
-
-	cmdBuffer->endPass();
-
-	mBloomPainter->makeBloom(cmdBuffer, mRT.colorAttachment, renderTarget);
-
-	if (debugEnabled())
-		mDebugPainter->updatePrePass(batch, renderTarget);
-
-	cmdBuffer->beginPass(renderTarget, QColor::fromRgbF(0.0f, 0.0f, 0.0f, 0.0f), { 1.0f, 0 });
-	mBloomPainter->drawInPass(cmdBuffer, renderTarget);
-	if (debugEnabled())
-		mDebugPainter->drawInPass(cmdBuffer, renderTarget);
-
-	cmdBuffer->endPass();
-
-	if (debugEnabled()) {
-		if (!mReadPoint.isNull()) {
-			batch = RHI->nextResourceUpdateBatch();
-			batch->readBackTexture(mReadDesc, &mReadReult);
-			cmdBuffer->resourceUpdate(batch);
-			RHI->finish();
-		}
-	}
 }
 
-QRhiSPtr<QRhiRenderPassDescriptor> QDefaultRenderer::getRenderPassDescriptor() const
-{
-	return mRT.renderPassDesc;
-}
+void QDefaultRenderer::requestReadbackCompId(const QPoint& screenPt) {
 
-QVector<QRhiGraphicsPipeline::TargetBlend> QDefaultRenderer::getDefaultBlends()
-{
-	QRhiGraphicsPipeline::TargetBlend blendState;
-	blendState.enable = false;
-	if (debugEnabled()) {
-		return { blendState,blendState };
-	}
-	return { blendState };
-}
-
-void QDefaultRenderer::requestReadbackCompId(const QPoint& screenPt)
-{
-	mReadPoint = screenPt;
-}
-
-std::shared_ptr<QRhiProxy> QDefaultRenderer::createStaticMeshProxy(std::shared_ptr<QStaticMeshComponent> comp)
-{
-	return std::make_shared<QDefaultProxyStaticMesh>(comp);
-}
-
-std::shared_ptr<QRhiProxy> QDefaultRenderer::createSkeletonMeshProxy(std::shared_ptr<QSkeletonModelComponent> comp)
-{
-	return std::make_shared<QDefaultProxySkeletonModel>(comp);
-}
-
-std::shared_ptr<QRhiProxy> QDefaultRenderer::createParticleProxy(std::shared_ptr<QParticleComponent> comp)
-{
-	return std::make_shared<QDefaultProxyParticle>(comp);
-}
-
-std::shared_ptr<QRhiProxy> QDefaultRenderer::createSkyBoxProxy(std::shared_ptr<QSkyBoxComponent> comp)
-{
-	return std::make_shared<QDefaultProxySkyBox>(comp);
-}
-
-void QDefaultRenderer::createOrResizeRenderTarget(QSize size)
-{
-	if (mRT.colorAttachment && mRT.colorAttachment->pixelSize() == size)
-		return;
-	mRT.colorAttachment.reset(RHI->newTexture(QRhiTexture::RGBA32F, size, 1, QRhiTexture::RenderTarget | QRhiTexture::UsedAsTransferSource));
-	mRT.colorAttachment->create();
-	QVector<QRhiColorAttachment> colorAttachments;
-	QRhiColorAttachment colorAttachment;
-	if (getSampleCount() > 1) {
-		mRT.msaaBuffer.reset(RHI->newRenderBuffer(QRhiRenderBuffer::Color, size, getSampleCount(), {}, QRhiTexture::RGBA32F));
-		mRT.msaaBuffer->create();
-		colorAttachment.setRenderBuffer(mRT.msaaBuffer.get());
-		colorAttachment.setResolveTexture(mRT.colorAttachment.get());
-	}
-	else {
-		colorAttachment.setTexture(mRT.colorAttachment.get());
-	}
-	colorAttachments << colorAttachment;
-
-	if (debugEnabled()) {
-		QRhiColorAttachment debugAttachment;
-		mRT.debugTexture.reset(RHI->newTexture(QRhiTexture::RGBA8, size, 1, QRhiTexture::RenderTarget | QRhiTexture::UsedAsTransferSource));
-		mRT.debugTexture->create();
-		if (getSampleCount() > 1) {
-			mRT.debugMsaaBuffer.reset(RHI->newRenderBuffer(QRhiRenderBuffer::Color, size, getSampleCount(), {}, QRhiTexture::RGBA8));
-			mRT.debugMsaaBuffer->create();
-			debugAttachment.setRenderBuffer(mRT.debugMsaaBuffer.get());
-			debugAttachment.setResolveTexture(mRT.debugTexture.get());
-		}
-		else {
-			debugAttachment.setTexture(mRT.debugTexture.get());
-		}
-		colorAttachments << debugAttachment;
-		mReadDesc.setTexture(mRT.debugTexture.get());
-	}
-	QRhiTextureRenderTargetDescription RTDesc;
-	RTDesc.setColorAttachments(colorAttachments.begin(), colorAttachments.end());
-	mRT.depthStencil.reset(RHI->newRenderBuffer(QRhiRenderBuffer::DepthStencil, size, getSampleCount()));
-	mRT.depthStencil->create();
-	RTDesc.setDepthStencilBuffer(mRT.depthStencil.get());
-	mRT.renderTarget.reset(RHI->newTextureRenderTarget(RTDesc));
-	mRT.renderPassDesc.reset(mRT.renderTarget->newCompatibleRenderPassDescriptor());
-	mRT.renderTarget->setRenderPassDescriptor(mRT.renderPassDesc.get());
-	mRT.renderTarget->create();
 }

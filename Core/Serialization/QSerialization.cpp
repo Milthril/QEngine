@@ -8,6 +8,7 @@
 #include "QFile"
 
 namespace QSerialization {
+
 void serializeInternal(QObject* object, QCborStreamWriter& writer) {
 	if (object == nullptr)
 		return;

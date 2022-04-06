@@ -1,6 +1,7 @@
+#include "Renderer\ISceneRenderPass.h"
 #include "QDefaultProxySkeletonModel.h"
-#include "Scene\Component\QPrimitiveComponent.h"
 #include "QEngine.h"
+#include "Scene\Component\QPrimitiveComponent.h"
 #include "Scene\Component\SkeletonMesh\QSkeletonMeshComponent.h"
 
 QDefaultProxySkeletonModel::QDefaultProxySkeletonModel(std::shared_ptr<QSkeletonModelComponent> mesh)
@@ -45,15 +46,14 @@ void QDefaultProxySkeletonModel::recreatePipeline()
 		auto& meshProxy = mMeshProxyList[i];
 		auto& pipeline = mMeshProxyList[i]->pipeline;
 		pipeline.reset(RHI->newGraphicsPipeline());
-		QRhiGraphicsPipeline::TargetBlend blendState;
-		blendState.enable = false;
 
-		auto blends = mRenderer->getDefaultBlends();
-		mPipeline->setTargetBlends(blends.begin(), blends.end());
+		const auto& blendStates = mRenderPass->getBlendStates();
+		mPipeline->setTargetBlends(blendStates.begin(), blendStates.end());
+
 		pipeline->setTopology(QRhiGraphicsPipeline::Topology::Triangles);
 		pipeline->setDepthTest(true);
 		pipeline->setDepthWrite(true);
-		pipeline->setSampleCount(mRenderer->getSampleCount());
+		pipeline->setSampleCount(mRenderPass->getSampleCount());
 
 		QVector<QRhiVertexInputBinding> inputBindings;
 		inputBindings << QRhiVertexInputBinding{ sizeof(QSkeletonModelComponent::Vertex) };
@@ -102,13 +102,13 @@ void QDefaultProxySkeletonModel::recreatePipeline()
 		inputLayout.setAttributes(attributeList.begin(), attributeList.end());
 		pipeline->setVertexInputLayout(inputLayout);
 
-		QShader vs = QSceneRenderer::createShaderFromCode(QShader::Stage::VertexStage, vertexShaderCode.toLocal8Bit());
+		QShader vs = ISceneRenderer::createShaderFromCode(QShader::Stage::VertexStage, vertexShaderCode.toLocal8Bit());
 		const QRhiUniformProxy::UniformInfo& materialInfo = meshProxy->mesh->getMaterial()->getProxy()->getUniformInfo(1);
 
 		QString defineCode = materialInfo.uniformDefineCode;
 		QString outputCode = meshProxy->mesh->getMaterial()->getShadingCode();
 
-		if (mRenderer->debugEnabled()) {
+		if (mRenderPass->getEnableOutputDebugId()) {
 			defineCode.prepend("layout (location = 1) out vec4 CompId;\n");
 			outputCode.append(QString("CompId = %1;\n").arg(mSkeletonModel->componentId()));
 		}
@@ -120,7 +120,7 @@ void QDefaultProxySkeletonModel::recreatePipeline()
 			%2
 		}
 		)").arg(defineCode).arg(outputCode);
-		QShader fs = QSceneRenderer::createShaderFromCode(QShader::Stage::FragmentStage, fragShaderCode.toLocal8Bit());
+		QShader fs = ISceneRenderer::createShaderFromCode(QShader::Stage::FragmentStage, fragShaderCode.toLocal8Bit());
 		Q_ASSERT(fs.isValid());
 
 		pipeline->setShaderStages({
@@ -139,7 +139,7 @@ void QDefaultProxySkeletonModel::recreatePipeline()
 
 		pipeline->setShaderResourceBindings(shaderResBindings.get());
 
-		pipeline->setRenderPassDescriptor(mRenderer->getRenderPassDescriptor().get());
+		pipeline->setRenderPassDescriptor(mRenderPass->getRenderPassDescriptor());
 
 		pipeline->create();
 	}
@@ -154,7 +154,7 @@ void QDefaultProxySkeletonModel::uploadResource(QRhiResourceUpdateBatch* batch)
 }
 
 void QDefaultProxySkeletonModel::updateResource(QRhiResourceUpdateBatch* batch) {
-	QMatrix4x4 MVP = mRenderer->getVP() * mSkeletonModel->calculateWorldMatrix();
+	QMatrix4x4 MVP = mSkeletonModel->calculateMVP();
 	batch->updateDynamicBuffer(mUniformBuffer.get(), 0, sizeof(float) * 16, MVP.constData());
 	const auto& posesMatrix = mSkeletonModel->getSkeleton()->getCurrentPosesMatrix();
 	batch->updateDynamicBuffer(mUniformBuffer.get(), sizeof(float) * 16, sizeof(QSkeleton::Mat4) * posesMatrix.size(), posesMatrix.constData());

@@ -59,7 +59,7 @@ void QSkeletonModelComponent::loadFromFile(const QString filePath)
 	if (scene == nullptr)
 		return;
 	mMaterialList.resize(scene->mNumMaterials);
-	for (int i = 0; i < scene->mNumMaterials; i++) {
+	for (uint i = 0; i < scene->mNumMaterials; i++) {
 		aiMaterial* material = scene->mMaterials[i];
 		mMaterialList[i] = std::make_shared<QMaterial>();
 		int diffuseCount = material->GetTextureCount(aiTextureType_DIFFUSE);

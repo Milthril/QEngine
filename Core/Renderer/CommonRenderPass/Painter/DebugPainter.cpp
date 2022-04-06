@@ -1,28 +1,21 @@
-#include "DebugDrawPass.h"
+#include "DebugPainter.h"
 #include "QApplication"
 #include "qevent.h"
 #include "QEngine.h"
 #include "Scene/Component/Camera/QCameraComponent.h"
 
-DebugDrawPass::DebugDrawPass()
-{
-	connect(Engine->renderer().get(), &QSceneRenderer::readBackCompId, this, [this](QSceneComponent::ComponentId id) {
-		auto comp = Engine->scene()->searchCompById(id);
-		if (comp.get() != mCurrentComp) {
-			mCurrentComp = comp.get();
-			Q_EMIT currentCompChanged(mCurrentComp);
-		}
-	});
+DebugPainter::DebugPainter() {
+
 }
 
-void DebugDrawPass::paint()
-{
+void DebugPainter::paintImgui() {
 	auto& io = ImGui::GetIO();
 	ImGui::GetBackgroundDrawList()->AddText(ImGui::GetFont(), ImGui::GetFontSize(), ImVec2(1, 1), ImColor(0, 255, 0, 255), QString("FPS: %1").arg(Engine->window()->getFPS()).toLocal8Bit().data());
 	ImGuizmo::BeginFrame();
 	ImGuizmo::SetRect(0, 0, io.DisplaySize.x, io.DisplaySize.y);
 	auto camera = Engine->scene()->getCamera();
 	if (camera) {
+		QSceneComponent* mCurrentComp = Engine->scene()->getCurrent();
 		if (mCurrentComp) {
 			QMatrix4x4 MAT;
 			QMatrix4x4 Local = mCurrentComp->calculateLocalMatrix();
@@ -55,18 +48,27 @@ void DebugDrawPass::paint()
 	}
 }
 
-void DebugDrawPass::setCurrentCompInternal(QSceneComponent* comp)
-{
-	if (mCurrentComp != comp)
-		mCurrentComp = comp;
+
+void DebugPainter::resourceUpdate(QRhiResourceUpdateBatch* batch) {
+	if (!mReadPoint.isNull()) {
+		mReadDesc.setTexture(mDebugTexture);
+		mReadReult.completed = [this]() {
+			const uchar* p = reinterpret_cast<const uchar*>(mReadReult.data.constData());
+			int offset = (mReadReult.pixelSize.width() * mReadPoint.y() + mReadPoint.x()) * 4;
+			uint32_t id = p[offset] + p[offset + 1] * 256 + p[offset + 2] * 256 * 256 + p[offset + 3] * 256 * 256 * 256;
+			auto comp = Engine->scene()->searchCompById(id);
+			Engine->scene()->setCurrent(comp.get());
+			mReadPoint = { 0,0 };
+		};
+		batch->readBackTexture(mReadDesc,&mReadReult);
+	}
+	ImGuiPainter::resourceUpdate(batch);
 }
 
-bool DebugDrawPass::eventFilter(QObject* watched, QEvent* event)
-{
+bool DebugPainter::eventFilter(QObject* watched, QEvent* event) {
 	static QPoint pressedPos;
 	if (watched != nullptr) {
-		switch (event->type())
-		{
+		switch (event->type()) {
 		case QEvent::MouseButtonPress:
 			pressedPos = QCursor::pos();
 			break;
@@ -77,7 +79,7 @@ bool DebugDrawPass::eventFilter(QObject* watched, QEvent* event)
 				if (RHI->isYUpInNDC()) {
 					pt.setY(mWindow->height() - pt.y());
 				}
-				Engine->renderer()->requestReadbackCompId(pt);
+				mReadPoint = pt;
 			}
 			pressedPos = { 0,0 };
 			break;
@@ -105,5 +107,5 @@ bool DebugDrawPass::eventFilter(QObject* watched, QEvent* event)
 		}
 		}
 	}
-	return ImGuiDrawPass::eventFilter(watched, event);
+	return ImGuiPainter::eventFilter(watched, event);
 }

@@ -4,12 +4,12 @@
 #include "QObject"
 #include "qvectornd.h"
 #include "QMatrix4x4"
-#include "RHI\QRhiSignal.h"
+#include "RHI\QRhiDefine.h"
 
 class QScene;
 
 class QSceneComponent :public QObject {
-	friend class QSceneRenderer;
+	friend class ISceneRenderer;
 	Q_OBJECT
 		Q_PROPERTY(QVector3D Position READ getPosition WRITE setPosition)
 		Q_PROPERTY(QVector3D Rotation READ getRotation WRITE setRotation)
@@ -45,7 +45,8 @@ public:
 
 	QMatrix4x4 calculateLocalMatrix();
 	QMatrix4x4 calculateParentMatrix();
-	QMatrix4x4 calculateWorldMatrix();
+	QMatrix4x4 calculateModelMatrix();
+	QMatrix4x4 calculateMVP();
 
 	const QVector3D& getPosition() const;
 	virtual void setPosition(const QVector3D& newPosition);

@@ -3,7 +3,7 @@
 
 #include "QStaticMeshComponent.h"
 
-class QStaticModel :public QPrimitiveComponent {
+class QStaticModel :public QSceneComponent {
 public:
 	void loadFromFile(const QString filePath);
 private:

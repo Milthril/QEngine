@@ -91,7 +91,11 @@ bool QCameraComponent::eventFilter(QObject* watched, QEvent* event)
 			pressedPos = { 0,0 };
 			mWindow->setCursor(Qt::ArrowCursor);             //显示鼠标光标
 			break;
-
+		case QEvent::FocusOut:{
+			mKeySet.clear();
+			pressedPos = { 0,0 };
+			mWindow->setCursor(Qt::ArrowCursor);             //显示鼠标光标
+		}
 		case QEvent::MouseMove: {
 			if (qApp->mouseButtons() & Qt::RightButton) {
 				QPoint currentPos = QCursor::pos();

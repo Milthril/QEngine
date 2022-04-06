@@ -7,6 +7,10 @@
 #include "kddockwidgets/KDDockWidgets.h"
 #include "kddockwidgets/LayoutSaver.h"
 #include "kddockwidgets/FrameworkWidgetFactory.h"
+#include "kddockwidgets/FrameworkWidgetFactory.h"
+#include "kddockwidgets/MainWindowBase.h"
+#include "kddockwidgets/private/Frame_p.h"
+#include "kddockwidgets/private/FloatingWindow_p.h"
 
 class EditorAttributeMgr {
 	friend class EditorWindow;
@@ -15,6 +19,7 @@ public:
 	EditorAttributeMgr();
 	void initConfig();
 	void saveCurrentLayout();
+	void tryCreateDefaultLayout();
 	void resetDefaultLayout();
 	QDir getLayoutDir();
 	QDir getStyleSheetDir();
@@ -24,6 +29,7 @@ protected:
 	void loadAllLayout();
 	void loadAllStyleSheet();
 	void loadStyleSheet(QString filePath);
+	void loadFont();
 	void saveCurrentCtx();
 	void loadCurrentCtx();
 private:
@@ -38,6 +44,9 @@ private:
 class WindowStyleFactory :public KDDockWidgets::DefaultWidgetFactory {
 public:
 	QAbstractButton* createTitleBarButton(QWidget* parent, KDDockWidgets::TitleBarButtonType) const override;
+
+	KDDockWidgets::FloatingWindow* createFloatingWindow(KDDockWidgets::Frame* frame, KDDockWidgets::MainWindowBase* parent = nullptr, QRect suggestedGeometry = {}) const override;
+
 };
 
 
