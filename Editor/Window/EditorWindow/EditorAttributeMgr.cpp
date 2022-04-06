@@ -9,6 +9,8 @@
 #include "QFontDatabase"
 #include "kddockwidgets\private\widgets\FloatingWindowWidget_p.h"
 #include "Toolkit\QAeroWindowMaker.h"
+#include "QRegularExpression"
+#include "Toolkit\QWidgetShadowMaker.h"
 
 EditorAttributeMgr::EditorAttributeMgr()
 {
@@ -204,7 +206,6 @@ QMenu::item:selected,QMenuBar::item:selected {
 }
 
 )");
-
 	loadStyleSheet(getStyleSheetDir().filePath("Light.qss"));
 }
 
@@ -263,9 +264,48 @@ void EditorAttributeMgr::loadAllStyleSheet()
 void EditorAttributeMgr::loadStyleSheet(QString filePath)
 {
 	QFile file(filePath);
+	bool shadow = false;
+	bool aero = false;
+	QColor iconColor;
 	if (file.open(QFile::ReadOnly)) {
-		qApp->setStyleSheet(file.readAll());
+		QString data = file.readAll();
 		file.close();
+		if (data.startsWith("QEngineEditor")) {
+			QRegularExpression aeroRegExp("aero *: *(\\w+) *;");
+			QRegularExpressionMatch aeroMatch = aeroRegExp.match(data.mid(0,100));
+			if (aeroMatch.hasMatch()) {
+				QStringList texts = aeroMatch.capturedTexts();
+				if (texts.size() == 2 && texts.last() == "true") {
+					aero = true;
+				}
+			}
+			QRegularExpression shadowRegExp("shadow *: *(\\w+) *;");
+			QRegularExpressionMatch shadowMatch = shadowRegExp.match(data.mid(0, 100));
+			if (shadowMatch.hasMatch()) {
+				QStringList texts = shadowMatch.capturedTexts();
+				if (texts.size() == 2 && texts.last() == "true") {
+					shadow = true;
+				}
+			}
+			QRegularExpression iconColorRegExp("icon-color *: *rgba\\((.+)\\) *;");
+			QRegularExpressionMatch iconColorMatch = iconColorRegExp.match(data.mid(0, 100));
+			if (iconColorMatch.hasMatch()) {
+				QStringList texts = iconColorMatch.capturedTexts();
+				if (texts.size() == 2) {
+					QStringList rgba = texts.last().split(',');
+					if (rgba.size() == 4) {
+						iconColor.setRed(rgba[0].toInt());
+						iconColor.setGreen(rgba[1].toInt());
+						iconColor.setBlue(rgba[2].toInt());
+						iconColor.setAlpha(rgba[3].toInt());
+					}
+				}
+			}
+		}
+		QWidgetShadowMaker::setEffectEnabled(shadow);
+		QAeroWindowMaker::setEnabled(aero);
+		QSvgIcon::setIconColor(iconColor);
+		qApp->setStyleSheet(data);
 	}
 }
 
@@ -356,6 +396,6 @@ using namespace KDDockWidgets;
 
 KDDockWidgets::FloatingWindow* WindowStyleFactory::createFloatingWindow(KDDockWidgets::Frame* frame, KDDockWidgets::MainWindowBase* parent /*= nullptr*/, QRect suggestedGeometry /*= {}*/) const {
 	KDDockWidgets::FloatingWindow* window = new FloatingWindowWidget(frame, suggestedGeometry, parent);
-	QAeroWindowMaker::make((HWND)window->winId());
+	QAeroWindowMaker::make(window);
 	return	window;
 }

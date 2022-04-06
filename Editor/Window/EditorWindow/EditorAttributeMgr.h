@@ -44,7 +44,6 @@ private:
 class WindowStyleFactory :public KDDockWidgets::DefaultWidgetFactory {
 public:
 	QAbstractButton* createTitleBarButton(QWidget* parent, KDDockWidgets::TitleBarButtonType) const override;
-
 	KDDockWidgets::FloatingWindow* createFloatingWindow(KDDockWidgets::Frame* frame, KDDockWidgets::MainWindowBase* parent = nullptr, QRect suggestedGeometry = {}) const override;
 };
 

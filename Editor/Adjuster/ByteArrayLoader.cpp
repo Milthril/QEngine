@@ -3,13 +3,11 @@
 #include <QFile>
 #include <QFileDialog>
 #include <QPushButton>
-#include "Toolkit/QNeumorphism.h"
 
 ByteArrayLoader::ByteArrayLoader(QByteArray value, QWidget* parent /*= nullptr*/)
 	: btLoad_(new QPushButton("Load"))
 {
 	setValue(value);
-	btLoad_->setGraphicsEffect(new QNeumorphism);
 	QHBoxLayout* h = new QHBoxLayout(this);
 	h->setContentsMargins(0, 0, 0, 0);
 	h->addWidget(btLoad_);

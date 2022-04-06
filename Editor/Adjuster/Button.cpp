@@ -2,13 +2,13 @@
 #include <QHBoxLayout>
 #include <QMouseEvent>
 #include <QPainter>
-#include "Toolkit/QNeumorphism.h"
+#include "Toolkit/QWidgetShadowMaker.h"
 
 Button::Button(QWidget* parent)
 	: Adjuster(parent)
 	, hovered_(false)
 {
-	this->setGraphicsEffect(new QNeumorphism);
+	this->setGraphicsEffect(new QWidgetShadowMaker);
 }
 
 void Button::enterEvent(QEnterEvent* event)

@@ -6,7 +6,6 @@
 #include <QDoubleValidator>
 #include <QPainter>
 #include "QFocusLineEdit.h"
-#include "Toolkit/QNeumorphism.h"
 
 DoubleSlider::DoubleSlider(QBoundedDouble number  /*= 0*/, QString name, QWidget* parent /*= nullptr*/)
 	: Adjuster(parent)
@@ -17,7 +16,6 @@ DoubleSlider::DoubleSlider(QBoundedDouble number  /*= 0*/, QString name, QWidget
 	, mSvgIcon(":/Resources/Icons/box_arrow.png")
 {
 	setFixedHeight(20);
-	setGraphicsEffect(new QNeumorphism);
 	QHBoxLayout* h = new QHBoxLayout(this);
 	h->setContentsMargins(5, 0, 0, 0);
 	h->setSpacing(0);

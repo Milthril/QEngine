@@ -1,9 +1,9 @@
 ﻿#include "QSvgIcon.h"
 #include <QPainter>
 
-QSvgIcon::QSvgIcon(QString path, QColor color)
+QSvgIcon::QSvgIcon(QString path)
 	: mPath(path)
-	, mColor(color)
+	, mColor(mDefaultColor)
 {
 	mSvgIconList << this;
 	updateIcon();
@@ -39,6 +39,13 @@ QColor QSvgIcon::getColor() const {
 void QSvgIcon::setColor(QColor val) {
 	mColor = val;
 	updateIcon();
+}
+
+void QSvgIcon::setIconColor(QColor color) {
+	mDefaultColor = color;
+	for (auto icon : mSvgIconList) {
+		icon->setColor(mDefaultColor);
+	}
 }
 
 void QSvgIcon::updateIcon() {

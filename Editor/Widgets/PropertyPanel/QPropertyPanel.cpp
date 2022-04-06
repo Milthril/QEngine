@@ -4,6 +4,7 @@
 #include "QPropertyItem.h"
 #include "QFile"
 #include "QPropertyItemFactory.h"
+#include "Toolkit\QWidgetShadowMaker.h"
 
 QPropertyPanel::QPropertyPanel(QObject* object /*= nullptr*/) {
 	setObject(object);
@@ -14,6 +15,7 @@ QPropertyPanel::QPropertyPanel(QObject* object /*= nullptr*/) {
 	setColumnWidth(0, 120);
 	setSelectionMode(QAbstractItemView::SingleSelection);
 	setFrameStyle(QFrame::NoFrame);
+	setGraphicsEffect(new QWidgetShadowMaker);
 	connect(this, &QTreeWidget::itemPressed, this, [](QTreeWidgetItem* item, int) {
 		if (qApp->mouseButtons() & Qt::RightButton) {
 			/*show menu*/

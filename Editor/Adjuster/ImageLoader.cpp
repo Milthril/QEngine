@@ -1,6 +1,5 @@
 #include "ImageLoader.h"
 #include <QFileDialog>
-#include "Toolkit/QNeumorphism.h"
 #include "QPainter"
 #include "QBrush"
 
@@ -8,7 +7,6 @@ ImageLoader::ImageLoader(QImage value, QWidget* parent /*= nullptr*/)
 {
 	setFixedSize(60, 60);
 	setValue(value);
-	setGraphicsEffect(new QNeumorphism);
 	connect(this, &Button::clicked, this, &ImageLoader::loadFile);
 }
 

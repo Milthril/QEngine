@@ -2,13 +2,11 @@
 #include "QFocusLineEdit.h"
 
 #include <QHBoxLayout>
-#include "Toolkit/QNeumorphism.h"
 #include "QPainter"
 
 LineEdit::LineEdit(QString str)
 	:lineEdit_(new QFocusLineEdit())
 {
-	setGraphicsEffect(new QNeumorphism);
 	QHBoxLayout* h = new QHBoxLayout(this);
 	h->setContentsMargins(0, 0, 0, 0);
 	h->addWidget(lineEdit_);

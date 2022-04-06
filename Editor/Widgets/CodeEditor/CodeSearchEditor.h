@@ -12,7 +12,7 @@ class CodeSearchEditor :public QWidget {
 	Q_OBJECT
 public:
 	CodeSearchEditor();
-	using QWidget::QWidget;
+	//using QWidget::QWidget;
 	void showSearch(const QString& str = QString());
 protected:
 	void keyPressEvent(QKeyEvent* e) override;

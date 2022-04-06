@@ -1,7 +1,7 @@
-#include "Toolkit/QNeumorphism.h"
+#include "Toolkit/QWidgetShadowMaker.h"
 #include <QPainter>
 
-QNeumorphism::QNeumorphism(qreal blurRadius, qreal distance, qreal strength, qreal angle, bool inset)
+QWidgetShadowMaker::QWidgetShadowMaker(qreal blurRadius, qreal distance, qreal strength, qreal angle, bool inset)
 	:blurRadius_(blurRadius)
 	, distance_(distance)
 	, strength_(strength)
@@ -12,63 +12,63 @@ QNeumorphism::QNeumorphism(qreal blurRadius, qreal distance, qreal strength, qre
 	setEnabled(enabled_);
 }
 
-QNeumorphism::~QNeumorphism()
+QWidgetShadowMaker::~QWidgetShadowMaker()
 {
 	instances.removeOne(this);
 }
 
-qreal QNeumorphism::strength() const
+qreal QWidgetShadowMaker::strength() const
 {
 	return strength_;
 }
 
-void QNeumorphism::setStrength(const qreal& strength)
+void QWidgetShadowMaker::setStrength(const qreal& strength)
 {
 	strength_ = strength;
 	update();
 }
 
-qreal QNeumorphism::blurRadius() const
+qreal QWidgetShadowMaker::blurRadius() const
 {
 	return blurRadius_;
 }
 
-void QNeumorphism::setBlurRadius(const qreal& blurRadius)
+void QWidgetShadowMaker::setBlurRadius(const qreal& blurRadius)
 {
 	blurRadius_ = blurRadius;
 	update();
 }
 
-qreal QNeumorphism::distance() const
+qreal QWidgetShadowMaker::distance() const
 {
 	return distance_;
 }
 
-void QNeumorphism::setDistance(const qreal& distance)
+void QWidgetShadowMaker::setDistance(const qreal& distance)
 {
 	distance_ = distance;
 	update();
 }
 
-qreal QNeumorphism::angle() const
+qreal QWidgetShadowMaker::angle() const
 {
 	return angle_;
 }
 
-void QNeumorphism::setAngle(const qreal& angle)
+void QWidgetShadowMaker::setAngle(const qreal& angle)
 {
 	angle_ = angle;
 	update();
 }
 
-QRectF QNeumorphism::boundingRectFor(const QRectF& rect) const
+QRectF QWidgetShadowMaker::boundingRectFor(const QRectF& rect) const
 {
 	if (inset_)
 		return rect.united(rect.translated(0, 0));
 	return rect.united(rect.translated(0, 0).adjusted(-blurRadius_ - distance_, -blurRadius_ - distance_, blurRadius_ + distance_, blurRadius_ + distance_));
 }
 
-void QNeumorphism::draw(QPainter* painter)
+void QWidgetShadowMaker::draw(QPainter* painter)
 {
 	PixmapPadMode mode = PadToEffectiveBoundingRect;
 	QPoint pos;
@@ -177,25 +177,25 @@ void QNeumorphism::draw(QPainter* painter)
 	painter->setWorldTransform(restoreTransform);
 }
 
-bool QNeumorphism::inset() const
+bool QWidgetShadowMaker::inset() const
 {
 	return inset_;
 }
 
-void QNeumorphism::setInset(bool inset)
+void QWidgetShadowMaker::setInset(bool inset)
 {
 	inset_ = inset;
 	update();
 }
 
-QList<QNeumorphism*> QNeumorphism::instances;
+QList<QWidgetShadowMaker*> QWidgetShadowMaker::instances;
 
-void QNeumorphism::setEffectEnabled(bool enabled)
+void QWidgetShadowMaker::setEffectEnabled(bool enabled)
 {
 	enabled_ = enabled;
-	for (auto ins : QNeumorphism::instances) {
+	for (auto ins : QWidgetShadowMaker::instances) {
 		ins->setEnabled(enabled_);
 	}
 }
 
-bool QNeumorphism::enabled_ = true;
+bool QWidgetShadowMaker::enabled_ = true;

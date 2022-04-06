@@ -43,7 +43,7 @@ void PathViewer::setCurrentDir(QString dir)
 		hLayout->addWidget(btImage);
 		connect(btImage, &QPushButton::clicked, this, [this, path, btImage]() {
 			QMenu menu;
-			QSvgIcon icon(":/Resources/Icon24gf-folderMinus.png");
+			QSvgIcon icon(":/Resources/Icons/24gf-folder.png");
 			for (auto& subDir : QDir(path).entryInfoList(QDir::Filter::Dirs | QDir::Filter::NoDotAndDotDot)) {
 				menu.addAction(icon.getIcon(), subDir.fileName(), [this, subDir]() {
 					Q_EMIT pathClicked(subDir.filePath());

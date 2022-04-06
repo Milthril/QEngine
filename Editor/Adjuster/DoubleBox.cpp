@@ -6,7 +6,6 @@
 #include <QDoubleValidator>
 #include <QPainter>
 #include "QFocusLineEdit.h"
-#include "Toolkit/QNeumorphism.h"
 #include "QStyleOption"
 
 DoubleBox::DoubleBox(double value /*= 0*/, QString name, QWidget* parent /*= nullptr*/)
@@ -17,7 +16,6 @@ DoubleBox::DoubleBox(double value /*= 0*/, QString name, QWidget* parent /*= nul
 	, mSvgIcon(":/Resources/Icons/box_arrow.png")
 {
 	setFixedHeight(20);
-	setGraphicsEffect(new QNeumorphism);
 	QHBoxLayout* h = new QHBoxLayout(this);
 	h->setContentsMargins(0, 0, 0, 0);
 	h->addWidget(nameLabel_);

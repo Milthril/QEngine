@@ -1,7 +1,6 @@
 #include "Vec3Box.h"
 #include <QHBoxLayout>
 #include "DoubleBox.h"
-#include "Toolkit/QNeumorphism.h"
 
 Vec3Box::Vec3Box(QVector3D value, QWidget* parent /*= nullptr*/)
 	: x(new DoubleBox(value.x(), "X"))
@@ -11,7 +10,6 @@ Vec3Box::Vec3Box(QVector3D value, QWidget* parent /*= nullptr*/)
 	x->setGraphicsEffect(nullptr);
 	y->setGraphicsEffect(nullptr);
 	z->setGraphicsEffect(nullptr);
-	setGraphicsEffect(new QNeumorphism);
 	QVBoxLayout* h = new QVBoxLayout(this);
 	h->setSpacing(2);
 	h->setContentsMargins(0, 0, 0, 0);

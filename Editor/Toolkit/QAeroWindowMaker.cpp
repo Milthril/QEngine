@@ -1,6 +1,7 @@
 #include "QAeroWindowMaker.h"
 
 #include <windowsx.h>
+#include "QWidget"
 
 typedef enum _WINDOWCOMPOSITIONATTRIB {
 	WCA_UNDEFINED = 0,
@@ -62,18 +63,29 @@ SetWindowCompositionAttribute(
 	_Inout_ WINDOWCOMPOSITIONATTRIBDATA* pAttrData);
 typedef BOOL(WINAPI* pfnSetWindowCompositionAttribute)(HWND, WINDOWCOMPOSITIONATTRIBDATA*);
 
-
-void QAeroWindowMaker::make(HWND hWnd) {
+void makeAero(HWND hWnd,bool enabled) {
 	HMODULE hUser = GetModuleHandle(L"user32.dll");
 	if (hUser) {
 		pfnSetWindowCompositionAttribute setWindowCompositionAttribute = (pfnSetWindowCompositionAttribute)GetProcAddress(hUser, "SetWindowCompositionAttribute");
 		if (setWindowCompositionAttribute) {
-			ACCENT_POLICY accent = { ACCENT_ENABLE_BLURBEHIND, 0, 0, 0 };
+			ACCENT_POLICY accent = { enabled? ACCENT_ENABLE_BLURBEHIND: ACCENT_ENABLE_TRANSPARENTGRADIENT, 0, 0, 0 };
 			WINDOWCOMPOSITIONATTRIBDATA data;
 			data.Attrib = WCA_ACCENT_POLICY;
 			data.pvData = &accent;
 			data.cbData = sizeof(accent);
 			setWindowCompositionAttribute(hWnd, &data);
 		}
+	}
+}	
+
+void QAeroWindowMaker::make(QWidget* widget) {
+	mWidgetList << widget;
+	makeAero((HWND)widget->winId(), mEnabled);
+}
+
+void QAeroWindowMaker::setEnabled(bool var) {
+	mEnabled = var;
+	for (auto& widget : mWidgetList) {
+		makeAero((HWND)widget->winId(), mEnabled);
 	}
 }

@@ -2,6 +2,7 @@
 #include "QStyledItemDelegate"
 #include "QPainter"
 #include "Toolkit\QSvgIcon.h"
+#include "Toolkit\QWidgetShadowMaker.h"
 
 class DireTreeItemDelegate :public QStyledItemDelegate {
 protected:
@@ -50,6 +51,7 @@ DirTreeWidget::DirTreeWidget(QString rootDir)
 	setIndentation(10);
 	intiDirectories();
 	setItemDelegate(new DireTreeItemDelegate);
+	setGraphicsEffect(new QWidgetShadowMaker);
 }
 
 void DirTreeWidget::setCurrentDir(QString dir)

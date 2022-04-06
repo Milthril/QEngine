@@ -1,5 +1,10 @@
 #include "HoverButton.h"
 #include <QPainter>
+#include "Toolkit\QWidgetShadowMaker.h"
+
+HoverButton::HoverButton() {
+	setGraphicsEffect(new QWidgetShadowMaker);
+}
 
 void HoverButton::enterEvent(QEnterEvent* event)
 {

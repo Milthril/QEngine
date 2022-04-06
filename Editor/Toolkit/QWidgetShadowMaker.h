@@ -1,13 +1,13 @@
-#ifndef QNeumorphism_h__
-#define QNeumorphism_h__
+#ifndef QWidgetShadowMaker_h__
+#define QWidgetShadowMaker_h__
 
 #include <QGraphicsEffect>
 
-class QNeumorphism : public QGraphicsEffect
+class QWidgetShadowMaker : public QGraphicsEffect
 {
 public:
-	QNeumorphism(qreal blurRadius = 10, qreal distance = 3, qreal strength = 0.8, qreal angle = 45, bool inset = false);
-	~QNeumorphism();
+	QWidgetShadowMaker(qreal blurRadius = 10, qreal distance = 3, qreal strength = 0.8, qreal angle = 45, bool inset = false);
+	~QWidgetShadowMaker();
 
 	qreal strength() const;
 	void setStrength(const qreal& strength);
@@ -24,13 +24,11 @@ public:
 	bool inset() const;
 	void setInset(bool inset);
 
-	static QList<QNeumorphism*> instances;
+	static QList<QWidgetShadowMaker*> instances;
 	static void setEffectEnabled(bool enabled);
-
 protected:
 	QRectF boundingRectFor(const QRectF& rect) const override;
 	void draw(QPainter* painter) override;
-
 private:
 	qreal blurRadius_;
 	qreal distance_;
@@ -40,4 +38,4 @@ private:
 	static bool enabled_;
 };
 
-#endif // QNeumorphism_h__
+#endif // QWidgetShadowMaker_h__

@@ -5,7 +5,6 @@
 #include <QLabel>
 #include <QDoubleValidator>
 #include <QPainter>
-#include "Toolkit/QNeumorphism.h"
 
 QGradientSlider::QGradientSlider(QString name /*= ""*/, float var /*= 0.0f*/, float min /*= 0.0f*/, float max /*= 1.0f*/, bool limited /*=false*/, QWidget* parent /*= nullptr*/)
 	: Adjuster(parent)
@@ -20,7 +19,6 @@ QGradientSlider::QGradientSlider(QString name /*= ""*/, float var /*= 0.0f*/, fl
 
 {
 	setFixedHeight(20);
-	setGraphicsEffect(new QNeumorphism);
 	QHBoxLayout* h = new QHBoxLayout(this);
 	h->setContentsMargins(5, 0, 0, 0);
 	h->setSpacing(0);

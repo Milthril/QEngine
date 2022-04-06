@@ -5,7 +5,6 @@
 #include <QLabel>
 #include <QPainter>
 #include "QFocusLineEdit.h"
-#include "Toolkit/QNeumorphism.h"
 #include "QValidator"
 
 IntSlider::IntSlider(QBoundedInt number  /*= 0*/, QString name, QWidget* parent /*= nullptr*/)
@@ -17,7 +16,6 @@ IntSlider::IntSlider(QBoundedInt number  /*= 0*/, QString name, QWidget* parent 
 	, mSvgIcon(":/Resources/Icons/box_arrow.png")
 {
 	setFixedHeight(20);
-	setGraphicsEffect(new QNeumorphism);
 	QHBoxLayout* h = new QHBoxLayout(this);
 	h->setContentsMargins(0, 0, 0, 0);
 	h->setSpacing(0);

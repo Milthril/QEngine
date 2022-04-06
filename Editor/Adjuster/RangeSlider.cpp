@@ -1,6 +1,5 @@
 #include "RangeSlider.h"
 #include "QFocusLineEdit.h"
-#include "Toolkit/QNeumorphism.h"
 #include <QValidator>
 #include <QBoxLayout>
 #include <QPainter>
@@ -13,7 +12,6 @@ RangeSlider::RangeSlider(QRange range, QWidget* parent /*= nullptr*/)
 	, upperEditer_(new QFocusLineEdit)
 {
 	setFixedHeight(20);
-	setGraphicsEffect(new QNeumorphism);
 
 	lowerEditer_->setFixedHeight(height());
 	lowerEditer_->setFrame(QFrame::NoFrame);

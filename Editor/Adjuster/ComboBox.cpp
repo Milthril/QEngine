@@ -1,7 +1,6 @@
 #include "ComboBox.h"
 #include <QComboBox>
 #include <QHBoxLayout>
-#include "Toolkit/QNeumorphism.h"
 
 ComboBox::ComboBox(QCombo value /*= 0*/, QWidget* parent /*= nullptr*/)
 	: comboBox_(new QComboBox)
@@ -15,7 +14,6 @@ ComboBox::ComboBox(QCombo value /*= 0*/, QWidget* parent /*= nullptr*/)
 	QHBoxLayout* h = new QHBoxLayout(this);
 	h->setContentsMargins(0, 0, 0, 0);
 	h->addWidget(comboBox_);
-	setGraphicsEffect(new QNeumorphism);
 	connect(comboBox_, &QComboBox::currentIndexChanged, this, [this](int index) {
 		value_.setCurrentIndex(index);
 		Q_EMIT valueChanged(QVariant::fromValue(value_));

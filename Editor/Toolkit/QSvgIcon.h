@@ -8,7 +8,7 @@
 
 class QSvgIcon {
 public:
-	QSvgIcon(QString path, QColor color = QColor(50,150,50));
+	QSvgIcon(QString path);
 	~QSvgIcon();
 
 	using IconUpdateCallBack = std::function<void()>;
@@ -21,7 +21,10 @@ public:
 	void setPath(QString path);
 
 	QColor getColor() const;
+
 	void setColor(QColor val);
+
+	static void setIconColor(QColor color);
 private:
 	void updateIcon();
 private:
@@ -30,6 +33,7 @@ private:
 	QIcon mIcon;
 	IconUpdateCallBack mCallBack;
 	inline static QList<QSvgIcon*> mSvgIconList;
+	inline static QColor mDefaultColor;
 };  
 
 #endif // QSvgIcon_h__

@@ -6,7 +6,6 @@
 #include <QDoubleValidator>
 #include <QPainter>
 #include "QFocusLineEdit.h"
-#include "Toolkit/QNeumorphism.h"
 #include "QStyleOption"
 
 IntBox::IntBox(int value/*= 0*/, QString name, QWidget* parent /*= nullptr*/)
@@ -17,7 +16,6 @@ IntBox::IntBox(int value/*= 0*/, QString name, QWidget* parent /*= nullptr*/)
 	, mSvgIcon(":/Resources/Icons/box_arrow.png")
 {
 	setFixedHeight(20);
-	setGraphicsEffect(new QNeumorphism);
 
 	QHBoxLayout* h = new QHBoxLayout(this);
 	h->setContentsMargins(0, 0, 0, 0);

@@ -45,7 +45,7 @@ void EditorWindow::createUI()
 	mWindowLayoutMgr.initConfig();
 	m_vlayout->addWidget(&mMainWindow);
 	m_vlayout->setContentsMargins(0, 0, 0, 0);
-	QAeroWindowMaker::make((HWND)this->winId());
+	QAeroWindowMaker::make(this);
 	this->setObjectName("KDFloatingWindow");
 	mMainWindow.setObjectName("KDMainWindow");
 	mMainWindow.menuBar()->addMenu(&mFile);
