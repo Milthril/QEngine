@@ -80,7 +80,7 @@ public:
 		mMaterial->setShadingCode("FragColor = vec4(UBO.BaseColor,1);");											//设置材质的Shading代码
 		mCube->setMaterial(mMaterial);
 
-		mText = std::make_shared<QText2D>(QString::fromUtf8("电脑放点音乐=.="));
+		mText = std::make_shared<QText2D>(QString::fromUtf8("QEngine=.="));
 		mText->setMaterial(mMaterial);
 		mText->setPosition(QVector3D(0, -4, 0));
 		mText->setRotation(QVector3D(0, 180, 0));

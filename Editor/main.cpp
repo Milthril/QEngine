@@ -16,8 +16,6 @@
 #include "Scene\Component\SkeletonMesh\QMMDModel.h"
 #include "Window\MaterialEditor\QMaterialEditor.h"
 #include "Scene\Component\StaticMesh\QAudioSpectrum.h"
-#include "Window\WindowToolkit\FramlessWindow.h"
-#include "..\private\widgets\FloatingWindowWidget_p.h"
 
 const int CUBE_MAT_SIZE = 10;
 const int CUBE_MAT_SPACING = 5;
@@ -70,7 +68,7 @@ public:
 		mStaticModel->setRotation(QVector3D(-90, 0, 0));
 		scene()->addSceneComponent("StaticModel", mStaticModel);
 
-		mText = std::make_shared<QText2D>(QString::fromUtf8("电脑放点音乐=.="));
+		mText = std::make_shared<QText2D>(QString::fromUtf8("QEngine"));
 		mText->setPosition(QVector3D(0, -5, 0));
 		mText->setRotation(QVector3D(0, 180, 0));
 		mText->setScale(QVector3D(3, 3, 3));
@@ -101,6 +99,5 @@ int main(int argc, char** argv) {
 	EditorWindow::preInitConfig();
 	EditorWindow w;
 	w.show();
-	
 	engine.execGame();
 }

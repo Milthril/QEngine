@@ -7,7 +7,6 @@
 #include "Widgets/ScenePanel/QScenePanel.h"
 #include <kddockwidgets/DockWidget.h>
 #include <kddockwidgets/MainWindow.h>
-#include "../WindowToolkit/FramlessWindow.h"
 #include "kddockwidgets/private/widgets/FloatingWindowWidget_p.h"
 
 class EditorWindow : public KDDockWidgets::FloatingWindowWidget{
