@@ -16,5 +16,6 @@
         <file>Resources/Icons/ic_exp.png</file>
         <file>Resources/Icons/text-format.png</file>
         <file>Resources/Icons/replace.png</file>
+        <file>Resources/Fonts/Barlow-Regular.ttf</file>
     </qresource>
 </RCC>

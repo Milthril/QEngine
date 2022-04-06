@@ -15,6 +15,7 @@ void DebugPainter::paintImgui() {
 	ImGuizmo::SetRect(0, 0, io.DisplaySize.x, io.DisplaySize.y);
 	auto camera = Engine->scene()->getCamera();
 	if (camera) {
+		QSceneComponent* mCurrentComp = Engine->scene()->getCurrent();
 		if (mCurrentComp) {
 			QMatrix4x4 MAT;
 			QMatrix4x4 Local = mCurrentComp->calculateLocalMatrix();
@@ -47,10 +48,6 @@ void DebugPainter::paintImgui() {
 	}
 }
 
-void DebugPainter::setCurrentCompInternal(QSceneComponent* comp) {
-	if (mCurrentComp != comp)
-		mCurrentComp = comp;
-}
 
 void DebugPainter::resourceUpdate(QRhiResourceUpdateBatch* batch) {
 	if (!mReadPoint.isNull()) {
@@ -60,7 +57,7 @@ void DebugPainter::resourceUpdate(QRhiResourceUpdateBatch* batch) {
 			int offset = (mReadReult.pixelSize.width() * mReadPoint.y() + mReadPoint.x()) * 4;
 			uint32_t id = p[offset] + p[offset + 1] * 256 + p[offset + 2] * 256 * 256 + p[offset + 3] * 256 * 256 * 256;
 			auto comp = Engine->scene()->searchCompById(id);
-			Q_EMIT currentCompChanged(comp.get());
+			Engine->scene()->setCurrent(comp.get());
 			mReadPoint = { 0,0 };
 		};
 		batch->readBackTexture(mReadDesc,&mReadReult);

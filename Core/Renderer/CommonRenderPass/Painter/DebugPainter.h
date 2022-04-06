@@ -13,15 +13,12 @@ public:
 		mDebugTexture = texture;
 	}
 	void paintImgui() override;
-	void setCurrentCompInternal(QSceneComponent* comp);
 	virtual void resourceUpdate(QRhiResourceUpdateBatch* batch) override;
 protected:
 	bool eventFilter(QObject* watched, QEvent* event) override;
-Q_SIGNALS:
-	void currentCompChanged(QSceneComponent* comp);
 private:
 	QRhiTexture* mDebugTexture = nullptr;
-	QSceneComponent* mCurrentComp = nullptr;
+
 	ImGuizmo::OPERATION mOpt = ImGuizmo::OPERATION::TRANSLATE;
 	QRhiReadbackResult mReadReult;
 	QRhiReadbackDescription mReadDesc;

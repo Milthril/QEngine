@@ -9,10 +9,11 @@
 #include "qpa/qplatformgraphicsbuffer.h"
 #include "qpa/qplatformgraphicsbufferhelper.h"
 #include "QOffscreenSurface"
-#include "QWallpapaerWidget.h"
+
 #include "QtGui/private/qopenglcontext_p.h"
 #include <QApplication>
 #include <QScreen>
+#include "QWallpapaerWidget.h"
 
 QT_BEGIN_NAMESPACE
 
