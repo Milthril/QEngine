@@ -14,7 +14,13 @@ void QDefaultRenderer::buildFrameGraph() {
 	std::shared_ptr<BlurPainter> bloomBlurPass = std::make_shared<BlurPainter>();
 	std::shared_ptr<BloomMerageRenderPass> bloomMeragePass = std::make_shared<BloomMerageRenderPass>();
 	std::shared_ptr<SwapChainRenderPass> swapChainPass = std::make_shared<SwapChainRenderPass>();
-	mFrameGraph = builder.begin()
+
+	//	Scene -> BloomPixelSeletor -> BloomBlurPass -----
+	//	  |											     |
+	//	  |											     V
+	//     -------------------------------------> BloomMeragePass ----> Swapchain( Scene + Debug )
+
+	mFrameGraph = builder.begin()			
 		->node("Scene", scenePass,
 			   [self = scenePass.get(),renderer = this]() {
 					self->setupSampleCount(4);
@@ -59,7 +65,6 @@ void QDefaultRenderer::buildFrameGraph() {
 				})
 			->dependency({ "BloomMeragePass" })
 		->end();
-
 	mFrameGraph->compile();
 }
 
