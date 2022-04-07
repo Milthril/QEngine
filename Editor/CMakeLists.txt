@@ -31,5 +31,3 @@ target_link_libraries(Editor
     )
 
 target_setup_dll(Editor)
-
-target_compile_definitions(Editor PRIVATE ASSET_DIR="${ASSET_DIR}")

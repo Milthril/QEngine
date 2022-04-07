@@ -1,16 +1,18 @@
 #include "EditorWindow.h"
 #include <kddockwidgets/DockWidget.h>
 #include <kddockwidgets/Config.h>
+#include <kddockwidgets/private/TitleBar_p.h>
 #include <QMenuBar>
 #include "QApplication"
 #include "QStyleFactory"
 #include "QEngine.h"
 #include "Toolkit/QAeroWindowMaker.h"
 
+
 EditorWindow::EditorWindow()
 	: KDDockWidgets::FloatingWindowWidget({})
 	, mMainWindow(KDDockWidgets::MainWindow("QEngine Editor"))
-	, mAssetPanel(ASSET_DIR)
+	, mAssetPanel(Engine->assetDir().path())
 	, mFile("File")
 	, mEdit("Edit")
 	, mWindow("Window")
@@ -42,6 +44,7 @@ void EditorWindow::preInitConfig()
 
 void EditorWindow::createUI()
 {
+	this->titleBar()->setTitle("QEngine");
 	mWindowLayoutMgr.initConfig();
 	m_vlayout->addWidget(&mMainWindow);
 	m_vlayout->setContentsMargins(0, 0, 0, 0);

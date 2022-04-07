@@ -58,3 +58,7 @@ endfunction()
 
 target_include_directories(Core PUBLIC  .)
 
+set(QENGINE_ASSET_DIR "${CMAKE_SOURCE_DIR}/Asset")
+
+target_compile_definitions(Core PUBLIC QENGINE_ASSET_DIR="${QENGINE_ASSET_DIR}")
+

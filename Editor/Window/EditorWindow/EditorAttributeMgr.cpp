@@ -11,6 +11,7 @@
 #include "Toolkit\QAeroWindowMaker.h"
 #include "QRegularExpression"
 #include "Toolkit\QWidgetShadowMaker.h"
+#include "QEngine.h"
 
 EditorAttributeMgr::EditorAttributeMgr()
 {
@@ -29,7 +30,7 @@ QDir EditorAttributeMgr::getLayoutDir() {
 }
 
 QDir EditorAttributeMgr::getStyleSheetDir() {
-	return mSaveDir.filePath("StyleSheet");
+	return Engine->assetDir().filePath("EditorStyle");
 }
 
 void EditorAttributeMgr::initDefaultAttribute() {
@@ -37,176 +38,7 @@ void EditorAttributeMgr::initDefaultAttribute() {
 		return;
 	mSaveDir.mkpath(getLayoutDir().path());
 	mSaveDir.mkpath(getStyleSheetDir().path());;
-
-	writeFile(getStyleSheetDir().filePath("Dark.qss"), R"(
-
-QWidget{
-	font-size: 10pt;
-	background-color:rgb(45,45,48);
-	color:white;
-}
-CodeSearchEditor{
-	background-color:rgb(10,10,10);
-	border-radius: 3px;
-}
-QTreeWidget,QListWidget{
-	background-color: rgb(30,30,30);
-}
-QLineEdit{
-	background-color:rgb(51,51,55);
-	border-radius: 3px;
-	color: rgba(255,255,255,150);
-	border: 1px inset transparent;
-}
-QLineEdit:hover{
-	background-color:rgb(63,63,70);
-	border: 1px inset rgba(0,120,215,150);
-}
-
-QPushButton{
-    padding:  0px 5px 0px 5px;
-    border-radius: 0px;
-    border: 1px solid rgba(200,200,200,200);
-    background-color: rgba(200,200,200,100);
-}
-
-QPushButton:hover{
-	background-color: rgb(28,151,234);
-}
-
-QTreeWidget::item:hover {
-	background-color: rgba(0,120,215,150);
-}
-
-QTreeWidget::item:selected {
-	background-color: rgb(0,120,215);
-}
-
-QScrollBar:vertical {
-    width: 8px;
-    background: #f0f0f0;
-}
-QScrollBar:horizontal {
-    height: 8px;
-    background: #f0f0f0;
-}
-QScrollBar::handle:vertical {
-    background: #cdcdcd;
-    min-height: 30px;
-}
-QScrollBar::handle:horizontal {
-    background: #cdcdcd;
-    min-width: 30px;
-}
-QScrollBar::handle:vertical:hover,
-QScrollBar::handle:horizontal:hover {
-    background: #a6a6a6;
-}
-QScrollBar::sub-line:vertical, QScrollBar::add-line:vertical,
-QScrollBar::sub-line:horizontal, QScrollBar::add-line:horizontal {
-    width: 0;
-    height: 0;
-}
-
-QScrollBar::add-page:vertical, QScrollBar::sub-page:vertical,
-QScrollBar::add-page:horizontal, QScrollBar::sub-page:horizontal {
-    background: none;
-}
-
-QMenu{
-	background-color: rgb(27,27,28);
-}
-QMenu::item:selected,QMenuBar::item:selected {
-	background-color: rgb(62,62,64);
-}
-)");
-
-	writeFile(getStyleSheetDir().filePath("Light.qss"), R"(
-QWidget{
-	font-size: 10pt;
-	background-color:rgb(238,238,242);
-	color:black;
-}
-CodeSearchEditor{
-	background-color:rgb(204,213,240);
-	border-radius: 3px;
-}
-QTreeWidget,QListWidget{
-	background-color: white;
-}
-QLineEdit{
-	background-color:white;
-	border-radius: 3px;
-	color:rgba(0,0,0,150);
-	border: 1px inset transparent;
-}
-QLineEdit:hover{
-	border: 1px inset rgba(0,120,215,150);
-}
-
-QTreeWidget::item:hover {
-	background-color: rgb(201,222,245);
-}
-QTreeWidget::item:selected {
-	background-color: rgb(0,120,215);
-}
-QScrollBar:vertical {
-    width: 8px;
-    background: #f0f0f0;
-}
-QScrollBar:horizontal {
-    height: 8px;
-    background: #f0f0f0;
-}
-QScrollBar::handle:vertical {
-    background: #cdcdcd;
-    min-height: 30px;
-}
-QScrollBar::handle:horizontal {
-    background: #cdcdcd;
-    min-width: 30px;
-}
-QScrollBar::handle:vertical:hover,
-QScrollBar::handle:horizontal:hover {
-    background: #a6a6a6;
-}
-QScrollBar::sub-line:vertical, QScrollBar::add-line:vertical,
-QScrollBar::sub-line:horizontal, QScrollBar::add-line:horizontal {
-    width: 0;
-    height: 0;
-}
-QScrollBar::add-page:vertical, QScrollBar::sub-page:vertical,
-QScrollBar::add-page:horizontal, QScrollBar::sub-page:horizontal {
-    background: none;
-}
-
-QPushButton{
-    padding:  0px 5px 0px 5px;
-    border-radius: 0px;
-    border: 1px solid rgba(200,200,200,200);
-    background-color: rgba(200,200,200,100);
-}
-
-QPushButton:pressed{
-	background-color: rgb(0,122,204);
-}
-QPushButton:hover{
-	background-color: rgb(201,222,245);
-}
-QMenu{
-	background-color: white;
-}
-QMenu::item {
-	height: 20px;
-	padding: 0px 20px 0px 5px;
-	margin: 2px
-}
-QMenu::item:selected,QMenuBar::item:selected {
-	background-color: rgb(201,222,245);
-}
-
-)");
-	loadStyleSheet(getStyleSheetDir().filePath("Light.qss"));
+	loadStyleSheet(getStyleSheetDir().filePath("Template.qss"));
 }
 
 void EditorAttributeMgr::writeFile(QString filePath, QByteArray data)

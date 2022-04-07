@@ -41,17 +41,12 @@ public:
 	virtual void init() override {
 		renderer()->setEnableDebug(true);
 
-		QDir assetDir(ASSET_DIR);
-		if (!assetDir.exists()) {
-			assetDir.setPath("../Asset");
-		}
-
 		mCamera = std::make_shared<QCameraComponent>();
 		mCamera->setupWindow(window().get());						//将相机与窗口绑定，使用WASD Shift 空格可进行移动，鼠标左键按住窗口可调整视角
 		scene()->addSceneComponent("Camera", mCamera);				//设置场景相机
 
 		mSkyBox = std::make_shared<QSkyBoxComponent>();
-		mSkyBox->setSkyBoxImage(QImage(assetDir.filePath("sky.jpeg")));
+		mSkyBox->setSkyBoxImage(QImage(assetDir().filePath("sky.jpeg")));
 		scene()->addSceneComponent("SkyBox", mSkyBox);
 
 		for (int i = 0; i < CUBE_MAT_SIZE; i++) {
@@ -64,7 +59,7 @@ public:
 		}
 
 		mStaticModel = std::make_shared<QStaticModel>();
-		mStaticModel->loadFromFile(assetDir.filePath("Model/FBX/Genji/Genji.FBX"));
+		mStaticModel->loadFromFile(assetDir().filePath("Model/FBX/Genji/Genji.FBX"));
 		mStaticModel->setRotation(QVector3D(-90, 0, 0));
 		scene()->addSceneComponent("StaticModel", mStaticModel);
 

@@ -9,6 +9,9 @@ QEngine::QEngine(int argc, char** argv, bool enableDebug /*= false*/)
 {
 	mRenderer->setScene(mScene);
 	mRenderer->setEnableDebug(enableDebug);
+	if (QDir(QENGINE_ASSET_DIR).exists()) {
+		mAssetDir = QDir(QENGINE_ASSET_DIR);
+	}
 }
 
 void QEngine::init()
