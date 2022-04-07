@@ -27,7 +27,7 @@ QEngine是一个简易的开源3D引擎，。
 
 ## 编辑器
 
-![](./Doc/src/debug.gif)
+![](./Doc/src/QEngine.jpg)
 
 ## 可执行程序
 

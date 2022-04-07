@@ -56,8 +56,8 @@ QMaterialEditor::QMaterialEditor()
 	v->addWidget(glslEditor);
 	body->addWidget(GlslPanel);
 
-	btSetupShader->setFixedSize(90, 25);
-	btSetupLua->setFixedSize(90, 25);
+	btSetupShader->setFixedSize(120, 25);
+	btSetupLua->setFixedSize(120, 25);
 
 	body->setStretchFactor(0, 2);
 	body->setStretchFactor(1, 5);

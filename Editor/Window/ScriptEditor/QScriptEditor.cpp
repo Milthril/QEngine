@@ -29,7 +29,6 @@ QScriptEditor::QScriptEditor()
 	btCompile->setFixedSize(60, 25);
 	QWidget* body = new QWidget;
 	setWidget(body);
-	body->setObjectName("QScriptEditor");
 	QVBoxLayout* v = new QVBoxLayout(body);
 	v->addWidget(btCompile, 0, Qt::AlignRight);
 	v->addWidget(editor);
