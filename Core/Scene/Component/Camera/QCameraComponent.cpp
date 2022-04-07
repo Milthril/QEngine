@@ -97,7 +97,7 @@ bool QCameraComponent::eventFilter(QObject* watched, QEvent* event)
 			mWindow->setCursor(Qt::ArrowCursor);             //显示鼠标光标
 		}
 		case QEvent::MouseMove: {
-			if (qApp->mouseButtons() & Qt::RightButton) {
+			if (qApp->mouseButtons() & Qt::RightButton && !pressedPos.isNull()) {
 				QPoint currentPos = QCursor::pos();
 				float xoffset = pressedPos.x() - currentPos.x();
 				float yoffset = currentPos.y() - pressedPos.y();	// 注意这里是相反的，因为y坐标是从底部往顶部依次增大的

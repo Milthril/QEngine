@@ -65,6 +65,7 @@ void QCodeEditor::showEvent(QShowEvent* event)
 	setUnmatchedBraceBackgroundColor(windowColor);
 	setUnmatchedBraceForegroundColor(Qt::red);
 	setCaretForegroundColor(textColor);
+	setCallTipsBackgroundColor(windowColor);
 	setSelectionBackgroundColor(QColor(154, 183, 190));
 	setSelectionForegroundColor(textColor);
 	mLexer->setDefaultPaper(windowColor);

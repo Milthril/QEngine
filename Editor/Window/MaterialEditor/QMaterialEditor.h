@@ -10,6 +10,7 @@ class QPushButton;
 class LuaEditor;
 
 class QMaterialEditor :public KDDockWidgets::DockWidget {
+	Q_OBJECT
 public:
 	static QMaterialEditor* instance();
 	void edit(std::shared_ptr<QMaterial> material);

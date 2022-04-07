@@ -81,6 +81,9 @@ void makeAero(HWND hWnd,bool enabled) {
 void QAeroWindowMaker::make(QWidget* widget) {
 	mWidgetList << widget;
 	makeAero((HWND)widget->winId(), mEnabled);
+	QObject::connect(widget, &QWidget::destroyed, [widget]() {
+		mWidgetList.removeOne(widget);
+	});
 }
 
 void QAeroWindowMaker::setEnabled(bool var) {

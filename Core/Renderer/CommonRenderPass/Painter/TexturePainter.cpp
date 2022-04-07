@@ -21,7 +21,9 @@ void TexturePainter::compile()
 	mSampler->create();
 	mPipeline.reset(RHI->newGraphicsPipeline());
 	QRhiGraphicsPipeline::TargetBlend blendState;
-	blendState.enable = true;
+	blendState.enable = false;
+	mPipeline->setDepthTest(true);
+	mPipeline->setDepthWrite(true);
 	mPipeline->setTargetBlends({ blendState });
 	mPipeline->setSampleCount(mSampleCount);
 	QShader vs = ISceneRenderer::createShaderFromCode(QShader::VertexStage, R"(#version 450
@@ -40,7 +42,7 @@ layout (binding = 0) uniform sampler2D samplerColor;
 layout (location = 0) in vec2 vUV;
 layout (location = 0) out vec4 outFragColor;
 void main() {
-	outFragColor = texture(samplerColor, vUV);
+	outFragColor = vec4(texture(samplerColor, vUV).rgb,1.0f);
 }
 )");
 

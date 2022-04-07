@@ -2,37 +2,22 @@
 #include "QStyledItemDelegate"
 #include "QPainter"
 #include "Toolkit\QSvgIcon.h"
-#include "Toolkit\QWidgetShadowMaker.h"
+#include <QApplication>
 
 class DireTreeItemDelegate :public QStyledItemDelegate {
 protected:
 	void paint(QPainter* painter, const QStyleOptionViewItem& option, const QModelIndex& index) const override {
 		if (!index.isValid())
 			return;
-		QString text = index.data(Qt::DisplayRole).toString();
-		painter->save();
-		QColor highlight = option.palette.brush(QPalette::Highlight).color();
-		if (option.state & QStyle::State_HasFocus) {
-			if (option.state & QStyle::State_Selected) {
-				painter->fillRect(option.rect, highlight);
-			}
-			if (option.state & QStyle::State_MouseOver) {
-				painter->fillRect(option.rect, highlight);
-			}
-		}
-
-		QRect iconRect = option.rect;
-		iconRect.setWidth(iconRect.height());
-		iconRect.adjust(1, 1, -1, -1);
+		QStyleOptionViewItem newOption(option);
 		if (option.state & QStyle::State_Open)
-			mDirOpenIcon.getIcon().paint(painter, iconRect);
+			newOption.icon=mDirOpenIcon.getIcon();
 		else
-			mDirCloseIcon.getIcon().paint(painter, iconRect);
-		QRect textRect = option.rect;
-		textRect.setLeft(textRect.left() + textRect.height() + 5);
-		painter->setPen(option.palette.brush(QPalette::Text).color());
-		painter->drawText(textRect, Qt::AlignLeft, text);
-		painter->restore();
+			newOption.icon=mDirCloseIcon.getIcon();
+		const QWidget* widget = option.widget;
+		QStyle* style = widget ? widget->style() : QApplication::style();
+		style->drawControl(QStyle::CE_ItemViewItem, &newOption, painter, widget);
+		QStyledItemDelegate::paint(painter, newOption, index);
 	}
 
 	QSize sizeHint(const QStyleOptionViewItem& option, const QModelIndex& index) const override {
@@ -51,7 +36,6 @@ DirTreeWidget::DirTreeWidget(QString rootDir)
 	setIndentation(10);
 	intiDirectories();
 	setItemDelegate(new DireTreeItemDelegate);
-	setGraphicsEffect(new QWidgetShadowMaker);
 }
 
 void DirTreeWidget::setCurrentDir(QString dir)
@@ -90,6 +74,7 @@ void DirTreeWidget::processDir(QDir dir, QTreeWidgetItem* item) {
 	for (auto& subDir : dir.entryInfoList(QDir::Filter::Dirs | QDir::Filter::NoDotAndDotDot)) {
 		if (subDir.isDir()) {
 			QTreeWidgetItem* subItem = new QTreeWidgetItem({ subDir.fileName() });
+			subItem->setBackground(0, Qt::transparent);
 			itemMap_[subDir.filePath()] = subItem;
 			subItem->setData(0, Qt::ToolTipRole, subDir.filePath());
 			item->addChild(subItem);
@@ -102,6 +87,7 @@ void DirTreeWidget::intiDirectories() {
 	for (auto& subDir : rootDir_.entryInfoList(QDir::Filter::Dirs | QDir::Filter::NoDotAndDotDot)) {
 		if (subDir.isDir()) {
 			QTreeWidgetItem* item = new QTreeWidgetItem({ subDir.fileName() });
+			item->setBackground(0, Qt::transparent);
 			item->setData(0, Qt::ToolTipRole, subDir.filePath());
 			itemMap_[subDir.filePath()] = item;
 			addTopLevelItem(item);

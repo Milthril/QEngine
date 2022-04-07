@@ -51,6 +51,7 @@ void EditorWindow::createUI()
 	mMainWindow.menuBar()->addMenu(&mFile);
 	mMainWindow.menuBar()->addMenu(&mEdit);
 	mMainWindow.menuBar()->addMenu(&mWindow);
+
 	this->
 		mWindow.addAction("New Window", [this]() {
 		static int counter;
@@ -68,7 +69,6 @@ void EditorWindow::createUI()
 	});
 
 	KDDockWidgets::DockWidget::LayoutSaverOptions layoutSaverOptions = KDDockWidgets::DockWidget::LayoutSaverOption::None;
-
 	auto dockAssetPanel = new KDDockWidgets::DockWidget("Asset", KDDockWidgets::DockWidget::Option_None, layoutSaverOptions);
 	dockAssetPanel->setAffinities(mMainWindow.affinities());
 	dockAssetPanel->setWidget(&mAssetPanel);

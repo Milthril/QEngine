@@ -11,6 +11,7 @@
 #include <QActionGroup>
 #include <QWidgetAction>
 #include "Adjuster\BoolBox.h"
+#include "Toolkit\QWidgetShadowMaker.h"
 
 void showInFolder(const QString& path)
 {
@@ -58,7 +59,7 @@ AssetPanel::AssetPanel(QString rootDir)
 void AssetPanel::createUI()
 {
 	QVBoxLayout* vLayout = new QVBoxLayout(this);
-	vLayout->setContentsMargins(0, 0, 0, 0);
+	vLayout->setContentsMargins(5, 5, 5, 5);
 	vLayout->setSpacing(0);
 	QSplitter* splitter = new QSplitter;
 
@@ -98,6 +99,11 @@ void AssetPanel::createUI()
 	directorySeacher_.setFrame(QFrame::NoFrame);
 	fileSearcher_.setPlaceholderText("search file");
 	fileSearcher_.setFrame(QFrame::NoFrame);
+
+	fileSearcher_.setGraphicsEffect(new QWidgetShadowMaker);
+	directorySeacher_.setGraphicsEffect(new QWidgetShadowMaker);
+	btFileFilter_.setGraphicsEffect(new QWidgetShadowMaker);
+	pathViewer_.setGraphicsEffect(new QWidgetShadowMaker);
 }
 
 void AssetPanel::connectUI()

@@ -8,6 +8,7 @@ class LuaEditor;
 class QPushButton;
 
 class QScriptEditor :public KDDockWidgets::DockWidget {
+	Q_OBJECT
 public:
 	static QScriptEditor* instance();
 	void edit(std::shared_ptr<QLuaScript> script);

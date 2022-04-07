@@ -5,7 +5,6 @@
 #include <QtConcurrent/QtConcurrent>
 #include <QScrollBar>
 #include "Toolkit/QSvgIcon.h"
-#include "Toolkit/QWidgetShadowMaker.h"
 
 const QSize GridSize(80, 100);
 
@@ -71,7 +70,6 @@ FileListWidget::FileListWidget() :threadTask_(this) {
 	connect(this->verticalScrollBar(), &QScrollBar::valueChanged, this, [this](int position) {
 		threadTask_.clearIconCache();
 	});
-	setGraphicsEffect(new QWidgetShadowMaker);
 }
 
 FileListWidget::~FileListWidget()
