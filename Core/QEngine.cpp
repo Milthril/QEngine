@@ -18,7 +18,7 @@ void QEngine::init()
 {
 }
 
-void QEngine::update()
+void QEngine::customUpdate()
 {
 }
 
@@ -43,11 +43,19 @@ void QEngine::execGame()
 	mWindow->show();
 	mWindow->waitExposed();
 	init();
+	mTimer.start();
+	mLastTime = mTimer.elapsed();
+	int64_t newTime;
+	float deltaSeconds;
 	while (!mWindow->mHasClosed) {
-		update();
-		mWindow->requestUpdate();
+		newTime = mTimer.elapsed();
+		deltaSeconds = (newTime - mLastTime)/1000.0f;
+		mLastTime = newTime;
+		mTimer.elapsed();
+		customUpdate();
 		QGuiApplication::processEvents();
-		QTickEventHandler::processEvent();
+		QTickEventHandler::processEvent(deltaSeconds);
+		mWindow->requestUpdate();
 	}
 }
 

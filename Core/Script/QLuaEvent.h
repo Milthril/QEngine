@@ -14,7 +14,7 @@ public:
 	void setTickEvent(const sol::function& val) { mTickEvent = val; }
 	sol::function mTickEvent;
 protected:
-	virtual void tickEvent() override;
+	virtual void tickEvent(float deltaSeconds) override;
 };
 
 #endif // QLuaEvent_h__

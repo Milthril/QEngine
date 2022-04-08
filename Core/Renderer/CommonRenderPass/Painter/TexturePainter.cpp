@@ -21,9 +21,7 @@ void TexturePainter::compile()
 	mSampler->create();
 	mPipeline.reset(RHI->newGraphicsPipeline());
 	QRhiGraphicsPipeline::TargetBlend blendState;
-	blendState.enable = false;
-	mPipeline->setDepthTest(true);
-	mPipeline->setDepthWrite(true);
+	blendState.enable = true;
 	mPipeline->setTargetBlends({ blendState });
 	mPipeline->setSampleCount(mSampleCount);
 	QShader vs = ISceneRenderer::createShaderFromCode(QShader::VertexStage, R"(#version 450

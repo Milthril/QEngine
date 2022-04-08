@@ -14,13 +14,14 @@ QSkeletonAnimation::QSkeletonAnimation(QSkeleton* skeleton)
 
 void QSkeletonAnimation::show(const double& timeMs)
 {
-	QVector<QSkeleton::Mat4> matrix = calcBoneMatrix(timeMs);
+	QVector<QSkeleton::Mat4> matrix = calcBoneMatrix(fmod(timeMs / mTicksPerSecond, mDuration));
 	mSkeleton->setCurrentPosesMatrix(matrix);
 }
 
 void QSkeletonAnimation::loadFromAssimp(aiAnimation* anim)
 {
 	mDuration = anim->mDuration;
+	mName = anim->mName.C_Str();
 	mTicksPerSecond = anim->mTicksPerSecond;
 	for (unsigned int i = 0; i < anim->mNumChannels; i++) {
 		aiNodeAnim* node = anim->mChannels[i];
@@ -49,10 +50,10 @@ QVector<QSkeleton::Mat4> QSkeletonAnimation::calcBoneMatrix(const double& timeMs
 		QPair<std::shared_ptr<QSkeleton::ModelNode>, QMatrix4x4> node = qNode.takeFirst();
 		QMatrix4x4 nodeMat = node.first->localMatrix;
 
-		//auto animNodeIter = mAnimNode.find(node.first->name);
-		//if (animNodeIter != mAnimNode.end()) {
-		//	nodeMat = animNodeIter->getMatrix(timeMs);
-		//}
+		auto animNodeIter = mAnimNode.find(node.first->name);
+		if (animNodeIter != mAnimNode.end()) {
+			nodeMat = animNodeIter->getMatrix(timeMs);
+		}
 		QMatrix4x4 globalMatrix = node.second * nodeMat;
 		auto boneIter = mSkeleton->mBoneMap.find(node.first->name);
 		if (boneIter != mSkeleton->mBoneMap.end()) {

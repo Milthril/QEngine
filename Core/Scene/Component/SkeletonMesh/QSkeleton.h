@@ -34,7 +34,7 @@ public:
 	std::shared_ptr<BoneNode> addBoneNode(aiBone* bone);
 	const QVector<QSkeleton::Mat4>& getBoneMatrix() const { return mBoneOffsetMatrix; }
 	void addAnimation(std::shared_ptr < QSkeletonAnimation > anim);
-	QVector<std::shared_ptr<QSkeletonAnimation>> getAnimations() const { return mAnimations; }
+	const QVector<std::shared_ptr<QSkeletonAnimation>>& getAnimations() const { return mAnimations; }
 private:
 	std::shared_ptr<ModelNode> processModelNode(aiNode* node);
 	void resolveAnimations(const aiScene* scene);

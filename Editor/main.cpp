@@ -58,11 +58,6 @@ public:
 			}
 		}
 
-		mStaticModel = std::make_shared<QStaticModel>();
-		mStaticModel->loadFromFile(assetDir().filePath("Model/FBX/Genji/Genji.FBX"));
-		mStaticModel->setRotation(QVector3D(-90, 0, 0));
-		scene()->addSceneComponent("StaticModel", mStaticModel);
-
 		mText = std::make_shared<QText2D>(QString::fromUtf8("QEngine"));
 		mText->setPosition(QVector3D(0, -5, 0));
 		mText->setRotation(QVector3D(0, 180, 0));
@@ -83,9 +78,21 @@ public:
 		mGPUParticles = std::make_shared<QParticleComponent>();
 		mGPUParticles->setPosition(QVector3D(0, -15, 0));
 		scene()->addSceneComponent("GPU Particles", mGPUParticles);
+
+		mStaticModel = std::make_shared<QStaticModel>();
+		mStaticModel->loadFromFile(assetDir().filePath("Model/FBX/Genji/Genji.FBX"));
+		mStaticModel->setRotation(QVector3D(-90, 0, 0));
+		mStaticModel->setPosition(QVector3D(0.0f, 0.0f, -20.0f));
+		scene()->addSceneComponent("StaticModel", mStaticModel);
+
+		mSkeletonModel = std::make_shared<QSkeletonModelComponent>();
+		mSkeletonModel->setScale(QVector3D(0.05f, 0.05f, 0.05f));
+		mSkeletonModel->loadFromFile(assetDir().filePath("Model/FBX/Catwalk Walk Turn 180 Tight R.fbx"));
+		mSkeletonModel->playAnimationByIndex(0, true);
+		scene()->addSceneComponent("SkeletonModel", mSkeletonModel);
 	}
 protected:
-	void update() override
+	void customUpdate() override
 	{
 	}
 };

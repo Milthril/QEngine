@@ -13,7 +13,11 @@ inline QVector3D converter(const aiVector3D& aiVec3) {
 
 inline QMatrix4x4 converter(const aiMatrix4x4& aiMat4) {
 	QMatrix4x4 mat4;
-	memcpy(mat4.data(), &aiMat4, sizeof(float) * 16);
+	for (int i = 0; i < 4; i++) {
+		for (int j = 0; j < 4; j++) {
+			mat4(i, j) = aiMat4[i][j];
+		}
+	}
 	return mat4;
 }
 

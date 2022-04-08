@@ -40,7 +40,7 @@ void SwapChainRenderPass::execute(QRhiCommandBuffer* cmdBuffer)
 	mDebugPainter.resourceUpdate(batch);
 	cmdBuffer->resourceUpdate(batch);
 
-	cmdBuffer->beginPass(mSwapChain->currentFrameRenderTarget(), QColor::fromRgbF(0.0f, 0.0f, 0.0f, 0.0f), { 1.0f, 0 });
+	cmdBuffer->beginPass(mSwapChain->currentFrameRenderTarget(), QColor::fromRgbF(0.0f, 0.0f, 0.0f, 1.0f), { 1.0f, 0 });
 	mTexturePainter.paint(cmdBuffer, mSwapChain->currentFrameRenderTarget());
 	mDebugPainter.paint(cmdBuffer, mSwapChain->currentFrameRenderTarget());
 	cmdBuffer->endPass();

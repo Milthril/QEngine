@@ -23,7 +23,7 @@ public:
 	void setMaxHeight(float val) { mMaxHeight = val; }
 
 protected:
-	void tickEvent() override;
+	void tickEvent(float deltaSeconds) override;
 private:
 	std::shared_ptr<QSpectrumProvider> mSpectrumProvider = std::make_shared<QSpectrumProvider>();
 	float mMaxHeight = 100;

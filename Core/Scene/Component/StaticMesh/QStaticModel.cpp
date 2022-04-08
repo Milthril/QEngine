@@ -61,7 +61,21 @@ void QStaticModel::loadFromFile(const QString filePath)
 		for (int j = 0; j < diffuseCount; j++) {
 			aiString path;
 			material->GetTexture(aiTextureType_DIFFUSE, j, &path);
-			mMaterialList[i]->addTextureSampler("Diffuse", QImage(QFileInfo(filePath).dir().filePath(path.C_Str())));
+			QString realPath = QFileInfo(filePath).dir().filePath(path.C_Str());
+			QImage image;
+			if (QFile::exists(realPath)) {
+				image.load(realPath);
+			}
+			else {
+				const aiTexture* embTexture = scene->GetEmbeddedTexture(path.C_Str());
+				if (embTexture->mHeight == 0) {
+					image.loadFromData((uchar*)embTexture->pcData, embTexture->mWidth, embTexture->achFormatHint);
+				}
+				else {
+					image = QImage((uchar*)embTexture->pcData, embTexture->mWidth, embTexture->mHeight, QImage::Format_ARGB32);
+				}
+			}
+			mMaterialList[i]->addTextureSampler("Diffuse", image);
 		}
 		if (diffuseCount) {
 			mMaterialList[i]->setShadingCode("FragColor = texture(Diffuse,vUV); ");

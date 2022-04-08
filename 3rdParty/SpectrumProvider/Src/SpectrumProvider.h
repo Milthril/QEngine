@@ -52,8 +52,8 @@ private:
 	int mHighFreq = 8000;				//  最高频
 	float mRms = 0.0f;					//	当前频谱的均值
 	float mSmoothFactorRange = 0.5f;	//	前后两帧数据的平滑原子
-	float mSmoothFactorRise = 0.6f;		//	单个柱子上升时的平滑因子
-	float mSmoothFactorFall = 0.009f;//1.0f - no smooth
+	float mSmoothFactorRise = 1.0f;		//	单个柱子上升时的平滑因子
+	float mSmoothFactorFall = 0.009f;   //  1.0f - no smooth
 public:
 	std::mutex mMutex;
 	std::vector<Element> mBars = std::vector<Element>(100);

@@ -1,6 +1,6 @@
 #include "QLuaEvent.h"
 
-void QLuaEvent::tickEvent()
+void QLuaEvent::tickEvent(float deltaSeconds)
 {
 	if (mTickEvent) {
 		mTickEvent();

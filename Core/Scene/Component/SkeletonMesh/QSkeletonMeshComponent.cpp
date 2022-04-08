@@ -7,6 +7,7 @@
 #include "QDir"
 #include "QSkeleton.h"
 #include "Scene\Component\AssimpToolkit\Converter.h"
+#include "QSkeletonAnimation.h"
 
 QSkeletonMesh::QSkeletonMesh(QSkeletonModelComponent* model, aiMesh* mesh)
 	:mModel(model)
@@ -66,7 +67,21 @@ void QSkeletonModelComponent::loadFromFile(const QString filePath)
 		for (int j = 0; j < diffuseCount; j++) {
 			aiString path;
 			material->GetTexture(aiTextureType_DIFFUSE, j, &path);
-			mMaterialList[i]->addTextureSampler("Diffuse", QImage(QFileInfo(filePath).dir().filePath(path.C_Str())));
+			QString realPath = QFileInfo(filePath).dir().filePath(path.C_Str());
+			QImage image;
+			if (QFile::exists(realPath)) {
+				image.load(realPath);
+			}
+			else {
+				const aiTexture* embTexture = scene->GetEmbeddedTexture(path.C_Str());
+				if (embTexture->mHeight == 0) {
+					image.loadFromData((uchar*)embTexture->pcData, embTexture->mWidth, embTexture->achFormatHint);
+				}
+				else {
+					image = QImage((uchar*)embTexture->pcData, embTexture->mWidth, embTexture->mHeight, QImage::Format_ARGB32);
+				}
+			}
+			mMaterialList[i]->addTextureSampler("Diffuse", image);
 		}
 		if (diffuseCount) {
 			mMaterialList[i]->setShadingCode("FragColor = texture(Diffuse,vUV); ");
@@ -95,7 +110,30 @@ void QSkeletonModelComponent::loadFromFile(const QString filePath)
 	mSkeleton->showDefaultPoses();
 }
 
-std::shared_ptr<QSkeleton::BoneNode> QSkeletonModelComponent::getBoneNode(const QString& boneName)
-{
-	return mSkeleton->getBoneNode(boneName);
+void QSkeletonModelComponent::tickEvent(float deltaSeconds) {
+	if (mStatus.mCurrentAnimation) {
+		mStatus.timeMs += deltaSeconds*1000.0f;
+		if (mStatus.timeMs > mStatus.mCurrentAnimation->getDuration() && !mStatus.loop) {
+			mStatus.timeMs = 0;
+			mStatus.mCurrentAnimation = nullptr;
+			return;
+		}
+		mStatus.mCurrentAnimation->show(mStatus.timeMs);
+	}
+}
+
+bool QSkeletonModelComponent::playAnimationByIndex(int index, bool loop) {
+	const auto& anims = mSkeleton->getAnimations();
+	if (index >= 0 && index < anims.size()){
+		playAnimation(anims[index], loop);
+		return true;
+	}
+	return false;
+}
+
+bool QSkeletonModelComponent::playAnimation(std::shared_ptr<QSkeletonAnimation> anim, bool loop) {
+	mStatus.mCurrentAnimation = anim;
+	mStatus.timeMs = 0;
+	mStatus.loop = loop;
+	return true;
 }

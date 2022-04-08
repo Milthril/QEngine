@@ -28,6 +28,7 @@ protected:
 	QSkeleton* mSkeleton;
 	double mDuration;
 	double mTicksPerSecond;
+	QString mName;
 };
 
 #endif // QSkeletonAnimation_h__

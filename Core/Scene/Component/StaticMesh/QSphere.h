@@ -13,8 +13,8 @@ public:
 	void setSubdivide(int stackCount, int sectorCount);
 private:
 	void recreateVertexData();
-	int mStackCount = 50;
-	int mSectorCount = 50;
+	int mStackCount = 10;
+	int mSectorCount = 10;
 };
 
 #endif // QSphere_h__

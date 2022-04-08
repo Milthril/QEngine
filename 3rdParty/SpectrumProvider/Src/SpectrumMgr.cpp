@@ -128,7 +128,7 @@ void SpectrumMgr::start()
 		while (mRunning) {
 			calculateSpectrum();
 			calculateTimeDomain();
-			std::this_thread::sleep_for(std::chrono::milliseconds(20));
+			std::this_thread::sleep_for(std::chrono::milliseconds(5));
 		}
 		mStoped.set_value_at_thread_exit(true);
 	});

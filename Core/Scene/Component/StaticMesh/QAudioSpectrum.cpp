@@ -8,7 +8,7 @@ QAudioSpectrum::QAudioSpectrum()
 	setBufferType(QRhiBuffer::Dynamic);
 }
 
-void QAudioSpectrum::tickEvent()
+void QAudioSpectrum::tickEvent(float deltaSeconds)
 {
 	QVector<Vertex> vertices;
 	const auto& bars = mSpectrumProvider->getBars();

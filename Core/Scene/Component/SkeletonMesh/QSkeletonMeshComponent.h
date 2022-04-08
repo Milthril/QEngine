@@ -5,11 +5,14 @@
 #include "assimp\mesh.h"
 #include "Scene\Material\QMaterial.h"
 #include "QSkeleton.h"
+#include "EventHandler\QTickEventHandler.h"
 
 class QSkeletonMesh;
 
-class QSkeletonModelComponent :public QPrimitiveComponent {
+class QSkeletonModelComponent :public QPrimitiveComponent ,public QTickEventHandler{
 	friend class QSkeletonMesh;
+	Q_OBJECT
+	Q_PROPERTY(QVector<std::shared_ptr<QMaterial>> MaterialList READ getMaterialList WRITE setMaterialList);
 public:
 	void loadFromFile(const QString filePath);
 	QSceneComponent::ProxyType type() override {
@@ -25,13 +28,27 @@ public:
 		QVector4D boneWeight;
 	};
 	const QVector<std::shared_ptr<QSkeletonMesh>>& getMeshes() const { return mMeshes; }
-	std::shared_ptr<QSkeleton::BoneNode> getBoneNode(const QString& boneName);
 	std::shared_ptr<QSkeleton> getSkeleton() const { return mSkeleton; }
+	const QVector<std::shared_ptr<QSkeletonAnimation>>& getAnimations() const { return mSkeleton->getAnimations(); }
+
+	const QVector<std::shared_ptr<QMaterial>>& getMaterialList() const { return mMaterialList; }
+	void setMaterialList(QVector<std::shared_ptr<QMaterial>> val) { mMaterialList = val; }
+
+	void tickEvent(float deltaSeconds) override;
+	bool playAnimationByIndex(int index,bool loop = false);
+	bool playAnimation(std::shared_ptr<QSkeletonAnimation> anim,bool loop = false);
 protected:
+	struct Status {
+		double timeMs = 0;
+		std::shared_ptr <QSkeletonAnimation> mCurrentAnimation;
+		bool loop = false;
+	}mStatus;
+
 	std::shared_ptr<QSkeleton> mSkeleton;
 	QVector<std::shared_ptr<QSkeletonMesh>> mMeshes;
 	QVector<std::shared_ptr<QMaterial>> mMaterialList;
 };
+
 
 class QSkeletonMesh{
 public:

@@ -17,7 +17,6 @@ public:
 	~QPropertyItem();
 	virtual void createWidgetOrSubItem() = 0;
 	virtual void update() {};
-protected:
 };
 
 #endif // QPropertyItem_h__

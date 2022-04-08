@@ -105,9 +105,7 @@ void ImGuiPainter::compile() {
 	mPipeline.reset(RHI->newGraphicsPipeline());
 	QRhiGraphicsPipeline::TargetBlend blendState;
 	blendState.srcColor = QRhiGraphicsPipeline::SrcAlpha;
-	blendState.dstAlpha = QRhiGraphicsPipeline::Zero;
 	blendState.enable = true;
-	mPipeline->setDepthTest(false);
 	mPipeline->setTargetBlends({ blendState });
 	mPipeline->setFlags(QRhiGraphicsPipeline::UsesScissor);
 	mPipeline->setSampleCount(mSampleCount);
@@ -179,7 +177,7 @@ void ImGuiPainter::resourceUpdate(QRhiResourceUpdateBatch* batch) {
 		const QPoint global_pos = mWindow->mapToGlobal(QPoint{ (int)io.MousePos.x, (int)io.MousePos.y });
 		QCursor cursor = mWindow->cursor();
 		cursor.setPos(global_pos);
-		mWindow->setCursor(cursor);
+		//mWindow->setCursor(cursor);
 	}
 	if (mWindow->isActive()) {
 		const QPoint pos = mWindow->mapFromGlobal(QCursor::pos());
@@ -199,16 +197,16 @@ void ImGuiPainter::resourceUpdate(QRhiResourceUpdateBatch* batch) {
 		return;
 	const ImGuiMouseCursor imgui_cursor = ImGui::GetMouseCursor();
 	if (io.MouseDrawCursor || (imgui_cursor == ImGuiMouseCursor_None)) {
-		mWindow->setCursor(Qt::CursorShape::BlankCursor);
+		//mWindow->setCursor(Qt::CursorShape::BlankCursor);
 	}
 	else {
 		const auto cursor_it = cursorMap.constFind(imgui_cursor);
 		if (cursor_it != cursorMap.constEnd()) {
 			const Qt::CursorShape qt_cursor_shape = *(cursor_it);
-			mWindow->setCursor(qt_cursor_shape);
+			//mWindow->setCursor(qt_cursor_shape);
 		}
 		else {
-			mWindow->setCursor(Qt::CursorShape::ArrowCursor);
+			//mWindow->setCursor(Qt::CursorShape::ArrowCursor);
 		}
 	}
 	ImGui::SetCurrentContext(mImGuiContext);

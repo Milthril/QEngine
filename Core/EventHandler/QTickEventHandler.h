@@ -7,9 +7,9 @@ class QTickEventHandler {
 public:
 	QTickEventHandler();
 	virtual	~QTickEventHandler();
-	static void processEvent();
+	static void processEvent(float deltaSecond);
 protected:
-	virtual void tickEvent() = 0;
+	virtual void tickEvent(float deltaSeconds) = 0;
 private:
 	inline static QList<QTickEventHandler*> mAllHandler;
 };

@@ -48,7 +48,7 @@ void QDefaultProxySkeletonModel::recreatePipeline()
 		pipeline.reset(RHI->newGraphicsPipeline());
 
 		const auto& blendStates = mRenderPass->getBlendStates();
-		mPipeline->setTargetBlends(blendStates.begin(), blendStates.end());
+		pipeline->setTargetBlends(blendStates.begin(), blendStates.end());
 
 		pipeline->setTopology(QRhiGraphicsPipeline::Topology::Triangles);
 		pipeline->setDepthTest(true);
@@ -107,11 +107,11 @@ void QDefaultProxySkeletonModel::recreatePipeline()
 
 		QString defineCode = materialInfo.uniformDefineCode;
 		QString outputCode = meshProxy->mesh->getMaterial()->getShadingCode();
-
 		if (mRenderPass->getEnableOutputDebugId()) {
 			defineCode.prepend("layout (location = 1) out vec4 CompId;\n");
-			outputCode.append(QString("CompId = %1;\n").arg(mSkeletonModel->componentId()));
+			outputCode.append(QString("CompId = %1;\n").arg(mSkeletonModel->getCompIdVec4String()));
 		}
+
 		QString fragShaderCode = QString(R"(#version 440
 		layout(location = 0) in vec2 vUV;
 		layout(location = 0) out vec4 FragColor;
@@ -154,6 +154,10 @@ void QDefaultProxySkeletonModel::uploadResource(QRhiResourceUpdateBatch* batch)
 }
 
 void QDefaultProxySkeletonModel::updateResource(QRhiResourceUpdateBatch* batch) {
+
+	for (auto& material : mSkeletonModel->getMaterialList()) {
+		material->getProxy()->updateResource(batch);
+	}
 	QMatrix4x4 MVP = mSkeletonModel->calculateMVP();
 	batch->updateDynamicBuffer(mUniformBuffer.get(), 0, sizeof(float) * 16, MVP.constData());
 	const auto& posesMatrix = mSkeletonModel->getSkeleton()->getCurrentPosesMatrix();

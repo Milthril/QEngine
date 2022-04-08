@@ -29,6 +29,7 @@ public:
 	std::shared_ptr<QCube> mCube;
 	std::shared_ptr<QStaticModel> mStaticModel;
 	std::shared_ptr<QSkeletonModelComponent> mSkeletonModel;
+	//std::shared_ptr<QMMDModel> mMMD;
 	std::shared_ptr<QParticleComponent> mGPUParticles;
 	std::shared_ptr<QText2D> mText;
 	std::shared_ptr<QMaterial> mMaterial;
@@ -40,17 +41,12 @@ public:
 		: QEngine(argc, argv) {
 	}
 	void init() override {
-		QDir assetDir(ASSET_DIR);
-		if (!assetDir.exists()) {
-			assetDir.setPath("../Asset");
-		}
-
 		mCamera = std::make_shared<QCameraComponent>();
 		mCamera->setupWindow(window().get());		//将相机与窗口绑定，使用WASD Shift 空格可进行移动，鼠标左键按住窗口可调整视角
 		scene()->addSceneComponent("Camera", mCamera);				//设置场景相机
 
 		mSkyBox = std::make_shared<QSkyBoxComponent>();
-		mSkyBox->setSkyBoxImage(QImage(assetDir.filePath("sky.jpeg")));
+		mSkyBox->setSkyBoxImage(QImage(assetDir().filePath("sky.jpeg")));
 		scene()->addSceneComponent("Sky", mSkyBox);
 
 		mGPUParticles = std::make_shared<QParticleComponent>();
@@ -68,12 +64,13 @@ public:
 		positionGenerator->setDepth(1000);
 		mGPUParticles->getParticleSystem()->getEmitter()->setPositionGenerator(positionGenerator);					//设置粒子存活时间
 		mGPUParticles->getParticleSystem()->getEmitter()->setLifetime(2);
-		mGPUParticles->getParticleSystem()->getEmitter()->setNumOfTick(2000);										//设置每帧发射数量，发射方式可扩展
+		mGPUParticles->getParticleSystem()->getEmitter()->setNumOfTick(100);										//设置每帧发射数量，发射方式可扩展
 		mGPUParticles->getParticleSystem()->getEmitter()->setScaling(QVector3D(0.1, 0.1, 0.1));
 		mGPUParticles->setStaticMesh(std::make_shared<QCube>());													//设置粒子的形状（实例），可扩展
 		scene()->addSceneComponent("GPU particles", mGPUParticles);
 
 		mCube.reset(new QCube);
+		mCube->setPosition(QVector3D(0.0f, -5.0f, -4.0f));
 		scene()->addSceneComponent(QString("Cube"), mCube);
 		mMaterial = std::make_shared<QMaterial>();																	//新建材质
 		mMaterial->addDataVec3("BaseColor", QVector3D(0.1, 0.5, 0.9));												//添加材质参数
@@ -94,17 +91,28 @@ public:
 		scene()->addSceneComponent("Spectrum", mSpectrum);
 
 		mStaticModel = std::make_shared<QStaticModel>();
-		mStaticModel->loadFromFile(assetDir.filePath("Model/FBX/Genji/Genji.FBX"));									//通过Assimp加载模型，材质也是根据Assmip解析创建默认的QMaterial
-		mStaticModel->setRotation(QVector3D(-90, 0, 0));
-		scene()->addSceneComponent("Model", mStaticModel);
+		mStaticModel->loadFromFile(assetDir().filePath("Model/FBX/Genji/Genji.FBX"));									//通过Assimp加载模型，材质也是根据Assmip解析创建默认的QMaterial
+		mStaticModel->setRotation(QVector3D(-90.0f, 0.0f, 0.0f));
+		mStaticModel->setPosition(QVector3D(0.0f,0.0f, -20.0f));
+		scene()->addSceneComponent("StaticModel", mStaticModel);
 
+		mSkeletonModel = std::make_shared<QSkeletonModelComponent>();
+		mSkeletonModel->setScale(QVector3D(0.05f, 0.05f, 0.05f));
+		mSkeletonModel->loadFromFile(assetDir().filePath("Model/FBX/Catwalk Walk Turn 180 Tight R.fbx"));			
+		scene()->addSceneComponent("SkeletonModel", mSkeletonModel);
+		
+		//mMMD = std::make_shared<QMMDModel>();
+		//mMMD->loadFromFile(assetDir().filePath("Model/MMD/Girl.pmx"));		
+		//mMMD->attachVMDFile(assetDir().filePath("Model/MMD/dance.vmd"));
+		//scene()->addSceneComponent("MMD", mMMD);
 		//mTimeDomainProvider = std::make_shared<TimeDomainProvider>();
 	}
 	void update() override
 	{
 		float time = QTime::currentTime().msecsSinceStartOfDay();
-
 		mMaterial->setData<QVector3D>("BaseColor", QVector3D(0.1, 0.5, 0.9) * (sin(time / 1000) * 10 + 10));			//设置材质呼吸色，RGB最大值超出1.0具有Bloom效果
+		mSkeletonModel->getSkeleton()->getAnimations().first()->show(time);
+		//mMMD->getSkeleton()->getAnimations().first()->show(time);
 
 		////设置粒子的作用力参数
 		//mGPUParticles->getParticleSystem()->getUpdater()->setData<QVector3D>("force", QVector3D(0, mTimeDomainProvider->getPeak(), 0.0) * 0.8);

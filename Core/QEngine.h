@@ -27,12 +27,14 @@ Q_SIGNALS:
 	void requestUpdatePropertyPanel();
 protected:
 	virtual void init();
-	virtual void update();
+	virtual void customUpdate();
 private:
 	std::shared_ptr<QRhiWindow> mWindow;
 	std::shared_ptr<QScene> mScene;
 	std::shared_ptr<ISceneRenderer>  mRenderer;
 	QDir mAssetDir;
+	QElapsedTimer mTimer;
+	int64_t mLastTime;
 };
 
 #endif // QEngine_h__
