@@ -20,7 +20,7 @@ WinAudioCapture::~WinAudioCapture()
 	stop();
 }
 
-void WinAudioCapture::start()
+void WinAudioCapture::start(CaptrueType type /*= Loudspeaker*/)
 {
 	CoInitialize(NULL);
 	CoCreateInstance(__uuidof(MMDeviceEnumerator),
@@ -38,7 +38,7 @@ void WinAudioCapture::start()
 	IMMDeviceCollection* pDeviceCollection = nullptr;
 	IMMDevice* pDefaultDevice = nullptr;
 
-	hr = mOutputEnumerator->GetDefaultAudioEndpoint(eRender, eMultimedia, &pDefaultDevice);
+	hr = mOutputEnumerator->GetDefaultAudioEndpoint(type == Loudspeaker?eRender:eCapture, eMultimedia, &pDefaultDevice);
 	if (FAILED(hr)) {
 		printf("Unable to activate audio client: %x.\n", hr);
 		return;
@@ -65,7 +65,7 @@ void WinAudioCapture::start()
 	SAFE_RELEASE(pProps);
 
 	mStoped = std::promise<bool>();
-	mCaptureThread = std::make_shared<std::thread>([pDefaultDevice, this, format]() {
+	mCaptureThread = std::make_shared<std::thread>([pDefaultDevice, this, format,type]() {
 		IAudioClient* _AudioClient;
 		IAudioCaptureClient* _CaptureClient;
 		HANDLE _AudioSamplesReadyEvent = NULL;
@@ -88,7 +88,7 @@ void WinAudioCapture::start()
 
 		//Initialize Audio Engine
 		hr = _AudioClient->Initialize(AUDCLNT_SHAREMODE_SHARED,
-									  AUDCLNT_STREAMFLAGS_LOOPBACK | AUDCLNT_STREAMFLAGS_EVENTCALLBACK | AUDCLNT_STREAMFLAGS_NOPERSIST
+									  (type == Loudspeaker ?AUDCLNT_STREAMFLAGS_LOOPBACK:0) | AUDCLNT_STREAMFLAGS_EVENTCALLBACK | AUDCLNT_STREAMFLAGS_NOPERSIST
 									  , 20 * 10000, 0, &format, NULL);
 
 		mFormat.nChannels = format.nChannels;

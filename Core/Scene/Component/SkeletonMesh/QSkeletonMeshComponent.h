@@ -50,13 +50,24 @@ protected:
 };
 
 
-class QSkeletonMesh{
+class QSkeletonMesh: public QSceneComponent{
 public:
 	QSkeletonMesh(QSkeletonModelComponent* model, aiMesh* mesh);
 	std::shared_ptr<QMaterial> getMaterial() const { return mMaterial; }
-	void setMaterial(std::shared_ptr<QMaterial> val) { mMaterial = val; }
+	void setMaterial(std::shared_ptr<QMaterial> val) { 
+		if (mMaterial) {
+			mMaterial->removeRef(this);
+		}
+		mMaterial = val;
+		mMaterial->addRef(this);
+	}
 	const QVector<QSkeletonModelComponent::Vertex>& getVertices() const { return mVertices; }
 	const QVector<QSkeletonModelComponent::Index>& getIndices() const { return mIndices; }
+
+	QSceneComponent::ProxyType type() override {
+		return QSceneComponent::None;
+	}
+
 private:
 	QSkeletonModelComponent* mModel;
 	QVector<QSkeletonModelComponent::Vertex> mVertices;

@@ -26,6 +26,9 @@ void QRhiUniformProxy::recreateResource()
 		mTextureMap[texture->name] = tex;
 		tex->create();
 	}
+	for(auto& params : mMaterial->getParamsDesc()){
+		params->needUpdate.active();
+	}
 }
 
 void QRhiUniformProxy::updateResource(QRhiResourceUpdateBatch* batch)

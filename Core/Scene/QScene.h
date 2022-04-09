@@ -30,6 +30,7 @@ public:
 
 	QSceneComponent* getCurrent() const { return mCurrent; }
 	void setCurrent(QSceneComponent* val);
+	const QList<std::shared_ptr<QSceneComponent>>& getSceneCompList() const { return mSceneCompList; }
 private:
 	QList<std::shared_ptr<QSceneComponent>> mSceneCompList;
 	QList<std::shared_ptr<QPrimitiveComponent>> mPrimitiveList;

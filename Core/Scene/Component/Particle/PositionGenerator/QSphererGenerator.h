@@ -12,7 +12,7 @@ class QSphereGenerator : public IPositionGenerator {
 		Q_PROPERTY(bool Solid READ getSolid WRITE setSolid)
 		REGISTER_SUBCLASS(IPositionGenerator, QSphereGenerator);
 public:
-	Q_INVOKABLE QSphereGenerator();;
+	Q_INVOKABLE QSphereGenerator();
 
 	void generate(QVector<QParticleSystem::Particle>& particles) override;
 

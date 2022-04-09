@@ -50,7 +50,7 @@ void QScenePanel::updateUI()
 	mRoot->setData(1, 0, QVariant::fromValue(mScene.get()));		//场景作为根节点
 	addTopLevelItem(mRoot);
 	QQueue<QPair<std::shared_ptr<QSceneComponent>, QTreeWidgetItem*>> qObject;
-	for (auto comp : mScene->geyPrimitiveList()) {
+	for (auto comp : mScene->getSceneCompList()) {
 		qObject.push_back({ comp,mRoot });
 	}
 	while (!qObject.isEmpty()) {

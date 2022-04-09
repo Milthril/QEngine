@@ -101,6 +101,7 @@ void QSkeletonModelComponent::loadFromFile(const QString filePath)
 			aiMesh* mesh = scene->mMeshes[node.first->mMeshes[i]];
 			std::shared_ptr<QSkeletonMesh> skeletonMesh = std::make_shared<QSkeletonMesh>(this, mesh);
 			skeletonMesh->setMaterial(mMaterialList[mesh->mMaterialIndex]);
+			skeletonMesh->setObjectName(mesh->mName.C_Str());
 			mMeshes << skeletonMesh;
 		}
 		for (unsigned int i = 0; i < node.first->mNumChildren; i++) {

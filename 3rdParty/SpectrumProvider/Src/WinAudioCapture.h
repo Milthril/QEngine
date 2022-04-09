@@ -24,8 +24,12 @@ public:
 		unsigned int wBitsPerSample;     /* number of bits per sample of mono data */
 		unsigned int cbSize;             /* the count in bytes of the size of */
 	};
+	enum CaptrueType {
+		Microphone,
+		Loudspeaker
+	};
 public:
-	void start();
+	void start(CaptrueType type = Microphone);
 	void restart();
 	void stop();
 	const std::atomic<bool>& isRunning();
