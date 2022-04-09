@@ -13,7 +13,7 @@ class QScene :public QObject {
 	Q_OBJECT
 		friend class ISceneRenderer;
 public:
-	void addSceneComponent(QString name, std::shared_ptr<QSceneComponent> comp);
+	void addSceneComponent(QString name, std::shared_ptr<QSceneComponent> comp,bool isTopLevel = true);
 	void removeSceneComponent(std::shared_ptr<QSceneComponent> comp);
 
 

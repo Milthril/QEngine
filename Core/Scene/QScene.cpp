@@ -4,7 +4,7 @@
 #include "Component\SkyBox\QSkyBoxComponent.h"
 #include "QQueue"
 
-void QScene::addSceneComponent(QString name, std::shared_ptr<QSceneComponent> comp)
+void QScene::addSceneComponent(QString name, std::shared_ptr<QSceneComponent> comp, bool isTopLevel)
 {
 	switch (comp->type())
 	{
@@ -41,12 +41,14 @@ void QScene::addSceneComponent(QString name, std::shared_ptr<QSceneComponent> co
 	default:
 		break;;
 	}
-	mSceneCompList << comp;
+	if (isTopLevel) {
+		mSceneCompList << comp;
+	}
 	comp->setObjectName(name);
 	comp->setScene(this);
 	this->blockSignals(true);
 	for (auto& child : comp->getChildren()) {
-		addSceneComponent(child->objectName(), child);
+		addSceneComponent(child->objectName(), child, false);
 	}
 	this->blockSignals(false);
 	Q_EMIT sceneChanged();

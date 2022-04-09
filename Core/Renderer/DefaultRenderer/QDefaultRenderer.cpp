@@ -15,10 +15,10 @@ void QDefaultRenderer::buildFrameGraph() {
 	std::shared_ptr<BloomMerageRenderPass> bloomMeragePass = std::make_shared<BloomMerageRenderPass>();
 	std::shared_ptr<SwapChainRenderPass> swapChainPass = std::make_shared<SwapChainRenderPass>();
 
-	//	Scene -> BloomPixelSeletor -> BloomBlurPass -----
+	//	ScenePass -> BloomPixelSeletorPass -> BloomBlurPass
 	//	  |											     |
 	//	  |											     V
-	//     -------------------------------------> BloomMeragePass ----> Swapchain( Scene + Debug )
+	//     ---------------------------------> BloomMeragePass ----> Swapchain( Scene + ImguiDebugDraw )
 
 	mFrameGraph = builder.begin()			
 		->node("Scene", scenePass,
