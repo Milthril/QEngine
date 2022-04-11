@@ -107,7 +107,7 @@ public:
 		//scene()->addSceneComponent("MMD", mMMD);
 		//mTimeDomainProvider = std::make_shared<TimeDomainProvider>();
 	}
-	void update() override
+	void customUpdate() override
 	{
 		float time = QTime::currentTime().msecsSinceStartOfDay();
 		mMaterial->setData<QVector3D>("BaseColor", QVector3D(0.1, 0.5, 0.9) * (sin(time / 1000) * 10 + 10));			//设置材质呼吸色，RGB最大值超出1.0具有Bloom效果

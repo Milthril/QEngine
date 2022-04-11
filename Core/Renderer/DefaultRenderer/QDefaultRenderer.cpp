@@ -31,6 +31,7 @@ void QDefaultRenderer::buildFrameGraph() {
 				})
 		->node("BloomPixelSelector", bloomPixelSelectPass,
 			   [self = bloomPixelSelectPass.get(), scene = scenePass.get()]() {
+					self->setDownSamplerCount(4);
 					self->setupSelectCode(R"(
 						void main() {
 							vec4 color = texture(uTexture, vUV);

@@ -29,7 +29,7 @@ public:
 		Loudspeaker
 	};
 public:
-	void start(CaptrueType type = Microphone);
+	void start(CaptrueType type = Loudspeaker);
 	void restart();
 	void stop();
 	const std::atomic<bool>& isRunning();

@@ -3,6 +3,7 @@
 #include "Scene\QSceneComponent.h"
 #include "QEngine.h"
 #include "..\..\StaticMesh\QStaticMeshComponent.h"
+#include "..\..\SkeletonMesh\QSkeletonMeshComponent.h"
 
 QCombo QScenePrimitiveGenerator::getCurrentPrimitive()  {
 	QCombo combo;
@@ -16,6 +17,13 @@ QCombo QScenePrimitiveGenerator::getCurrentPrimitive()  {
 		if (parent->type() == QSceneComponent::StaticMesh) {
 			combo.addItem(parent->objectName());
 			mCompCache[parent->objectName()] = parent;
+		}
+		if (parent->type() == QSceneComponent::None) {
+			auto skeletonMesh = std::dynamic_pointer_cast<QSkeletonMesh>(parent);
+			if (skeletonMesh) {
+				combo.addItem(skeletonMesh->objectName());
+				mCompCache[skeletonMesh->objectName()] = skeletonMesh;
+			}
 		}
 		for (auto child : parent->getChildren()) {
 			qObject.push_back(child);

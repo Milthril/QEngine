@@ -8,7 +8,7 @@ public:
 	PixelSelectPainter();
 	void setupSelectCode(QByteArray code);
 	void setupInputTexture(QRhiTexture* texture);
-
+	void setDownSamplerCount(int count);
 	virtual void compile() override;
 	virtual void execute(QRhiCommandBuffer* cmdBuffer) override;
 
@@ -25,6 +25,7 @@ private:
 	QRhiSPtr<QRhiShaderResourceBindings> mBindings;
 	QRhiTexture* mInputTexture;
 	QByteArray mSelectCode;
+	uint32_t mDownSamplerCount = 1;
 };
 
 #endif // PixelSelectPainter_h__
