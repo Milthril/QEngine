@@ -29,4 +29,5 @@ private:
 	QSubClass<QStaticMeshComponent> mStaticMesh;
 	std::shared_ptr<QParticleSystem> mParticleSystem = std::make_shared<QParticleSystem>();
 };
+
 #endif // QParticleComponent_h__

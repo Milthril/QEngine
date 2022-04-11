@@ -35,7 +35,6 @@ public:
 	std::shared_ptr<QMaterial> mMaterial;
 	std::shared_ptr<QAudioSpectrum> mSpectrum;
 	std::shared_ptr<TimeDomainProvider> mTimeDomainProvider;
-
 	QRandomGenerator rand;
 	MyGame(int argc, char** argv)
 		: QEngine(argc, argv) {

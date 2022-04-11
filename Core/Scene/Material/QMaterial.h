@@ -6,7 +6,6 @@
 class QPrimitiveComponent;
 
 class QMaterial :public QRhiUniform {
-	friend class QMaterialProxy;
 public:
 	QMaterial();
 	QByteArray getShadingCode() const { return mShadingCode; }
