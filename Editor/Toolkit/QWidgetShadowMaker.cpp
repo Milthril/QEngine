@@ -126,9 +126,9 @@ void QWidgetShadowMaker::draw(QPainter* painter)
 			QImage blurred(px.size(), QImage::Format_ARGB32);
 			blurred.setDevicePixelRatio(px.devicePixelRatioF());
 			blurred.fill(0);
-			QPainter blurPainter(&blurred);
-			qt_blurImage(&blurPainter, shadow1, blurRadius_, false, false);
-			blurPainter.end();
+			QPainter BlurRenderPass(&blurred);
+			qt_blurImage(&BlurRenderPass, shadow1, blurRadius_, false, false);
+			BlurRenderPass.end();
 
 			QImage image = px.toImage();
 			QPainter lastPainter(&image);
@@ -148,9 +148,9 @@ void QWidgetShadowMaker::draw(QPainter* painter)
 			blurred.setDevicePixelRatio(px.devicePixelRatioF());
 			blurred.fill(0);
 
-			QPainter blurPainter(&blurred);
-			qt_blurImage(&blurPainter, shadow1, blurRadius_, false, true);
-			blurPainter.end();
+			QPainter BlurRenderPass(&blurred);
+			qt_blurImage(&BlurRenderPass, shadow1, blurRadius_, false, true);
+			BlurRenderPass.end();
 
 			shadow1 = std::move(blurred);
 

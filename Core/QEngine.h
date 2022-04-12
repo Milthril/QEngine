@@ -1,40 +1,33 @@
 #ifndef QEngine_h__
 #define QEngine_h__
 
-#include "RHI\QRhiWindow.h"
-#include "Scene\QScene.h"
 #include <QApplication>
+#include <QElapsedTimer>
 #include <QDir>
+#include "ECS\QWorld.h"
+#include "private\qrhi_p.h"
 
 #if defined(Engine)
 #undef Engine
 #endif
 #define Engine (static_cast<QEngine *>(QEngine::instance()))
-#define RHI (static_cast<QEngine *>(QEngine::instance()))->getRHI()
 
 class QEngine :public QApplication
 {
 	Q_OBJECT
 public:
 	QEngine(int argc, char** argv, bool enableDebug = false);
-	const std::shared_ptr<QScene>& scene();
-	const std::shared_ptr<QRhiWindow>& window();
-	const std::shared_ptr<ISceneRenderer>& renderer();
-	const QDir& assetDir() const { return mAssetDir; }
+	const std::shared_ptr<QWorld>& world();
+	const QDir& assetDir() const { return mAssetDir;}
 	void execGame();
-	QRhi* getRHI();
-Q_SIGNALS:
-	void requestUpdatePropertyPanel();
 protected:
 	virtual void init();
 	virtual void customUpdate();
 private:
-	std::shared_ptr<QRhiWindow> mWindow;
-	std::shared_ptr<QScene> mScene;
-	std::shared_ptr<ISceneRenderer>  mRenderer;
+	std::shared_ptr<QWorld> mWorld;
 	QDir mAssetDir;
-	QElapsedTimer mTimer;
 	int64_t mLastTime;
+	QElapsedTimer mTimer;
 };
 
 #endif // QEngine_h__

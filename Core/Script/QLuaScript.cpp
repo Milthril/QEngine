@@ -1,11 +1,10 @@
 #include "QLuaScript.h"
-#include "Scene\Component\Particle\PositionGenerator\QCubeGenerator.h"
+#include <QDebug>
 
 QLuaScript::QLuaScript(Usgae usage)
 	:mUsage(usage)
 {
 	mLocalState.open_libraries();
-	QCubeGenerator::registerLua(mLocalState);
 	mLocalState["Event"] = &mEvent;
 }
 

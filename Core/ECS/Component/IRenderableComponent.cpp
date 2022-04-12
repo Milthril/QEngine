@@ -4,13 +4,11 @@
 #include "ECS/System/RenderSystem/QRenderSystem.h"
 
 IRenderableComponent::~IRenderableComponent() {
-	if (mEntity) {
-		mEntity->world()->renderSystem()->removeRenderItem(this);
-	}
+	deactive();
 }
 
 void IRenderableComponent::setupEntity(QEntity* entity) {
 	IComponent::setupEntity(entity);
-	entity->world()->renderSystem()->addRenderItem(this);
+	active();
 }
 

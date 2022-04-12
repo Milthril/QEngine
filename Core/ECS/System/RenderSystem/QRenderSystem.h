@@ -2,17 +2,33 @@
 #define QRenderSystem_h__
 
 #include <QObject>
+#include "RHI\QRhiWindow.h"
 
-class QRenderer;
-class IRenderableComponent;
+
+#define RHI (QRenderSystem::instance()->getRHI())
+
+class IRenderer;
+class IRenderable;
+class ISceneRenderPass;
 
 class QRenderSystem: public QObject {
+	friend class ISceneRenderPass;
 public:
-	void addRenderItem(IRenderableComponent* comp);
-	void removeRenderItem(IRenderableComponent* comp);
+	static QRenderSystem* instance();
+	static QShader createShaderFromCode(QShader::Stage stage, const char* code);
+
+	void addRenderItem(IRenderable* comp);
+	void removeRenderItem(IRenderable* comp);
+
+	QRhiWindow* window();
+	QRhi* getRHI();
+	bool isEnableDebug();
 private:
-	std::shared_ptr<QRenderer> mRenderer;
-	QList<IRenderableComponent*> mRenderItemList;
+	QRenderSystem();
+private:
+	std::shared_ptr<QRhiWindow> mWindow;
+	std::shared_ptr<IRenderer> mRenderer;
+	bool mEnableDebug = false;
 };
 
 

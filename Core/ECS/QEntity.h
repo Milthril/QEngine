@@ -11,12 +11,24 @@ class QEntity :public QObject {
 public:
 	QEntity(QWorld* world) :mWorld(world) {}
 
-	QWorld* world() {
+	QWorld* World() {
 		return mWorld;
 	}
+
+	using ID = uint32_t;
+
+	QEntity::ID GetId() {
+		return mID;
+	}
+
+	QTransformComponent* getTransformComponent() {
+		return mTransformComponent.get();
+	}
+public:
+	std::shared_ptr<QTransformComponent> mTransformComponent;
 private:
-	std::weak_ptr<QTransformComponent> mTransformComponent;
 	QWorld* mWorld;
+	QEntity::ID mID;
 };
 
 #endif // QEntity_h__

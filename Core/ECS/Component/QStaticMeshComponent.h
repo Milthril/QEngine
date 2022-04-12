@@ -3,7 +3,6 @@
 
 #include "qvectornd.h"
 #include "IRenderableComponent.h"
-#include "Asset\StaticMesh.h"
 
 //class QStaticMeshComponent:public IRenderableComponent {
 //	Q_OBJECT
