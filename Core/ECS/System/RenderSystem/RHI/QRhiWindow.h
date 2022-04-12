@@ -11,6 +11,7 @@ public:
 	QRhiWindow(QRhi::Implementation backend);
 	void waitExposed();
 	int getFPS() const { return mFPS; }
+	bool hasClosed() const { return mHasClosed; }
 	QRhiSwapChain* getSwapChain() { return mSwapChain.get(); };
 private:
 	void initInternal();
@@ -35,6 +36,7 @@ protected:
 	bool mNewlyExposed = false;
 	bool mHasSwapChain = false;
 	bool mHasClosed = false;
+
 };
 
 #endif // QRhiWindow_h__

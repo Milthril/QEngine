@@ -3,9 +3,11 @@
 #include "private\qshaderbaker_p.h"
 #include "Renderer\IRenderer.h"
 #include "Renderer\RenderPass\ISceneRenderPass.h"
+#include "Renderer\DefaultRenderer\QDefaultRenderer.h"
 
 QRenderSystem::QRenderSystem()
-	:mWindow(std::make_shared<QRhiWindow>(QRhi::Implementation::Vulkan)) {
+	: mWindow(std::make_shared<QRhiWindow>(QRhi::Implementation::Vulkan))
+	, mRenderer(std::make_shared<QDefaultRenderer>() ){
 }
 
 QRenderSystem* QRenderSystem::instance() {
@@ -29,8 +31,26 @@ QShader QRenderSystem::createShaderFromCode(QShader::Stage stage, const char* co
 		qWarning(code);
 		qWarning(baker.errorMessage().toLocal8Bit());
 	}
-
 	return shader;
+}
+
+
+void QRenderSystem::init() {
+	mWindow->show();
+	mWindow->waitExposed();
+}
+
+void QRenderSystem::shutdown() {
+	mRenderer.reset();
+	mWindow.reset();
+}
+
+bool QRenderSystem::hasRequestQuit() {
+	return mWindow->hasClosed();
+}
+
+void QRenderSystem::requestUpdate() {
+	mWindow->requestUpdate();
 }
 
 void QRenderSystem::addRenderItem(IRenderable* comp) {
@@ -47,6 +67,10 @@ QRhiWindow* QRenderSystem::window() {
 
 QRhi* QRenderSystem::getRHI() {
 	return mWindow->mRhi.get();
+}
+
+IRenderer* QRenderSystem::renderer() {
+	return mRenderer.get();
 }
 
 bool QRenderSystem::isEnableDebug() {

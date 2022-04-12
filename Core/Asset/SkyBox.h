@@ -2,10 +2,12 @@
 #define SkyBox_h__
 
 #include "IAsset.h"
+#include <array>
+#include <QImage>
 
 namespace Asset {
 
-class QSkyBox: public IAsset {
+class SkyBox: public IAsset {
 private:
 	std::array<QImage, 6> mImage;
 };

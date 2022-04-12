@@ -3,8 +3,9 @@
 #include "QJsonDocument"
 #include "QJsonArray"
 #include "QQueue"
-#include "RHI\QRhiUniform.h"
+#include "ECS\System\RenderSystem\RHI\QRhiUniform.h"
 #include "QLocalTypeRegister.h"
+
 
 QLuaScriptFactory* QLuaScriptFactory::instance()
 {

@@ -18,10 +18,11 @@ class QEngine :public QApplication
 public:
 	QEngine(int argc, char** argv, bool enableDebug = false);
 	const std::shared_ptr<QWorld>& world();
+
 	const QDir& assetDir() const { return mAssetDir;}
 	void execGame();
 protected:
-	virtual void init();
+	virtual void customInit();
 	virtual void customUpdate();
 private:
 	std::shared_ptr<QWorld> mWorld;

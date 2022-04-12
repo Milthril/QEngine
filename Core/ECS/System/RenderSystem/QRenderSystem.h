@@ -17,11 +17,16 @@ public:
 	static QRenderSystem* instance();
 	static QShader createShaderFromCode(QShader::Stage stage, const char* code);
 
+	void init();
+	void shutdown();
+	bool hasRequestQuit();
+	void requestUpdate();
 	void addRenderItem(IRenderable* comp);
 	void removeRenderItem(IRenderable* comp);
 
 	QRhiWindow* window();
 	QRhi* getRHI();
+	IRenderer* renderer();
 	bool isEnableDebug();
 private:
 	QRenderSystem();

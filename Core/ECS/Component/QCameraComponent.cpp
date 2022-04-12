@@ -5,7 +5,6 @@
 #include <QDateTime>
 
 QCameraComponent::QCameraComponent(){
-	setRotation(QVector3D(0, M_PI_2, 0));
 }
 
 

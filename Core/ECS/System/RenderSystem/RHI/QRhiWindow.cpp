@@ -7,7 +7,8 @@
 #include "QVulkanInstance"
 #include <QPlatformSurfaceEvent>
 #include <QtGui/private/qrhinull_p.h>
-
+#include "ECS/System/RenderSystem/QRenderSystem.h"
+#include "ECS/System/RenderSystem/Renderer/IRenderer.h"
 
 QRhiWindow::QRhiWindow(QRhi::Implementation backend)
 	: mBackend(backend)
@@ -86,9 +87,9 @@ void QRhiWindow::initInternal()
 	mRenderPassDesciptor.reset(mSwapChain->newCompatibleRenderPassDescriptor());
 	mSwapChain->setRenderPassDescriptor(mRenderPassDesciptor.get());
 	resizeSwapChain();
-	//if (Engine->renderer()) {
-	//	Engine->renderer()->buildFrameGraph();
-	//}
+	if (QRenderSystem::instance()->renderer()) {
+		QRenderSystem::instance()->renderer()->buildFrameGraph();
+	}
 }
 
 void QRhiWindow::renderInternal()
@@ -103,13 +104,13 @@ void QRhiWindow::renderInternal()
 			return;
 		mNewlyExposed = false;
 	}
-	//if (Engine->renderer()) {
-	//	if (mRhi->beginFrame(mSwapChain.get()) == QRhi::FrameOpSuccess) {
-	//		mSwapChain->currentFrameRenderTarget()->setRenderPassDescriptor(mSwapChain->renderPassDescriptor());
-	//		Engine->renderer()->render(mSwapChain->currentFrameCommandBuffer());
-	//		mRhi->endFrame(mSwapChain.get());
-	//	}
-	//}
+	if (QRenderSystem::instance()->renderer()) {
+		if (mRhi->beginFrame(mSwapChain.get()) == QRhi::FrameOpSuccess) {
+			mSwapChain->currentFrameRenderTarget()->setRenderPassDescriptor(mSwapChain->renderPassDescriptor());
+			QRenderSystem::instance()->renderer()->render(mSwapChain->currentFrameCommandBuffer());
+			mRhi->endFrame(mSwapChain.get());
+		}
+	}
 	mFrameCount += 1;
 	if (mTimer.elapsed() > 1000) {
 		mFPS = mFrameCount;
@@ -124,9 +125,9 @@ void QRhiWindow::resizeSwapChain()
 	QSize lastSize = mSwapChain->currentPixelSize();
 	mHasSwapChain = mSwapChain->createOrResize();
 	QSize currentSize = mSwapChain->currentPixelSize();
-	//if (lastSize!=currentSize&&Engine ->renderer()) {
-	//	Engine->renderer()->rebuild();
-	//}
+	if (lastSize!=currentSize&&QRenderSystem::instance()->renderer()) {
+		QRenderSystem::instance()->renderer()->rebuild();
+	}
 	mFrameCount = 0;
 	mTimer.restart();
 }
