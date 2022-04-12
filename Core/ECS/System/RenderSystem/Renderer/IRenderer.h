@@ -4,7 +4,6 @@
 #include "QFrameGraph.h"
 #include "ECS/QWorld.h"
 
-class IRhiProxy;
 class QFrameGraph;
 class ISceneRenderPass;
 
@@ -22,12 +21,14 @@ public:
 			mFrameGraph->compile();
 	}
 	virtual void requestReadbackCompId(const QPoint& screenPt) {}
-	
+	std::shared_ptr<ISceneRenderPass> getScenePass() const { return mScenePass; }
+
 Q_SIGNALS:
 	void readBackEntityId(QEntity::ID);
 protected:
 	std::shared_ptr<QFrameGraph> mFrameGraph;
 	std::shared_ptr<ISceneRenderPass> mScenePass;
+
 };
 
 #endif // IRenderer_h__

@@ -1,4 +1,4 @@
-#ifndef SpectrumProvider_h__
+ï»¿#ifndef SpectrumProvider_h__
 #define SpectrumProvider_h__
 
 #include <memory>
@@ -46,13 +46,13 @@ public:
 protected:
 	void updateFreq();
 private:
-	short mChannelIndex = 0;			//  Í¨µÀË÷Òı£¬±ÈÈçÁ¢ÌåÉù£¬ÔòÕâÀï¿ÉÒÔÊÇ{0,1}
-	int mSpectrumLevel = 12;			//  ÒôÆµÑù±¾, 1<<12(4096)
-	int mLowFreq = 0;					//	×îµÍÆµ
-	int mHighFreq = 8000;				//  ×î¸ßÆµ
-	float mRms = 0.0f;					//	µ±Ç°ÆµÆ×µÄ¾ùÖµ
-	float mSmoothFactorRange = 0.5f;	//	Ç°ºóÁ½Ö¡Êı¾İµÄÆ½»¬Ô­×Ó
-	float mSmoothFactorRise = 1.0f;		//	µ¥¸öÖù×ÓÉÏÉıÊ±µÄÆ½»¬Òò×Ó
+	short mChannelIndex = 0;			//  é€šé“ç´¢å¼•ï¼Œæ¯”å¦‚ç«‹ä½“å£°ï¼Œåˆ™è¿™é‡Œå¯ä»¥æ˜¯{0,1}
+	int mSpectrumLevel = 12;			//  éŸ³é¢‘æ ·æœ¬, 1<<12(4096)
+	int mLowFreq = 0;					//	æœ€ä½é¢‘
+	int mHighFreq = 8000;				//  æœ€é«˜é¢‘
+	float mRms = 0.0f;					//	å½“å‰é¢‘è°±çš„å‡å€¼
+	float mSmoothFactorRange = 0.5f;	//	å‰åä¸¤å¸§æ•°æ®çš„å¹³æ»‘åŸå­
+	float mSmoothFactorRise = 1.0f;		//	å•ä¸ªæŸ±å­ä¸Šå‡æ—¶çš„å¹³æ»‘å› å­
 	float mSmoothFactorFall = 0.009f;   //  1.0f - no smooth
 public:
 	std::mutex mMutex;

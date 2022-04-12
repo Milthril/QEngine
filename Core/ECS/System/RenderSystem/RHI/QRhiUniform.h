@@ -23,7 +23,7 @@ public:
 			Sampler2D
 		}type;
 		QString getTypeName();
-		QRhiSignal needUpdate;
+		QRhiSignal bNeedUpdate;
 		virtual ~ParamDescBase() {}
 	};
 
@@ -45,7 +45,7 @@ public:
 		if (ptr) {
 			Q_ASSERT(sizeof(data) == ptr->sizeInByte);
 			memcpy(mData.data() + ptr->offsetInByte, &data, sizeof(data));
-			ptr->needUpdate.active();
+			ptr->bNeedUpdate.active();
 		}
 	}
 
@@ -76,18 +76,25 @@ public:
 	std::shared_ptr<QRhiUniformProxy> getProxy() const { return mProxy; }
 	const QVector<std::shared_ptr<QRhiUniform::ParamDescBase>>& getParamsDesc() const { return mParams; }
 	std::shared_ptr<ParamDescBase> getParamDesc(const QString& name);
-	QVector<std::shared_ptr<DataDesc>> getAllDataDesc();
-	QVector<std::shared_ptr<TextureDesc>> getAllTextureDesc();
+
+	const QVector<std::shared_ptr<DataDesc>>& getAllDataDesc();
+	const QVector<std::shared_ptr<TextureDesc>>& getAllTextureDesc();
 
 	std::shared_ptr<QLuaScript> getScript() const { return mScript; }
 
 	void addRef(IRenderable* comp);
 	void removeRef(IRenderable* comp);
 	QRhiSignal bNeedRecreate;
+
+	void save(QDataStream& out) const;
+	void read(QDataStream& in);
+
 protected:
-	void addParam(const QString& name, void* data, uint16_t size, ParamDescBase::Type type);
+	void addDataParam(const QString& name, void* data, uint16_t size, ParamDescBase::Type type);
 protected:
 	QVector<std::shared_ptr<ParamDescBase>> mParams;
+	QVector<std::shared_ptr<DataDesc>> mDataParamList;
+	QVector<std::shared_ptr<TextureDesc>> mTextureParamList;
 	QVector<int8_t> mData;
 	std::shared_ptr<QRhiUniformProxy> mProxy;
 	QVector<IRenderable*> mRef;

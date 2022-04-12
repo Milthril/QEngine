@@ -26,6 +26,7 @@ public:
 		}
 		Component* component = new Component;
 		component->setParent(this);
+		component->setupEntity(this);
 		mComponentHash[component->metaObject()->metaType().id()] = component;
 		return component;
 	}
@@ -41,9 +42,12 @@ public:
 	QEntity::ID GetId() {
 		return mID;
 	}
+
 	QTransformComponent* getTransformComponent() {
 		return mTransformComponent.get();
 	}
+
+	QMatrix4x4 calculateMatrixMVP();
 public:
 	std::shared_ptr<QTransformComponent> mTransformComponent = std::make_shared<QTransformComponent>();
 private:

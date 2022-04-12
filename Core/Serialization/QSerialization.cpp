@@ -7,7 +7,6 @@
 #include <QMetaType>
 #include "QFile"
 
-namespace QSerialization {
 
 void serializeInternal(QObject* object, QCborStreamWriter& writer) {
 	if (object == nullptr)
@@ -65,7 +64,7 @@ void serializeInternal(QObject* object, QCborStreamWriter& writer) {
 	}
 }
 
-QByteArray serialize(QObject* src)
+QByteArray serializeQObject(QObject* src)
 {
 	QByteArray data;
 	QCborStreamWriter writer(&data);
@@ -109,13 +108,13 @@ void unserializeInternal(QObject* object, QCborMap cbor)
 	}
 }
 
-void deserialize(QObject* dst, QByteArray data)
+void deserializeQObject(QObject* dst, QByteArray data)
 {
 	QCborMap cbor = QCborValue::fromCbor(data).toMap();
 	unserializeInternal(dst, cbor);
 }
 
-QObject* deserialize(QByteArray data)
+QObject* createQObject(QByteArray data)
 {
 	QCborMap cbor = QCborValue::fromCbor(data).toMap();
 	int typeId = QMetaType::type(cbor.value("ClassName").toString().toLatin1());
@@ -124,5 +123,4 @@ QObject* deserialize(QByteArray data)
 		unserializeInternal(obj, cbor);
 	}
 	return obj;
-}
 }

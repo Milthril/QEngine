@@ -1,6 +1,5 @@
 #ifndef ImporterTask_h__
 #define ImporterTask_h__
-
 #include <QString>
 #include "QDir"
 
@@ -13,6 +12,7 @@ public:
 	void executable();
 private:
 	void resolveModel();
+	QString getVaildPath(QString path);
 private:
 	QString mFilePath;
 	QDir mDestDir;

@@ -24,6 +24,9 @@ public:
 	void addRenderItem(IRenderable* comp);
 	void removeRenderItem(IRenderable* comp);
 
+	int getSceneSampleCount();
+	QVector<QRhiGraphicsPipeline::TargetBlend>  getSceneBlendStates();
+	QRhiRenderPassDescriptor* getSceneRenderPassDescriptor();
 	QRhiWindow* window();
 	QRhi* getRHI();
 	IRenderer* renderer();

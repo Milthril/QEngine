@@ -1,14 +1,21 @@
 #include "StaticMesh.h"
 #include "QMetaType"
 
-void Asset::StaticMesh::serialize(QDataStream& out) {
-	out << QMetaTypeId2<Asset::StaticMesh>::qt_metatype_id();
-	out << mVertices;
-	out << mIndices;
-	out
+namespace Asset {
+QDataStream& operator<<(QDataStream& out, const StaticMesh& var) {
+	out << var.mName;
+	out << var.mIndices; 
+	out << var.mMaterial;
+	out << var.mVertices;
+	return out;
 }
 
-void Asset::StaticMesh::deserialize(QDataStream& in) {
-	throw std::logic_error("The method or operation is not implemented.");
+QDataStream& operator>>(QDataStream& in, StaticMesh& var) {
+	in >> var.mName;
+	in >> var.mIndices;
+	in >> var.mMaterial;
+	in >> var.mVertices;
+	return in;
 }
 
+}

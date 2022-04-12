@@ -19,12 +19,11 @@ void ISceneRenderPass::execute(QRhiCommandBuffer* cmdBuffer) {
 	}
 	cmdBuffer->beginPass(getRenderTarget(), QColor::fromRgbF(0.0f, 0.0f, 0.0f, 1.0f), { 1.0f, 0 }, resUpdateBatch);
 	QRhiViewport viewport(0, 0, getRenderTarget()->pixelSize().width(), getRenderTarget()->pixelSize().height());
-	//cmdBuffer->setViewport(viewport);
 	for (auto& item : mRenderItemList) {
 		if (item->bNeedRecreatePipeline.receive()) {
 			item->recreatePipeline();
 		}
-		item->renderInPass(cmdBuffer);
+		item->renderInPass(cmdBuffer,viewport);
 	}
 	cmdBuffer->endPass();
 }

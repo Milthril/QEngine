@@ -35,12 +35,11 @@ public:
 	const QVector<Asset::StaticMesh::Index>& getIndices() const { return mIndices; }
 	void setIndices(QVector<Asset::StaticMesh::Index> val) { mIndices = val; }
 
-	const Asset::Material& getMaterial() const { return mMaterial; }
+	Asset::Material& getMaterial() { return mMaterial; }
 	void setMaterial(Asset::Material val) { mMaterial = val; }
 
-	virtual void serialize(QDataStream& out) override;
-	virtual void deserialize(QDataStream& in) override;
-
+	friend QDataStream& operator<<(QDataStream& out, const StaticMesh& var);
+	friend QDataStream& operator>>(QDataStream& in, StaticMesh& var);
 private:
 	QVector<Vertex> mVertices;
 	QVector<Index> mIndices;
@@ -52,5 +51,6 @@ public:
 };
 
 }
+Q_DECLARE_METATYPE(Asset::StaticMesh);
 
 #endif // StaticMesh_h__

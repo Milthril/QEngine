@@ -3,6 +3,7 @@
 
 #include "qvectornd.h"
 #include "IComponent.h"
+#include "QMatrix4x4"
 
 class QTransformComponent:public IComponent {
 	Q_OBJECT
@@ -16,6 +17,7 @@ public:
 	QVector3D getScale() const { return mScale; }
 	void setScale(QVector3D val) { mScale = val; }
 
+	QMatrix4x4 calculateMatrix();
 private:
 	QVector3D mPosition = QVector3D(0.0f, 0.0f, 0.0f);
 	QVector3D mRotation = QVector3D(0.0f, 0.0f, 0.0f);

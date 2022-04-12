@@ -61,6 +61,18 @@ void QRenderSystem::removeRenderItem(IRenderable* comp) {
 	mRenderer->mScenePass->mRenderItemList.removeOne(comp);
 }
 
+int QRenderSystem::getSceneSampleCount() {
+	return mRenderer->getScenePass()->getSampleCount();
+}
+
+QVector<QRhiGraphicsPipeline::TargetBlend> QRenderSystem::getSceneBlendStates() {
+	return mRenderer->getScenePass()->getBlendStates();
+}
+
+QRhiRenderPassDescriptor* QRenderSystem::getSceneRenderPassDescriptor() {
+	return mRenderer->getScenePass()->getRenderPassDescriptor();
+}
+
 QRhiWindow* QRenderSystem::window() {
 	return mWindow.get();
 }

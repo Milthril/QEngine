@@ -5,19 +5,23 @@
 #include "QEntity.h"
 #include "QHash"
 
+
 class QRenderSystem;
+class QCameraComponent;
 
 class QWorld: public QObject {
 	Q_OBJECT
 public:
+	QWorld();
+	QMatrix4x4 getMatrixVP();
 	QEntity* createEntity(const QString& name);
 	QEntity* getEntityById(const QEntity::ID id);
 	QEntity* getEntityByName(const QString& name);
 	bool removeEntity(const QString& name);
-	QRenderSystem* renderSystem();
 private:
-	std::shared_ptr<QRenderSystem> mRenderSystem;
 	QHash<QEntity::ID, QEntity*> mEntityHash;
+	std::shared_ptr<QEntity> mCameraEntity;
+	QCameraComponent* mCamera;
 };
 
 

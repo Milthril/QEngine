@@ -1,4 +1,16 @@
 #include "QWorld.h"
+#include "System\RenderSystem\QRenderSystem.h"
+#include "Component\QCameraComponent.h"
+
+QWorld::QWorld()
+	: mCameraEntity(std::make_shared<QEntity>(this)){
+	mCamera = mCameraEntity->addComponent<QCameraComponent>();
+	mCamera->setupWindow(QRenderSystem::instance()->window());
+}
+
+QMatrix4x4 QWorld::getMatrixVP() {
+	return mCamera->getMatrixVP();
+}
 
 QEntity* QWorld::createEntity(const QString& name) {
 	QEntity* entity = new QEntity(this);
@@ -34,9 +46,5 @@ bool QWorld::removeEntity(const QString& name) {
 		return true;
 	}
 	return false;
-}
-
-QRenderSystem* QWorld::renderSystem() {
-	return mRenderSystem.get();
 }
 

@@ -1,10 +1,19 @@
 #include "Material.h"
 
-void Asset::Material::serialize(QDataStream& out) {
-	out << QMetaTypeId2<Asset::Material>::qt_metatype_id();
-	out << mShadingCode;
+namespace Asset{
+
+QDataStream& operator<<(QDataStream& out, const Material& var) {
+	var.save(out);
+	out << var.mName;
+	out << var.mShadingCode;
+	return out;
 }
 
-void Asset::Material::deserialize(QDataStream& in) {
-	in >> mShadingCode;
+QDataStream& operator>>(QDataStream& in, Material& var) {
+	var.read(in);
+	in >> var.mName;
+	in >> var.mShadingCode;
+	return in;
 }
+}
+

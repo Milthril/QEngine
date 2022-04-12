@@ -20,17 +20,25 @@ void ImporterTask::executable() {
 }
 
 void ImporterTask::resolveModel() {
+
 	Assimp::Importer importer;
 	const aiScene* scene = importer.ReadFile(mFilePath.toUtf8().constData(), aiProcess_Triangulate | aiProcess_FlipUVs);
 	if (!scene) {
 		return;
 	}
 	QList<std::shared_ptr<Asset::Material>> mMaterialList;
-	QList<std::shared_ptr<Asset::StaticMesh>> mStaticMeshList;
-
 	for (int i = 0; i < scene->mNumMaterials; i++) {
 		aiMaterial* material = scene->mMaterials[i];
-		mMaterialList << createMaterialFromAssimpMaterial(material, scene, QFileInfo(mFilePath).dir());
+		auto qMaterial = createMaterialFromAssimpMaterial(material, scene, QFileInfo(mFilePath).dir());
+		mMaterialList << qMaterial;
+		QString vaildPath = getVaildPath(mDestDir.filePath(QString("%1.QAsset").arg(material->GetName().C_Str())));
+		qMaterial->setName(QFileInfo(vaildPath).baseName());
+		QFile file(vaildPath);
+		if (file.open(QFile::WriteOnly)) {
+			QDataStream out(&file);
+			out << mMaterialList.back().get();
+			file.close();
+		}
 	}
 	QQueue<QPair<aiNode*, aiMatrix4x4>> qNode;
 	qNode.push_back({ scene->mRootNode ,aiMatrix4x4() });
@@ -40,16 +48,30 @@ void ImporterTask::resolveModel() {
 			aiMesh* mesh = scene->mMeshes[node.first->mMeshes[i]];
 			std::shared_ptr<Asset::StaticMesh> staticMesh = createStaticMeshFromAssimpMesh(mesh);
 			staticMesh->setMaterial(*mMaterialList[mesh->mMaterialIndex]);
-			mStaticMeshList << staticMesh;
+			QString vaildPath = getVaildPath(mDestDir.filePath(QString("%1.QAsset").arg(mesh->mName.C_Str())));
+			staticMesh->setName(QFileInfo(vaildPath).baseName());
+			QFile file(vaildPath);
+			if (file.open(QFile::WriteOnly)) {
+				QDataStream out(&file);
+				out << staticMesh.get();
+			}
 		}
 		for (unsigned int i = 0; i < node.first->mNumChildren; i++) {
 			qNode.push_back({ node.first->mChildren[i] ,node.second * node.first->mChildren[i]->mTransformation });
 		}
 	}
+}
 
-	for (auto& staticMesh : mStaticMeshList) {
-
-	}
-
+QString ImporterTask::getVaildPath(QString path) {
+	//if (!QFile::exists(path))
+		return path;
+	//QFileInfo info(path);
+	//QString baseName = info.baseName();
+	//QString newPath;
+	//do {
+	//	baseName += "_1";
+	//	newPath = info.dir().filePath(baseName +"." + info.suffix());
+	//} while (QFile::exists(newPath));
+	//return newPath;
 }
 

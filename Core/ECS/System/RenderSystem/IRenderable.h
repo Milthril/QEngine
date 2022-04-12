@@ -10,7 +10,7 @@ public:
 	virtual void uploadResource(QRhiResourceUpdateBatch* batch) {}
 	virtual void updatePrePass(QRhiCommandBuffer* cmdBuffer) {}
 	virtual void updateResourcePrePass(QRhiResourceUpdateBatch* batch) {}
-	virtual void renderInPass(QRhiCommandBuffer* cmdBuffer) = 0;
+	virtual void renderInPass(QRhiCommandBuffer* cmdBuffer, const QRhiViewport& viewport) = 0;
 
 	QRhiSignal bNeedRecreateResource;
 	QRhiSignal bNeedRecreatePipeline;

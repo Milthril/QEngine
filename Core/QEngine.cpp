@@ -25,8 +25,6 @@ const std::shared_ptr<QWorld>& QEngine::world()
 	return mWorld;
 }
 
-
-
 void QEngine::execGame()
 {
 	customInit();
@@ -46,5 +44,6 @@ void QEngine::execGame()
 		QTickEventHandler::processEvent(deltaSeconds);
 		QRenderSystem::instance()->requestUpdate();
 	}
+	mWorld.reset();
 	QRenderSystem::instance()->shutdown();
 }

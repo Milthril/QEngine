@@ -49,7 +49,7 @@ void DebugPainter::paintImgui() {
 
 
 void DebugPainter::resourceUpdate(QRhiResourceUpdateBatch* batch) {
-	if (!mReadPoint.isNull()) {
+	if (!mReadPoint.isNull()&&mDebugTexture) {
 		mReadDesc.setTexture(mDebugTexture);
 		mReadReult.completed = [this]() {
 			const uchar* p = reinterpret_cast<const uchar*>(mReadReult.data.constData());

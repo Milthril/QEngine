@@ -1,7 +1,7 @@
 #ifndef IAsset_h__
 #define IAsset_h__
 
-#include<QByteArray>
+#include <QString>
 
 class IAsset {
 public:
@@ -14,10 +14,12 @@ public:
 	};
 	virtual IAsset::Type type() = 0;
 
-	virtual void serialize(QDataStream& out) = 0;
-	virtual void deserialize(QDataStream& in) = 0;
+	QString getName() const { return mName; }
+	void setName(QString val) { mName = val; }
 
-	static IAsset* Deserialize(QDataStream& in);
+protected:
+	QString mName;
 };
+
 
 #endif // IAsset_h__

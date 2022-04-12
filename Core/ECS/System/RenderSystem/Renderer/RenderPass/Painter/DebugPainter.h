@@ -22,7 +22,6 @@ private:
 	QRhiReadbackResult mReadReult;
 	QRhiReadbackDescription mReadDesc;
 	QPoint mReadPoint;
-
 };
 
 #endif // DebugPainter_h__

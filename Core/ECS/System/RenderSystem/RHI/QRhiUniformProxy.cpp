@@ -8,8 +8,7 @@ QRhiUniformProxy::QRhiUniformProxy(QRhiUniform* material)
 {
 }
 
-void QRhiUniformProxy::recreateResource()
-{
+void QRhiUniformProxy::recreateResource(){
 	mUniformBlock.reset(RHI->newBuffer(QRhiBuffer::Type::Dynamic, QRhiBuffer::UniformBuffer, mMaterial->mData.size()));
 	mUniformBlock->create();
 
@@ -28,7 +27,7 @@ void QRhiUniformProxy::recreateResource()
 		tex->create();
 	}
 	for(auto& params : mMaterial->getParamsDesc()){
-		params->needUpdate.active();
+		params->bNeedUpdate.active();
 	}
 }
 
@@ -41,12 +40,12 @@ void QRhiUniformProxy::updateResource(QRhiResourceUpdateBatch* batch)
 		}
 	}
 	for (auto& params : mMaterial->getAllDataDesc()) {
-		if (params->needUpdate.receive()) {
+		if (params->bNeedUpdate.receive()) {
 			batch->updateDynamicBuffer(mUniformBlock.get(), params->offsetInByte, params->sizeInByte, mMaterial->mData.data() + params->offsetInByte);
 		}
 	}
 	for (auto& params : mMaterial->getAllTextureDesc()) {
-		if (params->needUpdate.receive()) {
+		if (params->bNeedUpdate.receive()) {
 			batch->uploadTexture(mTextureMap[params->name].get(), params->image);
 		}
 	}
