@@ -75,7 +75,6 @@ void AssetPanel::createUI()
 		btFileFilter_.setIcon(mFileFileterIcon.getIcon());
 	 });
 
-
 	QWidget* rightPanel = new QWidget;
 	QVBoxLayout* rightLayout = new QVBoxLayout(rightPanel);
 	rightLayout->setSpacing(5);
@@ -103,7 +102,6 @@ void AssetPanel::createUI()
 	fileSearcher_.setGraphicsEffect(new QWidgetShadowMaker);
 	directorySeacher_.setGraphicsEffect(new QWidgetShadowMaker);
 	btFileFilter_.setGraphicsEffect(new QWidgetShadowMaker);
-	pathViewer_.setGraphicsEffect(new QWidgetShadowMaker);
 }
 
 void AssetPanel::connectUI()

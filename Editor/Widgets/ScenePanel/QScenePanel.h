@@ -15,7 +15,7 @@ private:
 	std::shared_ptr<QWorld> mWorld;
 	QTreeWidgetItem* mRoot;
 Q_SIGNALS:
-	void objectChanged(QObject* obejct);
+	void entityChanged(QEntity* obejct);
 protected:
 	void showEvent(QShowEvent* event) override;
 

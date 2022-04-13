@@ -15,11 +15,11 @@ public:
 		: QEngine(argc, argv, true) {
 	}
 	virtual void customInit() override {
-		QEntity* entity = world()->createEntity("Entity");
-		//auto staitcMeshAsset = QAssetImpoerter::instance()->load<Asset::StaticMesh>(assetDir().filePath("Genji Shim.QAsset"));
+		QEntity* entity = world()->createEntity("Test Entity");
 
-	/*	QStaticMeshComponent* staitcMesh = entity->addComponent<QStaticMeshComponent>();
-		staitcMesh->setStaticMesh(staitcMeshAsset);*/
+		auto staitcMeshAsset = QAssetImpoerter::instance()->load<Asset::StaticMesh>(assetDir().filePath("Genji Shim.QAsset"));
+		QStaticMeshComponent* staitcMesh = entity->addComponent<QStaticMeshComponent>();
+		staitcMesh->setStaticMesh(staitcMeshAsset);
 
 		auto skyboxAsset = QAssetImpoerter::instance()->load<Asset::SkyBox>(assetDir().filePath("sky.QAsset"));
 
