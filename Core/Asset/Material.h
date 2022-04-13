@@ -13,7 +13,7 @@ public:
 		return IAsset::Material;
 	}
 	QByteArray getShadingCode() const { return mShadingCode; }
-	void setShadingCode(QByteArray val) { mShadingCode = val; }
+	void setShadingCode(QByteArray val);
 
 	friend QDataStream& operator<<(QDataStream& out, const Material& var);
 	friend QDataStream& operator>>(QDataStream& in, Material& var);

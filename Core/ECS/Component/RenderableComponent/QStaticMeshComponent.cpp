@@ -66,10 +66,10 @@ void QStaticMeshComponent::recreatePipeline() {
 		mPipeline.reset(nullptr);
 		return;
 	}
-	const QRhiUniformProxy::UniformInfo& materialInfo = mStaticMesh->getMaterial().getProxy()->getUniformInfo(1);
+	const QRhiUniformProxy::UniformInfo& materialInfo = mStaticMesh->getMaterial()->getProxy()->getUniformInfo(1);
 	QString defineCode = materialInfo.uniformDefineCode;
 
-	QString outputCode = mStaticMesh->getMaterial().getShadingCode();
+	QString outputCode = mStaticMesh->getMaterial()->getShadingCode();
 
 	//if (mRenderPass->getEnableOutputDebugId()) {
 	//	defineCode.prepend("layout (location = 1) out vec4 CompId;\n");
@@ -139,7 +139,7 @@ void QStaticMeshComponent::updatePrePass(QRhiCommandBuffer* cmdBuffer) {
 void QStaticMeshComponent::updateResourcePrePass(QRhiResourceUpdateBatch* batch) {
 	if (!mStaticMesh)
 		return;
-	mStaticMesh->getMaterial().getProxy()->updateResource(batch);
+	mStaticMesh->getMaterial()->getProxy()->updateResource(batch);
 	QMatrix4x4 MVP = mEntity->calculateMatrixMVP();
 	batch->updateDynamicBuffer(mUniformBuffer.get(), 0, sizeof(QMatrix4x4), MVP.constData());
 }

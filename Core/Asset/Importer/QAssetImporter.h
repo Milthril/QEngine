@@ -10,6 +10,7 @@
 class QAssetImpoerter: public QObject {
 public:
 	static QAssetImpoerter* instance();
+	~QAssetImpoerter();
 	void import(QString path,QDir destDir);
 	
 	template<typename AssetType>

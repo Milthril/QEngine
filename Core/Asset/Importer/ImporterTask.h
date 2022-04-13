@@ -2,6 +2,7 @@
 #define ImporterTask_h__
 #include <QString>
 #include "QDir"
+#include <QMutex>
 
 class ImporterTask {
 public:
@@ -12,10 +13,12 @@ public:
 	void executable();
 private:
 	void resolveModel();
+	void resolveImage();
 	QString getVaildPath(QString path);
 private:
 	QString mFilePath;
 	QDir mDestDir;
+	QMutex mMutex;
 };
 
 

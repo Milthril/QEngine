@@ -110,7 +110,6 @@ void QRhiUniform::addTextureSampler(const QString& name, const QImage& image)
 	texture->name = getVaildName(name);
 	texture->type = QRhiUniform::TextureDesc::Sampler2D;
 	texture->image = image.convertToFormat(QImage::Format::Format_RGBA8888);
-	auto it = image.format();
 	texture->bNeedUpdate.active();
 	mParams << texture;
 	mTextureParamList << texture;
@@ -171,10 +170,7 @@ void QRhiUniform::save(QDataStream& out) const {
 			<< data->sizeInByte
 			<< data->sizeInByteAligned;
 	}
-
-
 	out << mTextureParamList.size();
-
 	for (auto& texture : mTextureParamList) {
 		out << texture->name
 			<< texture->type
@@ -188,27 +184,28 @@ void QRhiUniform::read(QDataStream& in) {
 	mTextureParamList.clear();
 	mParams.clear();
 
-	int numOfData = 0;
+	qsizetype numOfData = 0;
 	in >> numOfData;
-	for (int i = 0; i < numOfData;i++) {
+	for (int i = 0; i < numOfData; i++) {
 		std::shared_ptr<DataDesc> data = std::make_shared<DataDesc>();
-		in  >> data->name
+		in >> data->name
 			>> data->type
 			>> data->offsetInByte
 			>> data->sizeInByte
 			>> data->sizeInByteAligned;
 
-		mDataParamList << data; 
+		mDataParamList << data;
 		mParams << data;
 	}
 
-	int numOfTexture = 0;
+	qsizetype numOfTexture = 0;
 	in >> numOfTexture;
 	for (int i = 0; i < numOfTexture; i++) {
 		std::shared_ptr<TextureDesc> texture = std::make_shared<TextureDesc>();
 		in >> texture->name
 			>> texture->type
 			>> texture->image;
+		texture->image = texture->image.convertToFormat(QImage::Format::Format_RGBA8888);
 		mTextureParamList << texture;
 		mParams << texture;
 	}

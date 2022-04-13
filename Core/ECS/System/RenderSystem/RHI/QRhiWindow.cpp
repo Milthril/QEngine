@@ -159,8 +159,8 @@ void QRhiWindow::exposeEvent(QExposeEvent*)
 
 	// always render a frame on exposeEvent() (when exposed) in order to update
 	// immediately on window resize.
-	if (isExposed() && !surfaceSize.isEmpty())
-		renderInternal();
+	//if (isExposed() && !surfaceSize.isEmpty())
+	//	renderInternal();
 }
 
 bool QRhiWindow::event(QEvent* e)

@@ -1,6 +1,5 @@
 #include "QRenderSystem.h"
-#include "ECS\Component\IRenderableComponent.h"
-
+#include "IRenderable.h"
 
 void IRenderable::active() {
 	QRenderSystem::instance()->addRenderItem(this);

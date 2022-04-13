@@ -45,4 +45,32 @@ inline QDataStream& operator>>(QDataStream& in, T& ptr) {
 	return in;
 }
 
+template<typename T>
+inline QDataStream& operator<<(QDataStream& out,const std::shared_ptr<T>& ptr) {
+	return operator<<(out, ptr.get());
+}
+
+template<typename T>
+inline QDataStream& operator>>(QDataStream& in, std::shared_ptr<T>& ptr) {
+	int id;
+	in >> id;
+	if (id == -1) {
+		return in;
+	}
+	if (ptr != nullptr) {
+		operator>>(in, *ptr);
+		return in;
+	}
+
+	QMetaType metaType(id);
+	if (!metaType.isValid() && !QMetaType::canConvert(metaType, QMetaType::fromType<T>()))
+		return in;
+	T* newPtr = static_cast<T*>(metaType.create());
+	if (newPtr) {
+		operator>>(in, *newPtr);
+		ptr.reset(newPtr);
+	}
+	return in;
+}
+
 #endif // QSerialization_h__

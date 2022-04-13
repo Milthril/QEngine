@@ -15,5 +15,11 @@ QDataStream& operator>>(QDataStream& in, Material& var) {
 	in >> var.mShadingCode;
 	return in;
 }
+
+void Material::setShadingCode(QByteArray val) {
+	mShadingCode = val;
+	bNeedRecreate.active();
+}
+
 }
 

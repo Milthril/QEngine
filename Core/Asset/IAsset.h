@@ -2,7 +2,7 @@
 #define IAsset_h__
 
 #include <QString>
-
+#include <QMetaType>
 class IAsset {
 public:
 	enum Type {
@@ -16,7 +16,6 @@ public:
 
 	QString getName() const { return mName; }
 	void setName(QString val) { mName = val; }
-
 protected:
 	QString mName;
 };

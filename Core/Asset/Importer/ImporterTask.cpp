@@ -5,17 +5,26 @@
 #include "assimp\scene.h"
 #include "QQueue"
 #include "Converter.h"
-#include "..\Material.h"
-#include "..\StaticMesh.h"
 #include "Serialization\QSerialization.h"
+
+#include "Asset\SkyBox.h"
+#include "Asset\Material.h"
+#include "Asset\StaticMesh.h"
 
 
 void ImporterTask::executable() {
 	if (!QFile::exists(mFilePath))
 		return;
 	QFileInfo info(mFilePath);
-	if (info.suffix().compare((".FBX"), Qt::CaseInsensitive)) {
+	QString suffix = info.suffix();
+	if (suffix.compare(("FBX"), Qt::CaseInsensitive)==0) {
 		resolveModel();
+	}
+	else if (suffix.compare(("PNG"), Qt::CaseInsensitive)==0
+		|| suffix.compare(("JPG"), Qt::CaseInsensitive)==0
+		|| suffix.compare(("JPEG"), Qt::CaseInsensitive)==0
+			 ) {
+		resolveImage();
 	}
 }
 
@@ -36,10 +45,11 @@ void ImporterTask::resolveModel() {
 		QFile file(vaildPath);
 		if (file.open(QFile::WriteOnly)) {
 			QDataStream out(&file);
-			out << mMaterialList.back().get();
+			out << qMaterial.get();
 			file.close();
 		}
 	}
+
 	QQueue<QPair<aiNode*, aiMatrix4x4>> qNode;
 	qNode.push_back({ scene->mRootNode ,aiMatrix4x4() });
 	while (!qNode.isEmpty()) {
@@ -47,18 +57,54 @@ void ImporterTask::resolveModel() {
 		for (unsigned int i = 0; i < node.first->mNumMeshes; i++) {
 			aiMesh* mesh = scene->mMeshes[node.first->mMeshes[i]];
 			std::shared_ptr<Asset::StaticMesh> staticMesh = createStaticMeshFromAssimpMesh(mesh);
-			staticMesh->setMaterial(*mMaterialList[mesh->mMaterialIndex]);
+			staticMesh->setMaterial(mMaterialList[mesh->mMaterialIndex]);
 			QString vaildPath = getVaildPath(mDestDir.filePath(QString("%1.QAsset").arg(mesh->mName.C_Str())));
 			staticMesh->setName(QFileInfo(vaildPath).baseName());
 			QFile file(vaildPath);
 			if (file.open(QFile::WriteOnly)) {
 				QDataStream out(&file);
-				out << staticMesh.get();
+				out << staticMesh;
 			}
 		}
 		for (unsigned int i = 0; i < node.first->mNumChildren; i++) {
 			qNode.push_back({ node.first->mChildren[i] ,node.second * node.first->mChildren[i]->mTransformation });
 		}
+	}
+}
+
+void ImporterTask::resolveImage() {
+	QImage image(mFilePath);
+	if (image.isNull())
+		return;
+	image = image.convertToFormat(QImage::Format::Format_RGBA8888);
+	QSize mCubeFaceSize;
+	if (image.width() == image.height())
+		mCubeFaceSize = image.size();
+	else if (image.width() * 3 == 4 * image.height())
+		mCubeFaceSize = QSize(image.width() / 4, image.width() / 4);
+	else if (image.width() * 4 == 3 * image.height())
+		mCubeFaceSize = QSize(image.width() / 3, image.width() / 3);
+	else
+		return;
+	std::shared_ptr<Asset::SkyBox> skyBox = std::make_shared<Asset::SkyBox>();
+	std::array<QImage, 6> imageList;
+	// 依次为左右上下前后
+	imageList[0] = image.copy(QRect(QPoint(2 * mCubeFaceSize.width(), mCubeFaceSize.width()), mCubeFaceSize));
+	imageList[1] = image.copy(QRect(QPoint(0, mCubeFaceSize.width()), mCubeFaceSize));
+
+	imageList[2] = image.copy(QRect(QPoint(mCubeFaceSize.width(), 0), mCubeFaceSize));
+	imageList[3] = image.copy(QRect(QPoint(mCubeFaceSize.width(), mCubeFaceSize.width() * 2), mCubeFaceSize));
+
+	imageList[4] = image.copy(QRect(QPoint(mCubeFaceSize.width(), mCubeFaceSize.width()), mCubeFaceSize));
+	imageList[5] = image.copy(QRect(QPoint(3 * mCubeFaceSize.width(), mCubeFaceSize.width()), mCubeFaceSize));
+
+	skyBox->setImageList(imageList);
+	QString vaildPath = getVaildPath(mDestDir.filePath(QString("%1.QAsset").arg(QFileInfo(mFilePath).baseName())));
+	skyBox->setName(QFileInfo(vaildPath).baseName());
+	QFile file(vaildPath);
+	if (file.open(QFile::WriteOnly)) {
+		QDataStream out(&file);
+		out << skyBox;
 	}
 }
 

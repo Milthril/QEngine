@@ -1,6 +1,9 @@
 #include "QEngine.h"
 #include "EventHandler\QTickEventHandler.h"
 #include "ECS\System\RenderSystem\QRenderSystem.h"
+#include "Asset\Material.h"
+#include "Asset\StaticMesh.h"
+#include "Asset\SkyBox.h"
 
 
 QEngine::QEngine(int argc, char** argv, bool enableDebug /*= false*/)
@@ -10,6 +13,12 @@ QEngine::QEngine(int argc, char** argv, bool enableDebug /*= false*/)
 	if (QDir(QENGINE_ASSET_DIR).exists()) {
 		mAssetDir = QDir(QENGINE_ASSET_DIR);
 	}
+}
+
+void QEngine::registerMetaType() {
+	qRegisterMetaType<Asset::Material>();
+	qRegisterMetaType<Asset::StaticMesh>();
+	qRegisterMetaType<Asset::SkyBox>();
 }
 
 void QEngine::customInit() {
@@ -27,7 +36,9 @@ const std::shared_ptr<QWorld>& QEngine::world()
 
 void QEngine::execGame()
 {
+	registerMetaType();
 	customInit();
+
 	QRenderSystem::instance()->init();
 
 	mLastTime = mTimer.elapsed();

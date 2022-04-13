@@ -1,7 +1,9 @@
 #include "QAssetImporter.h"
+#include "QApplication"
 #include "Serialization\QSerialization.h"
-#include "..\Material.h"
-#include "..\StaticMesh.h"
+#include "Asset\Material.h"
+#include "Asset\StaticMesh.h"
+#include "Asset\SkyBox.h"
 
 template<typename AssetType>
 std::shared_ptr<AssetType> QAssetImpoerter::load(QString path) {
@@ -19,6 +21,7 @@ std::shared_ptr<AssetType> QAssetImpoerter::load(QString path) {
 
 template std::shared_ptr<Asset::Material> QAssetImpoerter::load<>(QString path);
 template std::shared_ptr<Asset::StaticMesh> QAssetImpoerter::load<>(QString path);
+template std::shared_ptr<Asset::SkyBox> QAssetImpoerter::load<>(QString path);
 
 
 QAssetImpoerter* QAssetImpoerter::instance() {
@@ -26,18 +29,23 @@ QAssetImpoerter* QAssetImpoerter::instance() {
 	return &ins;
 }
 
+QAssetImpoerter::~QAssetImpoerter() {
+	if (mThread.isRunning()) {
+		mThread.quit();
+		mThread.wait();
+	}
+}
+
 void QAssetImpoerter::import(QString path, QDir destDir) {
 	auto task = std::make_shared<ImporterTask>(path, destDir);
 	mTaskList << task;
-	if (!mThread.isRunning()) {
-		mThread.start();
-		QMetaObject::invokeMethod(this, &QAssetImpoerter::threadFunc);
-	}
+	QMetaObject::invokeMethod(this, &QAssetImpoerter::threadFunc);
 }
 
 
 QAssetImpoerter::QAssetImpoerter() {
 	moveToThread(&mThread);
+	mThread.start();
 }
 
 void QAssetImpoerter::threadFunc() {
@@ -45,6 +53,5 @@ void QAssetImpoerter::threadFunc() {
 		auto task = mTaskList.takeFirst();
 		task->executable();
 	}
-	mThread.quit();
 }
 
