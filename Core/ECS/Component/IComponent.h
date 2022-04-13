@@ -10,7 +10,6 @@ class IComponent :public QObject {
 	Q_OBJECT
 public:
 	IComponent() {}
-
 	virtual void setupEntity(QEntity* entity) {
 		mEntity = entity;
 	}

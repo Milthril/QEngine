@@ -27,10 +27,6 @@
 #include "ExtType/QBoundedInt.h"
 #include "ExtType/QColor4D.h"
 #include "ExtType/QColors.h"
-#include "Scene\Component\Particle\QParticleSystem.h"
-#include "Scene\Material\QMaterial.h"
-#include "Scene\Component\Particle\PositionGenerator\IPositionGenerator.h"
-#include "Scene\Component\StaticMesh\QStaticMeshComponent.h"
 
 #define REGISTER_ADJUSTER_ITEM(Type,AdjusterType)\
 		mCreatorMap[QMetaTypeId2<Type>::qt_metatype_id()] = [](QString name, Getter getter, Setter setter) { \
@@ -62,16 +58,16 @@ QPropertyItemFactory::QPropertyItemFactory()
 	REGISTER_ADJUSTER_ITEM(QRange, RangeSlider);
 	REGISTER_ADJUSTER_ITEM(QByteArray, ByteArrayLoader);
 	REGISTER_ADJUSTER_ITEM(QImage, ImageLoader);
-	REGISTER_ADJUSTER_ITEM(std::shared_ptr<QMaterial>, MaterialButton);
-	REGISTER_ADJUSTER_ITEM(std::shared_ptr<QParticleSystem>, ParticleSystemButton);
+	//REGISTER_ADJUSTER_ITEM(std::shared_ptr<QMaterial>, MaterialButton);
+	//REGISTER_ADJUSTER_ITEM(std::shared_ptr<QParticleSystem>, ParticleSystemButton);
 
-	mCreatorMap[QMetaTypeId2<QSubClass<IPositionGenerator>>::qt_metatype_id()] = [](QString name, Getter getter, Setter setter) {
-		return new QPropertySubClassItem<QSubClass<IPositionGenerator>>(name, getter, setter);
-	};
+	//mCreatorMap[QMetaTypeId2<QSubClass<IPositionGenerator>>::qt_metatype_id()] = [](QString name, Getter getter, Setter setter) {
+	//	return new QPropertySubClassItem<QSubClass<IPositionGenerator>>(name, getter, setter);
+	//};
 
-	mCreatorMap[QMetaTypeId2<QSubClass<QStaticMeshComponent>>::qt_metatype_id()] = [](QString name, Getter getter, Setter setter) {
-		return new QPropertySubClassItem<QSubClass<QStaticMeshComponent>>(name, getter, setter);
-	};
+	//mCreatorMap[QMetaTypeId2<QSubClass<QStaticMeshComponent>>::qt_metatype_id()] = [](QString name, Getter getter, Setter setter) {
+	//	return new QPropertySubClassItem<QSubClass<QStaticMeshComponent>>(name, getter, setter);
+	//};
 }
 
 QPropertyItem* QPropertyItemFactory::createItem(TypeId id, QString name, Getter getter, Setter setter)

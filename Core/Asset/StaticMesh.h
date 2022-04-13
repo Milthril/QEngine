@@ -50,6 +50,6 @@ public:
 	}
 };
 }
-Q_DECLARE_METATYPE(Asset::StaticMesh);
+Q_DECLARE_BUILTIN_METATYPE(Asset::StaticMesh, 100002, Asset::StaticMesh);
 
 #endif // StaticMesh_h__

@@ -1,11 +1,10 @@
 #include "MaterialButton.h"
-#include "Scene/Material/QMaterial.h"
 #include <QPushButton>
 #include <QComboBox>
 #include <QHBoxLayout>
 #include "Window/MaterialEditor/QMaterialEditor.h"
 
-MaterialButton::MaterialButton(std::shared_ptr<QMaterial> material)
+MaterialButton::MaterialButton(std::shared_ptr<Asset::Material> material)
 	: mMaterial(material)
 	, btEdit(new QPushButton("Edit"))
 	, cbMaterialList(new QComboBox)

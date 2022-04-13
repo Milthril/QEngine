@@ -2,11 +2,11 @@
 #include "QMaterialEditor.h"
 #include "QPushButton"
 #include "QSplitter"
-#include "Scene\Material\QMaterial.h"
 #include "Widgets\CodeEditor\GLSL\GLSLEditor.h"
 #include "Widgets\CodeEditor\Lua\LuaEditor.h"
 #include "Widgets\UniformPanel\UniformPanel.h"
 #include "Script\QLuaScriptFactory.h"
+#include "Asset\Material.h"
 
 QMaterialEditor* QMaterialEditor::QMaterialEditor::instance()
 {
@@ -14,7 +14,7 @@ QMaterialEditor* QMaterialEditor::QMaterialEditor::instance()
 	return &ins;
 }
 
-void QMaterialEditor::edit(std::shared_ptr<QMaterial> material)
+void QMaterialEditor::edit(std::shared_ptr<Asset::Material> material)
 {
 	mMaterial = material;
 	mUniformPanel->setUniform(std::dynamic_pointer_cast<QRhiUniform>(material));

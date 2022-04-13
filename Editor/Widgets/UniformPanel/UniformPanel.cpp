@@ -6,13 +6,13 @@
 #include "QLineEdit"
 #include "QTreeWidget"
 #include "QVBoxLayout"
-#include "RHI/QRhiUniform.h"
 #include "UniformPanel.h"
 #include "QPushButton"
 #include "QMenu"
 #include "QApplication"
 #include "QClipboard"
 #include "Window/ScriptEditor/QScriptEditor.h"
+#include "ECS/System/RenderSystem/RHI/QRhiUniform.h"
 
 UniformPanel::UniformPanel()
 	: mParamsPanel(new QTreeWidget)

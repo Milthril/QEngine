@@ -21,7 +21,7 @@ private:
 	QByteArray mShadingCode;
 };
 }
-
-Q_DECLARE_METATYPE(Asset::Material);
+//Q_DECLARE_METATYPE(Asset::Material);
+Q_DECLARE_BUILTIN_METATYPE(Asset::Material, 100000, Asset::Material);
 
 #endif // Material_h__

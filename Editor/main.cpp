@@ -2,94 +2,29 @@
 #include <QGuiApplication>
 #include "QDateTime"
 #include "QEngine.h"
-#include "qrandom.h"
-#include "Scene\Component\Camera\QCameraComponent.h"
-#include "Scene\Component\Light\QLightComponent.h"
-#include "Scene\Component\Particle\QParticleComponent.h"
-#include "Scene\Component\SkyBox\QSkyBoxComponent.h"
-#include "Scene\Component\StaticMesh\QCube.h"
-#include "Scene\Component\StaticMesh\QSphere.h"
-#include "Scene\Component\StaticMesh\QStaticModel.h"
-#include "Scene\Component\StaticMesh\QText2D.h"
-#include "Scene\Component\SkeletonMesh\QSkeletonMeshComponent.h"
-#include "Scene\Component\AssimpToolkit\MMDVmdParser.h"
-#include "Scene\Component\SkeletonMesh\QMMDModel.h"
-#include "Window\MaterialEditor\QMaterialEditor.h"
-#include "Scene\Component\StaticMesh\QAudioSpectrum.h"
+#include "Asset\Importer\QAssetImporter.h"
+#include "Asset\StaticMesh.h"
 
-const int CUBE_MAT_SIZE = 10;
-const int CUBE_MAT_SPACING = 5;
+#include "ECS\Component\RenderableComponent\QStaticMeshComponent.h"
+#include "ECS\Component\RenderableComponent\QSkyBoxComponent.h"
 
 class MyGame :public QEngine {
 public:
-	std::shared_ptr<QCameraComponent> mCamera;
-	std::shared_ptr<QSkyBoxComponent> mSkyBox;
-	std::shared_ptr<QCube> mCube[CUBE_MAT_SIZE][CUBE_MAT_SIZE];
-	std::shared_ptr<QStaticModel> mStaticModel;
-	std::shared_ptr<QSkeletonModelComponent> mSkeletonModel;
-	std::shared_ptr<QParticleComponent> mGPUParticles;
-	std::shared_ptr<QSphere> mSphere;
-	std::shared_ptr<QText2D> mText;
-	std::shared_ptr<QMaterial> mTextMaterial;
-	std::shared_ptr<QAudioSpectrum> mSpectrum;
-
-	QRandomGenerator rand;
 
 	MyGame(int argc, char** argv)
 		: QEngine(argc, argv, true) {
 	}
-	virtual void init() override {
-		renderer()->setEnableDebug(true);
+	virtual void customInit() override {
+		QEntity* entity = world()->createEntity("Entity");
+		//auto staitcMeshAsset = QAssetImpoerter::instance()->load<Asset::StaticMesh>(assetDir().filePath("Genji Shim.QAsset"));
 
-		mCamera = std::make_shared<QCameraComponent>();
-		mCamera->setupWindow(window().get());						//将相机与窗口绑定，使用WASD Shift 空格可进行移动，鼠标左键按住窗口可调整视角
-		scene()->addSceneComponent("Camera", mCamera);				//设置场景相机
+	/*	QStaticMeshComponent* staitcMesh = entity->addComponent<QStaticMeshComponent>();
+		staitcMesh->setStaticMesh(staitcMeshAsset);*/
 
-		mSkyBox = std::make_shared<QSkyBoxComponent>();
-		mSkyBox->setSkyBoxImage(QImage(assetDir().filePath("sky.jpeg")));
-		scene()->addSceneComponent("SkyBox", mSkyBox);
+		auto skyboxAsset = QAssetImpoerter::instance()->load<Asset::SkyBox>(assetDir().filePath("sky.QAsset"));
 
-		for (int i = 0; i < CUBE_MAT_SIZE; i++) {
-			for (int j = 0; j < CUBE_MAT_SIZE; j++) {
-				std::shared_ptr<QCube>& cube = mCube[i][j];
-				cube.reset(new QCube);
-				cube->setPosition(QVector3D((i - CUBE_MAT_SIZE / 2.0) * CUBE_MAT_SPACING, (j - CUBE_MAT_SIZE / 2.0) * CUBE_MAT_SPACING, -10));
-				scene()->addSceneComponent(QString("cube(%1,%2)").arg(i).arg(j), cube);
-			}
-		}
-
-		mText = std::make_shared<QText2D>(QString::fromUtf8("QEngine"));
-		mText->setPosition(QVector3D(0, -5, 0));
-		mText->setRotation(QVector3D(0, 180, 0));
-		mText->setScale(QVector3D(3, 3, 3));
-
-		mTextMaterial = std::make_shared<QMaterial>();
-		mTextMaterial->addDataVec3("BaseColor", QVector3D(1, 5, 9));					//设置材质参数
-		mTextMaterial->setShadingCode("FragColor = vec4(UBO.BaseColor,1);");				//设置材质的Shading代码
-		mText->setMaterial(mTextMaterial);
-		scene()->addSceneComponent("Text", mText);
-
-		mSpectrum = std::make_shared<QAudioSpectrum>();
-		mSpectrum->setPosition(QVector3D(0.0f, 0.0f, -4.0f));
-		mSpectrum->setScale(QVector3D(0.1f, 0.1f, 0.1f));
-		mSpectrum->setMaterial(mTextMaterial);
-		scene()->addSceneComponent("Spectrum", mSpectrum);
-
-		mGPUParticles = std::make_shared<QParticleComponent>();
-		mGPUParticles->setPosition(QVector3D(0, -15, 0));
-		scene()->addSceneComponent("GPU Particles", mGPUParticles);
-
-		mStaticModel = std::make_shared<QStaticModel>();
-		mStaticModel->loadFromFile(assetDir().filePath("Model/FBX/Genji/Genji.FBX"));
-		mStaticModel->setRotation(QVector3D(-90, 0, 0));
-		mStaticModel->setPosition(QVector3D(0.0f, 0.0f, -20.0f));
-		scene()->addSceneComponent("StaticModel", mStaticModel);
-
-		mSkeletonModel = std::make_shared<QSkeletonModelComponent>();
-		mSkeletonModel->setScale(QVector3D(0.05f, 0.05f, 0.05f));
-		mSkeletonModel->loadFromFile(assetDir().filePath("Model/FBX/Catwalk Walk Turn 180 Tight R.fbx"));
-		mSkeletonModel->playAnimationByIndex(0, true);
-		scene()->addSceneComponent("SkeletonModel", mSkeletonModel);
+		QSkyBoxComponent* skybox = entity->addComponent<QSkyBoxComponent>();
+		skybox->setSkyBox(skyboxAsset);
 	}
 protected:
 	void customUpdate() override

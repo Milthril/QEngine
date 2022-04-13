@@ -22,7 +22,6 @@ public:
 	const QDir& assetDir() const { return mAssetDir;}
 	void execGame();
 protected:
-	void registerMetaType();
 	virtual void customInit();
 	virtual void customUpdate();
 private:

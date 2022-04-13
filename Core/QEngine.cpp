@@ -15,11 +15,6 @@ QEngine::QEngine(int argc, char** argv, bool enableDebug /*= false*/)
 	}
 }
 
-void QEngine::registerMetaType() {
-	qRegisterMetaType<Asset::Material>();
-	qRegisterMetaType<Asset::StaticMesh>();
-	qRegisterMetaType<Asset::SkyBox>();
-}
 
 void QEngine::customInit() {
 
@@ -36,10 +31,8 @@ const std::shared_ptr<QWorld>& QEngine::world()
 
 void QEngine::execGame()
 {
-	registerMetaType();
-	customInit();
-
 	QRenderSystem::instance()->init();
+	customInit();
 
 	mLastTime = mTimer.elapsed();
 	int64_t newTime;

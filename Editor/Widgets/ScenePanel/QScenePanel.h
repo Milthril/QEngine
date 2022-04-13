@@ -2,17 +2,17 @@
 #define QScenePanel_h__
 
 #include "QTreeWidget"
-#include "Scene\QScene.h"
+#include "ECS\QWorld.h"
 
 class QScenePanel :public QTreeWidget {
 	Q_OBJECT
 public:
-	QScenePanel(std::shared_ptr<QScene> scene);
+	QScenePanel(std::shared_ptr<QWorld> world);
 private:
 	void createUI();
 	void updateUI();
 private:
-	std::shared_ptr<QScene> mScene;
+	std::shared_ptr<QWorld> mWorld;
 	QTreeWidgetItem* mRoot;
 Q_SIGNALS:
 	void objectChanged(QObject* obejct);

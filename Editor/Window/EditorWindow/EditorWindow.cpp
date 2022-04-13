@@ -7,7 +7,7 @@
 #include "QStyleFactory"
 #include "QEngine.h"
 #include "Toolkit/QAeroWindowMaker.h"
-
+#include "ECS/System/RenderSystem/QRenderSystem.h"
 
 EditorWindow::EditorWindow()
 	: KDDockWidgets::FloatingWindowWidget({})
@@ -16,7 +16,7 @@ EditorWindow::EditorWindow()
 	, mFile("File")
 	, mEdit("Edit")
 	, mWindow("Window")
-	, mQScenePanel(Engine->scene())
+	, mQScenePanel(Engine->world())
 {
 	createUI();
 	connectUI();
@@ -90,7 +90,7 @@ void EditorWindow::createUI()
 	auto dockViewport = new KDDockWidgets::DockWidget("Viewport", KDDockWidgets::DockWidget::Option_None, layoutSaverOptions);
 	dockViewport->setAffinities(mMainWindow.affinities());
 	mMainWindow.addDockWidget(dockViewport, KDDockWidgets::Location::Location_OnRight, dockScene);
-	auto viewportContainter = QWidget::createWindowContainer(Engine->window().get());
+	auto viewportContainter = QWidget::createWindowContainer(QRenderSystem::instance()->window());
 	viewportContainter->setMinimumSize(400, 300);
 	dockViewport->setWidget(viewportContainter);
 
@@ -101,7 +101,7 @@ void EditorWindow::createUI()
 void EditorWindow::connectUI()
 {
 	connect(&mQScenePanel, &QScenePanel::objectChanged, &mPropertyPanel, &QPropertyPanel::setObject);
-	connect(Engine, &QEngine::requestUpdatePropertyPanel, &mPropertyPanel, &QPropertyPanel::updatePanel);
+	//connect(Engine, &QEngine::requestUpdatePropertyPanel, &mPropertyPanel, &QPropertyPanel::updatePanel);
 }
 
 void EditorWindow::showEvent(QShowEvent* event)

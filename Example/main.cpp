@@ -19,19 +19,18 @@ public:
 	}
 	void customInit() override {
 
-		//QAssetImpoerter::instance()->import(R"(C:\Users\fuxinghao879\Desktop\QEngine\Asset\Model\FBX\Genji\Genji.fbx)", assetDir());
-		//QAssetImpoerter::instance()->import(R"(C:\Users\fuxinghao879\Desktop\QEngine\Asset\sky.jpeg)", assetDir());
+		QAssetImpoerter::instance()->import(R"(C:\Users\fuxinghao879\Desktop\QEngine\Asset\Model\FBX\Genji\Genji.fbx)", assetDir());
+		QAssetImpoerter::instance()->import(R"(C:\Users\fuxinghao879\Desktop\QEngine\Asset\sky.jpeg)", assetDir());
 
 		QEntity* entity = world()->createEntity("Entity");
-		auto staitcMeshAsset = QAssetImpoerter::instance()->load<Asset::StaticMesh>(assetDir().filePath("Genji Shim.QAsset"));
+		//auto staitcMeshAsset = QAssetImpoerter::instance()->load<Asset::StaticMesh>(assetDir().filePath("Genji Shim.QAsset"));
 
-		QStaticMeshComponent* staitcMesh = entity->addComponent<QStaticMeshComponent>();
-		staitcMesh->setStaticMesh(staitcMeshAsset);
+		//QStaticMeshComponent* staitcMesh = entity->addComponent<QStaticMeshComponent>();
+		//staitcMesh->setStaticMesh(staitcMeshAsset);
 
-		auto skyboxAsset  = QAssetImpoerter::instance()->load<Asset::SkyBox>(assetDir().filePath("sky.QAsset"));
-		
-		QSkyBoxComponent* skybox = entity->addComponent<QSkyBoxComponent>();
-		skybox->setSkyBox(skyboxAsset);
+		//auto skyboxAsset  = QAssetImpoerter::instance()->load<Asset::SkyBox>(assetDir().filePath("sky.QAsset"));
+		//QSkyBoxComponent* skybox = entity->addComponent<QSkyBoxComponent>();
+		//skybox->setSkyBox(skyboxAsset);
 
 	}
 	void customUpdate() override

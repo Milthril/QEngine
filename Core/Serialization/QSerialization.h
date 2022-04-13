@@ -32,11 +32,11 @@ inline QDataStream& operator>>(QDataStream& in, T& ptr) {
 		operator>>(in, *ptr);
 		return in;
 	}
-	
-	QMetaType metaType(id);
-	if (!metaType.isValid() && !QMetaType::canConvert(metaType, QMetaType::fromType<std::remove_pointer<T>::type>()))
-		return in;
 
+	QMetaType metaType = QMetaType::fromType<std::remove_pointer<T>::type>();
+	Q_ASSERT(metaType.id() == id);
+	if (!metaType.isValid())
+		return in;
 	T newPtr = static_cast<T>(metaType.create());
 	if (newPtr) {
 		ptr = newPtr;
@@ -61,9 +61,9 @@ inline QDataStream& operator>>(QDataStream& in, std::shared_ptr<T>& ptr) {
 		operator>>(in, *ptr);
 		return in;
 	}
-
-	QMetaType metaType(id);
-	if (!metaType.isValid() && !QMetaType::canConvert(metaType, QMetaType::fromType<T>()))
+	QMetaType metaType = QMetaType::fromType<std::remove_pointer<T>::type>();
+	Q_ASSERT(metaType.id() == id);
+	if (!metaType.isValid())
 		return in;
 	T* newPtr = static_cast<T*>(metaType.create());
 	if (newPtr) {
