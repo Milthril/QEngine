@@ -6,7 +6,6 @@
 #include "ImporterTask.h"
 #include "Asset\IAsset.h"
 
-
 class QAssetImpoerter: public QObject {
 public:
 	static QAssetImpoerter* instance();

@@ -10,7 +10,7 @@ class QWorld;
 class QEntity :public QObject {
 	Q_OBJECT
 public:
-	QEntity(QWorld* world) :mWorld(world) {}
+	QEntity(QWorld* world);
 
 	QWorld* World() {
 		this->metaObject()->metaType().id();
@@ -46,10 +46,11 @@ public:
 	QTransformComponent* getTransformComponent() {
 		return mTransformComponent.get();
 	}
-
 	QMatrix4x4 calculateMatrixMVP();
 public:
 	std::shared_ptr<QTransformComponent> mTransformComponent = std::make_shared<QTransformComponent>();
+private:
+	inline static int64_t mIDStack = 0;
 private:
 	QWorld* mWorld;
 	QEntity::ID mID;

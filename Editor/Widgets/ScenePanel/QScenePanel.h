@@ -13,12 +13,14 @@ private:
 	void updateUI();
 private:
 	std::shared_ptr<QWorld> mWorld;
-	QTreeWidgetItem* mRoot;
 Q_SIGNALS:
 	void entityChanged(QEntity* obejct);
+private:
+	QPoint mClickPos;
 protected:
 	void showEvent(QShowEvent* event) override;
-
+	virtual void mousePressEvent(QMouseEvent* event) override;
+	virtual void mouseReleaseEvent(QMouseEvent* event) override;
 };
 
 #endif // QScenePanel_h__

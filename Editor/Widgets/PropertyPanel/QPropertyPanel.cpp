@@ -4,7 +4,6 @@
 #include "QPropertyItem.h"
 #include "QFile"
 #include "QPropertyItemFactory.h"
-#include "Toolkit\QWidgetShadowMaker.h"
 
 QPropertyPanel::QPropertyPanel(QObject* object /*= nullptr*/) {
 	setObject(object);
@@ -15,7 +14,6 @@ QPropertyPanel::QPropertyPanel(QObject* object /*= nullptr*/) {
 	setColumnWidth(0, 120);
 	setSelectionMode(QAbstractItemView::SingleSelection);
 	setFrameStyle(QFrame::NoFrame);
-	setGraphicsEffect(new QWidgetShadowMaker);
 	connect(this, &QTreeWidget::itemPressed, this, [](QTreeWidgetItem* item, int) {
 		if (qApp->mouseButtons() & Qt::RightButton) {
 			/*show menu*/
@@ -89,7 +87,6 @@ void QPropertyPanel::recreatePanel() {
 					addTopLevelItem(item);
 					setupObjectToItem(item, obj);
 				}
-
 			}
 			if (QMetaType::canConvert(property.metaType(), QMetaType::fromType<QVariantList>())) {	//处理数组类型
 				QTreeWidgetItem* item = new QTreeWidgetItem;

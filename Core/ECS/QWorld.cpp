@@ -15,7 +15,7 @@ QMatrix4x4 QWorld::getMatrixVP() {
 QEntity* QWorld::createEntity(const QString& name) {
 	QEntity* entity = new QEntity(this);
 	entity->setParent(this);
-	entity->setObjectName(name);
+	entity->setObjectName(getVaildEntityName(name));
 	mEntityHash[entity->GetId()] = entity;
 	connect(entity, &QEntity::destroyed, this, [this](QObject* obj) {
 		QEntity* entity = qobject_cast<QEntity*>(obj);
@@ -23,6 +23,7 @@ QEntity* QWorld::createEntity(const QString& name) {
 			mEntityHash.remove(entity->GetId());
 		}
 	});
+	Q_EMIT worldChanged();
 	return entity;
 }
 
@@ -42,9 +43,39 @@ bool QWorld::removeEntity(const QString& name) {
 	QEntity* entity = getEntityByName(name);
 	if (entity) {
 		entity->setParent(nullptr);
+		mEntityHash.remove(entity->GetId());
 		entity->deleteLater();
+		Q_EMIT worldChanged();
 		return true;
 	}
 	return false;
+}
+
+bool QWorld::removeEntity(QEntity* entity) {
+	if (entity) {
+		entity->setParent(nullptr);
+		mEntityHash.remove(entity->GetId());
+		entity->deleteLater();
+		Q_EMIT worldChanged();
+		return true;
+	}
+	return false;
+}
+
+QString QWorld::getVaildEntityName(const QString& name) {
+	QString newName = name;
+	int index = 1;
+	while (true) {
+		bool flag = true;
+		for (auto& entity : mEntityHash){
+			if (entity->objectName() == newName)
+				flag = false;
+		}
+		if (flag)
+			return newName;
+		newName = name + QString::number(index);
+		index++;
+	}
+	
 }
 

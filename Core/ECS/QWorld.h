@@ -14,10 +14,16 @@ class QWorld: public QObject {
 public:
 	QWorld();
 	QMatrix4x4 getMatrixVP();
-	QEntity* createEntity(const QString& name);
+	QEntity* createEntity(const QString& name="Entity");
 	QEntity* getEntityById(const QEntity::ID id);
 	QEntity* getEntityByName(const QString& name);
 	bool removeEntity(const QString& name);
+	bool removeEntity(QEntity* entity);
+
+private:
+	QString getVaildEntityName(const QString& name);
+Q_SIGNALS:
+	void worldChanged();
 private:
 	QHash<QEntity::ID, QEntity*> mEntityHash;
 	std::shared_ptr<QEntity> mCameraEntity;

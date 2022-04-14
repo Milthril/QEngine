@@ -7,6 +7,9 @@
 
 class QTransformComponent:public IComponent {
 	Q_OBJECT
+		Q_PROPERTY(QVector3D Position READ getPosition WRITE setPosition)
+		Q_PROPERTY(QVector3D Rotation READ getRotation WRITE setRotation)
+		Q_PROPERTY(QVector3D Scale READ getScale WRITE setScale)
 public:
 	QVector3D getPosition() const { return mPosition; }
 	void setPosition(QVector3D val) { mPosition = val; }

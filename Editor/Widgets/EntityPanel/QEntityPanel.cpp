@@ -1,9 +1,9 @@
 #include "QEntityPanel.h"
-#include <QApplication>
-#include "Toolkit\QWidgetShadowMaker.h"
-#include <QVBoxLayout>
 #include "ECS/QEntity.h"
+#include "Toolkit\QWidgetShadowMaker.h"
 #include "..\PropertyPanel\QPropertyPanel.h"
+#include <QApplication>
+#include <QVBoxLayout>
 
 QEntityPanel::QEntityPanel(QEntity* entity /*= nullptr*/) 
 	: mEntity(entity)
@@ -38,13 +38,13 @@ void QEntityPanel::clearToolBox() {
 }
 
 void QEntityPanel::recreatePanel() {
+	clearToolBox();
 	lbName.setVisible(mEntity);
 	mToolBox.setVisible(mEntity);
 	btAddComponent.setVisible(mEntity);
 	if (!mEntity) {
 		return;
 	}
-	clearToolBox();
 	lbName.setText(mEntity->objectName());
 	for (auto compPtr : mEntity->findChildren<IComponent*>(QString(), Qt::FindChildOption::FindDirectChildrenOnly)) {
 		QPropertyPanel* compPanel = new QPropertyPanel(compPtr);

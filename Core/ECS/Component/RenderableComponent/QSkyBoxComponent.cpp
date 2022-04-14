@@ -54,6 +54,8 @@ void QSkyBoxComponent::setSkyBox(std::shared_ptr<Asset::SkyBox> val) {
 }
 
 void QSkyBoxComponent::recreateResource() {
+	if (!mSkyBox)
+		return;
 	mTexture.reset(RHI->newTexture(QRhiTexture::RGBA8, mSkyBox->getImageList().front().size(), 1,
 				   QRhiTexture::CubeMap
 				   | QRhiTexture::MipMapped
@@ -74,8 +76,9 @@ void QSkyBoxComponent::recreateResource() {
 }
 
 void QSkyBoxComponent::recreatePipeline() {
+	if (!mSkyBox)
+		return;
 	mPipeline.reset(RHI->newGraphicsPipeline());
-
 	const auto& blendStates = QRenderSystem::instance()->getSceneBlendStates();
 	mPipeline->setTargetBlends(blendStates.begin(), blendStates.end());
 
@@ -156,6 +159,8 @@ void QSkyBoxComponent::recreatePipeline() {
 }
 
 void QSkyBoxComponent::uploadResource(QRhiResourceUpdateBatch* batch) {
+	if (!mSkyBox)
+		return;
 	batch->uploadStaticBuffer(mVertexBuffer.get(), cubeData);
 
 	QRhiTextureSubresourceUploadDescription subresDesc[6];
@@ -182,13 +187,15 @@ void QSkyBoxComponent::updatePrePass(QRhiCommandBuffer* cmdBuffer) {
 }
 
 void QSkyBoxComponent::updateResourcePrePass(QRhiResourceUpdateBatch* batch) {
+	if (!mSkyBox)
+		return;
 	QMatrix4x4 MVP = mEntity->calculateMatrixMVP();
 	MVP.scale(1000);
 	batch->updateDynamicBuffer(mUniformBuffer.get(), 0, sizeof(QMatrix4x4), MVP.constData());
 }
 
 void QSkyBoxComponent::renderInPass(QRhiCommandBuffer* cmdBuffer, const QRhiViewport& viewport) {
-	if (mTexture->pixelSize().isEmpty())
+	if (!mSkyBox)
 		return;
 	cmdBuffer->setGraphicsPipeline(mPipeline.get());
 	cmdBuffer->setViewport(viewport);

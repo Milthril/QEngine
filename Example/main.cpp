@@ -23,7 +23,7 @@ public:
 		QAssetImpoerter::instance()->import(R"(C:\Users\fuxinghao879\Desktop\QEngine\Asset\sky.jpeg)", assetDir());
 
 		QEntity* entity = world()->createEntity("Entity");
-		//auto staitcMeshAsset = QAssetImpoerter::instance()->load<Asset::StaticMesh>(assetDir().filePath("Genji Shim.QAsset"));
+		auto staitcMeshAsset = QAssetImpoerter::instance()->load<Asset::StaticMesh>(assetDir().filePath("Genji Shim.QAsset"));
 
 		//QStaticMeshComponent* staitcMesh = entity->addComponent<QStaticMeshComponent>();
 		//staitcMesh->setStaticMesh(staitcMeshAsset);
