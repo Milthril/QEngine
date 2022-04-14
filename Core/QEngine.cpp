@@ -1,9 +1,6 @@
 #include "QEngine.h"
 #include "EventHandler\QTickEventHandler.h"
 #include "ECS\System\RenderSystem\QRenderSystem.h"
-#include "Asset\Material.h"
-#include "Asset\StaticMesh.h"
-#include "Asset\SkyBox.h"
 
 
 QEngine::QEngine(int argc, char** argv, bool enableDebug /*= false*/)

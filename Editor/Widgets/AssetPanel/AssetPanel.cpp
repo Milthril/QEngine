@@ -12,6 +12,7 @@
 #include <QWidgetAction>
 #include "Adjuster\BoolBox.h"
 #include "Toolkit\QWidgetShadowMaker.h"
+#include "Asset\Material.h"
 
 void showInFolder(const QString& path)
 {
@@ -104,12 +105,27 @@ void AssetPanel::createUI()
 	btFileFilter_.setGraphicsEffect(new QWidgetShadowMaker);
 }
 
-void AssetPanel::connectUI()
-{
+void AssetPanel::connectUI(){
 	connect(&fileWidget_, &QListWidget::doubleClicked, this, [this](QModelIndex index) {
 		QFileInfo fileInfo(index.data(Qt::ToolTipRole).toString());
 		if (fileInfo.isDir()) {
 			directoryWidget_.setCurrentDir(fileInfo.filePath());
+		}
+		else {
+			QFile file(index.data(Qt::ToolTipRole).toString());
+			if(file.open(QFile::ReadOnly)) {
+				QDataStream stream(&file);
+				int typeId = -1;
+				stream >> typeId;
+				file.close();
+				switch (typeId) {
+				case QMetaTypeId2<Asset::Material>::qt_metatype_id():
+					break;
+				default:
+					break;
+				}
+
+			}
 		}
 	});
 

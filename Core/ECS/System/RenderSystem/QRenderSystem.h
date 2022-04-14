@@ -2,8 +2,7 @@
 #define QRenderSystem_h__
 
 #include <QObject>
-#include "RHI\QRhiWindow.h"
-
+#include "QRenderWindow.h"
 
 #define RHI (QRenderSystem::instance()->getRHI())
 
@@ -27,14 +26,14 @@ public:
 	int getSceneSampleCount();
 	QVector<QRhiGraphicsPipeline::TargetBlend>  getSceneBlendStates();
 	QRhiRenderPassDescriptor* getSceneRenderPassDescriptor();
-	QRhiWindow* window();
+	QRenderWindow* window();
 	QRhi* getRHI();
 	IRenderer* renderer();
 	bool isEnableDebug();
 private:
 	QRenderSystem();
 private:
-	std::shared_ptr<QRhiWindow> mWindow;
+	std::shared_ptr<QRenderWindow> mWindow;
 	std::shared_ptr<IRenderer> mRenderer;
 	bool mEnableDebug = false;
 };

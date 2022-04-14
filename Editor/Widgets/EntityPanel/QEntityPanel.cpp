@@ -1,22 +1,43 @@
 #include "QEntityPanel.h"
-#include "ECS/QEntity.h"
-#include "Toolkit\QWidgetShadowMaker.h"
-#include "..\PropertyPanel\QPropertyPanel.h"
+
 #include <QApplication>
 #include <QVBoxLayout>
+#include "QMenu"
+
+#include "ECS/QEntity.h"
+#include "ECS/Component/IComponent.h"
+#include "Toolkit/QWidgetShadowMaker.h"
+#include "Widgets/PropertyPanel/QPropertyPanel.h"
+#include "QWidgetListPanel.h"
 
 QEntityPanel::QEntityPanel(QEntity* entity /*= nullptr*/) 
 	: mEntity(entity)
 	, btAddComponent(tr("Add Component"))
+	, mWidgetPanel(new QWidgetListPanel)
 {
 	QVBoxLayout* v = new QVBoxLayout(this);
 	v->setContentsMargins(5, 5, 5, 5);
 	v->addWidget(&lbName);
 	v->addWidget(&btAddComponent);
-	v->addWidget(&mToolBox);
-
+	v->addWidget(mWidgetPanel);
 	v->setAlignment(Qt::AlignTop| Qt::AlignHCenter);
 	lbName.setAlignment(Qt::AlignCenter);
+	connect(&btAddComponent, &QPushButton::clicked, this, [this]() {
+		QMenu menu;
+		for (auto& name : ComponentFactory::instance()->getComponentList()) {
+			menu.addAction(name, [this,name]() {
+				mEntity->addComponent(ComponentFactory::instance()->createComponent(name));
+				recreatePanel();
+			});
+		}
+		menu.exec(mapToGlobal(btAddComponent.geometry().bottomLeft()));
+	});
+	connect(mWidgetPanel, &QWidgetListPanel::widgetRemoved, this, [this](QWidget* w) {
+		QPropertyPanel* compPanel = dynamic_cast<QPropertyPanel*>(w);
+		if (compPanel) {
+			mEntity->removeComponent(dynamic_cast<IComponent*>(compPanel->getObject()));
+		}
+	});
 }
 
 QEntity* QEntityPanel::getEntity() const {
@@ -31,16 +52,10 @@ void QEntityPanel::setEntity(QEntity* val) {
 	}
 }
 
-void QEntityPanel::clearToolBox() {
-	while (mToolBox.count()) {
-		mToolBox.removeItem(0);
-	}
-}
-
 void QEntityPanel::recreatePanel() {
-	clearToolBox();
+	mWidgetPanel->clear();
 	lbName.setVisible(mEntity);
-	mToolBox.setVisible(mEntity);
+	mWidgetPanel->setVisible(mEntity);
 	btAddComponent.setVisible(mEntity);
 	if (!mEntity) {
 		return;
@@ -48,7 +63,11 @@ void QEntityPanel::recreatePanel() {
 	lbName.setText(mEntity->objectName());
 	for (auto compPtr : mEntity->findChildren<IComponent*>(QString(), Qt::FindChildOption::FindDirectChildrenOnly)) {
 		QPropertyPanel* compPanel = new QPropertyPanel(compPtr);
-		mToolBox.addItem(compPanel, compPtr->metaObject()->className());
+		compPanel->setSizeAdjustPolicy(QAbstractScrollArea::AdjustToContents);
+		compPanel->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+		compPanel->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+		compPanel->setSizePolicy(QSizePolicy::Policy::Preferred, QSizePolicy::Policy::Minimum);
+		mWidgetPanel->addWidget(compPtr->metaObject()->className(), compPanel);
 	}
 }
 

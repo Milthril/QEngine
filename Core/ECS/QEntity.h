@@ -25,20 +25,24 @@ public:
 			return nullptr;
 		}
 		Component* component = new Component;
-		component->setParent(this);
-		component->setupEntity(this);
-		mComponentHash[component->metaObject()->metaType().id()] = component;
+		addComponent(component);
 		return component;
 	}
+
+	void addComponent(IComponent* component);
 
 	template<typename Component>
 	Component* getComponent() {
 		return mComponentHash.value(Component::staticMetaObject.metaType().id(), nullptr);
 	}
+
+	void removeComponent(IComponent* component);
+
 	template<typename Component>
 	bool removeComponent() {
 		return mComponentHash.remove(Component::staticMetaObject.metaType().id());
 	}
+
 	QEntity::ID GetId() {
 		return mID;
 	}

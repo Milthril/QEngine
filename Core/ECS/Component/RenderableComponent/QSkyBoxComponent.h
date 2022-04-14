@@ -6,9 +6,9 @@
 
 class QSkyBoxComponent :public IRenderableComponent {
 	Q_OBJECT
+		Q_COMPONENT(QSkyBoxComponent)
 		Q_PROPERTY(std::shared_ptr<Asset::SkyBox> SkyBox READ getSkyBox WRITE setSkyBox)
 public:
-
 	const std::shared_ptr<Asset::SkyBox>& getSkyBox() const { return mSkyBox; }
 	void setSkyBox(std::shared_ptr<Asset::SkyBox> val);
 
@@ -18,7 +18,6 @@ public:
 	virtual void updatePrePass(QRhiCommandBuffer* cmdBuffer) override;
 	virtual void updateResourcePrePass(QRhiResourceUpdateBatch* batch) override;
 	virtual void renderInPass(QRhiCommandBuffer* cmdBuffer, const QRhiViewport& viewport) override;
-
 private:
 	std::shared_ptr<Asset::SkyBox> mSkyBox;
 	QRhiSPtr<QRhiGraphicsPipeline> mPipeline;

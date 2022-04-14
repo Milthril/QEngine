@@ -8,7 +8,9 @@ IRenderableComponent::~IRenderableComponent() {
 }
 
 void IRenderableComponent::setupEntity(QEntity* entity) {
-	IComponent::setupEntity(entity);
-	active();
+	if (entity) {
+		IComponent::setupEntity(entity);
+		active();
+	}
 }
 

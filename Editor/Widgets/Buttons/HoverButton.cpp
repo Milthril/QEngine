@@ -3,7 +3,7 @@
 #include "Toolkit\QWidgetShadowMaker.h"
 
 HoverButton::HoverButton() {
-	setGraphicsEffect(new QWidgetShadowMaker);
+	//setGraphicsEffect(new QWidgetShadowMaker);
 }
 
 void HoverButton::enterEvent(QEnterEvent* event)

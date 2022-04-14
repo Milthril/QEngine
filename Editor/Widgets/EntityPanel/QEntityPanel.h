@@ -1,11 +1,11 @@
 #ifndef QEntityPanel_h__
 #define QEntityPanel_h__
 
-#include <QToolBox>
 #include <QPushButton>
 #include <QLabel>
 
 class QEntity;
+class QWidgetListPanel;
 
 class QEntityPanel :public QWidget {
 public:
@@ -13,12 +13,11 @@ public:
 	QEntity* getEntity() const;
 	void setEntity(QEntity* val);
 private:
-	void clearToolBox();
 	void recreatePanel();
 private:
 	QEntity* mEntity = nullptr;
 	QLabel lbName;
-	QToolBox mToolBox;
+	QWidgetListPanel* mWidgetPanel;
 	QPushButton btAddComponent;
 protected:
 	void showEvent(QShowEvent* event) override;

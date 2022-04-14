@@ -15,7 +15,6 @@ public:
 	~QPropertyAdjusterItem();
 	virtual void createWidgetOrSubItem();
 	void update() override;
-
 protected:
 	QWidget* mItemWidget;
 	QLabel* mNameLabel;

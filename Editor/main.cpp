@@ -2,7 +2,6 @@
 #include <QGuiApplication>
 #include "QDateTime"
 #include "QEngine.h"
-#include "Asset\Importer\QAssetImporter.h"
 #include "Asset\StaticMesh.h"
 
 #include "ECS\Component\RenderableComponent\QStaticMeshComponent.h"
@@ -17,11 +16,11 @@ public:
 	virtual void customInit() override {
 		QEntity* entity = world()->createEntity("Test Entity");
 
-		auto staitcMeshAsset = QAssetImpoerter::instance()->load<Asset::StaticMesh>(assetDir().filePath("Genji Shim.QAsset"));
+		auto staitcMeshAsset = IAsset::LoadAsset<Asset::StaticMesh>(assetDir().filePath("Genji Shim.QStaticMesh"));
 		QStaticMeshComponent* staitcMesh = entity->addComponent<QStaticMeshComponent>();
 		staitcMesh->setStaticMesh(staitcMeshAsset);
 
-		auto skyboxAsset = QAssetImpoerter::instance()->load<Asset::SkyBox>(assetDir().filePath("sky.QAsset"));
+		auto skyboxAsset = IAsset::LoadAsset<Asset::SkyBox>(assetDir().filePath("sky.QSkyBox"));
 
 		QSkyBoxComponent* skybox = entity->addComponent<QSkyBoxComponent>();
 		skybox->setSkyBox(skyboxAsset);

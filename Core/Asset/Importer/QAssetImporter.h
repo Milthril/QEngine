@@ -12,8 +12,6 @@ public:
 	~QAssetImpoerter();
 	void import(QString path,QDir destDir);
 	
-	template<typename AssetType>
-	std::shared_ptr<AssetType> load(QString path);
 private:
 	QAssetImpoerter();
 	Q_INVOKABLE void threadFunc();

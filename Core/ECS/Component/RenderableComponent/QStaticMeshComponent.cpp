@@ -3,9 +3,27 @@
 #include "ECS\QEntity.h"
 
 void QStaticMeshComponent::setStaticMesh(std::shared_ptr<Asset::StaticMesh> val) {
+	if (mStaticMesh && mStaticMesh->getMaterial()) {
+		mStaticMesh->getMaterial()->removeRef(this);
+	}
 	mStaticMesh = val;
+	if (val && val->getMaterial()) {
+		mStaticMesh->getMaterial()->addRef(this);
+	}
 	bNeedRecreatePipeline.active();
 	bNeedRecreateResource.active();
+}
+
+void QStaticMeshComponent::setMaterial(std::shared_ptr<Asset::Material> val) {
+	if (mStaticMesh){
+		if (mStaticMesh->getMaterial()) {
+			mStaticMesh->getMaterial()->removeRef(this);
+		}
+		mStaticMesh->setMaterial(val);
+		if (val) {
+			val->addRef(this);
+		}
+	}
 }
 
 void QStaticMeshComponent::recreateResource() {

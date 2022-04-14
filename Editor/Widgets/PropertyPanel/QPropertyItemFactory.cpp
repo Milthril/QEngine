@@ -23,15 +23,37 @@
 #include "Adjuster\Vec2Box.h"
 #include "Adjuster\Vec3Box.h"
 #include "Adjuster\Vec4Box.h"
-#include "ExtType/QBoundedDouble.h"
-#include "ExtType/QBoundedInt.h"
-#include "ExtType/QColor4D.h"
-#include "ExtType/QColors.h"
+#include "Adjuster\AssetBox.h"
+
+#include "ExtType\QBoundedDouble.h"
+#include "ExtType\QBoundedInt.h"
+#include "ExtType\QColor4D.h"
+#include "ExtType\QColors.h"
+#include "Asset\Material.h"
+#include "Asset\SkyBox.h"
+#include "Asset\StaticMesh.h"
 
 #define REGISTER_ADJUSTER_ITEM(Type,AdjusterType)\
 		mCreatorMap[QMetaTypeId2<Type>::qt_metatype_id()] = [](QString name, Getter getter, Setter setter) { \
 			return new QPropertyAdjusterItem(name, getter, setter, new AdjusterType(getter().value<Type>()));\
 		};
+
+Q_DECLARE_METATYPE(std::shared_ptr<Asset::Material>);
+Q_DECLARE_METATYPE(std::shared_ptr<Asset::SkyBox>);
+Q_DECLARE_METATYPE(std::shared_ptr<Asset::StaticMesh>);
+
+#define REGISTER_ASSET_ITEM(AssetType)\
+		mCreatorMap[QMetaTypeId2<std::shared_ptr<AssetType>>::qt_metatype_id()] = [](QString name, Getter getter, Setter setter) { \
+			Getter newGetter = [getter]() {\
+				std::shared_ptr<IAsset> iasset = getter().value<std::shared_ptr<IAsset> >();\
+				return QVariant::fromValue(std::dynamic_pointer_cast<AssetType>(iasset));\
+			};\
+			Setter newSetter = [setter](QVariant var) {\
+				std::shared_ptr<IAsset> iasset = var.value<std::shared_ptr<IAsset> >();\
+				setter(QVariant::fromValue(std::dynamic_pointer_cast<AssetType>(iasset)));\
+			};\
+			return new QPropertyAdjusterItem(name, newGetter, newSetter, new AssetBox(getter().value<std::shared_ptr<AssetType>>(),I##AssetType));\
+		}
 
 QPropertyItemFactory* QPropertyItemFactory::instance()
 {
@@ -58,6 +80,27 @@ QPropertyItemFactory::QPropertyItemFactory()
 	REGISTER_ADJUSTER_ITEM(QRange, RangeSlider);
 	REGISTER_ADJUSTER_ITEM(QByteArray, ByteArrayLoader);
 	REGISTER_ADJUSTER_ITEM(QImage, ImageLoader);
+
+	REGISTER_ASSET_ITEM(Asset::Material);
+	REGISTER_ASSET_ITEM(Asset::SkyBox);
+	REGISTER_ASSET_ITEM(Asset::StaticMesh);
+
+	//mCreatorMap[QMetaTypeId2<std::shared_ptr<Asset::SkyBox>>::qt_metatype_id()] = [](QString name, Getter getter, Setter setter) {
+	//	Getter newGetter = [getter]() {
+	//		std::shared_ptr<IAsset> iasset = getter().value<std::shared_ptr<IAsset> >();
+	//		return QVariant::fromValue(std::dynamic_pointer_cast<Asset::SkyBox>(iasset));
+	//	};
+	//	Setter newSetter = [setter](QVariant var) {
+	//		std::shared_ptr<IAsset> iasset = var.value<std::shared_ptr<IAsset> >();
+	//		setter(QVariant::fromValue(std::dynamic_pointer_cast<Asset::SkyBox>(iasset)));
+	//	};
+	//	return new QPropertyAdjusterItem(name, newGetter, newSetter, new AssetBox(getter().value<std::shared_ptr<Asset::SkyBox>>()));
+	//};
+
+	//mCreatorMap[QMetaTypeId2<std::shared_ptr<Asset::StaticMesh>>::qt_metatype_id()] = [](QString name, Getter getter, Setter setter) {
+	//	return new QPropertyAdjusterItem(name, getter, setter, new AssetBox(getter().value<std::shared_ptr<Asset::StaticMesh>>()));
+	//};
+
 	//REGISTER_ADJUSTER_ITEM(std::shared_ptr<QMaterial>, MaterialButton);
 	//REGISTER_ADJUSTER_ITEM(std::shared_ptr<QParticleSystem>, ParticleSystemButton);
 

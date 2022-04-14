@@ -6,13 +6,16 @@
 #include "QRhiDefine.h"
 
 class QRhiWindow :public QWindow {
-	friend class QRenderSystem;
 public:
 	QRhiWindow(QRhi::Implementation backend);
 	void waitExposed();
 	int getFPS() const { return mFPS; }
 	bool hasClosed() const { return mHasClosed; }
 	QRhiSwapChain* getSwapChain() { return mSwapChain.get(); };
+
+	virtual void customInitEvent() {}
+	virtual void customRenderEvent(QRhiSwapChain *swapchain) {}
+	virtual void customResizeEvent() {}
 private:
 	void initInternal();
 	void renderInternal();
@@ -20,7 +23,7 @@ private:
 protected:
 	void exposeEvent(QExposeEvent*) override;
 	bool event(QEvent*) override;
-private:
+protected:
 	QRhi::Implementation mBackend;
 	std::shared_ptr<QRhi> mRhi;
 	QRhiSPtr<QRhiSwapChain> mSwapChain;
@@ -30,13 +33,12 @@ private:
 	QElapsedTimer mTimer;
 	int mFrameCount = 0;
 	int mFPS = 0;
-protected:
+
 	bool mRunning = false;
 	bool mNotExposed = false;
 	bool mNewlyExposed = false;
 	bool mHasSwapChain = false;
 	bool mHasClosed = false;
-
 };
 
 #endif // QRhiWindow_h__

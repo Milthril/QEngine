@@ -7,6 +7,8 @@
 #include "QMatrix4x4"
 
 class QCameraComponent :public IComponent {
+	Q_OBJECT
+		Q_COMPONENT(QCameraComponent)
 public:
 	QCameraComponent();
 	virtual QMatrix4x4 getViewMatrix();

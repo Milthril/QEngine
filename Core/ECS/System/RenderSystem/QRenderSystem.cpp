@@ -6,7 +6,7 @@
 #include "Renderer\DefaultRenderer\QDefaultRenderer.h"
 
 QRenderSystem::QRenderSystem()
-	: mWindow(std::make_shared<QRhiWindow>(QRhi::Implementation::Vulkan))
+	: mWindow(std::make_shared<QRenderWindow>(QRhi::Implementation::Vulkan))
 	, mRenderer(std::make_shared<QDefaultRenderer>() ){
 }
 
@@ -73,7 +73,7 @@ QRhiRenderPassDescriptor* QRenderSystem::getSceneRenderPassDescriptor() {
 	return mRenderer->getScenePass()->getRenderPassDescriptor();
 }
 
-QRhiWindow* QRenderSystem::window() {
+QRenderWindow* QRenderSystem::window() {
 	return mWindow.get();
 }
 

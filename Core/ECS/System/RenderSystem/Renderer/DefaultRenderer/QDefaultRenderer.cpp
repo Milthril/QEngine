@@ -68,8 +68,8 @@ void QDefaultRenderer::buildFrameGraph() {
 }
 
 void QDefaultRenderer::render(QRhiCommandBuffer* cmdBuffer) {
-	mFrameGraph->executable(cmdBuffer);
-
+	if(mFrameGraph)
+		mFrameGraph->executable(cmdBuffer);
 }
 
 void QDefaultRenderer::requestReadbackCompId(const QPoint& screenPt) {

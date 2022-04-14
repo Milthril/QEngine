@@ -2,6 +2,4 @@
 #define QParticleSystem_h__
 
 
-
-
 #endif // QParticleSystem_h__

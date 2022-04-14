@@ -8,19 +8,19 @@
 
 class FileListWidget;
 
-class FileListWidegtThreadTask :public QObject {
+class FileTaskThread :public QObject {
 	Q_OBJECT
 public:
-	FileListWidegtThreadTask(FileListWidget* widget);
-	~FileListWidegtThreadTask();
+	FileTaskThread(FileListWidget* widget);
+	~FileTaskThread();
 	void search(const QString& keyword);
 	void updateFileItems();
 	void clearIconCache();
 	QIcon getIcon(const QString& filePath);
 private:
-	Q_INVOKABLE void searchInternal(const QString& keyword);
-	Q_INVOKABLE void updateFileItemInternal();
-	Q_INVOKABLE void cacheIcon(const QString filePath);
+	Q_INVOKABLE void searchThreadTask(const QString& keyword);
+	Q_INVOKABLE void updateWidgetTaskThread();
+	Q_INVOKABLE void updateIconTaskThread(const QString filePath);
 	void addCacheFile(const QFileInfo& info);
 	void submitCache();
 	void waitFinished();
@@ -44,7 +44,7 @@ private:
 class FileListWidget :public QListWidget {
 	Q_OBJECT
 public:
-	friend class FileListWidegtThreadTask;
+	friend class FileTaskThread;
 	FileListWidget();
 	~FileListWidget();
 	void setCurrentDir(QString dir);
@@ -58,13 +58,11 @@ Q_SIGNALS:
 private:
 	QDir currentDir_;
 	QFileSystemWatcher fileWatcher_;
-	FileListWidegtThreadTask threadTask_;
+	FileTaskThread threadTask_;
 protected:
 	virtual void dragEnterEvent(QDragEnterEvent* event) override;
 	virtual void dragMoveEvent(QDragMoveEvent* e) override;
 	virtual void dropEvent(QDropEvent* event) override;
-
-
 };
 
 #endif // FileListWidget_h__

@@ -29,7 +29,6 @@ void ImporterTask::executable() {
 }
 
 void ImporterTask::resolveModel() {
-
 	Assimp::Importer importer;
 	const aiScene* scene = importer.ReadFile(mFilePath.toUtf8().constData(), aiProcess_Triangulate | aiProcess_FlipUVs);
 	if (!scene) {
@@ -40,7 +39,7 @@ void ImporterTask::resolveModel() {
 		aiMaterial* material = scene->mMaterials[i];
 		auto qMaterial = createMaterialFromAssimpMaterial(material, scene, QFileInfo(mFilePath).dir());
 		mMaterialList << qMaterial;
-		QString vaildPath = getVaildPath(mDestDir.filePath(QString("%1.QAsset").arg(material->GetName().C_Str())));
+		QString vaildPath = getVaildPath(mDestDir.filePath(QString("%1.%2").arg(material->GetName().C_Str()).arg(qMaterial->getExtName())));
 		qMaterial->setName(QFileInfo(vaildPath).baseName());
 		QFile file(vaildPath);
 		if (file.open(QFile::WriteOnly)) {
@@ -58,7 +57,7 @@ void ImporterTask::resolveModel() {
 			aiMesh* mesh = scene->mMeshes[node.first->mMeshes[i]];
 			std::shared_ptr<Asset::StaticMesh> staticMesh = createStaticMeshFromAssimpMesh(mesh);
 			staticMesh->setMaterial(mMaterialList[mesh->mMaterialIndex]);
-			QString vaildPath = getVaildPath(mDestDir.filePath(QString("%1.QAsset").arg(mesh->mName.C_Str())));
+			QString vaildPath = getVaildPath(mDestDir.filePath(QString("%1.%2").arg(mesh->mName.C_Str()).arg(staticMesh->getExtName())));
 			staticMesh->setName(QFileInfo(vaildPath).baseName());
 			QFile file(vaildPath);
 			if (file.open(QFile::WriteOnly)) {
@@ -99,7 +98,7 @@ void ImporterTask::resolveImage() {
 	imageList[5] = image.copy(QRect(QPoint(3 * mCubeFaceSize.width(), mCubeFaceSize.width()), mCubeFaceSize));
 
 	skyBox->setImageList(imageList);
-	QString vaildPath = getVaildPath(mDestDir.filePath(QString("%1.QAsset").arg(QFileInfo(mFilePath).baseName())));
+	QString vaildPath = getVaildPath(mDestDir.filePath(QString("%1.%2").arg(QFileInfo(mFilePath).baseName()).arg(skyBox->getExtName())));
 	skyBox->setName(QFileInfo(vaildPath).baseName());
 	QFile file(vaildPath);
 	if (file.open(QFile::WriteOnly)) {

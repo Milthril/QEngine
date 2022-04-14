@@ -31,5 +31,8 @@
         <file>Resources/Icons/Maximize-3.png</file>
         <file>Resources/Icons/Minimize-2.png</file>
         <file>Resources/Icons/Shut down-2.png</file>
+        <file>Resources/Icons/Material.png</file>
+        <file>Resources/Icons/SkyBox.png</file>
+        <file>Resources/Icons/StaticMesh.png</file>
     </qresource>
 </RCC>

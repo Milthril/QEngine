@@ -19,7 +19,6 @@ public:
 	virtual IAsset::Type type() override {
 		return IAsset::SkyBox;
 	}
-
 private:
 	std::array<QImage, 6> mImageList;
 };

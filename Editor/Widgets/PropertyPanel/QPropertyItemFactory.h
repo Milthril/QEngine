@@ -19,4 +19,5 @@ private:
 	QHash<TypeId, ItemCreator> mCreatorMap;
 };
 
+
 #endif // QPropertyItemFactory_h__
