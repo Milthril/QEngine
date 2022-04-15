@@ -20,6 +20,10 @@ public:
 	bool removeEntity(const QString& name);
 	bool removeEntity(QEntity* entity);
 
+	QCameraComponent* getCurrentCamera() const { return mCamera; }
+
+	QEntity* getCurrentEntity() const { return mCurrentEntity; }
+	void setCurrentEntity(QEntity* val) { mCurrentEntity = val; }
 private:
 	QString getVaildEntityName(const QString& name);
 Q_SIGNALS:
@@ -27,7 +31,9 @@ Q_SIGNALS:
 private:
 	QHash<QEntity::ID, QEntity*> mEntityHash;
 	std::shared_ptr<QEntity> mCameraEntity;
-	QCameraComponent* mCamera;
+	QCameraComponent* mCamera = nullptr;
+	QEntity* mCurrentEntity = nullptr;
+
 };
 
 

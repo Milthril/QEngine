@@ -12,7 +12,7 @@ class QPropertyAdjusterItem : public QPropertyItem
 {
 public:
 	explicit QPropertyAdjusterItem(const QString& name, Getter getter, Setter setter, Adjuster* adjuster);
-	~QPropertyAdjusterItem();
+	virtual ~QPropertyAdjusterItem();
 	virtual void createWidgetOrSubItem();
 	void update() override;
 protected:

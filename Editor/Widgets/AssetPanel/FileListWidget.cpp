@@ -1,12 +1,20 @@
 #include "FileListWidget.h"
-#include "QStyledItemDelegate"
-#include "QPainter"
-#include <QQueue>
-#include <QtConcurrent/QtConcurrent>
-#include <QScrollBar>
-#include "Toolkit/QSvgIcon.h"
-#include "QDragEnterEvent"
 #include "Asset/Importer/QAssetImporter.h"
+#include "Asset/Material.h"
+#include "Asset/PartcleSystem/ParticleSystem.h"
+#include "QDragEnterEvent"
+#include "QMenu"
+#include "QPainter"
+#include "QStyledItemDelegate"
+#include "Serialization/QSerialization.h"
+#include "Toolkit/FileUtils.h"
+#include "Toolkit/QSvgIcon.h"
+#include <QQueue>
+#include <QScrollBar>
+#include <QtConcurrent/QtConcurrent>
+#include <QApplication>
+#include "Window/MaterialEditor/QMaterialEditor.h"
+#include "Window/ParticlesEditor/QParticlesEditor.h"
 
 const QSize GridSize(80, 100);
 
@@ -83,13 +91,70 @@ FileListWidget::FileListWidget() :threadTask_(this) {
 	setAcceptDrops(true);
 	setDragDropMode(QAbstractItemView::DragDropMode::DragDrop);
 	setDefaultDropAction(Qt::MoveAction);
-	this->setDragDropOverwriteMode(true);
+	setDragDropOverwriteMode(true);
+	setContextMenuPolicy(Qt::CustomContextMenu);
+
+	connect(this, &QListWidget::itemPressed, this, [this](QListWidgetItem* item) {
+		if (qApp->mouseButtons() & Qt::RightButton) {
+			QString path = item->data(Qt::ToolTipRole).toString();
+			QMenu menu;
+			menu.addAction("Rename");
+			menu.addAction("Show In Folder", [path]() {
+				FileUtils::showInFolder(path);
+			});
+			if (QFileInfo(path).isFile()) {
+				menu.addAction("Remove", [path, this]() {
+					QFile file(path);
+					file.remove();
+					threadTask_.updateFileItems();
+			});
+			}
+			menu.exec(QCursor::pos());
+		}
+	});
+
+	connect(this, &QListWidget::itemDoubleClicked, this, [this](QListWidgetItem* item) {
+		std::shared_ptr<IAsset> asset = IAsset::CreateAssetFromPath(item->data(Qt::ToolTipRole).toString());
+		if (asset && asset->type() == IAsset::Material) {
+			QMaterialEditor::instance()->edit(std::dynamic_pointer_cast<Asset::Material>(asset));
+		}
+		else if (asset && asset->type() == IAsset::ParticleSystem) {
+			QParticlesEditor::instance()->edit(std::dynamic_pointer_cast<Asset::ParticleSystem>(asset));
+		}
+	});
+
+
+	connect(this, &QWidget::customContextMenuRequested, this, [this](const QPoint& pos) {
+		QMenu menu;
+		menu.addSeparator();
+		menu.addAction("New Material", [this]() {
+			std::shared_ptr<Asset::Material> material = std::make_shared<Asset::Material>();
+			QString path = FileUtils::getVaildPath(currentDir_.filePath("Material." + material->getExtName()));
+			QFile file(path);
+			if (file.open(QFile::WriteOnly)) {
+				QDataStream stream(&file);
+				stream << material.get();
+			}
+		});
+		menu.addAction("New ParticleSystem", [this]() {
+			std::shared_ptr<Asset::ParticleSystem> particleSystem = std::make_shared<Asset::ParticleSystem>();
+			QString path = FileUtils::getVaildPath(currentDir_.filePath("PartileSystem." + particleSystem->getExtName()));
+			QFile file(path);
+			if (file.open(QFile::WriteOnly)) {
+				QDataStream stream(&file);
+				stream << particleSystem.get();
+			}
+		});
+		menu.exec(mapToGlobal(pos));
+	});
+
 	connect(this->verticalScrollBar(), &QScrollBar::valueChanged, this, [this](int position) {
 		threadTask_.clearIconCache();
 	});
 	connect(&fileWatcher_, &QFileSystemWatcher::directoryChanged, this, [this](const QString& path) {
 		threadTask_.updateFileItems();
 	});
+
 }
 
 FileListWidget::~FileListWidget()
@@ -105,7 +170,9 @@ void FileListWidget::setCurrentDir(QString dir) {
 
 void FileListWidget::setCurrentDirAndSearch(QString dir, QString keyword)
 {
+	fileWatcher_.removePath(currentDir_.path());
 	currentDir_ = dir;
+	fileWatcher_.addPath(currentDir_.path());
 	if (keyword.isEmpty()) {
 		threadTask_.updateFileItems();
 	}
@@ -130,6 +197,7 @@ void FileListWidget::submitItemCount()
 {
 	Q_EMIT newMessage(QString("items: %1").arg(count()));
 }
+
 
 void FileListWidget::dragEnterEvent(QDragEnterEvent* event) {
 	if (event->mimeData()->hasUrls()) {
@@ -212,7 +280,7 @@ void FileTaskThread::updateWidgetTaskThread()
 	entryList += widget_->currentDir_.entryInfoList(nameFilerList, QDir::Filter::Files, QDir::SortFlag::LocaleAware);
 	QStringList itemList;
 	for (int i = 0; i < entryList.size() && !bRequestQuit; i++) {
-		itemList.push_back(entryList[i].fileName());
+		itemList.push_back(entryList[i].baseName());
 	}
 	if (bRequestQuit)
 		return;

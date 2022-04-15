@@ -52,7 +52,6 @@ public:
 	void addElideItem();
 	void searchFile(const QString& keyword);
 	void submitItemCount();
-
 Q_SIGNALS:
 	void newMessage(QString);
 private:

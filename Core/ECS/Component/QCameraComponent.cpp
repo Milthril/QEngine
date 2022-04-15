@@ -3,6 +3,7 @@
 #include "qevent.h"
 #include <QApplication>
 #include <QDateTime>
+#include "../System/RenderSystem/QRenderSystem.h"
 
 QCameraComponent::QCameraComponent(){
 }
@@ -47,14 +48,14 @@ void QCameraComponent::setAspectRatio(float val)
 	calculateClipMatrix();
 }
 
-QMatrix4x4 QCameraComponent::getMatrixVP()
+QMatrix4x4 QCameraComponent::getMatrixVPWithCorr()
 {
-	return mClipMatrix * mViewMatrix;
+	return RHI->clipSpaceCorrMatrix() * getMatrixClip() * mViewMatrix;
 }
 
 QMatrix4x4 QCameraComponent::getMatrixClip()
 {
-	return mClipMatrix;
+	return  mClipMatrix;
 }
 
 QMatrix4x4 QCameraComponent::getMatrixView()
@@ -103,7 +104,7 @@ bool QCameraComponent::eventFilter(QObject* watched, QEvent* event)
 				float yoffset = currentPos.y() - pressedPos.y();	// 注意这里是相反的，因为y坐标是从底部往顶部依次增大的
 				xoffset *= mRotationSpeed;
 				yoffset *= mRotationSpeed;
-				float yaw = getYaw() - xoffset;
+				float yaw = getYaw() + xoffset;
 				float pitch = getPitch() - yoffset;
 
 				if (pitch > 1.55f)         //将俯视角限制到[-89°,89°]，89°约等于1.55
@@ -192,6 +193,6 @@ void QCameraComponent::calculateCameraDirection()
 	mCameraDirection.setX(xzLen * cos(getYaw()));
 	mCameraDirection.setY(sin(getPitch()));
 	mCameraDirection.setZ(xzLen * sin(-getYaw()));
-	mCameraRight = QVector3D::crossProduct({ 0.0f,1.0f,0.0f }, mCameraDirection);
+	mCameraRight = QVector3D::crossProduct({ 0.0f,-1.0f,0.0f }, mCameraDirection);
 	mCameraUp = QVector3D::crossProduct(mCameraRight, mCameraDirection);         //摄像机上向量
 }

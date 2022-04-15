@@ -9,7 +9,7 @@ QWorld::QWorld()
 }
 
 QMatrix4x4 QWorld::getMatrixVP() {
-	return mCamera->getMatrixVP();
+	return mCamera->getMatrixVPWithCorr();
 }
 
 QEntity* QWorld::createEntity(const QString& name) {
@@ -23,6 +23,7 @@ QEntity* QWorld::createEntity(const QString& name) {
 			mEntityHash.remove(entity->GetId());
 		}
 	});
+	mCurrentEntity = entity;
 	Q_EMIT worldChanged();
 	return entity;
 }
@@ -76,6 +77,5 @@ QString QWorld::getVaildEntityName(const QString& name) {
 		newName = name + QString::number(index);
 		index++;
 	}
-	
 }
 

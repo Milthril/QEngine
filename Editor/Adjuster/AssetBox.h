@@ -1,9 +1,10 @@
 #ifndef AssetBox_h__
 #define AssetBox_h__
-#include "Adjuster.h"
-#include "Asset\IAsset.h"
 
-class QComboBox;
+#include "Adjuster/Adjuster.h"
+#include "Asset/IAsset.h"
+#include "Widgets/Buttons/ImageButton.h"
+#include "QLineEdit"
 
 class AssetBox : public Adjuster {
 	Q_OBJECT
@@ -15,11 +16,14 @@ public:
 
 	virtual void dragEnterEvent(QDragEnterEvent* event) override;
 	virtual void dropEvent(QDropEvent* event) override;
+	virtual void mouseDoubleClickEvent(QMouseEvent* event) override;
 protected:
 	IAsset::Type mType;
 	std::shared_ptr<IAsset> mDefaultAsset;
 	std::shared_ptr<IAsset> mCurrentAsset;
-	QComboBox* mComboBox;
+	QLineEdit mName;
+	ImageButton btOpenFile;
+	ImageButton btReset;
 };
 
 #endif // AssetBox_h__

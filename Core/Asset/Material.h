@@ -18,7 +18,7 @@ public:
 	friend QDataStream& operator<<(QDataStream& out, const Material& var);
 	friend QDataStream& operator>>(QDataStream& in, Material& var);
 private:
-	QByteArray mShadingCode;
+	QByteArray mShadingCode = "FragColor = vec4(1);";
 };
 }
 //Q_DECLARE_METATYPE(Asset::Material);

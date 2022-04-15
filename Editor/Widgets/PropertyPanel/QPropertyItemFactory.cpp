@@ -32,6 +32,7 @@
 #include "Asset\Material.h"
 #include "Asset\SkyBox.h"
 #include "Asset\StaticMesh.h"
+#include "Asset\PartcleSystem\ParticleSystem.h"
 
 #define REGISTER_ADJUSTER_ITEM(Type,AdjusterType)\
 		mCreatorMap[QMetaTypeId2<Type>::qt_metatype_id()] = [](QString name, Getter getter, Setter setter) { \
@@ -41,12 +42,13 @@
 Q_DECLARE_METATYPE(std::shared_ptr<Asset::Material>);
 Q_DECLARE_METATYPE(std::shared_ptr<Asset::SkyBox>);
 Q_DECLARE_METATYPE(std::shared_ptr<Asset::StaticMesh>);
+Q_DECLARE_METATYPE(std::shared_ptr<Asset::ParticleSystem>);
 
 #define REGISTER_ASSET_ITEM(AssetType)\
 		mCreatorMap[QMetaTypeId2<std::shared_ptr<AssetType>>::qt_metatype_id()] = [](QString name, Getter getter, Setter setter) { \
 			Getter newGetter = [getter]() {\
-				std::shared_ptr<IAsset> iasset = getter().value<std::shared_ptr<IAsset> >();\
-				return QVariant::fromValue(std::dynamic_pointer_cast<AssetType>(iasset));\
+				std::shared_ptr<AssetType> iasset = getter().value<std::shared_ptr<AssetType> >();\
+				return QVariant::fromValue(std::dynamic_pointer_cast<IAsset>(iasset));\
 			};\
 			Setter newSetter = [setter](QVariant var) {\
 				std::shared_ptr<IAsset> iasset = var.value<std::shared_ptr<IAsset> >();\
@@ -84,22 +86,8 @@ QPropertyItemFactory::QPropertyItemFactory()
 	REGISTER_ASSET_ITEM(Asset::Material);
 	REGISTER_ASSET_ITEM(Asset::SkyBox);
 	REGISTER_ASSET_ITEM(Asset::StaticMesh);
+	REGISTER_ASSET_ITEM(Asset::ParticleSystem);
 
-	//mCreatorMap[QMetaTypeId2<std::shared_ptr<Asset::SkyBox>>::qt_metatype_id()] = [](QString name, Getter getter, Setter setter) {
-	//	Getter newGetter = [getter]() {
-	//		std::shared_ptr<IAsset> iasset = getter().value<std::shared_ptr<IAsset> >();
-	//		return QVariant::fromValue(std::dynamic_pointer_cast<Asset::SkyBox>(iasset));
-	//	};
-	//	Setter newSetter = [setter](QVariant var) {
-	//		std::shared_ptr<IAsset> iasset = var.value<std::shared_ptr<IAsset> >();
-	//		setter(QVariant::fromValue(std::dynamic_pointer_cast<Asset::SkyBox>(iasset)));
-	//	};
-	//	return new QPropertyAdjusterItem(name, newGetter, newSetter, new AssetBox(getter().value<std::shared_ptr<Asset::SkyBox>>()));
-	//};
-
-	//mCreatorMap[QMetaTypeId2<std::shared_ptr<Asset::StaticMesh>>::qt_metatype_id()] = [](QString name, Getter getter, Setter setter) {
-	//	return new QPropertyAdjusterItem(name, getter, setter, new AssetBox(getter().value<std::shared_ptr<Asset::StaticMesh>>()));
-	//};
 
 	//REGISTER_ADJUSTER_ITEM(std::shared_ptr<QMaterial>, MaterialButton);
 	//REGISTER_ADJUSTER_ITEM(std::shared_ptr<QParticleSystem>, ParticleSystemButton);

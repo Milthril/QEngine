@@ -25,6 +25,13 @@ void QEntity::removeComponent(IComponent* component) {
 }
 
 QMatrix4x4 QEntity::calculateMatrixMVP() {
-
 	return mWorld->getMatrixVP()* mTransformComponent->calculateMatrix();
+}
+
+QMatrix4x4 QEntity::calculateMatrixModel() {
+	return mTransformComponent->calculateMatrix();
+}
+
+void QEntity::setMatrixModel(QMatrix4x4 mat) {
+	mTransformComponent->setMatrix(mat);
 }

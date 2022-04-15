@@ -21,7 +21,7 @@ public:
 
 	void setAspectRatio(float val);
 
-	QMatrix4x4 getMatrixVP();
+	QMatrix4x4 getMatrixVPWithCorr();
 	QMatrix4x4 getMatrixClip();
 	QMatrix4x4 getMatrixView();
 

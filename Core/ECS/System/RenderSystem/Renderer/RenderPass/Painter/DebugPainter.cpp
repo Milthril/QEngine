@@ -1,65 +1,55 @@
 #include "DebugPainter.h"
-#include "QApplication"
-#include "qevent.h"
 #include "ECS/System/RenderSystem/QRenderSystem.h"
+#include "ECS/Component/QCameraComponent.h"
+#include "QEngine.h"
+#include "qevent.h"
 
 DebugPainter::DebugPainter() {
-
 }
 
 void DebugPainter::paintImgui() {
 	auto& io = ImGui::GetIO();
 	ImGui::GetBackgroundDrawList()->AddText(ImGui::GetFont(), ImGui::GetFontSize(), ImVec2(1, 1), ImColor(0, 255, 0, 255), QString("FPS: %1").arg(QRenderSystem::instance()->window()->getFPS()).toLocal8Bit().data());
-	//ImGuizmo::BeginFrame();
-	//ImGuizmo::SetRect(0, 0, io.DisplaySize.x, io.DisplaySize.y);
-	/*auto camera = Engine->scene()->getCamera();
+	ImGuizmo::BeginFrame();
+	ImGuizmo::SetRect(0, 0, io.DisplaySize.x, io.DisplaySize.y);
+	QCameraComponent* camera = Engine->world()->getCurrentCamera();
 	if (camera) {
-		QSceneComponent* mCurrentComp = Engine->scene()->getCurrent();
-		if (mCurrentComp) {
+		QEntity* currentEntiy = Engine->world()->getCurrentEntity();
+		if (currentEntiy) {
 			QMatrix4x4 MAT;
-			QMatrix4x4 Local = mCurrentComp->calculateLocalMatrix();
+
+			QMatrix4x4 Model = currentEntiy->calculateMatrixModel();
+
 			QMatrix4x4 View = camera->getMatrixView();
 
-			QMatrix4x4 mat = QMatrix4x4(1.0f, 0.0f, 0.0f, 0.0f,
-										0.0f, -1.0f, 0.0f, 0.0f,
-										0.0f, 0.0f, 0.5f, 0.5f,
-										0.0f, 0.0f, 0.0f, 1.0f);
-			QMatrix4x4 Clip = mat * camera->getMatrixClip();
+			QMatrix4x4 Clip =  camera->getMatrixClip();
 
-			QMatrix4x4 Parent = mCurrentComp->calculateParentMatrix();
+			ImGuizmo::Manipulate(View.constData(), Clip.constData(), mOpt, ImGuizmo::LOCAL, Model.data(), NULL, NULL, NULL, NULL);
 
-			QMatrix4x4 World = Parent * Local;
-			ImGuizmo::Manipulate(View.constData(), Clip.constData(), mOpt, ImGuizmo::LOCAL, World.data(), NULL, NULL, NULL, NULL);
-			QVector3D position;
-			QVector3D rotation;
-			QVector3D scaling;
-			QMatrix4x4 ParentMat = mCurrentComp->calculateParentMatrix();
-			QMatrix4x4 NewLocal = ParentMat.inverted() * World;
+			currentEntiy->setMatrixModel(Model);
 
-			ImGuizmo::DecomposeMatrixToComponents(NewLocal.constData(), (float*)&position, (float*)&rotation, (float*)&scaling);
-			mCurrentComp->setPosition(position);
-			mCurrentComp->setRotation(rotation);
-			mCurrentComp->setScale(scaling);
-			if (NewLocal != Local) {
+	/*		if (NewLocal != Local) {
 				Engine->requestUpdatePropertyPanel();
-			}
+			}*/
 		}
-	}*/
+	}
 }
-
 
 void DebugPainter::resourceUpdate(QRhiResourceUpdateBatch* batch) {
 	if (!mReadPoint.isNull()&&mDebugTexture) {
 		mReadDesc.setTexture(mDebugTexture);
 		mReadReult.completed = [this]() {
-			const uchar* p = reinterpret_cast<const uchar*>(mReadReult.data.constData());
-			int offset = (mReadReult.pixelSize.width() * mReadPoint.y() + mReadPoint.x()) * 4;
-			uint32_t id = p[offset] + p[offset + 1] * 256 + p[offset + 2] * 256 * 256 + p[offset + 3] * 256 * 256 * 256;
-		/*	auto comp = Engine->scene()->searchCompById(id);
-			Engine->scene()->setCurrent(comp.get());
-			mReadPoint = { 0,0 };*/
+			if (!mReadPoint.isNull()) {
+				const uchar* p = reinterpret_cast<const uchar*>(mReadReult.data.constData());
+				int offset = (mReadReult.pixelSize.width() * mReadPoint.y() + mReadPoint.x()) * 4;
+				uint32_t id = p[offset] + p[offset + 1] * 256 + p[offset + 2] * 256 * 256 + p[offset + 3] * 256 * 256 * 256;
+				auto entity = Engine->world()->getEntityById(id);
+				Engine->world()->setCurrentEntity(entity);
+				mReadPoint = { 0,0 };
+			}
 		};
 		batch->readBackTexture(mReadDesc,&mReadReult);
+		RHI->finish();
 	}
 	ImGuiPainter::resourceUpdate(batch);
 }

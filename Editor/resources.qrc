@@ -34,5 +34,6 @@
         <file>Resources/Icons/Material.png</file>
         <file>Resources/Icons/SkyBox.png</file>
         <file>Resources/Icons/StaticMesh.png</file>
+        <file>Resources/Icons/reset.png</file>
     </qresource>
 </RCC>

@@ -30,12 +30,14 @@ public:
 	QRhi* getRHI();
 	IRenderer* renderer();
 	bool isEnableDebug();
+	void setEnableDebug(bool var) { mEnableDebug = var; }
 private:
 	QRenderSystem();
 private:
 	std::shared_ptr<QRenderWindow> mWindow;
 	std::shared_ptr<IRenderer> mRenderer;
 	bool mEnableDebug = false;
+
 };
 
 

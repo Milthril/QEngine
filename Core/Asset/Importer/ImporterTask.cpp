@@ -1,10 +1,10 @@
 #include "ImporterTask.h"
-#include "QRegularExpression"
 #include "assimp\Importer.hpp"
 #include "assimp\postprocess.h"
 #include "assimp\scene.h"
-#include "QQueue"
 #include "Converter.h"
+#include "QQueue"
+#include "QRegularExpression"
 #include "Serialization\QSerialization.h"
 
 #include "Asset\SkyBox.h"
@@ -17,12 +17,16 @@ void ImporterTask::executable() {
 		return;
 	QFileInfo info(mFilePath);
 	QString suffix = info.suffix();
-	if (suffix.compare(("FBX"), Qt::CaseInsensitive)==0) {
+	if (suffix.compare(("FBX"), Qt::CaseInsensitive)==0
+		|| suffix.compare(("MMD"), Qt::CaseInsensitive) == 0
+		|| suffix.compare(("OBJ"), Qt::CaseInsensitive) == 0
+		) {
 		resolveModel();
 	}
 	else if (suffix.compare(("PNG"), Qt::CaseInsensitive)==0
 		|| suffix.compare(("JPG"), Qt::CaseInsensitive)==0
 		|| suffix.compare(("JPEG"), Qt::CaseInsensitive)==0
+		|| suffix.compare(("TGA"), Qt::CaseInsensitive)==0
 			 ) {
 		resolveImage();
 	}
@@ -39,8 +43,8 @@ void ImporterTask::resolveModel() {
 		aiMaterial* material = scene->mMaterials[i];
 		auto qMaterial = createMaterialFromAssimpMaterial(material, scene, QFileInfo(mFilePath).dir());
 		mMaterialList << qMaterial;
-		QString vaildPath = getVaildPath(mDestDir.filePath(QString("%1.%2").arg(material->GetName().C_Str()).arg(qMaterial->getExtName())));
-		qMaterial->setName(QFileInfo(vaildPath).baseName());
+		QString vaildPath = getVaildPath(mDestDir.filePath(QString("%1.%2").arg(material->GetName().C_Str()).arg(qMaterial->getExtName())));;
+		qMaterial->setRefPath(vaildPath);
 		QFile file(vaildPath);
 		if (file.open(QFile::WriteOnly)) {
 			QDataStream out(&file);
@@ -56,13 +60,13 @@ void ImporterTask::resolveModel() {
 		for (unsigned int i = 0; i < node.first->mNumMeshes; i++) {
 			aiMesh* mesh = scene->mMeshes[node.first->mMeshes[i]];
 			std::shared_ptr<Asset::StaticMesh> staticMesh = createStaticMeshFromAssimpMesh(mesh);
-			staticMesh->setMaterial(mMaterialList[mesh->mMaterialIndex]);
+			staticMesh->setMaterialPath(mMaterialList[mesh->mMaterialIndex]->getRefPath());
 			QString vaildPath = getVaildPath(mDestDir.filePath(QString("%1.%2").arg(mesh->mName.C_Str()).arg(staticMesh->getExtName())));
-			staticMesh->setName(QFileInfo(vaildPath).baseName());
+			staticMesh->setRefPath(vaildPath);
 			QFile file(vaildPath);
 			if (file.open(QFile::WriteOnly)) {
 				QDataStream out(&file);
-				out << staticMesh;
+				out << staticMesh.get();
 			}
 		}
 		for (unsigned int i = 0; i < node.first->mNumChildren; i++) {
@@ -72,6 +76,7 @@ void ImporterTask::resolveModel() {
 }
 
 void ImporterTask::resolveImage() {
+	
 	QImage image(mFilePath);
 	if (image.isNull())
 		return;
@@ -99,11 +104,11 @@ void ImporterTask::resolveImage() {
 
 	skyBox->setImageList(imageList);
 	QString vaildPath = getVaildPath(mDestDir.filePath(QString("%1.%2").arg(QFileInfo(mFilePath).baseName()).arg(skyBox->getExtName())));
-	skyBox->setName(QFileInfo(vaildPath).baseName());
+	skyBox->setRefPath(vaildPath);
 	QFile file(vaildPath);
 	if (file.open(QFile::WriteOnly)) {
 		QDataStream out(&file);
-		out << skyBox;
+		out << skyBox.get();
 	}
 }
 

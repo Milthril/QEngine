@@ -7,7 +7,7 @@ QDataStream& operator<<(QDataStream& out, const StaticMesh& var) {
 	out << var.mName;
 	out << var.mIndices; 
 	out << var.mVertices;
-	out << var.mMaterial;
+	out << var.mMaterialPath;
 	return out;
 }
 
@@ -15,7 +15,7 @@ QDataStream& operator>>(QDataStream& in, StaticMesh& var) {
 	in >> var.mName;
 	in >> var.mIndices;
 	in >> var.mVertices;
-	in >> var.mMaterial;
+	in >> var.mMaterialPath;
 	return in;
 }
 

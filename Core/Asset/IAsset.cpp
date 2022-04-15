@@ -5,6 +5,7 @@
 #include "StaticMesh.h"
 
 #include "Serialization/QSerialization.h"
+#include "PartcleSystem/ParticleSystem.h"
 
 template<typename AssetType>
 static std::shared_ptr<AssetType>
@@ -14,6 +15,7 @@ IAsset::LoadAsset(QString path) {
 		QDataStream in(&file);
 		AssetType* asset = nullptr;
 		in >> asset;
+		asset->setRefPath(path);
 		return std::shared_ptr<AssetType>(asset);
 	}
 	return nullptr;
@@ -45,19 +47,27 @@ std::shared_ptr<IAsset> IAsset::CreateAssetFromPath(QString path, Type type /*= 
 		case Material: {
 			Asset::Material* asset = nullptr;
 			in >> asset;
+			asset->setRefPath(path);
 			return std::shared_ptr<IAsset>(asset);
 		}
 		case SkyBox: {
 			Asset::SkyBox* asset = nullptr;
 			in >> asset;
+			asset->setRefPath(path);
 			return std::shared_ptr<IAsset>(asset);
 		}
 		case StaticMesh:{
 			Asset::StaticMesh* asset = nullptr;
 			in >> asset;
+			asset->setRefPath(path);
 			return std::shared_ptr<IAsset>(asset);
 		}
-		case ParticleSystem:
+		case ParticleSystem: {
+			Asset::ParticleSystem* asset = nullptr;
+			in >> asset;
+			asset->setRefPath(path);
+			return std::shared_ptr<IAsset>(asset);
+		}
 			break;
 		default:
 			return nullptr;

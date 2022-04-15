@@ -8,8 +8,7 @@
 #include "Script\QLuaScriptFactory.h"
 #include "Asset\Material.h"
 
-QMaterialEditor* QMaterialEditor::QMaterialEditor::instance()
-{
+QMaterialEditor* QMaterialEditor::QMaterialEditor::instance(){
 	static QMaterialEditor ins;
 	return &ins;
 }
@@ -40,28 +39,30 @@ QMaterialEditor::QMaterialEditor()
 	}
 	apis->prepare();
 
-	QSplitter* body = new QSplitter;
-	setWidget(body);
-	body->addWidget(mUniformPanel);
+	QSplitter* MainPanel = new QSplitter;
+	setWidget(MainPanel);
+	MainPanel->addWidget(mUniformPanel);
+
+	QSplitter* CodePanel = new QSplitter(Qt::Vertical);
+	MainPanel->addWidget(CodePanel);
 
 	QWidget* LuaPanel = new QWidget;
 	QVBoxLayout* v = new QVBoxLayout(LuaPanel);
 	v->addWidget(btSetupLua, 0, Qt::AlignRight);
 	v->addWidget(luaEditor);
-	body->addWidget(LuaPanel);
+	CodePanel->addWidget(LuaPanel);
 
 	QWidget* GlslPanel = new QWidget;
 	v = new QVBoxLayout(GlslPanel);
 	v->addWidget(btSetupShader, 0, Qt::AlignRight);
 	v->addWidget(glslEditor);
-	body->addWidget(GlslPanel);
+	CodePanel->addWidget(GlslPanel);
 
 	btSetupShader->setFixedSize(120, 25);
 	btSetupLua->setFixedSize(120, 25);
 
-	body->setStretchFactor(0, 2);
-	body->setStretchFactor(1, 5);
-	body->setStretchFactor(2, 5);
+	MainPanel->setStretchFactor(0, 2);
+	MainPanel->setStretchFactor(1, 5);
 
 	connect(btSetupLua, &QPushButton::clicked, this, [this]() {
 		mMaterial->getScript()->loadCode(luaEditor->text().toLocal8Bit());

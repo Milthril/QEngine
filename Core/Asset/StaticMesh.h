@@ -35,15 +35,15 @@ public:
 	const QVector<Asset::StaticMesh::Index>& getIndices() const { return mIndices; }
 	void setIndices(QVector<Asset::StaticMesh::Index> val) { mIndices = val; }
 
-	std::shared_ptr<Asset::Material>& getMaterial() { return mMaterial; }
-	void setMaterial(std::shared_ptr<Asset::Material>  val) { mMaterial = val; }
+	QString getMaterialPath() const { return mMaterialPath; }
+	void setMaterialPath(QString val) { mMaterialPath = val; }
 
 	friend QDataStream& operator<<(QDataStream& out, const StaticMesh& var);
 	friend QDataStream& operator>>(QDataStream& in, StaticMesh& var);
 private:
 	QVector<Vertex> mVertices;
 	QVector<Index> mIndices;
-	std::shared_ptr<Asset::Material> mMaterial;
+	QString mMaterialPath;
 public:
 	virtual IAsset::Type type() override {
 		return IAsset::StaticMesh;

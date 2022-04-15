@@ -2,12 +2,15 @@
 #define QSerialization_h__
 
 #include <type_traits>
+#include "QMetaType"
 
 QByteArray serializeQObject(QObject* src);
 void deserializeQObject(QObject* dst, QByteArray data);
 QObject* createQObject(QByteArray data);
 
-template<typename T, typename std::enable_if<std::is_pointer<T>::value>::type* = nullptr>
+
+
+template<typename T, typename std::enable_if<std::is_pointer<T>::value && QMetaTypeId2<typename std::remove_pointer<T>::type>::IsBuiltIn>::type* = nullptr>
 inline QDataStream& operator<<(QDataStream& out, const T& ptr) {
 	int id = -1;
 	if (ptr != nullptr) {
@@ -21,7 +24,7 @@ inline QDataStream& operator<<(QDataStream& out, const T& ptr) {
 }
 
 
-template<typename T, typename std::enable_if<std::is_pointer<T>::value>::type* = nullptr>
+template<typename T, typename std::enable_if<std::is_pointer<T>::value && QMetaTypeId2<typename std::remove_pointer<T>::type>::IsBuiltIn>::type* = nullptr>
 inline QDataStream& operator>>(QDataStream& in, T& ptr) {
 	int id;
 	in >> id;
@@ -45,12 +48,12 @@ inline QDataStream& operator>>(QDataStream& in, T& ptr) {
 	return in;
 }
 
-template<typename T>
+template<typename T, typename std::enable_if<QMetaTypeId2<std::shared_ptr<T>>::Defined>::type* = nullptr>
 inline QDataStream& operator<<(QDataStream& out,const std::shared_ptr<T>& ptr) {
 	return operator<<(out, ptr.get());
 }
 
-template<typename T>
+template<typename T, typename std::enable_if<QMetaTypeId2<std::shared_ptr<T>>::Defined>::type* = nullptr>
 inline QDataStream& operator>>(QDataStream& in, std::shared_ptr<T>& ptr) {
 	int id;
 	in >> id;

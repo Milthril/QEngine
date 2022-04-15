@@ -20,6 +20,8 @@ public:
 	QVector3D getScale() const { return mScale; }
 	void setScale(QVector3D val) { mScale = val; }
 
+	void setMatrix(QMatrix4x4 matrix);
+
 	QMatrix4x4 calculateMatrix();
 private:
 	QVector3D mPosition = QVector3D(0.0f, 0.0f, 0.0f);

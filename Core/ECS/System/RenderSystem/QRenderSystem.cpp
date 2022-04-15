@@ -23,7 +23,7 @@ QShader QRenderSystem::createShaderFromCode(QShader::Stage stage, const char* co
 		QShaderBaker::GeneratedShader{QShader::Source::GlslShader,QShaderVersion(430)},
 		QShaderBaker::GeneratedShader{QShader::Source::MslShader,QShaderVersion(12)},
 		QShaderBaker::GeneratedShader{QShader::Source::HlslShader,QShaderVersion(50)},
-							  });
+	});
 
 	baker.setSourceString(code, stage);
 	QShader shader = baker.bake();

@@ -126,14 +126,14 @@ void QSkyBoxComponent::recreatePipeline() {
 		%2
 	}
 	)");
-	//if (mRenderPass->getEnableOutputDebugId()) {
-	//	fragShaderCode = fragShaderCode
-	//		.arg("layout (location = 1) out vec4 CompId;\n")
-	//		.arg("CompId = " + mSkyBox->getCompIdVec4String() + ";\n");
-	//}
-	//else {
+	if (QRenderSystem::instance()->isEnableDebug()) {
+		fragShaderCode = fragShaderCode
+			.arg("layout (location = 1) out vec4 CompId;\n")
+			.arg("CompId =  vec4(255,255,255,255);");
+	}
+	else {
 		fragShaderCode = fragShaderCode.arg("").arg("");
-	//}
+	}
 
 	QShader fs = QRenderSystem::createShaderFromCode(QShader::Stage::FragmentStage, fragShaderCode.toLocal8Bit());
 	Q_ASSERT(fs.isValid());

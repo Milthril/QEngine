@@ -10,8 +10,8 @@ QEngine::QEngine(int argc, char** argv, bool enableDebug /*= false*/)
 	if (QDir(QENGINE_ASSET_DIR).exists()) {
 		mAssetDir = QDir(QENGINE_ASSET_DIR);
 	}
+	QRenderSystem::instance()->setEnableDebug(enableDebug);
 }
-
 
 void QEngine::customInit() {
 

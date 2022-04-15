@@ -17,26 +17,25 @@ public:
 	void setStaticMesh(std::shared_ptr<Asset::StaticMesh> val);
 
 	std::shared_ptr<Asset::Material> getMaterial() { 
-		return mStaticMesh? mStaticMesh->getMaterial(): nullptr; 
+		return mMaterial;
 	}
 	void setMaterial(std::shared_ptr<Asset::Material> val);
-
-	QRhiSPtr<QRhiShaderResourceBindings> mShaderResourceBindings;
 
 	virtual void recreateResource() override;
 	virtual void recreatePipeline() override;
 	virtual void uploadResource(QRhiResourceUpdateBatch* batch) override;
 	virtual void updatePrePass(QRhiCommandBuffer* cmdBuffer) override;
 	virtual void updateResourcePrePass(QRhiResourceUpdateBatch* batch) override;
-
 	virtual void renderInPass(QRhiCommandBuffer* cmdBuffer, const QRhiViewport& viewport) override;
 
 private:
 	std::shared_ptr<Asset::StaticMesh> mStaticMesh;
+	std::shared_ptr<Asset::Material> mMaterial;
 	QRhiSPtr<QRhiGraphicsPipeline> mPipeline;
 	QRhiSPtr<QRhiBuffer> mUniformBuffer;
 	QRhiSPtr<QRhiBuffer> mVertexBuffer;
 	QRhiSPtr<QRhiBuffer> mIndexBuffer;
+	QRhiSPtr<QRhiShaderResourceBindings> mShaderResourceBindings;
 };
 
 #endif // QStaticMeshComponent_h__

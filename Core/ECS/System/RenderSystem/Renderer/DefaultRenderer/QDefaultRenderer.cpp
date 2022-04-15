@@ -58,9 +58,10 @@ void QDefaultRenderer::buildFrameGraph() {
 				})
 			->dependency({ "Scene","BloomBlurPass"})
 		->node("Swapchain", swapChainPass,
-			   [self = swapChainPass.get(), bloom = bloomMeragePass.get()]() {
+			   [self = swapChainPass.get(), bloom = bloomMeragePass.get(), scene = mScenePass.get()]() {
 					self->setupSwapChain(QRenderSystem::instance()->window()->getSwapChain());
 					self->setupTexture(bloom->getOutputTexture());
+					self->setupDebugTexture(scene->getDebugTexutre());
 				})
 			->dependency({ "BloomMeragePass" })
 		->end();

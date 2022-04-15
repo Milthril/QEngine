@@ -51,10 +51,12 @@ public:
 		return mTransformComponent.get();
 	}
 	QMatrix4x4 calculateMatrixMVP();
+	QMatrix4x4 calculateMatrixModel();
+	void setMatrixModel(QMatrix4x4 mat);
 public:
 	std::shared_ptr<QTransformComponent> mTransformComponent = std::make_shared<QTransformComponent>();
 private:
-	inline static int64_t mIDStack = 0;
+	inline static QEntity::ID mIDStack = 0;
 private:
 	QWorld* mWorld;
 	QEntity::ID mID;

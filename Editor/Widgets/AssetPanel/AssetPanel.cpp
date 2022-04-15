@@ -3,44 +3,15 @@
 #include <QPainter>
 #include <QApplication>
 #include <QMenu>
-#include "QProcess"
-#include "QDesktopServices"
-#include "QUrl"
 #include <QSplitter>
 #include <QAction>
 #include <QActionGroup>
 #include <QWidgetAction>
 #include "Adjuster\BoolBox.h"
 #include "Toolkit\QWidgetShadowMaker.h"
+#include "Toolkit\FileUtils.h"
 #include "Asset\Material.h"
 
-void showInFolder(const QString& path)
-{
-	QFileInfo info(path);
-#if defined(Q_OS_WIN)
-	QStringList args;
-	if (!info.isDir())
-		args << "/select,";
-	args << QDir::toNativeSeparators(path);
-	if (QProcess::startDetached("explorer", args))
-		return;
-#elif defined(Q_OS_MAC)
-	QStringList args;
-	args << "-e";
-	args << "tell application \"Finder\"";
-	args << "-e";
-	args << "activate";
-	args << "-e";
-	args << "select POSIX file \"" + path + "\"";
-	args << "-e";
-	args << "end tell";
-	args << "-e";
-	args << "return";
-	if (!QProcess::execute("/usr/bin/osascript", args))
-		return;
-#endif
-	QDesktopServices::openUrl(QUrl::fromLocalFile(info.isDir() ? path : info.path()));
-}
 
 AssetPanel::AssetPanel(QString rootDir)
 	: rootDir_(rootDir)
@@ -124,18 +95,7 @@ void AssetPanel::connectUI(){
 				default:
 					break;
 				}
-
 			}
-		}
-	});
-
-	connect(&fileWidget_, &QListWidget::itemPressed, this, [this](QListWidgetItem* item) {
-		if (qApp->mouseButtons() & Qt::RightButton) {
-			QMenu menu;
-			menu.addAction("Show In Folder", [item]() {
-				showInFolder(item->data(Qt::ToolTipRole).toString());
-			});
-			menu.exec(QCursor::pos());
 		}
 	});
 
@@ -147,7 +107,7 @@ void AssetPanel::connectUI(){
 		if (qApp->mouseButtons() & Qt::RightButton) {
 			QMenu menu;
 			menu.addAction("Show In Folder", [item]() {
-				showInFolder(item->data(0, Qt::ToolTipRole).toString());
+				FileUtils::showInFolder(item->data(0, Qt::ToolTipRole).toString());
 			});
 			menu.exec(QCursor::pos());
 		}

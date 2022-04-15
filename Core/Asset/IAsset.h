@@ -5,6 +5,7 @@
 #include <QMetaType>
 #include "QMap"
 #include "QFile"
+#include "QFileInfo"
 
 class IAsset {
 public:
@@ -17,8 +18,9 @@ public:
 	};
 	virtual IAsset::Type type() = 0;
 
-	QString getName() const { return mName; }
-	void setName(QString val) { mName = val; }
+	QString getName() const { return QFileInfo(mRefPath).baseName(); }
+	QString getRefPath() const { return mRefPath; }
+	void setRefPath(QString val) { mRefPath = val; }
 
 	QString getExtName() {
 		return mAssetExtName[type()];
@@ -37,6 +39,8 @@ public:
 	};
 protected:
 	QString mName;
+	QString mRefPath;
+
 };
 
 #endif // IAsset_h__

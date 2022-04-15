@@ -31,7 +31,8 @@ void BloomMerageRenderPass::compile() {
 	blendState.enable = true;
 	mPipeline->setTargetBlends({ blendState });
 	mPipeline->setSampleCount(mRT.renderTarget->sampleCount());
-	QShader vs = QRenderSystem::createShaderFromCode(QShader::VertexStage, R"(#version 450
+
+	QString vsCode = R"(#version 450
 layout (location = 0) out vec2 vUV;
 out gl_PerVertex{
 	vec4 gl_Position;
@@ -39,8 +40,10 @@ out gl_PerVertex{
 void main() {
 	vUV = vec2((gl_VertexIndex << 1) & 2, gl_VertexIndex & 2);
 	gl_Position = vec4(vUV * 2.0f - 1.0f, 0.0f, 1.0f);
+	%1
 }
-)");
+)";
+	QShader vs = QRenderSystem::createShaderFromCode(QShader::VertexStage, vsCode.arg(RHI->isYUpInNDC() ? "	vUV.y = 1 - vUV.y;" : "").toLocal8Bit());
 
 	QShader fs = QRenderSystem::createShaderFromCode(QShader::FragmentStage, R"(#version 450
 layout (binding = 0) uniform sampler2D uSrcTexture;

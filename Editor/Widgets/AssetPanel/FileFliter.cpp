@@ -3,69 +3,38 @@
 #include "QBoxLayout"
 #include "Adjuster\BoolBox.h"
 #include <QLabel>
-#include <QMetaEnum>
-#include "QApplication"
+#include "Asset\IAsset.h"
 
 class FilterCheckAction :public QWidgetAction {
 public:
-	FilterCheckAction(FileFilterMenu::FileFliterFlag flag)
+	FilterCheckAction(QString name)
 		: QWidgetAction(nullptr)
-		, flag_(flag) {
+		, mName(name) {
 		QWidget* widget = new QWidget;
 		QHBoxLayout* h = new QHBoxLayout(widget);
 		h->setContentsMargins(0, 0, 0, 0);
 		h->addWidget(&boolBox);
-		h->addWidget(new QLabel(metaFlag.valueToKey((int)flag)));
+		h->addWidget(new QLabel(mName));
 		setDefaultWidget(widget);
 	}
-	FileFilterMenu::FileFliterFlag getFlag() {
-		return flag_;
+	bool isChecked() {
+		return boolBox.getValue().toBool();
 	}
 private:
-	FileFilterMenu::FileFliterFlag flag_;
+	QString mName;
 	BoolBox boolBox;
-	inline static QMetaEnum metaFlag = QMetaEnum::fromType<FileFilterMenu::FileFliterFlag>();;
 };
 
 FileFilterMenu::FileFilterMenu()
 {
-	addFlag(FileFliterFlag::Base);
-	addFlag(FileFliterFlag::Matrial);
-	addFlag(FileFliterFlag::Texture);
-	addFlag(FileFliterFlag::Animation);
-	//addFlagGroup("Animation", { FileFliterFlag::Texture ,FileFliterFlag::Texture ,FileFliterFlag::Texture });
+	for (auto& assetType : IAsset::mAssetExtName.values()) {
+		addItem(assetType);
+	}
 }
 
-void FileFilterMenu::addFlag(FileFliterFlag flag)
+void FileFilterMenu::addItem(QString name)
 {
-	QWidgetAction* action = new FilterCheckAction(flag);
+	QWidgetAction* action = new FilterCheckAction(name);
 	addAction(action);
 }
 
-void FileFilterMenu::addFlagGroup(const QString& name, QList<FileFliterFlag> flagList)
-{
-	QMenu* menu = addMenu(name);
-	for (auto& flag : flagList) {
-		QWidgetAction* action = new FilterCheckAction(flag);
-		menu->addAction(action);
-	}
-}
-
-FileFilterMenu::FileFliterFlags FileFilterMenu::exec(QPoint pos)
-{
-	QMenu::exec(pos);
-	return FileFilterMenu::FileFliterFlags(0);
-}
-
-bool FileFilterMenu::isValidFile(const QFileInfo& fileInfo, FileFliterFlags flags)
-{
-	if (flags & FileFliterFlag::Base) {
-	}
-	else if (FileFliterFlag::Animation) {
-	}
-	else if (FileFliterFlag::Matrial) {
-	}
-	else if (FileFliterFlag::Texture) {
-	}
-	return false;
-}

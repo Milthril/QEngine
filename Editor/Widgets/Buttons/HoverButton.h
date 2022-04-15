@@ -16,7 +16,7 @@ protected:
 protected:
 	bool hovered = false;
 	QColor checkColor = QColor(230, 230, 230, 240);
-	QColor hoverColor = QColor(220, 220, 220, 240);
+	QColor hoverColor = QColor(150, 150, 150, 150);
 
 };
 

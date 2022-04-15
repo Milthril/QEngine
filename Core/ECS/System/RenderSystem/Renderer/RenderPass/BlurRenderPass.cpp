@@ -57,16 +57,18 @@ void BlurRenderPass::compile() {
 	mPipelineH->setSampleCount(1);
 	mPipelineH->setDepthTest(false);
 	mPipelineH->setDepthWrite(false);
-	QShader vs = QRenderSystem::createShaderFromCode(QShader::VertexStage, R"(#version 450
-	layout (location = 0) out vec2 vUV;
-	out gl_PerVertex{
-		vec4 gl_Position;
-	};
-	void main() {
-		vUV = vec2((gl_VertexIndex << 1) & 2, gl_VertexIndex & 2);
-		gl_Position = vec4(vUV * 2.0f - 1.0f, 0.0f, 1.0f);
-	}
-	)");
+	QString vsCode = R"(#version 450
+layout (location = 0) out vec2 vUV;
+out gl_PerVertex{
+	vec4 gl_Position;
+};
+void main() {
+	vUV = vec2((gl_VertexIndex << 1) & 2, gl_VertexIndex & 2);
+	gl_Position = vec4(vUV * 2.0f - 1.0f, 0.0f, 1.0f);
+	%1
+}
+)";
+	QShader vs = QRenderSystem::createShaderFromCode(QShader::VertexStage, vsCode.arg(RHI->isYUpInNDC() ? "	vUV.y = 1 - vUV.y;" : "").toLocal8Bit());
 	QShader fsH = QRenderSystem::createShaderFromCode(QShader::FragmentStage, R"(#version 450
 layout (location = 0) in vec2 vUV;
 layout (location = 0) out vec4 outFragColor;

@@ -16,7 +16,7 @@ QPropertyAdjusterItem::QPropertyAdjusterItem(const QString& name, Getter getter,
 	layout->addWidget(mAdjuster);
 	mItemWidget->setAttribute(Qt::WA_TranslucentBackground, true);
 	mNameLabel->setStyleSheet("background-color:rgba(0,0,0,0)");
-
+	adjuster->setItem(this);
 	QObject::connect(adjuster, &Adjuster::valueChanged, [this,setter](QVariant var) {
 		setter(var);
 	});

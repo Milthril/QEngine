@@ -3,31 +3,28 @@
 #include "ECS\QEntity.h"
 
 void QStaticMeshComponent::setStaticMesh(std::shared_ptr<Asset::StaticMesh> val) {
-	if (mStaticMesh && mStaticMesh->getMaterial()) {
-		mStaticMesh->getMaterial()->removeRef(this);
-	}
 	mStaticMesh = val;
-	if (val && val->getMaterial()) {
-		mStaticMesh->getMaterial()->addRef(this);
+	if (mStaticMesh) {
+		setMaterial(IAsset::LoadAsset<Asset::Material>(mStaticMesh->getMaterialPath()));
 	}
 	bNeedRecreatePipeline.active();
 	bNeedRecreateResource.active();
 }
 
 void QStaticMeshComponent::setMaterial(std::shared_ptr<Asset::Material> val) {
-	if (mStaticMesh){
-		if (mStaticMesh->getMaterial()) {
-			mStaticMesh->getMaterial()->removeRef(this);
-		}
-		mStaticMesh->setMaterial(val);
-		if (val) {
-			val->addRef(this);
-		}
+	if (mMaterial) {
+		mMaterial->removeRef(this);
 	}
+	mMaterial = val;
+	if (val) {
+		mStaticMesh->setMaterialPath(val->getRefPath());
+		val->addRef(this);
+	}
+	bNeedRecreatePipeline.active();
 }
 
 void QStaticMeshComponent::recreateResource() {
-	if (!mStaticMesh)
+	if (!mStaticMesh || !mMaterial)
 		return;
 	mUniformBuffer.reset(RHI->newBuffer(QRhiBuffer::Type::Dynamic, QRhiBuffer::UniformBuffer, sizeof(QMatrix4x4)));
 	mUniformBuffer->create();
@@ -40,7 +37,7 @@ void QStaticMeshComponent::recreateResource() {
 }
 
 void QStaticMeshComponent::recreatePipeline() {
-	if (!mStaticMesh)
+	if (!mStaticMesh||!mMaterial)
 		return;
 	if (mStaticMesh->getVertices().size() == 0) {
 		return;
@@ -84,20 +81,15 @@ void QStaticMeshComponent::recreatePipeline() {
 		mPipeline.reset(nullptr);
 		return;
 	}
-	const QRhiUniformProxy::UniformInfo& materialInfo = mStaticMesh->getMaterial()->getProxy()->getUniformInfo(1);
+	const QRhiUniformProxy::UniformInfo& materialInfo = mMaterial->getProxy()->getUniformInfo(1);
 	QString defineCode = materialInfo.uniformDefineCode;
 
-	QString outputCode = mStaticMesh->getMaterial()->getShadingCode();
+	QString outputCode = mMaterial->getShadingCode();
 
-	//if (mRenderPass->getEnableOutputDebugId()) {
-	//	defineCode.prepend("layout (location = 1) out vec4 CompId;\n");
-	//	if (mParentParticle) {
-	//		outputCode.append(QString("CompId = %1;\n").arg(mParentParticle->getCompIdVec4String()));
-	//	}
-	//	else {
-	//		outputCode.append(QString("CompId = %1;\n").arg(mStaticMesh->getCompIdVec4String()));
-	//	}
-	//}
+	if (QRenderSystem::instance()->isEnableDebug()) {
+		defineCode.prepend("layout (location = 1) out vec4 CompId;\n");
+		outputCode.append(QString("CompId = %1;\n").arg(getEntityIdVec4String()));
+	}
 
 	QString fragShaderCode = QString(R"(#version 440
 	layout(location = 0) in vec2 vUV;
@@ -145,7 +137,7 @@ void QStaticMeshComponent::recreatePipeline() {
 }
 
 void QStaticMeshComponent::uploadResource(QRhiResourceUpdateBatch* batch) {
-	if (!mStaticMesh)
+	if (!mStaticMesh || !mMaterial)
 		return;
 	batch->uploadStaticBuffer(mVertexBuffer.get(), mStaticMesh->getVertices().constData());
 	batch->uploadStaticBuffer(mIndexBuffer.get(), mStaticMesh->getIndices().constData());
@@ -155,9 +147,9 @@ void QStaticMeshComponent::updatePrePass(QRhiCommandBuffer* cmdBuffer) {
 }
 
 void QStaticMeshComponent::updateResourcePrePass(QRhiResourceUpdateBatch* batch) {
-	if (!mStaticMesh)
+	if (!mStaticMesh || !mMaterial)
 		return;
-	mStaticMesh->getMaterial()->getProxy()->updateResource(batch);
+	mMaterial->getProxy()->updateResource(batch);
 	QMatrix4x4 MVP = mEntity->calculateMatrixMVP();
 	batch->updateDynamicBuffer(mUniformBuffer.get(), 0, sizeof(QMatrix4x4), MVP.constData());
 }
