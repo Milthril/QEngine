@@ -98,7 +98,10 @@ FileListWidget::FileListWidget() :threadTask_(this) {
 		if (qApp->mouseButtons() & Qt::RightButton) {
 			QString path = item->data(Qt::ToolTipRole).toString();
 			QMenu menu;
-			menu.addAction("Rename");
+			menu.addAction("Rename", [this,item]() {
+				this->editItem(item);
+			});
+
 			menu.addAction("Show In Folder", [path]() {
 				FileUtils::showInFolder(path);
 			});
@@ -154,6 +157,8 @@ FileListWidget::FileListWidget() :threadTask_(this) {
 	connect(&fileWatcher_, &QFileSystemWatcher::directoryChanged, this, [this](const QString& path) {
 		threadTask_.updateFileItems();
 	});
+
+
 
 }
 
@@ -289,6 +294,7 @@ void FileTaskThread::updateWidgetTaskThread()
 	for (int i = 0; i < entryList.size() && !bRequestQuit; i++) {
 		QListWidgetItem* item = widget_->item(i);
 		if (item != nullptr) {
+			item->setFlags(item->flags() | Qt::ItemFlag::ItemIsEditable);
 			item->setData(Qt::ToolTipRole, entryList[i].filePath());
 		}
 	}
