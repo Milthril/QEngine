@@ -21,7 +21,7 @@ void QDefaultSceneRenderPass::compile() {		//创建默认的RT
 		colorAttachment.setTexture(mRT.colorAttachment.get());
 	}
 	colorAttachments << colorAttachment;
-
+	mBlendStates.clear();
 	QRhiGraphicsPipeline::TargetBlend blendState;
 	blendState.enable = false;
 	mBlendStates << blendState;

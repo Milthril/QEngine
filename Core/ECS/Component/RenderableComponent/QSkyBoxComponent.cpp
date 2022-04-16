@@ -81,7 +81,6 @@ void QSkyBoxComponent::recreatePipeline() {
 	mPipeline.reset(RHI->newGraphicsPipeline());
 	const auto& blendStates = QRenderSystem::instance()->getSceneBlendStates();
 	mPipeline->setTargetBlends(blendStates.begin(), blendStates.end());
-
 	mPipeline->setTopology(QRhiGraphicsPipeline::Triangles);
 	mPipeline->setDepthTest(true);
 	mPipeline->setDepthWrite(true);

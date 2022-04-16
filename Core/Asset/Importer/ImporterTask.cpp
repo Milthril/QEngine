@@ -20,6 +20,7 @@ void ImporterTask::executable() {
 	if (suffix.compare(("FBX"), Qt::CaseInsensitive)==0
 		|| suffix.compare(("MMD"), Qt::CaseInsensitive) == 0
 		|| suffix.compare(("OBJ"), Qt::CaseInsensitive) == 0
+		|| suffix.compare(("PMX"), Qt::CaseInsensitive) == 0
 		) {
 		resolveModel();
 	}

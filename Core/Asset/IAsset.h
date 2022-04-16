@@ -14,7 +14,9 @@ public:
 		Material,
 		SkyBox,
 		StaticMesh,
-		ParticleSystem
+		ParticleSystem,
+		SkeletonModel,
+		SkeletonAnimation
 	};
 	virtual IAsset::Type type() = 0;
 
