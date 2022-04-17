@@ -1,11 +1,12 @@
 #include "QStaticMeshComponent.h"
 #include "ECS\System\RenderSystem\QRenderSystem.h"
 #include "ECS\QEntity.h"
+#include "Asset\GAssetMgr.h"
 
 void QStaticMeshComponent::setStaticMesh(std::shared_ptr<Asset::StaticMesh> val) {
 	mStaticMesh = val;
 	if (mStaticMesh) {
-		setMaterial(IAsset::LoadAsset<Asset::Material>(mStaticMesh->getMaterialPath()));
+		setMaterial(TheAssetMgr->load<Asset::Material>(mStaticMesh->getMaterialPath()));
 	}
 	bNeedRecreatePipeline.active();
 	bNeedRecreateResource.active();

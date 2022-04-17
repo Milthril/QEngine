@@ -27,7 +27,7 @@ private:
 
 FileFilterMenu::FileFilterMenu()
 {
-	for (auto& assetType : IAsset::mAssetExtName.values()) {
+	for (auto& assetType : IAsset::AssetExtName.values()) {
 		addItem(assetType);
 	}
 }

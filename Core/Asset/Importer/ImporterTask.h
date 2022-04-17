@@ -14,7 +14,6 @@ public:
 private:
 	void resolveModel();
 	void resolveImage();
-	QString getVaildPath(QString path);
 private:
 	QString mFilePath;
 	QDir mDestDir;

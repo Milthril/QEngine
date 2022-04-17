@@ -1,5 +1,5 @@
 ﻿#include "QDefaultSceneRenderPass.h"
-#include "QEngine.h"
+#include "QEngineCoreApplication.h"
 #include "QDefaultRenderer.h"
 #include "ECS/System/RenderSystem/QRenderSystem.h"
 

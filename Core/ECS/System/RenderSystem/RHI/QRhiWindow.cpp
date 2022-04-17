@@ -159,12 +159,6 @@ bool QRhiWindow::event(QEvent* e)
 	case QEvent::UpdateRequest:
 		renderInternal();
 		break;
-	case QEvent::Close:
-		mHasSwapChain = false;
-		mRunning = false;
-		mNotExposed = false;
-		mHasClosed = true;
-		break;
 	case QEvent::PlatformSurface:
 		// this is the proper time to tear down the swapchain (while the native window and surface are still around)
 		if (static_cast<QPlatformSurfaceEvent*>(e)->surfaceEventType() == QPlatformSurfaceEvent::SurfaceAboutToBeDestroyed) {
@@ -172,6 +166,9 @@ bool QRhiWindow::event(QEvent* e)
 			mDepthStencilFrameBuffer.reset(nullptr);
 			mRenderPassDesciptor.reset(nullptr);
 			mSwapChain.reset(nullptr);
+			mRunning = false;
+			mNotExposed = false;
+			mHasClosed = true;
 		}
 		break;
 	default:

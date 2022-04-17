@@ -9,22 +9,20 @@ Asset::ParticleSystem::ParticleSystem() {
 	mUpdater = std::make_shared<QParticleUpdater>();
 }
 
-QDataStream& operator<<(QDataStream& out, const ParticleSystem& var) {
-	out<< serializeQObject(var.mEmitter.get());
-	out << var.mUpdater->getUpdateCode();
-	var.mUpdater->save(out);
-	return out;
+void ParticleSystem::serialize(QDataStream& out) {
+	out << serializeQObject(mEmitter.get());
+	out << mUpdater->getUpdateCode();
+	mUpdater->serialize(out);
 }
 
-QDataStream& operator>>(QDataStream& in, ParticleSystem& var) {
+void ParticleSystem::deserialize(QDataStream& in) {
 	QByteArray emitter;
 	in >> emitter;
-	deserializeQObject(var.mEmitter.get(), emitter);
+	deserializeQObject(mEmitter.get(), emitter);
 	QByteArray updateCode;
 	in >> updateCode;
-	var.mUpdater->read(in);
-	var.mUpdater->setUpdateCode(updateCode);
-	return in;
+	mUpdater->deserialize( in);
+	mUpdater->setUpdateCode(updateCode);
 }
 
 }

@@ -3,6 +3,7 @@
 #include "ECS\QEntity.h"
 #include "Asset\PartcleSystem\Emitter\QParticleEmitter.h"
 #include "QDateTime"
+#include "Asset\GAssetMgr.h"
 
 const std::shared_ptr<Asset::StaticMesh>& QParticleSystemComponent::getStaticMesh() const {
 	return mStaticMesh;
@@ -11,7 +12,7 @@ const std::shared_ptr<Asset::StaticMesh>& QParticleSystemComponent::getStaticMes
 void QParticleSystemComponent::setStaticMesh(std::shared_ptr<Asset::StaticMesh> val) {
 	mStaticMesh = val;
 	if (mStaticMesh) {
-		setMaterial(IAsset::LoadAsset<Asset::Material>(mStaticMesh->getMaterialPath()));
+		setMaterial(TheAssetMgr->load<Asset::Material>(mStaticMesh->getMaterialPath()));
 		if (mParticleSystem) {
 			mParticleSystem->setStaticMeshPath(mStaticMesh->getRefPath());
 		}
@@ -47,7 +48,7 @@ void QParticleSystemComponent::setParticleSystem(std::shared_ptr<Asset::Particle
 	mParticleSystem = val;
 	if (mParticleSystem) {
 		mParticleSystem->getUpdater()->addRef(this);
-		setStaticMesh(IAsset::LoadAsset<Asset::StaticMesh>(mParticleSystem->getStaticMeshPath()));
+		setStaticMesh(TheAssetMgr->load<Asset::StaticMesh>(mParticleSystem->getStaticMeshPath()));
 	}
 	bNeedRecreatePipeline.active();
 	bNeedRecreateResource.active();

@@ -1,6 +1,6 @@
 #include "QDefaultRenderer.h"
 
-#include "QEngine.h"
+#include "QEngineCoreApplication.h"
 #include "QDefaultSceneRenderPass.h"
 #include "ECS\System\RenderSystem\Renderer\RenderPass\PixelSelectRenderPass.h"
 #include "ECS\System\RenderSystem\Renderer\RenderPass\BlurRenderPass.h"

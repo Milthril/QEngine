@@ -1,32 +1,32 @@
-#include "QEngine.h"
+#include "QEngineCoreApplication.h"
 #include "EventHandler\QTickEventHandler.h"
 #include "ECS\System\RenderSystem\QRenderSystem.h"
 
 
-QEngine::QEngine(int argc, char** argv, bool enableDebug /*= false*/)
+QEngineCoreApplication::QEngineCoreApplication(int argc, char** argv, bool enableDebug /*= false*/)
 	: QApplication(argc, argv)
 	, mWorld(std::make_shared<QWorld>())
 {
-	if (QDir(QENGINE_ASSET_DIR).exists()) {
-		mAssetDir = QDir(QENGINE_ASSET_DIR);
+	if (QDir(QEngineCoreApplication_ASSET_DIR).exists()) {
+		mAssetDir = QDir(QEngineCoreApplication_ASSET_DIR);
 	}
 	QRenderSystem::instance()->setEnableDebug(enableDebug);
 }
 
-void QEngine::customInit() {
+void QEngineCoreApplication::customInit() {
 
 }
 
-void QEngine::customUpdate()
+void QEngineCoreApplication::customUpdate()
 {
 }
 
-const std::shared_ptr<QWorld>& QEngine::world()
+const std::shared_ptr<QWorld>& QEngineCoreApplication::world()
 {
 	return mWorld;
 }
 
-void QEngine::execGame()
+void QEngineCoreApplication::execGame()
 {
 	QRenderSystem::instance()->init();
 	customInit();

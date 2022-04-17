@@ -5,9 +5,9 @@
 #include <QMenuBar>
 #include "QApplication"
 #include "QStyleFactory"
-#include "QEngine.h"
 #include "Toolkit/QAeroWindowMaker.h"
 #include "ECS/System/RenderSystem/QRenderSystem.h"
+#include "QEngineCoreApplication.h"
 
 EditorWindow::EditorWindow()
 	: KDDockWidgets::FloatingWindowWidget({})
@@ -16,7 +16,7 @@ EditorWindow::EditorWindow()
 	, mFile("File")
 	, mEdit("Edit")
 	, mWindow("Window")
-	, mQScenePanel(Engine->world())
+	, mQScenePanel(Engine->world().get())
 {
 	createUI();
 	connectUI();

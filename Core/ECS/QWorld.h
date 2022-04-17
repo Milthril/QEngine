@@ -13,6 +13,7 @@ class QWorld: public QObject {
 	Q_OBJECT
 public:
 	QWorld();
+	~QWorld();
 	QMatrix4x4 getMatrixVP();
 	QEntity* createEntity(const QString& name="Entity");
 	QEntity* getEntityById(const QEntity::ID id);

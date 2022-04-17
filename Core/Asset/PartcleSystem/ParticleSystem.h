@@ -49,15 +49,14 @@ public:
 	virtual IAsset::Type type() override {
 		return IAsset::ParticleSystem;
 	}
-
-	friend QDataStream& operator<<(QDataStream& out, const ParticleSystem& var);
-	friend QDataStream& operator>>(QDataStream& in, ParticleSystem& var);
+	void serialize(QDataStream& out) override;
+	void deserialize(QDataStream& in) override;
 private:
 	QString mStaticMeshPath;
 	std::shared_ptr<QParticleEmitter> mEmitter;
 	std::shared_ptr<QParticleUpdater> mUpdater;
 };
 }
-Q_DECLARE_BUILTIN_METATYPE(Asset::ParticleSystem, 100003, Asset::ParticleSystem);
 
+Q_DECLARE_BUILTIN_METATYPE(ParticleSystem, IAsset::ParticleSystem, Asset::ParticleSystem);
 #endif // ParticleSystem_h__

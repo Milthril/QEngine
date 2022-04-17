@@ -8,12 +8,10 @@
 
 class QAssetImpoerter: public QObject {
 public:
-	static QAssetImpoerter* instance();
+	QAssetImpoerter();
 	~QAssetImpoerter();
 	void import(QString path,QDir destDir);
-	
 private:
-	QAssetImpoerter();
 	Q_INVOKABLE void threadFunc();
 private:
 	QThread mThread;

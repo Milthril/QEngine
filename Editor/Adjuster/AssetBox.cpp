@@ -3,12 +3,13 @@
 #include <QDragEnterEvent>
 #include <QMimeData>
 #include "QFileDialog"
-#include "QEngine.h"
 #include "AssetBox.h"
 #include "Widgets/PropertyPanel/QPropertyAdjusterItem.h"
 #include "Window/MaterialEditor/QMaterialEditor.h"
 #include "Asset/Material.h"
 #include "Window/ParticlesEditor/QParticlesEditor.h"
+#include "Asset/GAssetMgr.h"
+#include "QEngineCoreApplication.h"
 
 AssetBox::AssetBox(std::shared_ptr<IAsset> asset, IAsset::Type type, QWidget* parent /*= nullptr*/)
 	: mDefaultAsset(asset)
@@ -30,10 +31,11 @@ AssetBox::AssetBox(std::shared_ptr<IAsset> asset, IAsset::Type type, QWidget* pa
 		mName.setText(asset->getName());
 	}
 	connect(&btOpenFile, &QPushButton::clicked, this, [this]() {
-		auto filePath = QFileDialog::getOpenFileName(nullptr, QString(), Engine->assetDir().path(), QString("*.%1").arg(IAsset::mAssetExtName[mType]));
+		auto filePath = QFileDialog::getOpenFileName(nullptr, QString(), Engine->assetDir().path(), QString("*.%1").arg(IAsset::AssetExtName[mType]));
 		if (filePath.isEmpty() || !QFile::exists(filePath))
 			return;
-		setValue(QVariant::fromValue(IAsset::CreateAssetFromPath(filePath)));
+		
+		setValue(QVariant::fromValue(TheAssetMgr->load(filePath)));
 	});
 
 	connect(&btReset, &QPushButton::clicked, this, [this]() {
@@ -67,7 +69,7 @@ void AssetBox::dragEnterEvent(QDragEnterEvent* event) {
 		stream >> row >> col >> roleDataMap;
 		if (roleDataMap.contains(Qt::ToolTipRole)) {
 			QString path = roleDataMap[Qt::ToolTipRole].toString();
-			if (path.endsWith(IAsset::mAssetExtName[mType])) {
+			if (path.endsWith(IAsset::AssetExtName[mType])) {
 				event->acceptProposedAction();
 			}
 		}
@@ -83,7 +85,7 @@ void AssetBox::dropEvent(QDropEvent* event) {
 		stream >> row >> col >> roleDataMap;
 		if (roleDataMap.contains(Qt::ToolTipRole)) {
 			QString path = roleDataMap[Qt::ToolTipRole].toString();
-			auto asset = QVariant::fromValue(IAsset::CreateAssetFromPath(path));
+			auto asset = QVariant::fromValue(TheAssetMgr->load(path));
 			setValue(asset);
 		}
 	}

@@ -8,6 +8,9 @@ QWorld::QWorld()
 	mCamera->setupWindow(QRenderSystem::instance()->window());
 }
 
+QWorld::~QWorld() {
+}
+
 QMatrix4x4 QWorld::getMatrixVP() {
 	return mCamera->getMatrixVPWithCorr();
 }
@@ -46,6 +49,8 @@ bool QWorld::removeEntity(const QString& name) {
 		entity->setParent(nullptr);
 		mEntityHash.remove(entity->GetId());
 		entity->deleteLater();
+		if (mCurrentEntity == entity) 
+			setCurrentEntity(nullptr);
 		Q_EMIT worldChanged();
 		return true;
 	}

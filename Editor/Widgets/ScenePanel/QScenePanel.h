@@ -7,12 +7,12 @@
 class QScenePanel :public QTreeWidget {
 	Q_OBJECT
 public:
-	QScenePanel(std::shared_ptr<QWorld> world);
+	QScenePanel(QWorld* world);
 private:
 	void createUI();
 	void updateUI();
 private:
-	std::shared_ptr<QWorld> mWorld;
+	QWorld* mWorld;
 Q_SIGNALS:
 	void entityChanged(QEntity* obejct);
 private:

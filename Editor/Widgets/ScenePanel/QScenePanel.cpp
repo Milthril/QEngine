@@ -1,12 +1,11 @@
 #include "QApplication"
-#include "QEngine.h"
 #include "QScenePanel.h"
 #include <memory>
 #include <QQueue>
 #include <QMouseEvent>
 #include <QMenu>
 
-QScenePanel::QScenePanel(std::shared_ptr<QWorld> world)
+QScenePanel::QScenePanel(QWorld* world)
 	:mWorld(world)
 {
 	createUI();
@@ -56,7 +55,7 @@ void QScenePanel::createUI() {
 		}
 	});
 
-	connect(mWorld.get(), &QWorld::worldChanged, this, [this]() {
+	connect(mWorld, &QWorld::worldChanged, this, [this]() {
 		updateUI();
 	});
 }

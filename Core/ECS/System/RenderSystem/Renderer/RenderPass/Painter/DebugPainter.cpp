@@ -1,7 +1,7 @@
 #include "DebugPainter.h"
 #include "ECS/System/RenderSystem/QRenderSystem.h"
 #include "ECS/Component/QCameraComponent.h"
-#include "QEngine.h"
+#include "QEngineCoreApplication.h"
 #include "qevent.h"
 
 DebugPainter::DebugPainter() {

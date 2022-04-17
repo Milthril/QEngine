@@ -86,8 +86,8 @@ public:
 	void removeRef(IRenderable* comp);
 	QRhiSignal bNeedRecreate;
 
-	void save(QDataStream& out) const;
-	void read(QDataStream& in);
+	void serialize(QDataStream& out);
+	void deserialize(QDataStream& in);
 
 protected:
 	void addDataParam(const QString& name, void* data, uint16_t size, ParamDescBase::Type type);

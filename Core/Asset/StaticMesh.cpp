@@ -4,19 +4,27 @@
 
 namespace Asset {
 QDataStream& operator<<(QDataStream& out, const StaticMesh& var) {
-	out << var.mName;
-	out << var.mIndices; 
-	out << var.mVertices;
-	out << var.mMaterialPath;
+
 	return out;
 }
 
 QDataStream& operator>>(QDataStream& in, StaticMesh& var) {
-	in >> var.mName;
-	in >> var.mIndices;
-	in >> var.mVertices;
-	in >> var.mMaterialPath;
+
 	return in;
+}
+
+void StaticMesh::serialize(QDataStream& out) {
+	IAsset::serialize(out);
+	out << mIndices;
+	out << mVertices;
+	out << mMaterialPath;
+}
+
+void StaticMesh::deserialize(QDataStream& in) {
+	IAsset::deserialize(in);
+	in >> mIndices;
+	in >> mVertices;
+	in >> mMaterialPath;
 }
 
 }

@@ -161,7 +161,7 @@ void QRhiUniform::removeRef(IRenderable* comp)
 	mRef.removeOne(comp);
 }
 
-void QRhiUniform::save(QDataStream& out) const {
+void QRhiUniform::serialize(QDataStream& out) {
 	out << mDataParamList.size();
 	for (auto& data : mDataParamList) {
 		out << data->name
@@ -179,7 +179,7 @@ void QRhiUniform::save(QDataStream& out) const {
 	out << mData;
 }
 
-void QRhiUniform::read(QDataStream& in) {
+void QRhiUniform::deserialize(QDataStream& in) {
 	mDataParamList.clear();
 	mTextureParamList.clear();
 	mParams.clear();
@@ -212,6 +212,7 @@ void QRhiUniform::read(QDataStream& in) {
 	in >> mData;
 	bNeedRecreate.active();
 }
+
 
 QString QRhiUniform::ParamDescBase::getTypeName()
 {

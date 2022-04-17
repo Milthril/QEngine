@@ -38,8 +38,8 @@ public:
 	QString getMaterialPath() const { return mMaterialPath; }
 	void setMaterialPath(QString val) { mMaterialPath = val; }
 
-	friend QDataStream& operator<<(QDataStream& out, const StaticMesh& var);
-	friend QDataStream& operator>>(QDataStream& in, StaticMesh& var);
+	void serialize(QDataStream& out) override;
+	void deserialize(QDataStream& in) override;
 private:
 	QVector<Vertex> mVertices;
 	QVector<Index> mIndices;
@@ -50,6 +50,6 @@ public:
 	}
 };
 }
-Q_DECLARE_BUILTIN_METATYPE(Asset::StaticMesh, 100002, Asset::StaticMesh);
+Q_DECLARE_BUILTIN_METATYPE(StaticMesh, IAsset::StaticMesh, Asset::StaticMesh);
 
 #endif // StaticMesh_h__

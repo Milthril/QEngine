@@ -15,13 +15,14 @@ public:
 	QByteArray getShadingCode() const { return mShadingCode; }
 	void setShadingCode(QByteArray val);
 
-	friend QDataStream& operator<<(QDataStream& out, const Material& var);
-	friend QDataStream& operator>>(QDataStream& in, Material& var);
+	void serialize(QDataStream& out) override;
+	void deserialize(QDataStream& in) override;
 private:
 	QByteArray mShadingCode = "FragColor = vec4(1);";
 };
 }
 //Q_DECLARE_METATYPE(Asset::Material);
-Q_DECLARE_BUILTIN_METATYPE(Asset::Material, 100000, Asset::Material);
+
+Q_DECLARE_BUILTIN_METATYPE(Material, IAsset::Material, Asset::Material);
 
 #endif // Material_h__

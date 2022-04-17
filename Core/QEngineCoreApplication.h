@@ -1,5 +1,5 @@
-#ifndef QEngine_h__
-#define QEngine_h__
+#ifndef QEngineCoreApplication_h__
+#define QEngineCoreApplication_h__
 
 #include <QApplication>
 #include <QElapsedTimer>
@@ -10,13 +10,13 @@
 #if defined(Engine)
 #undef Engine
 #endif
-#define Engine (static_cast<QEngine *>(QEngine::instance()))
+#define Engine (static_cast<QEngineCoreApplication *>(QEngineCoreApplication::instance()))
 
-class QEngine :public QApplication
+class QEngineCoreApplication :public QApplication
 {
 	Q_OBJECT
 public:
-	QEngine(int argc, char** argv, bool enableDebug = false);
+	QEngineCoreApplication(int argc, char** argv, bool enableDebug = false);
 	const std::shared_ptr<QWorld>& world();
 
 	const QDir& assetDir() const { return mAssetDir;}
@@ -31,4 +31,4 @@ private:
 	QElapsedTimer mTimer;
 };
 
-#endif // QEngine_h__
+#endif // QEngineCoreApplication_h__

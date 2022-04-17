@@ -10,39 +10,34 @@
 class IAsset {
 public:
 	enum Type {
-		None = 0,
-		Material,
-		SkyBox,
-		StaticMesh,
-		ParticleSystem,
-		SkeletonModel,
-		SkeletonAnimation
+		None = 99999,
+		Material = 100000,
+		SkyBox = 100001,
+		StaticMesh = 100002,
+		ParticleSystem = 100003,
+		SkeletonModel = 100004,
+		SkeletonAnimation = 100005,
 	};
+
 	virtual IAsset::Type type() = 0;
 
-	QString getName() const { return QFileInfo(mRefPath).baseName(); }
-	QString getRefPath() const { return mRefPath; }
-	void setRefPath(QString val) { mRefPath = val; }
+	QString getName() const;
+	QString getRefPath() const;
+	QString getExtName();
 
-	QString getExtName() {
-		return mAssetExtName[type()];
-	}
+	void setRefPath(QString val);
+	virtual void save(QString filePath,bool cover = true);
 
-	static std::shared_ptr<IAsset> CreateAssetFromPath(QString path, IAsset::Type type = None);
-
-	template<typename AssetType>
-	static std::shared_ptr<AssetType> LoadAsset(QString path);
-
-	inline static QMap<Type, QString> mAssetExtName = {
+	inline static QMap<Type, QString> AssetExtName = {
 		{Material,"QMaterial"},
 		{SkyBox,"QSkyBox"},
 		{StaticMesh,"QStaticMesh"},
 		{ParticleSystem,"QParticleSystem"},
 	};
+	virtual void serialize(QDataStream& out) {}
+	virtual void deserialize(QDataStream& in) {}
 protected:
-	QString mName;
 	QString mRefPath;
-
 };
 
 #endif // IAsset_h__

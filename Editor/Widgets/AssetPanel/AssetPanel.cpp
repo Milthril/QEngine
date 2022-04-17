@@ -9,8 +9,8 @@
 #include <QWidgetAction>
 #include "Adjuster\BoolBox.h"
 #include "Toolkit\QWidgetShadowMaker.h"
-#include "Toolkit\FileUtils.h"
 #include "Asset\Material.h"
+#include "Utils\FileUtils.h"
 
 
 AssetPanel::AssetPanel(QString rootDir)

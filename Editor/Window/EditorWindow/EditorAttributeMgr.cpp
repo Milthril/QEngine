@@ -11,7 +11,7 @@
 #include "Toolkit\QAeroWindowMaker.h"
 #include "QRegularExpression"
 #include "Toolkit\QWidgetShadowMaker.h"
-#include "QEngine.h"
+#include "QEngineCoreApplication.h"
 
 EditorAttributeMgr::EditorAttributeMgr()
 {

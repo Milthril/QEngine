@@ -7,7 +7,6 @@
 #include "QPainter"
 #include "QStyledItemDelegate"
 #include "Serialization/QSerialization.h"
-#include "Toolkit/FileUtils.h"
 #include "Toolkit/QSvgIcon.h"
 #include <QQueue>
 #include <QScrollBar>
@@ -15,6 +14,8 @@
 #include <QApplication>
 #include "Window/MaterialEditor/QMaterialEditor.h"
 #include "Window/ParticlesEditor/QParticlesEditor.h"
+#include "Utils\FileUtils.h"
+#include "Asset/GAssetMgr.h"
 
 const QSize GridSize(80, 100);
 
@@ -43,13 +44,13 @@ protected:
 		else {
 			if (fileInfo.suffix() == "png" || fileInfo.suffix() == "jpg" || fileInfo.suffix() == "jepg")
 				icon = cacheTask_->getIcon(fileInfo.filePath());
-			else if (fileInfo.suffix() == IAsset::mAssetExtName[IAsset::Material]) {
+			else if (fileInfo.suffix() == IAsset::AssetExtName[IAsset::Material]) {
 				icon = mMaterialIcon.getIcon();
 			}
-			else if (fileInfo.suffix() == IAsset::mAssetExtName[IAsset::SkyBox]) {
+			else if (fileInfo.suffix() == IAsset::AssetExtName[IAsset::SkyBox]) {
 				icon = mSkyBoxIcon.getIcon();;
 			}
-			else if (fileInfo.suffix() == IAsset::mAssetExtName[IAsset::StaticMesh]) {
+			else if (fileInfo.suffix() == IAsset::AssetExtName[IAsset::StaticMesh]) {
 				icon = mStaticMeshIcon.getIcon();;
 			}
 			else if (icon.isNull())
@@ -117,7 +118,7 @@ FileListWidget::FileListWidget() :threadTask_(this) {
 	});
 
 	connect(this, &QListWidget::itemDoubleClicked, this, [this](QListWidgetItem* item) {
-		std::shared_ptr<IAsset> asset = IAsset::CreateAssetFromPath(item->data(Qt::ToolTipRole).toString());
+		std::shared_ptr<IAsset> asset = TheAssetMgr->load(item->data(Qt::ToolTipRole).toString());
 		if (asset && asset->type() == IAsset::Material) {
 			QMaterialEditor::instance()->edit(std::dynamic_pointer_cast<Asset::Material>(asset));
 		}
@@ -131,22 +132,10 @@ FileListWidget::FileListWidget() :threadTask_(this) {
 		QMenu menu;
 		menu.addSeparator();
 		menu.addAction("New Material", [this]() {
-			std::shared_ptr<Asset::Material> material = std::make_shared<Asset::Material>();
-			QString path = FileUtils::getVaildPath(currentDir_.filePath("Material." + material->getExtName()));
-			QFile file(path);
-			if (file.open(QFile::WriteOnly)) {
-				QDataStream stream(&file);
-				stream << material.get();
-			}
+			TheAssetMgr->createNewAsset(currentDir_, IAsset::Material);
 		});
 		menu.addAction("New ParticleSystem", [this]() {
-			std::shared_ptr<Asset::ParticleSystem> particleSystem = std::make_shared<Asset::ParticleSystem>();
-			QString path = FileUtils::getVaildPath(currentDir_.filePath("PartileSystem." + particleSystem->getExtName()));
-			QFile file(path);
-			if (file.open(QFile::WriteOnly)) {
-				QDataStream stream(&file);
-				stream << particleSystem.get();
-			}
+			TheAssetMgr->createNewAsset(currentDir_, IAsset::ParticleSystem);
 		});
 		menu.exec(mapToGlobal(pos));
 	});
@@ -154,12 +143,10 @@ FileListWidget::FileListWidget() :threadTask_(this) {
 	connect(this->verticalScrollBar(), &QScrollBar::valueChanged, this, [this](int position) {
 		threadTask_.clearIconCache();
 	});
+
 	connect(&fileWatcher_, &QFileSystemWatcher::directoryChanged, this, [this](const QString& path) {
 		threadTask_.updateFileItems();
 	});
-
-
-
 }
 
 FileListWidget::~FileListWidget()
@@ -222,7 +209,7 @@ void FileListWidget::dropEvent(QDropEvent* event) {
 		return;
 	}
 	for (auto& url : urls) {
-		QAssetImpoerter::instance()->import(url.toLocalFile(),currentDir_);
+		TheAssetMgr->import(url.toLocalFile(),currentDir_);
 	}
 	QListWidget::dropEvent(event);
 }
@@ -279,7 +266,7 @@ void FileTaskThread::updateWidgetTaskThread()
 	auto entryList = widget_->currentDir_.entryInfoList(QDir::Filter::Dirs | QDir::Filter::NoDotAndDotDot, QDir::SortFlag::LocaleAware);
 
 	QStringList nameFilerList;
-	for (auto extName : IAsset::mAssetExtName.values()) {
+	for (auto extName : IAsset::AssetExtName.values()) {
 		nameFilerList << "*." + extName;
 	}
 	entryList += widget_->currentDir_.entryInfoList(nameFilerList, QDir::Filter::Files, QDir::SortFlag::LocaleAware);
