@@ -13,6 +13,7 @@ class EditorWindow : public KDDockWidgets::FloatingWindowWidget{
 	Q_OBJECT
 public:
 	EditorWindow();
+	~EditorWindow();
 	static void preInitConfig();
 protected:
 	void createUI();
@@ -27,6 +28,7 @@ private:
 	QMenu mEdit;
 	QMenu mWindow;
 	EditorAttributeMgr mWindowLayoutMgr;
+	QWidget* mViewportContainter = nullptr;
 };
 
 #endif // EditorWindow_h__

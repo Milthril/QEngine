@@ -22,6 +22,10 @@ EditorWindow::EditorWindow()
 	connectUI();
 }
 
+
+EditorWindow::~EditorWindow() {
+}
+
 void EditorWindow::preInitConfig()
 {
 	qApp->setStyle(QStyleFactory::create(QStringLiteral("Fusion")));
@@ -91,9 +95,10 @@ void EditorWindow::createUI()
 	auto dockViewport = new KDDockWidgets::DockWidget("Viewport", KDDockWidgets::DockWidget::Option_None, layoutSaverOptions);
 	dockViewport->setAffinities(mMainWindow.affinities());
 	mMainWindow.addDockWidget(dockViewport, KDDockWidgets::Location::Location_OnRight, dockScene);
-	auto viewportContainter = QWidget::createWindowContainer(QRenderSystem::instance()->window());
-	viewportContainter->setMinimumSize(400, 300);
-	dockViewport->setWidget(viewportContainter);
+
+	mViewportContainter = QWidget::createWindowContainer(QRenderSystem::instance()->window());
+	mViewportContainter->setMinimumSize(400, 300);
+	dockViewport->setWidget(mViewportContainter);
 
 	mWindowLayoutMgr.loadAllLayout();
 	mWindowLayoutMgr.tryCreateDefaultLayout();

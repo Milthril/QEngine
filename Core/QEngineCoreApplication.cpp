@@ -50,6 +50,6 @@ void QEngineCoreApplication::execGame()
 		QRenderSystem::instance()->requestUpdate();
 	}
 	mWorld.reset();
-	QRenderSystem::instance()->shutdown();
 	customRelease();
+	QRenderSystem::instance()->shutdown();
 }

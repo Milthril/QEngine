@@ -8,6 +8,7 @@ QRenderWindow::QRenderWindow(QRhi::Implementation backend)
 }
 
 void QRenderWindow::customInitEvent() {
+	QRenderSystem::instance()->setupRHI(this->mRhi);
 	if (QRenderSystem::instance()->renderer()) {
 		QRenderSystem::instance()->renderer()->buildFrameGraph();
 	}

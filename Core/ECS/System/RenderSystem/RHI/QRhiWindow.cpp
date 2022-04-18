@@ -51,6 +51,7 @@ void QRhiWindow::initInternal()
 		params.window = this;
 		mRhi.reset(QRhi::create(QRhi::OpenGLES2, &params, rhiFlags));
 	}
+
 	else if (mBackend == QRhi::Vulkan) {
 		QRhiVulkanInitParams params;
 		static QVulkanInstance vkinstance;

@@ -42,6 +42,7 @@ void QRenderSystem::init() {
 
 void QRenderSystem::shutdown() {
 	mRenderer.reset();
+	mRHI.reset();
 }
 
 bool QRenderSystem::hasRequestQuit() {
@@ -77,7 +78,7 @@ QRenderWindow* QRenderSystem::window() {
 }
 
 QRhi* QRenderSystem::getRHI() {
-	return mWindow->mRhi.get();
+	return mRHI.get();
 }
 
 IRenderer* QRenderSystem::renderer() {

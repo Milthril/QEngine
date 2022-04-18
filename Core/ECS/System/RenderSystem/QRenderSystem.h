@@ -27,7 +27,10 @@ public:
 	QVector<QRhiGraphicsPipeline::TargetBlend>  getSceneBlendStates();
 	QRhiRenderPassDescriptor* getSceneRenderPassDescriptor();
 	QRenderWindow* window();
+
 	QRhi* getRHI();
+	void setupRHI(std::shared_ptr<QRhi> val) { mRHI = val; }
+
 	IRenderer* renderer();
 	bool isEnableDebug();
 	void setEnableDebug(bool var) { mEnableDebug = var; }
@@ -35,6 +38,7 @@ private:
 	QRenderSystem();
 private:
 	QRenderWindow* mWindow;
+	std::shared_ptr<QRhi> mRHI;
 	std::shared_ptr<IRenderer> mRenderer;
 	bool mEnableDebug = false;
 
