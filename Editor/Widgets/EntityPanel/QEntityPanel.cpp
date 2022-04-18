@@ -38,6 +38,7 @@ QEntityPanel::QEntityPanel(QEntity* entity /*= nullptr*/)
 			mEntity->removeComponent(dynamic_cast<IComponent*>(compPanel->getObject()));
 		}
 	});
+	recreatePanel();
 }
 
 QEntity* QEntityPanel::getEntity() const {
@@ -47,8 +48,7 @@ QEntity* QEntityPanel::getEntity() const {
 void QEntityPanel::setEntity(QEntity* val) {
 	if (val != mEntity) {
 		mEntity = val;
-		if (isVisible())
-			recreatePanel();
+		recreatePanel();
 	}
 }
 
@@ -74,5 +74,4 @@ void QEntityPanel::recreatePanel() {
 void QEntityPanel::showEvent(QShowEvent* event)
 {
 	QWidget::showEvent(event);
-	recreatePanel();
 }

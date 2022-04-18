@@ -21,6 +21,10 @@ void QEngineCoreApplication::customUpdate()
 {
 }
 
+void QEngineCoreApplication::customRelease() {
+
+}
+
 const std::shared_ptr<QWorld>& QEngineCoreApplication::world()
 {
 	return mWorld;
@@ -47,4 +51,5 @@ void QEngineCoreApplication::execGame()
 	}
 	mWorld.reset();
 	QRenderSystem::instance()->shutdown();
+	customRelease();
 }

@@ -23,6 +23,6 @@ private:
 }
 //Q_DECLARE_METATYPE(Asset::Material);
 
-Q_DECLARE_BUILTIN_METATYPE(Material, IAsset::Material, Asset::Material);
+Q_ENGINE_DECLARE_ASSET_TYPE(Asset::Material, IAsset::Material);
 
 #endif // Material_h__

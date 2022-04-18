@@ -4,6 +4,7 @@
 #include "Importer\QAssetImporter.h"
 #include "IAsset.h"
 #include "Utils/StdUUID.h"
+#include "Serialization/QSerialization.h"
 
 #define TheAssetMgr (GAssetMgr::Instance())
 
@@ -16,7 +17,17 @@ public:
 	std::shared_ptr<IAsset> load(QString path, IAsset::Type type = IAsset::None);
 
 	template<typename AssetType>
-	std::shared_ptr<AssetType> load(QString path);
+	std::shared_ptr<AssetType> load(QString path) {
+		QFile file(path);
+		if (file.open(QFile::ReadOnly)) {
+			QDataStream in(&file);
+			AssetType* asset = nullptr;
+			in >> asset;
+			asset->setRefPath(path);
+			return std::shared_ptr<AssetType>(asset);
+		}
+		return nullptr;
+	}
 
 	void createNewAsset(QDir destDir,IAsset::Type type = IAsset::None);
 

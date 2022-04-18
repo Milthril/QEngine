@@ -7,7 +7,6 @@ namespace Asset{
 
 void Material::setShadingCode(QByteArray val) {
 	mShadingCode = val;
-
 	bNeedRecreate.active();
 }
 

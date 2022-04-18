@@ -24,8 +24,6 @@ QPropertyAdjusterItem::QPropertyAdjusterItem(const QString& name, Getter getter,
 
 QPropertyAdjusterItem::~QPropertyAdjusterItem()
 {
-	if (mItemWidget)
-		mItemWidget->deleteLater();
 }
 
 void QPropertyAdjusterItem::createWidgetOrSubItem()

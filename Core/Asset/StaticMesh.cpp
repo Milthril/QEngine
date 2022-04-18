@@ -3,16 +3,6 @@
 #include "Serialization/QSerialization.h"
 
 namespace Asset {
-QDataStream& operator<<(QDataStream& out, const StaticMesh& var) {
-
-	return out;
-}
-
-QDataStream& operator>>(QDataStream& in, StaticMesh& var) {
-
-	return in;
-}
-
 void StaticMesh::serialize(QDataStream& out) {
 	IAsset::serialize(out);
 	out << mIndices;

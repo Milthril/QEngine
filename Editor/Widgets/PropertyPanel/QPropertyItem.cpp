@@ -15,3 +15,10 @@ void QPropertyItem::updatePanel() {
 		panel->updatePanel();
 	}
 }
+
+void QPropertyItem::recreatePanel() {
+	QPropertyPanel* panel = dynamic_cast<QPropertyPanel*>(this->treeWidget());
+	if (panel) {
+		panel->recreatePanel();
+	}
+}

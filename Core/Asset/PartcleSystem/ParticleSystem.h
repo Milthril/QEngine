@@ -58,5 +58,6 @@ private:
 };
 }
 
-Q_DECLARE_BUILTIN_METATYPE(ParticleSystem, IAsset::ParticleSystem, Asset::ParticleSystem);
+Q_ENGINE_DECLARE_ASSET_TYPE(Asset::ParticleSystem, IAsset::ParticleSystem);
+
 #endif // ParticleSystem_h__

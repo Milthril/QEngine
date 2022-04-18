@@ -28,12 +28,12 @@ void QScenePanel::createUI() {
 			//mScene->setCurrent(dynamic_cast<QSceneComponent*>(oPtr));
 		}
 	});
-	connect(this->model(), &QAbstractItemModel::rowsAboutToBeMoved, this, [this](const QModelIndex& sourceParent, int sourceStart, int sourceEnd, const QModelIndex& destinationParent, int destinationRow) {
-		qDebug() << sourceParent;
-			});	
-	connect(this->model(), &QAbstractItemModel::rowsInserted, this, [this](const QModelIndex& parent, int first, int last) {
-		qDebug() << parent << first << last;
-	});
+	//connect(this->model(), &QAbstractItemModel::rowsAboutToBeMoved, this, [this](const QModelIndex& sourceParent, int sourceStart, int sourceEnd, const QModelIndex& destinationParent, int destinationRow) {
+	//	qDebug() << sourceParent;
+	//		});	
+	//connect(this->model(), &QAbstractItemModel::rowsInserted, this, [this](const QModelIndex& parent, int first, int last) {
+	//	qDebug() << parent << first << last;
+	//});
 
 	//connect(mScene.get(),&QScene::currentChanged, this, [this](QSceneComponent* comp) {
 	//	Q_EMIT objectChanged(comp);

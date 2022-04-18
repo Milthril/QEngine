@@ -18,6 +18,7 @@ public:
 	virtual void createWidgetOrSubItem() = 0;
 	virtual void update() {};
 	void updatePanel();
+	void recreatePanel();
 };
 
 #endif // QPropertyItem_h__

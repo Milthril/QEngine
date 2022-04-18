@@ -6,7 +6,7 @@
 #include "Renderer\DefaultRenderer\QDefaultRenderer.h"
 
 QRenderSystem::QRenderSystem()
-	: mWindow(std::make_shared<QRenderWindow>(QRhi::Implementation::Vulkan))
+	: mWindow(new QRenderWindow(QRhi::Implementation::Vulkan))
 	, mRenderer(std::make_shared<QDefaultRenderer>() ){
 }
 
@@ -42,7 +42,6 @@ void QRenderSystem::init() {
 
 void QRenderSystem::shutdown() {
 	mRenderer.reset();
-	mWindow.reset();
 }
 
 bool QRenderSystem::hasRequestQuit() {
@@ -74,7 +73,7 @@ QRhiRenderPassDescriptor* QRenderSystem::getSceneRenderPassDescriptor() {
 }
 
 QRenderWindow* QRenderSystem::window() {
-	return mWindow.get();
+	return mWindow;
 }
 
 QRhi* QRenderSystem::getRHI() {

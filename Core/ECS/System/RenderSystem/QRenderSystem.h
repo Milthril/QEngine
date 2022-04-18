@@ -34,7 +34,7 @@ public:
 private:
 	QRenderSystem();
 private:
-	std::shared_ptr<QRenderWindow> mWindow;
+	QRenderWindow* mWindow;
 	std::shared_ptr<IRenderer> mRenderer;
 	bool mEnableDebug = false;
 

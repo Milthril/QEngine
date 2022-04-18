@@ -24,6 +24,7 @@ public:
 protected:
 	virtual void customInit();
 	virtual void customUpdate();
+	virtual void customRelease();
 private:
 	std::shared_ptr<QWorld> mWorld;
 	QDir mAssetDir;

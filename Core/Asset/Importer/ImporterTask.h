@@ -1,24 +1,21 @@
 #ifndef ImporterTask_h__
 #define ImporterTask_h__
+
 #include <QString>
-#include "QDir"
-#include <QMutex>
+#include <QDir>
 
 class ImporterTask {
 public:
-	ImporterTask(QString filePath, QDir destDir)
-		: mFilePath(filePath)
-		, mDestDir(destDir)
-	{}
-	void executable();
-private:
-	void resolveModel();
-	void resolveImage();
-private:
+	ImporterTask(){}
+
+	virtual void executable() = 0;
+
+	void setFilePath(QString val) { mFilePath = val; }
+	void setDestDir(QDir val) { mDestDir = val; }
+
+protected:
 	QString mFilePath;
 	QDir mDestDir;
-	QMutex mMutex;
 };
-
 
 #endif // ImporterTask_h__

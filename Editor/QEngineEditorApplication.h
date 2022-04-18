@@ -7,6 +7,7 @@
 #include "ECS\Component\RenderableComponent\QSkyBoxComponent.h"
 #include "ECS\Component\RenderableComponent\QStaticMeshComponent.h"
 #include "Window\EditorWindow\EditorWindow.h"
+#include "Asset\SkeletonModel\Skeleton.h"
 
 class QEngineEditorApplication :public QEngineCoreApplication {
 public:
@@ -20,7 +21,6 @@ public:
 protected:
 	virtual void customInit() override {
 		QEntity* entity = world()->createEntity("Test Entity");
-
 		auto staitcMeshAsset = TheAssetMgr->load<Asset::StaticMesh>(assetDir().filePath("Genji Shim.QStaticMesh"));
 		QStaticMeshComponent* staitcMesh = entity->addComponent<QStaticMeshComponent>();
 		staitcMesh->setStaticMesh(staitcMeshAsset);
@@ -29,9 +29,16 @@ protected:
 
 		QSkyBoxComponent* skybox = entity->addComponent<QSkyBoxComponent>();
 		skybox->setSkyBox(skyboxAsset);
+
+		//auto it = TheAssetMgr->load<Asset::Skeleton>(assetDir().filePath("Genji Shim.QStaticMesh"));
 	}
 	void customUpdate() override {
 	}
+
+	virtual void customRelease() override {
+		delete mEditorWindow;
+	}
+
 private:
 	EditorWindow* mEditorWindow = nullptr;
 };

@@ -54,8 +54,11 @@ void AssetBox::setValue(QVariant var){
 		mCurrentAsset = it;
 		mName.setText(mCurrentAsset?mCurrentAsset->getName():"");
 		Q_EMIT valueChanged(QVariant::fromValue(mCurrentAsset));
-		if ((mType == IAsset::StaticMesh||mType== IAsset::ParticleSystem)&&mItem) {
+		if ((mType == IAsset::StaticMesh || mType == IAsset::ParticleSystem) && mItem) {
 			mItem->updatePanel();
+		}
+		if ( mType == IAsset::SkeletonModel && mItem) {
+			mItem->recreatePanel();
 		}
 	}
 }
@@ -85,8 +88,8 @@ void AssetBox::dropEvent(QDropEvent* event) {
 		stream >> row >> col >> roleDataMap;
 		if (roleDataMap.contains(Qt::ToolTipRole)) {
 			QString path = roleDataMap[Qt::ToolTipRole].toString();
-			auto asset = QVariant::fromValue(TheAssetMgr->load(path));
-			setValue(asset);
+			auto asset = TheAssetMgr->load(path);
+			setValue(QVariant::fromValue(asset));
 		}
 	}
 }

@@ -40,6 +40,7 @@ void EditorWindow::preInitConfig()
 
 	KDDockWidgets::Config::self().setFlags(flags);
 	KDDockWidgets::Config::self().setFrameworkWidgetFactory(new WindowStyleFactory);
+	
 }
 
 void EditorWindow::createUI()

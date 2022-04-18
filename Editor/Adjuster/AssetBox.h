@@ -10,7 +10,6 @@ class AssetBox : public Adjuster {
 	Q_OBJECT
 public:
 	AssetBox(std::shared_ptr<IAsset> asset, IAsset::Type type, QWidget* parent = nullptr);
-
 	QVariant getValue() override;
 	void setValue(QVariant var) override;
 

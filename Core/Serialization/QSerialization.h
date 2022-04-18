@@ -39,7 +39,7 @@ inline QDataStream& operator>>(QDataStream& in, T& cls) {
 }
 
 template<typename T, typename std::enable_if<std::is_pointer<T>::value && QMetaTypeId2<typename std::remove_pointer<T>::type>::IsBuiltIn>::type* = nullptr>
-inline QDataStream& operator<<(QDataStream& out,const T& ptr) {
+QDataStream& operator<<(QDataStream& out,const T& ptr) {
 	int id = -1;
 	if (ptr != nullptr) {
 		id = QMetaType::fromType<std::remove_pointer<T>::type>().id();
@@ -53,7 +53,7 @@ inline QDataStream& operator<<(QDataStream& out,const T& ptr) {
 
 
 template<typename T, typename std::enable_if<std::is_pointer<T>::value && QMetaTypeId2<typename std::remove_pointer<T>::type>::IsBuiltIn>::type* = nullptr>
-inline QDataStream& operator>>(QDataStream& in, T& ptr) {
+QDataStream& operator>>(QDataStream& in, T& ptr) {
 	int id;
 	in >> id;
 	if (id == -1) {
@@ -76,31 +76,17 @@ inline QDataStream& operator>>(QDataStream& in, T& ptr) {
 	return in;
 }
 
-template<typename T, typename std::enable_if<QMetaTypeId2<std::shared_ptr<T>>::Defined>::type* = nullptr>
-inline QDataStream& operator<<(QDataStream& out,const std::shared_ptr<T>& ptr) {
-	return operator<<(out, ptr.get());
+template<typename T, typename std::enable_if<QMetaTypeId2<T>::IsBuiltIn>::type* = nullptr>
+inline QDataStream& operator<<(QDataStream& out, const std::shared_ptr<T>& sptr) {
+	T* ptr = sptr.get();
+	return operator<<(out, ptr);
 }
 
-template<typename T, typename std::enable_if<QMetaTypeId2<std::shared_ptr<T>>::Defined>::type* = nullptr>
-inline QDataStream& operator>>(QDataStream& in, std::shared_ptr<T>& ptr) {
-	int id;
-	in >> id;
-	if (id == -1) {
-		return in;
-	}
-	if (ptr != nullptr) {
-		operator>>(in, *ptr);
-		return in;
-	}
-	QMetaType metaType = QMetaType::fromType<std::remove_pointer<T>::type>();
-	Q_ASSERT(metaType.id() == id);
-	if (!metaType.isValid())
-		return in;
-	T* newPtr = static_cast<T*>(metaType.create());
-	if (newPtr) {
-		operator>>(in, *newPtr);
-		ptr.reset(newPtr);
-	}
+template<typename T, typename std::enable_if<QMetaTypeId2<T>::IsBuiltIn>::type* = nullptr>
+inline QDataStream& operator>>(QDataStream& in, std::shared_ptr<T>& sptr) {
+	T* ptr = sptr.get();
+	operator>>(in,ptr);
+	sptr.reset(ptr);
 	return in;
 }
 

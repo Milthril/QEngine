@@ -7,16 +7,15 @@
 
 class QPropertyItemFactory {
 public:
-	using TypeId = int;
 	using Getter = QPropertyItem::Getter;
 	using Setter = QPropertyItem::Setter;
 	using ItemCreator = std::function<QPropertyItem* (QString, Getter, Setter)>;
 	static QPropertyItemFactory* instance();
-	QPropertyItem* createItem(TypeId id, QString name, Getter getter, Setter setter);
+	QPropertyItem* createItem(QMetaType metaType, QString name, Getter getter, Setter setter);
 private:
 	QPropertyItemFactory();
 private:
-	QHash<TypeId, ItemCreator> mCreatorMap;
+	QHash<int, ItemCreator> mCreatorMap;
 };
 
 

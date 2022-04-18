@@ -3,10 +3,10 @@
 #include "Material.h"
 #include "SkyBox.h"
 #include "StaticMesh.h"
-
-#include "Serialization/QSerialization.h"
 #include "PartcleSystem/ParticleSystem.h"
 #include "Utils/FileUtils.h"
+#include "SkeletonModel/Skeleton.h"
+#include "SkeletonModel/SkeletonModel.h"
 
 
 GAssetMgr* GAssetMgr::Instance() {
@@ -20,15 +20,12 @@ void GAssetMgr::import(QString filePath, QDir destDir) {
 
 std::shared_ptr<IAsset> GAssetMgr::load(QString path, IAsset::Type type /*= IAsset::None*/) {
 	if (type == IAsset::None) {
-		if (path.endsWith(IAsset::AssetExtName[IAsset::Material])) 
-			type = IAsset::Material;
-		else if (path.endsWith(IAsset::AssetExtName[IAsset::SkyBox])) 
-			type = IAsset::SkyBox;
-		else if (path.endsWith(IAsset::AssetExtName[IAsset::StaticMesh])) 
-			type = IAsset::StaticMesh;
-		else if (path.endsWith(IAsset::AssetExtName[IAsset::ParticleSystem])) 
-			type = IAsset::ParticleSystem;
-		
+		for (auto& assetType : IAsset::AssetExtName.keys()) {
+			if (path.endsWith(IAsset::AssetExtName[assetType])) {
+				type = assetType;
+				break;
+			}
+		}
 	}
 	QFile file(path);
 	if (file.open(QFile::ReadOnly)) {
@@ -58,7 +55,18 @@ std::shared_ptr<IAsset> GAssetMgr::load(QString path, IAsset::Type type /*= IAss
 			asset->setRefPath(path);
 			return std::shared_ptr<IAsset>(asset);
 		}
-						   break;
+		case IAsset::Skeleton: {
+			Asset::Skeleton* asset = nullptr;
+			in >> asset;
+			asset->setRefPath(path);
+			return std::shared_ptr<IAsset>(asset);
+		}
+		case IAsset::SkeletonModel: {
+			Asset::SkeletonModel* asset = nullptr;
+			in >> asset;
+			asset->setRefPath(path);
+			return std::shared_ptr<IAsset>(asset);
+		}
 		default:
 			return nullptr;
 		}
@@ -66,27 +74,7 @@ std::shared_ptr<IAsset> GAssetMgr::load(QString path, IAsset::Type type /*= IAss
 	return nullptr;
 }
 
-template<typename AssetType>
-std::shared_ptr<AssetType>
-GAssetMgr::load(QString path) {
-	QFile file(path);
-	if (file.open(QFile::ReadOnly)) {
-		QDataStream in(&file);
-		AssetType* asset = nullptr;
-		in >> asset;
-		asset->setRefPath(path);
-		return std::shared_ptr<AssetType>(asset);
-	}
-	return nullptr;
-}
-
-template std::shared_ptr<Asset::Material> GAssetMgr::load<>(QString path);
-template std::shared_ptr<Asset::StaticMesh> GAssetMgr::load<>(QString path);
-template std::shared_ptr<Asset::SkyBox> GAssetMgr::load<>(QString path);
-template std::shared_ptr<Asset::ParticleSystem> GAssetMgr::load<>(QString path);
-
 void GAssetMgr::createNewAsset(QDir destDir, IAsset::Type type /*= IAsset::None*/) {
-
 	switch (type) {
 	case IAsset::None:
 		break;
@@ -104,7 +92,6 @@ void GAssetMgr::createNewAsset(QDir destDir, IAsset::Type type /*= IAsset::None*
 		particleSystem->save(destDir.filePath("PartileSystem." + particleSystem->getExtName()), false);
 		break;
 	}
-
 	case IAsset::SkeletonModel:
 		break;
 	case IAsset::SkeletonAnimation:

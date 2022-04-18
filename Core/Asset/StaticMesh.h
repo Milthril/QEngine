@@ -30,10 +30,10 @@ public:
 	using Index = uint32_t;
 
 	const QVector<Asset::StaticMesh::Vertex>& getVertices() const { return mVertices; }
-	void setVertices(QVector<Asset::StaticMesh::Vertex> val) { mVertices = val; }
+	void setVertices(QVector<Asset::StaticMesh::Vertex>&& val) { mVertices = val; }
 
 	const QVector<Asset::StaticMesh::Index>& getIndices() const { return mIndices; }
-	void setIndices(QVector<Asset::StaticMesh::Index> val) { mIndices = val; }
+	void setIndices(QVector<Asset::StaticMesh::Index>&& val) { mIndices = val; }
 
 	QString getMaterialPath() const { return mMaterialPath; }
 	void setMaterialPath(QString val) { mMaterialPath = val; }
@@ -50,6 +50,8 @@ public:
 	}
 };
 }
-Q_DECLARE_BUILTIN_METATYPE(StaticMesh, IAsset::StaticMesh, Asset::StaticMesh);
+
+Q_ENGINE_DECLARE_ASSET_TYPE(Asset::StaticMesh, IAsset::StaticMesh);
+
 
 #endif // StaticMesh_h__

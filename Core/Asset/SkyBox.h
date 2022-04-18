@@ -25,6 +25,6 @@ private:
 };
 }
 
-Q_DECLARE_BUILTIN_METATYPE(SkyBox, IAsset::SkyBox, Asset::SkyBox);
+Q_ENGINE_DECLARE_ASSET_TYPE(Asset::SkyBox, IAsset::SkyBox);
 
 #endif // SkyBox_h__
