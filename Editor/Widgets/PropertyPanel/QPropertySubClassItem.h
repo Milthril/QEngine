@@ -47,7 +47,6 @@ public:
 	virtual void createWidgetOrSubItem()
 	{
 		treeWidget()->setItemWidget(this, 0, mItemWidget);
-		QPropertyPanel::setupObjectToItem(this, mSubClass.get());
 	}
 
 protected:

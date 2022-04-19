@@ -28,6 +28,7 @@ std::shared_ptr<IAsset> GAssetMgr::load(QString path, IAsset::Type type /*= IAss
 			}
 		}
 	}
+	
 	QFile file(path);
 	if (file.open(QFile::ReadOnly)) {
 		QDataStream in(&file);

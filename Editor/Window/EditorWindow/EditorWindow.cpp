@@ -3,8 +3,9 @@
 #include <kddockwidgets/Config.h>
 #include <kddockwidgets/private/TitleBar_p.h>
 #include <QMenuBar>
-#include "QApplication"
-#include "QStyleFactory"
+#include <QApplication>
+#include <QScreen>
+#include <QStyleFactory>
 #include "Toolkit/QAeroWindowMaker.h"
 #include "ECS/System/RenderSystem/QRenderSystem.h"
 #include "QEngineCoreApplication.h"
@@ -85,16 +86,16 @@ void EditorWindow::createUI()
 	auto dockScene = new KDDockWidgets::DockWidget("World", KDDockWidgets::DockWidget::Option_None, layoutSaverOptions);
 	dockScene->setAffinities(mMainWindow.affinities());
 	dockScene->setWidget(&mQScenePanel);
-	mMainWindow.addDockWidget(dockScene, KDDockWidgets::Location::Location_OnTop);
+	mMainWindow.addDockWidget(dockScene, KDDockWidgets::Location::Location_OnTop,nullptr, KDDockWidgets::InitialOption(QSize(800, 800)));
 
 	auto dockEntity = new KDDockWidgets::DockWidget("Entity Inspector", KDDockWidgets::DockWidget::Option_None, layoutSaverOptions);
 	dockEntity->setAffinities(mMainWindow.affinities());
 	dockEntity->setWidget(&mEntityPanel);
-	mMainWindow.addDockWidget(dockEntity, KDDockWidgets::Location::Location_OnRight);
+	mMainWindow.addDockWidget(dockEntity, KDDockWidgets::Location::Location_OnRight,nullptr, KDDockWidgets::InitialOption(QSize(120, 600)));
 
 	auto dockViewport = new KDDockWidgets::DockWidget("Viewport", KDDockWidgets::DockWidget::Option_None, layoutSaverOptions);
 	dockViewport->setAffinities(mMainWindow.affinities());
-	mMainWindow.addDockWidget(dockViewport, KDDockWidgets::Location::Location_OnRight, dockScene);
+	mMainWindow.addDockWidget(dockViewport, KDDockWidgets::Location::Location_OnRight, dockScene, KDDockWidgets::InitialOption(QSize(900, 800)));
 
 	mViewportContainter = QWidget::createWindowContainer(QRenderSystem::instance()->window());
 	mViewportContainter->setMinimumSize(400, 300);
@@ -102,6 +103,10 @@ void EditorWindow::createUI()
 
 	mWindowLayoutMgr.loadAllLayout();
 	mWindowLayoutMgr.tryCreateDefaultLayout();
+
+	QRect rect(0, 0, 1200, 800);
+	rect.moveCenter(qApp->primaryScreen()->geometry().center());
+	setGeometry(rect);
 }
 
 void EditorWindow::connectUI()

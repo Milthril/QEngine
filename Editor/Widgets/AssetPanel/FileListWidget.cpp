@@ -42,16 +42,8 @@ protected:
 			icon = mDirIcon.getIcon();
 		}
 		else {
-			if (fileInfo.suffix() == "png" || fileInfo.suffix() == "jpg" || fileInfo.suffix() == "jepg")
-				icon = cacheTask_->getIcon(fileInfo.filePath());
-			else if (fileInfo.suffix() == IAsset::AssetExtName[IAsset::Material]) {
-				icon = mMaterialIcon.getIcon();
-			}
-			else if (fileInfo.suffix() == IAsset::AssetExtName[IAsset::SkyBox]) {
-				icon = mSkyBoxIcon.getIcon();;
-			}
-			else if (fileInfo.suffix() == IAsset::AssetExtName[IAsset::StaticMesh]) {
-				icon = mStaticMeshIcon.getIcon();;
+			if (mIconList.contains(fileInfo.suffix())) {
+				icon = mIconList[fileInfo.suffix()]->getIcon();
 			}
 			else if (icon.isNull())
 				icon = mFileIcon.getIcon();
@@ -67,22 +59,27 @@ protected:
 		return GridSize;
 	}
 public:
-	QSvgIcon mFileIcon = QSvgIcon(":/Resources/Icons/24gf-fileEmpty.png");
+	QMap<QString,std::shared_ptr<QSvgIcon>> mIconList = {
+		{IAsset::AssetExtName[IAsset::Material],std::make_shared<QSvgIcon>(":/Resources/Icons/Material.png")},
+		{IAsset::AssetExtName[IAsset::SkyBox],std::make_shared<QSvgIcon>(":/Resources/Icons/SkyBox.png")},
+		{IAsset::AssetExtName[IAsset::StaticMesh],std::make_shared<QSvgIcon>(":/Resources/Icons/StaticMesh.png")},
+		{IAsset::AssetExtName[IAsset::Skeleton],std::make_shared<QSvgIcon>(":/Resources/Icons/Skeleton.png")},
+		{IAsset::AssetExtName[IAsset::SkeletonAnimation],std::make_shared<QSvgIcon>(":/Resources/Icons/SkeletonAnimation.png")},
+		{IAsset::AssetExtName[IAsset::SkeletonModel],std::make_shared<QSvgIcon>(":/Resources/Icons/SkeletonModel.png")},
+		{IAsset::AssetExtName[IAsset::ParticleSystem],std::make_shared<QSvgIcon>(":/Resources/Icons/ParticleSystem.png")},
+	};
 	QSvgIcon mDirIcon = QSvgIcon(":/Resources/Icons/24gf-folder4.png");
-	QSvgIcon mStaticMeshIcon = QSvgIcon(":/Resources/Icons/StaticMesh.png");
-	QSvgIcon mSkyBoxIcon = QSvgIcon(":/Resources/Icons/SkyBox.png");
-	QSvgIcon mMaterialIcon = QSvgIcon(":/Resources/Icons/Material.png");
-	FileTaskThread* cacheTask_;
+	QSvgIcon mFileIcon = QSvgIcon(":/Resources/Icons/24gf-fileEmpty.png");
+
 };
 
 
-FileListWidget::FileListWidget() :threadTask_(this) {
+FileListWidget::FileListWidget()  {
 	setMovement(QListView::Static);
 	setFrameShape(QFrame::NoFrame);
 	setViewMode(QListView::IconMode);
 	setUniformItemSizes(true);
 	FileListItemDelegate* itemDelegate = new FileListItemDelegate;
-	itemDelegate->cacheTask_ = &threadTask_;
 	setItemDelegate(itemDelegate);
 	setItemAlignment(Qt::AlignCenter);
 	setIconSize(QSize(40, 40));
@@ -110,7 +107,6 @@ FileListWidget::FileListWidget() :threadTask_(this) {
 				menu.addAction("Remove", [path, this]() {
 					QFile file(path);
 					file.remove();
-					threadTask_.updateFileItems();
 			});
 			}
 			menu.exec(QCursor::pos());
@@ -127,7 +123,6 @@ FileListWidget::FileListWidget() :threadTask_(this) {
 		}
 	});
 
-
 	connect(this, &QWidget::customContextMenuRequested, this, [this](const QPoint& pos) {
 		QMenu menu;
 		menu.addSeparator();
@@ -140,12 +135,8 @@ FileListWidget::FileListWidget() :threadTask_(this) {
 		menu.exec(mapToGlobal(pos));
 	});
 
-	connect(this->verticalScrollBar(), &QScrollBar::valueChanged, this, [this](int position) {
-		threadTask_.clearIconCache();
-	});
-
 	connect(&fileWatcher_, &QFileSystemWatcher::directoryChanged, this, [this](const QString& path) {
-		threadTask_.updateFileItems();
+		updateCurrentItem();
 	});
 }
 
@@ -156,7 +147,7 @@ FileListWidget::~FileListWidget()
 void FileListWidget::setCurrentDir(QString dir) {
 	fileWatcher_.removePath(currentDir_.path());
 	currentDir_ = dir;
-	threadTask_.updateFileItems();
+	updateCurrentItem();
 	fileWatcher_.addPath(currentDir_.path());
 }
 
@@ -166,10 +157,33 @@ void FileListWidget::setCurrentDirAndSearch(QString dir, QString keyword)
 	currentDir_ = dir;
 	fileWatcher_.addPath(currentDir_.path());
 	if (keyword.isEmpty()) {
-		threadTask_.updateFileItems();
+		updateCurrentItem();
 	}
 	else {
 		searchFile(keyword);
+	}
+}
+
+void FileListWidget::updateCurrentItem() {
+	clear();
+	auto entryList =currentDir_.entryInfoList(QDir::Filter::Dirs | QDir::Filter::NoDotAndDotDot, QDir::SortFlag::LocaleAware);
+	QStringList nameFilerList;
+	for (auto extName : IAsset::AssetExtName.values()) {
+		nameFilerList << "*." + extName;
+	}
+	entryList += currentDir_.entryInfoList(nameFilerList, QDir::Filter::Files, QDir::SortFlag::Type);
+	QStringList itemList;
+	for (int i = 0; i < entryList.size() ; i++) {
+		itemList.push_back(entryList[i].baseName());
+	}
+	addItems(itemList);
+	submitItemCount();
+	for (int i = 0; i < entryList.size(); i++) {
+		QListWidgetItem* item = this->item(i);
+		if (item != nullptr) {
+			item->setFlags(item->flags() | Qt::ItemFlag::ItemIsEditable);
+			item->setData(Qt::ToolTipRole, entryList[i].filePath());
+		}
 	}
 }
 
@@ -182,14 +196,37 @@ void FileListWidget::addElideItem()
 
 void FileListWidget::searchFile(const QString& keyword)
 {
-	threadTask_.search(keyword);
+	QQueue<QDir> queue;
+	queue.enqueue(currentDir_);
+	QStringList pathList;
+	while (!queue.isEmpty()) {
+		QDir dir = queue.dequeue();
+		auto entryList = dir.entryInfoList(QDir::Filter::Files | QDir::Filter::Dirs | QDir::Filter::NoDotAndDotDot);
+		for (int i = 0; i < entryList.size(); i++) {
+			const QFileInfo& subFile = entryList[i];
+			if (subFile.isDir()) {
+				queue.enqueue(subFile.filePath());
+			}
+			else if (subFile.isFile() && subFile.fileName().contains(keyword)) {
+				pathList << subFile.path();
+			}
+		}
+	}
+
+	for (auto& path : pathList) {
+		QListWidgetItem* item = new QListWidgetItem;
+		item->setText(QFileInfo(path).baseName());
+		if (item != nullptr) {
+			item->setFlags(item->flags() | Qt::ItemFlag::ItemIsEditable);
+			item->setData(Qt::ToolTipRole, path);
+		}
+	}
 }
 
 void FileListWidget::submitItemCount()
 {
 	Q_EMIT newMessage(QString("items: %1").arg(count()));
 }
-
 
 void FileListWidget::dragEnterEvent(QDragEnterEvent* event) {
 	if (event->mimeData()->hasUrls()) {
@@ -212,170 +249,4 @@ void FileListWidget::dropEvent(QDropEvent* event) {
 		TheAssetMgr->import(url.toLocalFile(),currentDir_);
 	}
 	QListWidget::dropEvent(event);
-}
-
-
-FileTaskThread::FileTaskThread(FileListWidget* widget)
-	:widget_(widget)
-{
-	thread_ = new QThread;
-	moveToThread(thread_);
-	thread_->start();
-}
-
-FileTaskThread::~FileTaskThread() {
-	if (thread_->isRunning()) {
-		thread_->quit();
-		thread_->wait();
-	}
-}
-
-void FileTaskThread::searchThreadTask(const QString& keyword) {
-	onActive();
-	widget_->clear();
-	QQueue<QDir> queue;
-	queue.enqueue(widget_->currentDir_);
-	while (!queue.isEmpty() && !bRequestQuit) {
-		QDir dir = queue.dequeue();
-		auto entryList = dir.entryInfoList(QDir::Filter::Files | QDir::Filter::Dirs | QDir::Filter::NoDotAndDotDot);
-		for (int i = 0; i < entryList.size() && !bRequestQuit; i++) {
-			const QFileInfo& subFile = entryList[i];
-			if (subFile.isDir()) {
-				queue.enqueue(subFile.filePath());
-			}
-			else if (subFile.isFile() && subFile.fileName().contains(keyword)) {
-				addCacheFile(subFile);
-				if (widget_->count() + cacheList_.size() >= searchLimited) {
-					queue.clear();
-					submitCache();
-					Q_EMIT widget_->newMessage(QString("items: %1+").arg(widget_->count()));
-					widget_->addElideItem();
-					break;
-				}
-			}
-		}
-	}
-	submitCache();
-	onFinished();
-}
-
-void FileTaskThread::updateWidgetTaskThread()
-{
-	onActive();
-	widget_->clear();
-	auto entryList = widget_->currentDir_.entryInfoList(QDir::Filter::Dirs | QDir::Filter::NoDotAndDotDot, QDir::SortFlag::LocaleAware);
-
-	QStringList nameFilerList;
-	for (auto extName : IAsset::AssetExtName.values()) {
-		nameFilerList << "*." + extName;
-	}
-	entryList += widget_->currentDir_.entryInfoList(nameFilerList, QDir::Filter::Files, QDir::SortFlag::LocaleAware);
-	QStringList itemList;
-	for (int i = 0; i < entryList.size() && !bRequestQuit; i++) {
-		itemList.push_back(entryList[i].baseName());
-	}
-	if (bRequestQuit)
-		return;
-	widget_->addItems(itemList);
-	widget_->submitItemCount();
-	for (int i = 0; i < entryList.size() && !bRequestQuit; i++) {
-		QListWidgetItem* item = widget_->item(i);
-		if (item != nullptr) {
-			item->setFlags(item->flags() | Qt::ItemFlag::ItemIsEditable);
-			item->setData(Qt::ToolTipRole, entryList[i].filePath());
-		}
-	}
-	onFinished();
-}
-
-void FileTaskThread::updateIconTaskThread(const QString filePath)
-{
-	onActive();
-	if (iconCacheMap_.contains(filePath))
-		return;
-	iconCacheMap_[filePath] = QIcon(filePath);
-	widget_->update();
-}
-
-void FileTaskThread::addCacheFile(const QFileInfo& info) {
-	cacheList_ << info;
-	if (cacheList_.size() > cacheSize) {
-		submitCache();
-		widget_->submitItemCount();
-	}
-}
-
-void FileTaskThread::submitCache()
-{
-	if (cacheList_.isEmpty())
-		return;
-	QStringList nameList;
-	for (auto& info : cacheList_) {
-		nameList << info.fileName();
-	}
-	if (bRequestQuit)
-		return;
-	int offset = widget_->count();
-	widget_->addItems(nameList);
-	if (bRequestQuit)
-		return;
-	for (int i = 0; i < cacheList_.size(); i++) {
-		QListWidgetItem* item = widget_->item(offset + i);
-		if (item != nullptr) {
-			item->setData(Qt::ToolTipRole, cacheList_[i].filePath());
-			//item->setIcon(widget_->getIcon(cacheList_[i]));
-		}
-	}
-	cacheList_.clear();
-}
-
-void FileTaskThread::waitFinished() {
-	if (bIsRunning) {
-		bRequestQuit = true;
-		//std::future<bool> future = bFinished.get_future();
-		//future.wait();
-	}
-}
-
-void FileTaskThread::onActive() {
-	bIsRunning = true;
-	bRequestQuit = false;
-	bFinished = std::promise<bool>();
-}
-
-void FileTaskThread::onFinished() {
-	bFinished.set_value(true);
-	bIsRunning = false;
-}
-
-
-void FileTaskThread::search(const QString& keyword)
-{
-	if (keyword.isEmpty()) {
-		updateFileItems();
-		return;
-	}
-	waitFinished();
-	QMetaObject::invokeMethod(this, "searchThreadTask", Q_ARG(QString, keyword));
-}
-
-void FileTaskThread::updateFileItems()
-{
-	waitFinished();
-	QMetaObject::invokeMethod(this, &FileTaskThread::updateWidgetTaskThread);
-}
-
-void FileTaskThread::clearIconCache()
-{
-	iconCacheMap_.clear();
-}
-
-QIcon FileTaskThread::getIcon(const QString& filePath)
-{
-	QIcon icon = iconCacheMap_.value(filePath);
-	if (icon.isNull() && !widget_->verticalScrollBar()->isSliderDown()) {
-		waitFinished();
-		QMetaObject::invokeMethod(this, "updateIconTaskThread", Q_ARG(QString, filePath));
-	}
-	return icon;
 }

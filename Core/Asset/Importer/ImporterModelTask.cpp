@@ -57,6 +57,12 @@ std::shared_ptr<Asset::StaticMesh> createStaticMeshFromAssimpMesh(aiMesh* mesh) 
 std::shared_ptr<Asset::Material> createMaterialFromAssimpMaterial(aiMaterial* material, const aiScene* scene, QDir dir) {
 	auto qMaterial = std::make_shared<Asset::Material>();
 	int diffuseCount = material->GetTextureCount(aiTextureType_DIFFUSE);
+
+	int count = 0;
+	for (int i = 1; i < 20; i++) {
+		count+= material->GetTextureCount((aiTextureType)i);
+	}
+
 	for (int j = 0; j < diffuseCount; j++) {
 		aiString path;
 		material->GetTexture(aiTextureType_DIFFUSE, j, &path);
@@ -137,94 +143,93 @@ void ImporterModelTask::executable() {
 		}
 	}
 
-	if (!hasBone) 
-		return;
+	if (hasBone) {
+		QVector<Asset::SkeletonModel::Mesh> mMeshList;
+		std::shared_ptr<Asset::Skeleton::ModelNode> mRootNode = processSkeletonModelNode(scene->mRootNode);
+		QHash<QString, std::shared_ptr<Asset::Skeleton::BoneNode>> mBoneMap;
+		QVector<Asset::Skeleton::Mat4> mBoneOffsetMatrix;
+		QVector<Asset::Skeleton::Mat4> mCurrentPosesMatrix;
 
-	QVector<Asset::SkeletonModel::Mesh> mMeshList;
-	std::shared_ptr<Asset::Skeleton::ModelNode> mRootNode = processSkeletonModelNode(scene->mRootNode);
-	QHash<QString, std::shared_ptr<Asset::Skeleton::BoneNode>> mBoneMap;
-	QVector<Asset::Skeleton::Mat4> mBoneOffsetMatrix;
-	QVector<Asset::Skeleton::Mat4> mCurrentPosesMatrix;
-
-	qNode.push_back({ scene->mRootNode ,aiMatrix4x4() });
-	while (!qNode.isEmpty()) {
-		QPair<aiNode*, aiMatrix4x4> node = qNode.takeFirst();
-		for (unsigned int i = 0; i < node.first->mNumMeshes; i++) {
-			aiMesh* mesh = scene->mMeshes[node.first->mMeshes[i]];
-			Asset::SkeletonModel::Mesh mMesh;
-			mMesh.mVertices.resize(mesh->mNumVertices);
-			for (unsigned int i = 0; i < mesh->mNumVertices; i++) {
-				Asset::SkeletonModel::Vertex& vertex = mMesh.mVertices[i];
-				vertex.position = converter(mesh->mVertices[i]);
-				if (mesh->mNormals)
-					vertex.normal = converter(mesh->mNormals[i]);
-				if (mesh->mTextureCoords[0]) {
-					vertex.texCoord.setX(mesh->mTextureCoords[0][i].x);
-					vertex.texCoord.setY(mesh->mTextureCoords[0][i].y);
+		qNode.push_back({ scene->mRootNode ,aiMatrix4x4() });
+		while (!qNode.isEmpty()) {
+			QPair<aiNode*, aiMatrix4x4> node = qNode.takeFirst();
+			for (unsigned int i = 0; i < node.first->mNumMeshes; i++) {
+				aiMesh* mesh = scene->mMeshes[node.first->mMeshes[i]];
+				Asset::SkeletonModel::Mesh mMesh;
+				mMesh.mVertices.resize(mesh->mNumVertices);
+				for (unsigned int i = 0; i < mesh->mNumVertices; i++) {
+					Asset::SkeletonModel::Vertex& vertex = mMesh.mVertices[i];
+					vertex.position = converter(mesh->mVertices[i]);
+					if (mesh->mNormals)
+						vertex.normal = converter(mesh->mNormals[i]);
+					if (mesh->mTextureCoords[0]) {
+						vertex.texCoord.setX(mesh->mTextureCoords[0][i].x);
+						vertex.texCoord.setY(mesh->mTextureCoords[0][i].y);
+					}
+					if (mesh->mTangents)
+						vertex.tangent = converter(mesh->mTangents[i]);
+					if (mesh->mBitangents)
+						vertex.bitangent = converter(mesh->mBitangents[i]);
 				}
-				if (mesh->mTangents)
-					vertex.tangent = converter(mesh->mTangents[i]);
-				if (mesh->mBitangents)
-					vertex.bitangent = converter(mesh->mBitangents[i]);
-			}
 
-			for (unsigned int i = 0; i < mesh->mNumFaces; i++) {
-				aiFace face = mesh->mFaces[i];
-				for (unsigned int j = 0; j < face.mNumIndices; j++) {
-					mMesh.mIndices.push_back(face.mIndices[j]);
-				}
-			}
-
-			for (unsigned int i = 0; i < mesh->mNumBones; i++) {
-				for (unsigned int j = 0; j < mesh->mBones[i]->mNumWeights; j++) {
-					int vertexId = mesh->mBones[i]->mWeights[j].mVertexId;
-					aiBone* bone = mesh->mBones[i];
-					std::shared_ptr<Asset::Skeleton::BoneNode> boneNode;
-					if (mBoneMap.contains(bone->mName.C_Str()))
-						boneNode =  mBoneMap[bone->mName.C_Str()];
-					else {
-						boneNode = std::make_shared<Asset::Skeleton::BoneNode>();
-						boneNode->name = bone->mName.C_Str();
-						boneNode->offsetMatrix = converter(bone->mOffsetMatrix);
-						boneNode->index = mBoneOffsetMatrix.size();
-						mBoneOffsetMatrix << boneNode->offsetMatrix.toGenericMatrix<4, 4>();
-						mBoneMap[boneNode->name] = boneNode;
-					}
-					int slot = 0;
-					while (slot < std::size(mMesh.mVertices[vertexId].boneIndex) && (mMesh.mVertices[vertexId].boneWeight[slot] > 0.000001)) {
-						slot++;
-					}
-					if (slot < std::size(mMesh.mVertices[vertexId].boneIndex)) {
-						mMesh.mVertices[vertexId].boneIndex[slot] = boneNode->index;
-						mMesh.mVertices[vertexId].boneWeight[slot] = mesh->mBones[i]->mWeights[j].mWeight;;
-					}
-					else {
-						qWarning("Lack of slot");
+				for (unsigned int i = 0; i < mesh->mNumFaces; i++) {
+					aiFace face = mesh->mFaces[i];
+					for (unsigned int j = 0; j < face.mNumIndices; j++) {
+						mMesh.mIndices.push_back(face.mIndices[j]);
 					}
 				}
+
+				for (unsigned int i = 0; i < mesh->mNumBones; i++) {
+					for (unsigned int j = 0; j < mesh->mBones[i]->mNumWeights; j++) {
+						int vertexId = mesh->mBones[i]->mWeights[j].mVertexId;
+						aiBone* bone = mesh->mBones[i];
+						std::shared_ptr<Asset::Skeleton::BoneNode> boneNode;
+						if (mBoneMap.contains(bone->mName.C_Str()))
+							boneNode = mBoneMap[bone->mName.C_Str()];
+						else {
+							boneNode = std::make_shared<Asset::Skeleton::BoneNode>();
+							boneNode->name = bone->mName.C_Str();
+							boneNode->offsetMatrix = converter(bone->mOffsetMatrix);
+							boneNode->index = mBoneOffsetMatrix.size();
+							mBoneOffsetMatrix << boneNode->offsetMatrix.toGenericMatrix<4, 4>();
+							mBoneMap[boneNode->name] = boneNode;
+						}
+						int slot = 0;
+						while (slot < std::size(mMesh.mVertices[vertexId].boneIndex) && (mMesh.mVertices[vertexId].boneWeight[slot] > 0.000001)) {
+							slot++;
+						}
+						if (slot < std::size(mMesh.mVertices[vertexId].boneIndex)) {
+							mMesh.mVertices[vertexId].boneIndex[slot] = boneNode->index;
+							mMesh.mVertices[vertexId].boneWeight[slot] = mesh->mBones[i]->mWeights[j].mWeight;;
+						}
+						else {
+							qWarning("Lack of slot");
+						}
+					}
+				}
+				mMesh.mMaterialIndex = mesh->mMaterialIndex;
+				mMeshList.emplace_back(std::move(mMesh));
 			}
-			mMesh.mMaterialIndex = mesh->mMaterialIndex;
-			mMeshList.emplace_back(std::move(mMesh));
+			for (unsigned int i = 0; i < node.first->mNumChildren; i++) {
+				qNode.push_back({ node.first->mChildren[i] ,node.second * node.first->mChildren[i]->mTransformation });
+			}
 		}
-		for (unsigned int i = 0; i < node.first->mNumChildren; i++) {
-			qNode.push_back({ node.first->mChildren[i] ,node.second * node.first->mChildren[i]->mTransformation });
-		}
+
+		std::shared_ptr<Asset::Skeleton> mSkeleton = std::make_shared<Asset::Skeleton>();
+		mSkeleton->setBoneMap(std::move(mBoneMap));
+		mSkeleton->setBoneOffsetMatrix(std::move(mBoneOffsetMatrix));
+		mSkeleton->setRootNode(mRootNode);
+		mSkeleton->setRefPath(mDestDir.filePath("%1.%2").arg(QFileInfo(mFilePath).baseName()).arg(mSkeleton->getExtName()));
+		mSkeleton->save(mSkeleton->getRefPath());
+
+		std::shared_ptr<Asset::SkeletonModel> mSkeletonModel = std::make_shared<Asset::SkeletonModel>();
+		mSkeletonModel->setMeshList(std::move(mMeshList));
+		mSkeletonModel->setSkeletonPath(mSkeleton->getRefPath());
+		mSkeletonModel->setRefPath(mDestDir.filePath("%1.%2").arg(QFileInfo(mFilePath).baseName()).arg(mSkeletonModel->getExtName()));
+		mSkeletonModel->setMaterialPathList(std::move(mMaterialPathList));
+		mSkeletonModel->save(mSkeletonModel->getRefPath());
+
 	}
-
-	std::shared_ptr<Asset::Skeleton> mSkeleton = std::make_shared<Asset::Skeleton>();
-	mSkeleton->setBoneMap(std::move(mBoneMap));
-	mSkeleton->setBoneOffsetMatrix(std::move(mBoneOffsetMatrix));
-	mSkeleton->setRootNode(mRootNode);
-	mSkeleton->setRefPath(mDestDir.filePath("%1.%2").arg(QFileInfo(mFilePath).baseName()).arg(mSkeleton->getExtName()));
-	mSkeleton->save(mSkeleton->getRefPath());
-
-	std::shared_ptr<Asset::SkeletonModel> mSkeletonModel = std::make_shared<Asset::SkeletonModel>();
-	mSkeletonModel->setMeshList(std::move(mMeshList));
-	mSkeletonModel->setSkeletonPath(mSkeleton->getRefPath());
-	mSkeletonModel->setRefPath(mDestDir.filePath("%1.%2").arg(QFileInfo(mFilePath).baseName()).arg(mSkeletonModel->getExtName()));
-	mSkeletonModel->setMaterialPathList(std::move(mMaterialPathList));
-	mSkeletonModel->save(mSkeletonModel->getRefPath());
-
 
 	for (uint i = 0; i < scene->mNumAnimations; i++) {
 		aiAnimation* anim = scene->mAnimations[i];
@@ -251,7 +256,7 @@ void ImporterModelTask::executable() {
 		if (name.isEmpty())
 			name = QFileInfo(mFilePath).baseName() + "_Animation";
 		mSkeletonAnim->setRefPath(mDestDir.filePath("%1.%2").arg(name).arg(mSkeletonAnim->getExtName()));
-		mSkeletonAnim->mSkeletonSHA = mSkeleton->getSHA();
+		//mSkeletonAnim->mSkeletonSHA = mSkeleton->getSHA();
 		mSkeletonAnim->save(mSkeletonAnim->getRefPath());
 	}
 }

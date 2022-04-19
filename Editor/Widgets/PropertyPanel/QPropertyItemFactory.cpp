@@ -37,7 +37,7 @@
 #include "Asset\PartcleSystem\ParticleSystem.h"
 #include "Asset\SkeletonModel\SkeletonModel.h"
 #include "Asset\SkeletonModel\SkeletonAnimation.h"
-
+#include "Asset\PartcleSystem\Emitter\PositionGenerator\IPositionGenerator.h"
 
 #define REGISTER_ADJUSTER_ITEM(Type,AdjusterType)\
 		mCreatorMap[QMetaTypeId2<Type>::qt_metatype_id()] = [](QString name, Getter getter, Setter setter) { \
@@ -93,17 +93,9 @@ QPropertyItemFactory::QPropertyItemFactory()
 	REGISTER_ASSET_ITEM(Asset::SkeletonModel);
 	REGISTER_ASSET_ITEM(Asset::SkeletonAnimation);
 
-
-	//REGISTER_ADJUSTER_ITEM(std::shared_ptr<QMaterial>, MaterialButton);
-	//REGISTER_ADJUSTER_ITEM(std::shared_ptr<QParticleSystem>, ParticleSystemButton);
-
-	//mCreatorMap[QMetaTypeId2<QSubClass<IPositionGenerator>>::qt_metatype_id()] = [](QString name, Getter getter, Setter setter) {
-	//	return new QPropertySubClassItem<QSubClass<IPositionGenerator>>(name, getter, setter);
-	//};
-
-	//mCreatorMap[QMetaTypeId2<QSubClass<QStaticMeshComponent>>::qt_metatype_id()] = [](QString name, Getter getter, Setter setter) {
-	//	return new QPropertySubClassItem<QSubClass<QStaticMeshComponent>>(name, getter, setter);
-	//};
+	mCreatorMap[QMetaTypeId2<IPositionGenerator*>::qt_metatype_id()] = [](QString name, Getter getter, Setter setter) {
+		return new QPropertySubClassItem<QSubClass<IPositionGenerator>>(name, getter, setter);
+	};
 
 	mCreatorMap[QMetaTypeId2<QVector<std::shared_ptr<Asset::Material>>>::qt_metatype_id()] = [](QString name, Getter getter, Setter setter) {
 		return new QPropertyVectorItem<QVector<std::shared_ptr<Asset::Material>>>(name, getter, setter);

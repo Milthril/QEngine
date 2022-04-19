@@ -17,7 +17,7 @@ void QStaticMeshComponent::setMaterial(std::shared_ptr<Asset::Material> val) {
 		mMaterial->removeRef(this);
 	}
 	mMaterial = val;
-	if (val) {
+	if (val&&mStaticMesh) {
 		mStaticMesh->setMaterialPath(val->getRefPath());
 		val->addRef(this);
 	}

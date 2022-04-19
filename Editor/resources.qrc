@@ -35,5 +35,9 @@
         <file>Resources/Icons/SkyBox.png</file>
         <file>Resources/Icons/StaticMesh.png</file>
         <file>Resources/Icons/reset.png</file>
+        <file>Resources/Icons/Skeleton.png</file>
+        <file>Resources/Icons/SkeletonAnimation.png</file>
+        <file>Resources/Icons/SkeletonModel.png</file>
+        <file>Resources/Icons/ParticleSystem.png</file>
     </qresource>
 </RCC>
