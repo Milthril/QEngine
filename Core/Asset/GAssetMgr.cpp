@@ -7,6 +7,7 @@
 #include "Utils/FileUtils.h"
 #include "SkeletonModel/Skeleton.h"
 #include "SkeletonModel/SkeletonModel.h"
+#include "SkeletonModel/SkeletonAnimation.h"
 
 
 GAssetMgr* GAssetMgr::Instance() {
@@ -63,6 +64,12 @@ std::shared_ptr<IAsset> GAssetMgr::load(QString path, IAsset::Type type /*= IAss
 		}
 		case IAsset::SkeletonModel: {
 			Asset::SkeletonModel* asset = nullptr;
+			in >> asset;
+			asset->setRefPath(path);
+			return std::shared_ptr<IAsset>(asset);
+		}
+		case IAsset::SkeletonAnimation: {
+			Asset::SkeletonAnimation* asset = nullptr;
 			in >> asset;
 			asset->setRefPath(path);
 			return std::shared_ptr<IAsset>(asset);

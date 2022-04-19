@@ -89,3 +89,7 @@ bool QRenderSystem::isEnableDebug() {
 	return mEnableDebug;
 }
 
+qint64 QRenderSystem::getRenderDurationMs() const {
+	return mWindow->mDurationMs;;
+}
+

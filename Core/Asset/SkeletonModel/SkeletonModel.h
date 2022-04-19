@@ -51,7 +51,6 @@ private:
 	QVector<QString> mMaterialPathList;
 	QString mSkeletonPath;
 };
-
 }
 
 Q_ENGINE_DECLARE_ASSET_TYPE(Asset::SkeletonModel, IAsset::SkeletonModel);

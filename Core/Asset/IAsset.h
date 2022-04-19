@@ -41,6 +41,8 @@ public:
 	};
 	virtual void serialize(QDataStream& out) {}
 	virtual void deserialize(QDataStream& in) {}
+
+	QByteArray getSHA();
 protected:
 	QString mRefPath;
 };

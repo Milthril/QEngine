@@ -87,6 +87,7 @@ void QRhiWindow::initInternal()
 	mSwapChain->setRenderPassDescriptor(mRenderPassDesciptor.get());
 	resizeSwapChain();
 	customInitEvent();
+
 }
 
 void QRhiWindow::renderInternal()
@@ -103,12 +104,14 @@ void QRhiWindow::renderInternal()
 	}
 	customRenderEvent(mSwapChain.get());
 	mFrameCount += 1;
+	
 	if (mTimer.elapsed() > 1000) {
 		mFPS = mFrameCount;
 		//qDebug() << mFPS;
 		mTimer.restart();
 		mFrameCount = 0;
 	}
+
 }
 
 void QRhiWindow::resizeSwapChain()

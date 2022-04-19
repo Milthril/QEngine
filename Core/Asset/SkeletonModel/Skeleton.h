@@ -39,6 +39,7 @@ public:
 	void setBoneOffsetMatrix(QVector<Asset::Skeleton::Mat4>&& val) { mBoneOffsetMatrix = val; }
 
 	const QVector<Asset::Skeleton::Mat4>& getCurrentPosesMatrix() const { return mCurrentPosesMatrix; }
+	void setCurrentPosesMatrix(QVector<Asset::Skeleton::Mat4>&& val) { mCurrentPosesMatrix = val; }
 
 	void serialize(QDataStream& out) override;
 	void deserialize(QDataStream& in) override;
@@ -47,6 +48,7 @@ public:
 		return IAsset::Skeleton;
 	}
 	void updateDefaultPoses();
+
 private:
 	std::shared_ptr<ModelNode> mRootNode;
 	QHash<QString, std::shared_ptr<BoneNode>> mBoneMap;

@@ -6,9 +6,10 @@
 #include "assimp\scene.h"
 #include "QQueue"
 #include "Utils\FileUtils.h"
-#include "..\SkeletonModel\SkeletonModel.h"
-#include "..\SkeletonModel\Skeleton.h"
-#include "..\GAssetMgr.h"
+#include "Asset\SkeletonModel\SkeletonModel.h"
+#include "Asset\SkeletonModel\Skeleton.h"
+#include "Asset\GAssetMgr.h"
+#include "Asset\SkeletonModel\SkeletonAnimation.h"
 
 QMatrix4x4 converter(const aiMatrix4x4& aiMat4) {
 	QMatrix4x4 mat4;
@@ -223,5 +224,35 @@ void ImporterModelTask::executable() {
 	mSkeletonModel->setRefPath(mDestDir.filePath("%1.%2").arg(QFileInfo(mFilePath).baseName()).arg(mSkeletonModel->getExtName()));
 	mSkeletonModel->setMaterialPathList(std::move(mMaterialPathList));
 	mSkeletonModel->save(mSkeletonModel->getRefPath());
+
+
+	for (uint i = 0; i < scene->mNumAnimations; i++) {
+		aiAnimation* anim = scene->mAnimations[i];
+		std::shared_ptr<Asset::SkeletonAnimation> mSkeletonAnim = std::make_shared<Asset::SkeletonAnimation>();
+		mSkeletonAnim->mDuration = anim->mDuration;
+		mSkeletonAnim->mTicksPerSecond = anim->mTicksPerSecond;
+		for (unsigned int j = 0; j < anim->mNumChannels; j++) {
+			aiNodeAnim* node = anim->mChannels[j];
+			Asset::SkeletonAnimation::Node& skNode = mSkeletonAnim->mAnimNode[node->mNodeName.C_Str()];
+			for (uint j = 0; j < node->mNumScalingKeys; j++) {
+				const aiVectorKey& key = node->mScalingKeys[j];
+				skNode.scaling[key.mTime/ mSkeletonAnim->mTicksPerSecond] = QVector3D(key.mValue.x, key.mValue.y, key.mValue.z);
+			}
+			for (uint j = 0; j < node->mNumPositionKeys; j++) {
+				const aiVectorKey& key = node->mPositionKeys[j];
+				skNode.translation[key.mTime/ mSkeletonAnim->mTicksPerSecond] = QVector3D(key.mValue.x, key.mValue.y, key.mValue.z);
+			}
+			for (uint j = 0; j < node->mNumRotationKeys; j++) {
+				const aiQuatKey& key = node->mRotationKeys[j];
+				skNode.rotation[key.mTime/ mSkeletonAnim->mTicksPerSecond] = QQuaternion(key.mValue.w, key.mValue.x, key.mValue.y, key.mValue.z);
+			}
+		}
+		QString name = anim->mName.C_Str();
+		if (name.isEmpty())
+			name = QFileInfo(mFilePath).baseName() + "_Animation";
+		mSkeletonAnim->setRefPath(mDestDir.filePath("%1.%2").arg(name).arg(mSkeletonAnim->getExtName()));
+		mSkeletonAnim->mSkeletonSHA = mSkeleton->getSHA();
+		mSkeletonAnim->save(mSkeletonAnim->getRefPath());
+	}
 }
 

@@ -35,6 +35,10 @@ void IAsset::save(QString filePath, bool cover /*= true*/) {
 	}
 }
 
+QByteArray IAsset::getSHA() {
+	return TheAssetMgr->getSHA256(mRefPath);
+}
+
 QString IAsset::getExtName() {
 	return AssetExtName[type()];
 }

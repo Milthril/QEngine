@@ -36,6 +36,7 @@
 #include "Asset\StaticMesh.h"
 #include "Asset\PartcleSystem\ParticleSystem.h"
 #include "Asset\SkeletonModel\SkeletonModel.h"
+#include "Asset\SkeletonModel\SkeletonAnimation.h"
 
 
 #define REGISTER_ADJUSTER_ITEM(Type,AdjusterType)\
@@ -90,6 +91,7 @@ QPropertyItemFactory::QPropertyItemFactory()
 	REGISTER_ASSET_ITEM(Asset::StaticMesh);
 	REGISTER_ASSET_ITEM(Asset::ParticleSystem);
 	REGISTER_ASSET_ITEM(Asset::SkeletonModel);
+	REGISTER_ASSET_ITEM(Asset::SkeletonAnimation);
 
 
 	//REGISTER_ADJUSTER_ITEM(std::shared_ptr<QMaterial>, MaterialButton);

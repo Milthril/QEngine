@@ -12,9 +12,13 @@ void QRenderWindow::customInitEvent() {
 	if (QRenderSystem::instance()->renderer()) {
 		QRenderSystem::instance()->renderer()->buildFrameGraph();
 	}
+	mDurationMs = 0;
+	mLastTimeMs = 0;
+	mTimer.restart();
 }
 
 void QRenderWindow::customRenderEvent(QRhiSwapChain* swapchain) {
+
 	if (QRenderSystem::instance()->renderer()) {
 		if (mRhi->beginFrame(swapchain) == QRhi::FrameOpSuccess) {
 			swapchain->currentFrameRenderTarget()->setRenderPassDescriptor(swapchain->renderPassDescriptor());
@@ -22,6 +26,9 @@ void QRenderWindow::customRenderEvent(QRhiSwapChain* swapchain) {
 			mRhi->endFrame(swapchain);
 		}
 	}
+	qint64 current = mTimer.elapsed();
+	mDurationMs = current - mLastTimeMs;
+	mLastTimeMs = current;
 }
 
 void QRenderWindow::customResizeEvent() {

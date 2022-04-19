@@ -34,6 +34,8 @@ public:
 	IRenderer* renderer();
 	bool isEnableDebug();
 	void setEnableDebug(bool var) { mEnableDebug = var; }
+
+	qint64 getRenderDurationMs() const;
 private:
 	QRenderSystem();
 private:
@@ -41,7 +43,6 @@ private:
 	std::shared_ptr<QRhi> mRHI;
 	std::shared_ptr<IRenderer> mRenderer;
 	bool mEnableDebug = false;
-
 };
 
 

@@ -4,6 +4,7 @@
 #include "IRenderableComponent.h"
 #include "Asset\SkeletonModel\Skeleton.h"
 #include "Asset\SkeletonModel\SkeletonModel.h"
+#include "Asset\SkeletonModel\SkeletonAnimation.h"
 #include "Asset\Material.h"
 
 class QSkeletonModelComponent;
@@ -36,6 +37,7 @@ class QSkeletonModelComponent :public IRenderableComponent {
 		Q_COMPONENT(QSkeletonModelComponent)
 		Q_PROPERTY(std::shared_ptr<Asset::SkeletonModel> SkeletonModel READ getSkeletonModel WRITE setSkeletonModel)
 		Q_PROPERTY(QVector<std::shared_ptr<Asset::Material>> MaterialList READ getMaterialList WRITE setMaterialList)
+		Q_PROPERTY(std::shared_ptr<Asset::SkeletonAnimation> Animation READ getAnimation WRITE setAnimation)
 
 		friend class SkeletonModelComponentSubMesh;
 public:
@@ -48,14 +50,19 @@ public:
 	std::shared_ptr<Asset::SkeletonModel> getSkeletonModel() const;
 	void setSkeletonModel(std::shared_ptr<Asset::SkeletonModel> val);
 
+	std::shared_ptr<Asset::SkeletonAnimation> getAnimation() const;
+	void setAnimation(std::shared_ptr<Asset::SkeletonAnimation> val);
+
 	const QVector<std::shared_ptr<Asset::Material>>& getMaterialList() const;
 	void setMaterialList(QVector<std::shared_ptr<Asset::Material>> val);
-private:
-	QVector<std::shared_ptr<Asset::Material>> mMaterialList;
 
+private:
 	std::shared_ptr<Asset::Skeleton> mSkeleton;
 	std::shared_ptr<Asset::SkeletonModel> mSkeletonModel;
 
+	std::shared_ptr<Asset::SkeletonAnimation> mAnimation;
+
+	QVector<std::shared_ptr<Asset::Material>> mMaterialList;
 	QRhiSPtr<QRhiBuffer> mBoneMatBuffer;
 	QVector<std::shared_ptr<SkeletonModelComponentSubMesh>> mSkeletonSubMeshList;
 };

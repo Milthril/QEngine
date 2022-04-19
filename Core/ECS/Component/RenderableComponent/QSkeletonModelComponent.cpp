@@ -206,6 +206,10 @@ void QSkeletonModelComponent::updateResourcePrePass(QRhiResourceUpdateBatch* bat
 		subMesh->updateResourcePrePass(batch);
 	}
 
+	if (mAnimation) {
+		mAnimation->play(mSkeleton.get(), QTime::currentTime().msecsSinceStartOfDay()/1000.0);
+	}
+
 	QMatrix4x4 MVP = mEntity->calculateMatrixMVP();
 	batch->updateDynamicBuffer(mBoneMatBuffer.get(), 0, sizeof(float) * 16, MVP.constData());
 	const auto& posesMatrix = mSkeleton->getCurrentPosesMatrix();
@@ -227,6 +231,7 @@ std::shared_ptr<Asset::SkeletonModel> QSkeletonModelComponent::getSkeletonModel(
 void QSkeletonModelComponent::setSkeletonModel(std::shared_ptr<Asset::SkeletonModel> val) {
 	mSkeletonModel = val;
 	if (mSkeletonModel) {
+		mSkeletonSubMeshList.clear();
 		mSkeleton = TheAssetMgr->load<Asset::Skeleton>(mSkeletonModel->getSkeletonPath());
 		mMaterialList.resize(mSkeletonModel->getMaterialPathList().size());
 		for (int i = 0; i < mMaterialList.size(); i++) {
@@ -235,6 +240,14 @@ void QSkeletonModelComponent::setSkeletonModel(std::shared_ptr<Asset::SkeletonMo
 	}
 	bNeedRecreateResource.active();
 	bNeedRecreatePipeline.active();
+}
+
+std::shared_ptr<Asset::SkeletonAnimation> QSkeletonModelComponent::getAnimation() const {
+	return mAnimation;
+}
+
+void QSkeletonModelComponent::setAnimation(std::shared_ptr<Asset::SkeletonAnimation> val) {
+	mAnimation = val;
 }
 
 const QVector<std::shared_ptr<Asset::Material>>& QSkeletonModelComponent::getMaterialList() const {
