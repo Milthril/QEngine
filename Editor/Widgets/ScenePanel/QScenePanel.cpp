@@ -46,10 +46,10 @@ void QScenePanel::createUI() {
 				this->editItem(item, column);
 			});
 			menu.addAction("Remove", [this,item,column]() {
+				mWorld->removeEntity(item->data(1, 0).value<QEntity*>());
 				if (currentItem() == item) {
 					Q_EMIT entityChanged(nullptr);
 				}
-				mWorld->removeEntity(item->data(1, 0).value<QEntity*>());
 			});
 			menu.exec(QCursor::pos());
 		}

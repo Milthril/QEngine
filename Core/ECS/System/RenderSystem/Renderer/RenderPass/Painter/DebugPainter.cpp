@@ -12,9 +12,9 @@ void DebugPainter::paintImgui() {
 	ImGui::GetBackgroundDrawList()->AddText(ImGui::GetFont(), ImGui::GetFontSize(), ImVec2(1, 1), ImColor(0, 255, 0, 255), QString("FPS: %1").arg(QRenderSystem::instance()->window()->getFPS()).toLocal8Bit().data());
 	ImGuizmo::BeginFrame();
 	ImGuizmo::SetRect(0, 0, io.DisplaySize.x, io.DisplaySize.y);
-	QCameraComponent* camera = Engine->world()->getCurrentCamera();
+	QCameraComponent* camera = TheEngine->world()->getCurrentCamera();
 	if (camera) {
-		QEntity* currentEntiy = Engine->world()->getCurrentEntity();
+		QEntity* currentEntiy = TheEngine->world()->getCurrentEntity();
 		if (currentEntiy) {
 			QMatrix4x4 MAT;
 
@@ -43,8 +43,8 @@ void DebugPainter::resourceUpdate(QRhiResourceUpdateBatch* batch) {
 				const uchar* p = reinterpret_cast<const uchar*>(mReadReult.data.constData());
 				int offset = (mReadReult.pixelSize.width() * mReadPoint.y() + mReadPoint.x()) * 4;
 				uint32_t id = p[offset] + p[offset + 1] * 256 + p[offset + 2] * 256 * 256 + p[offset + 3] * 256 * 256 * 256;
-				auto entity = Engine->world()->getEntityById(id);
-				Engine->world()->setCurrentEntity(entity);
+				auto entity = TheEngine->world()->getEntityById(id);
+				TheEngine->world()->setCurrentEntity(entity);
 				mReadPoint = { 0,0 };
 			}
 		};

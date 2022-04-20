@@ -2,7 +2,9 @@
 #include <QHBoxLayout>
 #include <QDragEnterEvent>
 #include <QMimeData>
-#include "QFileDialog"
+#include <QFileDialog>
+#include <QPainter>
+
 #include "AssetBox.h"
 #include "Widgets/PropertyPanel/QPropertyAdjusterItem.h"
 #include "Window/MaterialEditor/QMaterialEditor.h"
@@ -31,7 +33,7 @@ AssetBox::AssetBox(std::shared_ptr<IAsset> asset, IAsset::Type type, QWidget* pa
 		mName.setText(asset->getName());
 	}
 	connect(&btOpenFile, &QPushButton::clicked, this, [this]() {
-		auto filePath = QFileDialog::getOpenFileName(nullptr, QString(), Engine->assetDir().path(), QString("*.%1").arg(IAsset::AssetExtName[mType]));
+		auto filePath = QFileDialog::getOpenFileName(nullptr, QString(), TheEngine->assetDir().path(), QString("*.%1").arg(IAsset::AssetExtName[mType]));
 		if (filePath.isEmpty() || !QFile::exists(filePath))
 			return;
 		
@@ -64,18 +66,8 @@ void AssetBox::setValue(QVariant var){
 }
 
 void AssetBox::dragEnterEvent(QDragEnterEvent* event) {
-	if (event->mimeData()->hasFormat("application/x-qabstractitemmodeldatalist")) {
-		QByteArray itemData = event->mimeData()->data("application/x-qabstractitemmodeldatalist");
-		QDataStream stream(&itemData, QIODevice::ReadOnly);
-		QMap<int, QVariant> roleDataMap;
-		int  row, col;
-		stream >> row >> col >> roleDataMap;
-		if (roleDataMap.contains(Qt::ToolTipRole)) {
-			QString path = roleDataMap[Qt::ToolTipRole].toString();
-			if (path.endsWith(IAsset::AssetExtName[mType])) {
-				event->acceptProposedAction();
-			}
-		}
+	if (verifyCanDrop(event->mimeData())) {
+		event->acceptProposedAction();
 	}
 }
 
@@ -102,3 +94,38 @@ void AssetBox::mouseDoubleClickEvent(QMouseEvent* event) {
 		QParticlesEditor::instance()->edit(std::dynamic_pointer_cast<Asset::ParticleSystem>(mCurrentAsset));
 	}
 }
+
+bool AssetBox::isVaild() {
+	return isVisible();
+}
+
+bool AssetBox::verifyCanDrop(const QMimeData* data) {
+	if (data->hasFormat("application/x-qabstractitemmodeldatalist")) {
+		QByteArray itemData = data->data("application/x-qabstractitemmodeldatalist");
+		QDataStream stream(&itemData, QIODevice::ReadOnly);
+		QMap<int, QVariant> roleDataMap;
+		int  row, col;
+		stream >> row >> col >> roleDataMap;
+		if (roleDataMap.contains(Qt::ToolTipRole)) {
+			QString path = roleDataMap[Qt::ToolTipRole].toString();
+			if (path.endsWith(IAsset::AssetExtName[mType])) {
+				return true;
+			}
+		}
+	}
+	return false;
+}
+
+void AssetBox::updateDropState() {
+	update();
+}
+
+void AssetBox::paintEvent(QPaintEvent* event) {
+	Adjuster::paintEvent(event);
+	if (canDrop()) {
+		QPainter painter(this);
+		painter.setPen(QPen(QColor(100, 200, 100), 6,Qt::PenStyle::SolidLine,Qt::PenCapStyle::RoundCap));
+		painter.drawRoundedRect(rect(), 5, 5);
+	}
+}
+

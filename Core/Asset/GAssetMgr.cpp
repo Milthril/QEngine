@@ -28,56 +28,70 @@ std::shared_ptr<IAsset> GAssetMgr::load(QString path, IAsset::Type type /*= IAss
 			}
 		}
 	}
-	
+	if (mAssetCache.contains(path)) {
+		qInfo() << "Load Asset From Cache:" << path;
+		return mAssetCache[path];
+	}
+	qInfo() << "Load Asset From File:" << path;
 	QFile file(path);
 	if (file.open(QFile::ReadOnly)) {
 		QDataStream in(&file);
+		std::shared_ptr<IAsset> mAsset;
 		switch (type) {
 		case IAsset::Material: {
 			Asset::Material* asset = nullptr;
 			in >> asset;
 			asset->setRefPath(path);
-			return std::shared_ptr<IAsset>(asset);
+			mAsset.reset(asset);
+			break;
 		}
 		case IAsset::SkyBox: {
 			Asset::SkyBox* asset = nullptr;
 			in >> asset;
 			asset->setRefPath(path);
-			return std::shared_ptr<IAsset>(asset);
+			mAsset.reset(asset);
+			break;
 		}
 		case IAsset::StaticMesh: {
 			Asset::StaticMesh* asset = nullptr;
 			in >> asset;
 			asset->setRefPath(path);
-			return std::shared_ptr<IAsset>(asset);
+			mAsset.reset(asset);
+			break;
 		}
 		case IAsset::ParticleSystem: {
 			Asset::ParticleSystem* asset = nullptr;
 			in >> asset;
 			asset->setRefPath(path);
-			return std::shared_ptr<IAsset>(asset);
+			mAsset.reset(asset);
+			break;
 		}
 		case IAsset::Skeleton: {
 			Asset::Skeleton* asset = nullptr;
 			in >> asset;
 			asset->setRefPath(path);
-			return std::shared_ptr<IAsset>(asset);
+			mAsset.reset(asset);
+			break;
 		}
 		case IAsset::SkeletonModel: {
 			Asset::SkeletonModel* asset = nullptr;
 			in >> asset;
 			asset->setRefPath(path);
-			return std::shared_ptr<IAsset>(asset);
+			mAsset.reset(asset);
+			break;
 		}
 		case IAsset::SkeletonAnimation: {
 			Asset::SkeletonAnimation* asset = nullptr;
 			in >> asset;
 			asset->setRefPath(path);
-			return std::shared_ptr<IAsset>(asset);
+			mAsset.reset(asset);
+			break;
 		}
 		default:
 			return nullptr;
 		}
+		cacheAsset(path, mAsset);
+		return mAsset;
 	}
 	return nullptr;
 }
@@ -112,6 +126,19 @@ void GAssetMgr::createNewAsset(QDir destDir, IAsset::Type type /*= IAsset::None*
 void GAssetMgr::updateSHA256(QString path, QByteArray sha256) {
 	Q_ASSERT(!path.isEmpty() ||!sha256.isEmpty());
 	mAssetSHA256Cache[path] = sha256;
+}
+
+void GAssetMgr::cacheAsset(QString path, std::shared_ptr<IAsset> asset) {
+	QList<std::shared_ptr<IAsset>> removeList;
+	for (auto& it :mAssetCache) {
+		if (asset.use_count() == 1) {
+			removeList << it;
+		}
+	}
+	for (auto& removeItem : removeList) {
+		mAssetCache.remove(removeItem->getRefPath());
+	}
+	mAssetCache[path] = asset;
 }
 
 QByteArray GAssetMgr::getSHA256(QString path) {

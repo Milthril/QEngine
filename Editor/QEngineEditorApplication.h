@@ -9,6 +9,13 @@
 #include "Window\EditorWindow\EditorWindow.h"
 #include "Asset\SkeletonModel\Skeleton.h"
 
+void QEngineMessageHandler(QtMsgType, const QMessageLogContext&, const QString&);
+
+#if defined(TheEngine)
+#undef TheEngine
+#endif
+#define TheEngine (static_cast<QEngineEditorApplication *>(QEngineEditorApplication::instance()))
+
 class QEngineEditorApplication :public QEngineCoreApplication {
 public:
 
@@ -17,6 +24,7 @@ public:
 		EditorWindow::preInitConfig();
 		mEditorWindow = new EditorWindow;
 		mEditorWindow->show();
+		qInstallMessageHandler(QEngineMessageHandler);
 	}
 protected:
 	virtual void customInit() override {
@@ -26,19 +34,19 @@ protected:
 		staitcMesh->setStaticMesh(staitcMeshAsset);
 
 		auto skyboxAsset = TheAssetMgr->load<Asset::SkyBox>(assetDir().filePath("sky.QSkyBox"));
-
 		QSkyBoxComponent* skybox = entity->addComponent<QSkyBoxComponent>();
 		skybox->setSkyBox(skyboxAsset);
 
 		//auto it = TheAssetMgr->load<Asset::Skeleton>(assetDir().filePath("Genji Shim.QStaticMesh"));
 	}
 	void customUpdate() override {
-	}
 
+	}
 	virtual void customRelease() override {
 		delete mEditorWindow;
 	}
-
+public:
+	EditorWindow* getEditorWindow() const { return mEditorWindow; }
 private:
 	EditorWindow* mEditorWindow = nullptr;
 };

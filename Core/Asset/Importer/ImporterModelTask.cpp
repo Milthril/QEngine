@@ -57,28 +57,32 @@ std::shared_ptr<Asset::StaticMesh> createStaticMeshFromAssimpMesh(aiMesh* mesh) 
 std::shared_ptr<Asset::Material> createMaterialFromAssimpMaterial(aiMaterial* material, const aiScene* scene, QDir dir) {
 	auto qMaterial = std::make_shared<Asset::Material>();
 	int diffuseCount = material->GetTextureCount(aiTextureType_DIFFUSE);
-
-	int count = 0;
-	for (int i = 1; i < 20; i++) {
-		count+= material->GetTextureCount((aiTextureType)i);
-	}
-
 	for (int j = 0; j < diffuseCount; j++) {
 		aiString path;
 		material->GetTexture(aiTextureType_DIFFUSE, j, &path);
+		QString name = material->GetName().C_Str();
+		if (name.startsWith('/')) {
+			QString newPath = dir.filePath(name.mid(1,name.lastIndexOf('/')-1));
+			dir.setPath(newPath);
+		}
+
 		QString realPath = dir.filePath(path.C_Str());
+
 		QImage image;
 		if (QFile::exists(realPath)) {
 			image.load(realPath);
 		}
 		else {
 			const aiTexture* embTexture = scene->GetEmbeddedTexture(path.C_Str());
-			if (embTexture->mHeight == 0) {
-				image.loadFromData((uchar*)embTexture->pcData, embTexture->mWidth, embTexture->achFormatHint);
+			if (embTexture != nullptr) {
+				if (embTexture->mHeight == 0) {
+					image.loadFromData((uchar*)embTexture->pcData, embTexture->mWidth, embTexture->achFormatHint);
+				}
+				else {
+					image = QImage((uchar*)embTexture->pcData, embTexture->mWidth, embTexture->mHeight, QImage::Format_ARGB32);
+				}
 			}
-			else {
-				image = QImage((uchar*)embTexture->pcData, embTexture->mWidth, embTexture->mHeight, QImage::Format_ARGB32);
-			}
+
 		}
 		qMaterial->addTextureSampler("Diffuse", image);
 	}
@@ -108,13 +112,12 @@ void ImporterModelTask::executable() {
 		return;
 	}
 
-	QList<std::shared_ptr<Asset::Material>> mMaterialList;
 	QStringList mMaterialPathList;
 	for (uint i = 0; i < scene->mNumMaterials; i++) {
 		aiMaterial* material = scene->mMaterials[i];
 		auto qMaterial = createMaterialFromAssimpMaterial(material, scene, QFileInfo(mFilePath).dir());
-		mMaterialList << qMaterial;
-		QString vaildPath = FileUtils::getVaildPath(mDestDir.filePath(QString("%1.%2").arg(material->GetName().C_Str()).arg(qMaterial->getExtName())));;
+		QString name = material->GetName().C_Str();
+		QString vaildPath = FileUtils::getVaildPath(mDestDir.filePath(QString("%1.%2").arg(name.split('/').back()).arg(qMaterial->getExtName())));;
 		qMaterial->setRefPath(vaildPath);
 		qMaterial->save(vaildPath);
 		mMaterialPathList << qMaterial->getRefPath();
@@ -129,7 +132,8 @@ void ImporterModelTask::executable() {
 		for (unsigned int i = 0; i < node.first->mNumMeshes; i++) {
 			aiMesh* mesh = scene->mMeshes[node.first->mMeshes[i]];
 			std::shared_ptr<Asset::StaticMesh> staticMesh = createStaticMeshFromAssimpMesh(mesh);
-			staticMesh->setMaterialPath(mMaterialList[mesh->mMaterialIndex]->getRefPath());
+			qDebug() << mesh->mMaterialIndex;
+			staticMesh->setMaterialPath(mMaterialPathList[mesh->mMaterialIndex]);
 			QString vaildPath = FileUtils::getVaildPath(mDestDir.filePath(QString("%1.%2").arg(mesh->mName.C_Str()).arg(staticMesh->getExtName())));
 			staticMesh->setRefPath(vaildPath);
 			staticMesh->save(vaildPath);

@@ -24,9 +24,9 @@ void IAsset::save(QString filePath, bool cover /*= true*/) {
 	stream << (int)this->type();
 	serialize(stream);
 
-	std::string sha256;
-	picosha2::hash256_hex_string(data, sha256);
-	TheAssetMgr->updateSHA256(filePath, QByteArray::fromStdString(sha256));
+	//std::string sha256;
+	//picosha2::hash256_hex_string(data, sha256);
+	//TheAssetMgr->updateSHA256(filePath, QByteArray::fromStdString(sha256));
 
 	QFile file(filePath);
 	if (file.open(QFile::WriteOnly)) {

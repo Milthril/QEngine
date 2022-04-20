@@ -5,8 +5,9 @@
 #include "Asset/IAsset.h"
 #include "Widgets/Buttons/ImageButton.h"
 #include "QLineEdit"
+#include "Toolkit/DropInterface.h"
 
-class AssetBox : public Adjuster {
+class AssetBox : public Adjuster, public DropInterface{
 	Q_OBJECT
 public:
 	AssetBox(std::shared_ptr<IAsset> asset, IAsset::Type type, QWidget* parent = nullptr);
@@ -15,6 +16,11 @@ public:
 
 	virtual void dragEnterEvent(QDragEnterEvent* event) override;
 	virtual void dropEvent(QDropEvent* event) override;
+	virtual bool isVaild() override;
+	virtual bool verifyCanDrop(const QMimeData* data) override;
+	virtual void updateDropState() override;
+	virtual void paintEvent(QPaintEvent* event) override;
+
 	virtual void mouseDoubleClickEvent(QMouseEvent* event) override;
 protected:
 	IAsset::Type mType;
@@ -23,6 +29,8 @@ protected:
 	QLineEdit mName;
 	ImageButton btOpenFile;
 	ImageButton btReset;
+
+private:
 };
 
 #endif // AssetBox_h__

@@ -7,10 +7,10 @@
 #include "ECS\QWorld.h"
 #include "private\qrhi_p.h"
 
-#if defined(Engine)
+#if defined(TheEngine)
 #undef Engine
 #endif
-#define Engine (static_cast<QEngineCoreApplication *>(QEngineCoreApplication::instance()))
+#define TheEngine (static_cast<QEngineCoreApplication *>(QEngineCoreApplication::instance()))
 
 class QEngineCoreApplication :public QApplication
 {
@@ -18,9 +18,10 @@ class QEngineCoreApplication :public QApplication
 public:
 	QEngineCoreApplication(int argc, char** argv, bool enableDebug = false);
 	const std::shared_ptr<QWorld>& world();
-
 	const QDir& assetDir() const { return mAssetDir;}
 	void execGame();
+
+	void processEvents();
 protected:
 	virtual void customInit();
 	virtual void customUpdate();

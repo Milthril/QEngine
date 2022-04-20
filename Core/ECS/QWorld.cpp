@@ -46,13 +46,7 @@ QEntity* QWorld::getEntityByName(const QString& name) {
 bool QWorld::removeEntity(const QString& name) {
 	QEntity* entity = getEntityByName(name);
 	if (entity) {
-		entity->setParent(nullptr);
-		mEntityHash.remove(entity->GetId());
-		entity->deleteLater();
-		if (mCurrentEntity == entity) 
-			setCurrentEntity(nullptr);
-		Q_EMIT worldChanged();
-		return true;
+		removeEntity(entity);
 	}
 	return false;
 }
@@ -62,6 +56,8 @@ bool QWorld::removeEntity(QEntity* entity) {
 		entity->setParent(nullptr);
 		mEntityHash.remove(entity->GetId());
 		entity->deleteLater();
+		if (mCurrentEntity == entity)
+			setCurrentEntity(nullptr);
 		Q_EMIT worldChanged();
 		return true;
 	}

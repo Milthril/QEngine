@@ -8,6 +8,8 @@
 #include <kddockwidgets/DockWidget.h>
 #include <kddockwidgets/MainWindow.h>
 #include "kddockwidgets/private/widgets/FloatingWindowWidget_p.h"
+#include "Widgets/ViewportPanel/ViewportPanel.h"
+#include "Widgets/ConsolePanel/QConsolePanel.h"
 
 class EditorWindow : public KDDockWidgets::FloatingWindowWidget{
 	Q_OBJECT
@@ -19,16 +21,17 @@ protected:
 	void createUI();
 	void connectUI();
 	void showEvent(QShowEvent* event) override;
-private:
+public:
 	KDDockWidgets::MainWindow mMainWindow;
-	QScenePanel mQScenePanel;
+	QScenePanel mScenePanel;
 	QEntityPanel mEntityPanel;
+	QConsolePanel mConsolePanel;
 	AssetPanel mAssetPanel;
+	ViewportPanel mViewportPanel;
 	QMenu mFile;
 	QMenu mEdit;
 	QMenu mWindow;
 	EditorAttributeMgr mWindowLayoutMgr;
-	QWidget* mViewportContainter = nullptr;
 };
 
 #endif // EditorWindow_h__

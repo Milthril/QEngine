@@ -16,6 +16,7 @@
 #include "Window/ParticlesEditor/QParticlesEditor.h"
 #include "Utils\FileUtils.h"
 #include "Asset/GAssetMgr.h"
+#include "Toolkit/DropInterface.h"
 
 const QSize GridSize(80, 100);
 
@@ -78,6 +79,7 @@ FileListWidget::FileListWidget()  {
 	setMovement(QListView::Static);
 	setFrameShape(QFrame::NoFrame);
 	setViewMode(QListView::IconMode);
+	setSelectionMode(QAbstractItemView::ContiguousSelection);
 	setUniformItemSizes(true);
 	FileListItemDelegate* itemDelegate = new FileListItemDelegate;
 	setItemDelegate(itemDelegate);
@@ -232,6 +234,7 @@ void FileListWidget::dragEnterEvent(QDragEnterEvent* event) {
 	if (event->mimeData()->hasUrls()) {
 		event->acceptProposedAction();
 	}
+	DropInterface::startDrag(event->mimeData());
 }
 
 void FileListWidget::dragMoveEvent(QDragMoveEvent* event) {
@@ -249,4 +252,9 @@ void FileListWidget::dropEvent(QDropEvent* event) {
 		TheAssetMgr->import(url.toLocalFile(),currentDir_);
 	}
 	QListWidget::dropEvent(event);
+}
+
+void FileListWidget::startDrag(Qt::DropActions supportedActions) {
+	QListWidget::startDrag(supportedActions);
+	DropInterface::endDrag();
 }

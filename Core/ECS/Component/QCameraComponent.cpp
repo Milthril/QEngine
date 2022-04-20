@@ -77,6 +77,7 @@ void QCameraComponent::setupWindow(QWindow* window)
 bool QCameraComponent::eventFilter(QObject* watched, QEvent* event)
 {
 	static QPoint pressedPos;
+
 	if (watched != nullptr && watched == mWindow) {
 		switch (event->type())
 		{
@@ -134,23 +135,25 @@ bool QCameraComponent::eventFilter(QObject* watched, QEvent* event)
 			break;
 		}
 		case QEvent::UpdateRequest: {
-			float time = QTime::currentTime().msecsSinceStartOfDay() / 1000.0;
-			mDeltaTimeMs = time - mLastFrameTimeMs;                           //在此处更新时间差
+			int64_t time = QTime::currentTime().msecsSinceStartOfDay();
+			if(mLastFrameTimeMs!=0)
+				mDeltaTimeMs = time - mLastFrameTimeMs;                           //在此处更新时间差
 			mLastFrameTimeMs = time;
+			float currentSpeed = mMoveSpeed * mDeltaTimeMs;
 			if (!mKeySet.isEmpty()&&qApp->mouseButtons()&Qt::RightButton) {
 				QVector3D position = mEntity->getTransformComponent()->getPosition();
 				if (mKeySet.contains(Qt::Key_W))                           //前
-					position += mMoveSpeed * mCameraDirection;
+					position += currentSpeed * mCameraDirection;
 				if (mKeySet.contains(Qt::Key_S))                           //后
-					position -= mMoveSpeed * mCameraDirection;
+					position -= currentSpeed * mCameraDirection;
 				if (mKeySet.contains(Qt::Key_A))                           //左
-					position -= QVector3D::crossProduct(mCameraDirection, mCameraUp) * mMoveSpeed;
+					position -= QVector3D::crossProduct(mCameraDirection, mCameraUp) * currentSpeed;
 				if (mKeySet.contains(Qt::Key_D))                           //右
-					position += QVector3D::crossProduct(mCameraDirection, mCameraUp) * mMoveSpeed;
+					position += QVector3D::crossProduct(mCameraDirection, mCameraUp) * currentSpeed;
 				if (mKeySet.contains(Qt::Key_Space))                       //上浮
-					position.setY(position.y() + mMoveSpeed);
+					position.setY(position.y() + currentSpeed);
 				if (mKeySet.contains(Qt::Key_Shift))                       //下沉
-					position.setY(position.y() - mMoveSpeed);
+					position.setY(position.y() - currentSpeed);
 				setPosition(position);
 			}
 			break;

@@ -30,7 +30,7 @@ QDir EditorAttributeMgr::getLayoutDir() {
 }
 
 QDir EditorAttributeMgr::getStyleSheetDir() {
-	return Engine->assetDir().filePath("EditorStyle");
+	return TheEngine->assetDir().filePath("EditorStyle");
 }
 
 void EditorAttributeMgr::initDefaultAttribute() {

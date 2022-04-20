@@ -43,7 +43,7 @@ void QDefaultSceneRenderPass::compile() {		//创建默认的RT
 	}
 	QRhiTextureRenderTargetDescription RTDesc;
 	RTDesc.setColorAttachments(colorAttachments.begin(), colorAttachments.end());
-	mRT.depthStencil.reset(RHI->newRenderBuffer(QRhiRenderBuffer::DepthStencil, mSceneFrameSize, mSampleCount));
+	mRT.depthStencil.reset(RHI->newRenderBuffer(QRhiRenderBuffer::DepthStencil, mSceneFrameSize, mSampleCount, {},QRhiTexture::Format::D24S8));
 	mRT.depthStencil->create();
 	RTDesc.setDepthStencilBuffer(mRT.depthStencil.get());
 	mRT.renderTarget.reset(RHI->newTextureRenderTarget(RTDesc));

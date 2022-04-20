@@ -36,20 +36,22 @@ void QEngineCoreApplication::execGame()
 	customInit();
 
 	mLastTime = mTimer.elapsed();
-	int64_t newTime;
-	float deltaSeconds;
 
 	while (!QRenderSystem::instance()->hasRequestQuit()) {
-		newTime = mTimer.elapsed();
-		deltaSeconds = (newTime - mLastTime) / 1000.0f;
-		mLastTime = newTime;
-		mTimer.elapsed();
-		customUpdate();
-		QGuiApplication::processEvents();
-		QTickEventHandler::processEvent(deltaSeconds);
-		QRenderSystem::instance()->requestUpdate();
+		processEvents();
 	}
 	mWorld.reset();
 	customRelease();
 	QRenderSystem::instance()->shutdown();
+}
+
+void QEngineCoreApplication::processEvents() {
+	int64_t newTime = mTimer.elapsed();
+	float deltaSeconds = (newTime - mLastTime) / 1000.0f;
+	mLastTime = newTime;
+	mTimer.elapsed();
+	customUpdate();
+	QGuiApplication::processEvents();
+	QTickEventHandler::processEvent(deltaSeconds);
+	QRenderSystem::instance()->requestUpdate();
 }

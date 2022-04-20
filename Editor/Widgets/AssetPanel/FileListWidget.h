@@ -30,6 +30,7 @@ protected:
 	virtual void dragEnterEvent(QDragEnterEvent* event) override;
 	virtual void dragMoveEvent(QDragMoveEvent* e) override;
 	virtual void dropEvent(QDropEvent* event) override;
+	virtual void startDrag(Qt::DropActions supportedActions) override;
 };
 
 #endif // FileListWidget_h__
