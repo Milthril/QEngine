@@ -3,9 +3,10 @@
 
 #include "QFrameGraph.h"
 #include "ECS/System/RenderSystem/RHI/QRhiDefine.h"
-#include "ECS/System//RenderSystem/IRenderable.h"
 
 class DeferRenderPass;
+class ILightComponent;
+class IRenderable;
 
 class QRenderer {
 	friend class QRenderSystem;
@@ -29,6 +30,7 @@ protected:
 	std::shared_ptr<QFrameGraph> mFrameGraph;
 	std::shared_ptr<DeferRenderPass> mDeferRenderPass;
 	QList<IRenderable*> mRenderableItemList;
+	QList<ILightComponent*> mLightItemList;
 	QSize mFrameSize;
 };
 

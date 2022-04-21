@@ -37,7 +37,7 @@ public:
 	};
 
 	QRhiUniform();
-	~QRhiUniform();
+	virtual ~QRhiUniform();
 	template<typename _Ty>
 	void setData(const QString& name, const _Ty& data) {
 		auto paramDescIter = getParamDesc(name);

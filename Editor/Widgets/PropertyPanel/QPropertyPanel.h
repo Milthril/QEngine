@@ -6,6 +6,7 @@
 class QPropertyPanel :public QTreeWidget {
 public:
 	QPropertyPanel(QObject* object = nullptr);
+	~QPropertyPanel();
 	QObject* getObject() const;
 	void setObject(QObject* val);
 	void updatePanel();

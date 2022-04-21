@@ -11,9 +11,9 @@ class AssetBox : public Adjuster, public DropInterface{
 	Q_OBJECT
 public:
 	AssetBox(std::shared_ptr<IAsset> asset, IAsset::Type type, QWidget* parent = nullptr);
+	~AssetBox();
 	QVariant getValue() override;
 	void setValue(QVariant var) override;
-
 	virtual void dragEnterEvent(QDragEnterEvent* event) override;
 	virtual void dropEvent(QDropEvent* event) override;
 	virtual bool isVaild() override;
@@ -29,7 +29,7 @@ protected:
 	QLineEdit mName;
 	ImageButton btOpenFile;
 	ImageButton btReset;
-
+	inline static int count = 0;
 private:
 };
 

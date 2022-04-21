@@ -12,7 +12,6 @@ class QStaticMeshComponent :public IRenderableComponent {
 		Q_PROPERTY(std::shared_ptr<Asset::StaticMesh> StaticMesh READ getStaticMesh WRITE setStaticMesh)
 		Q_PROPERTY(std::shared_ptr<Asset::Material> Material READ getMaterial WRITE setMaterial)
 public:
-
 	const std::shared_ptr<Asset::StaticMesh>& getStaticMesh() const { return mStaticMesh; }
 	void setStaticMesh(std::shared_ptr<Asset::StaticMesh> val);
 

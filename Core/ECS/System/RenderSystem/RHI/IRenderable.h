@@ -1,7 +1,7 @@
 #ifndef IRenderable_h__
 #define IRenderable_h__
 
-#include "RHI/QRhiDefine.h"
+#include "QRhiDefine.h"
 
 class IRenderable {
 public:

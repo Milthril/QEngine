@@ -24,6 +24,7 @@ QPropertyAdjusterItem::QPropertyAdjusterItem(const QString& name, Getter getter,
 
 QPropertyAdjusterItem::~QPropertyAdjusterItem()
 {
+	qDebug() << "release Item";
 }
 
 void QPropertyAdjusterItem::createWidgetOrSubItem()

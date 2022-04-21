@@ -2,6 +2,7 @@
 #include "QEngineCoreApplication.h"
 #include "ECS/System/RenderSystem/QRenderSystem.h"
 #include "ECS/System/RenderSystem/Renderer/QRenderer.h"
+#include "ECS/System/RenderSystem/RHI/IRenderable.h"
 
 void DeferRenderPass::compile() {		//创建默认的RT
 	QSize frameSize = mRenderer->getFrameSize();

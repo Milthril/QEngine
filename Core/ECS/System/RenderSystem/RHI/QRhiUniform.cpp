@@ -1,15 +1,17 @@
 ﻿#include "QRhiUniform.h"
 #include "Script\QLuaScriptFactory.h"
-#include "ECS\System\RenderSystem\IRenderable.h"
+#include "ECS\System\RenderSystem\RHI\IRenderable.h"
 
 QRhiUniform::QRhiUniform()
 	: mProxy(std::make_shared<QRhiUniformProxy>(this))
 	, mScript(QLuaScriptFactory::instance()->createUniformScript(this)) {
 	bNeedRecreate.active();
+	qDebug() << "create";
 }
 
 QRhiUniform::~QRhiUniform()
 {
+	qDebug() << "release";
 }
 
 void QRhiUniform::addDataFloat(const QString& name, float var)

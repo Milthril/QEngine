@@ -1,7 +1,7 @@
 #include "QRhiUniformProxy.h"
 #include "QRhiUniform.h"
 #include "ECS\System\RenderSystem\QRenderSystem.h"
-#include "ECS\System\RenderSystem\IRenderable.h"
+#include "IRenderable.h"
 
 QRhiUniformProxy::QRhiUniformProxy(QRhiUniform* material)
 	: mMaterial(material)

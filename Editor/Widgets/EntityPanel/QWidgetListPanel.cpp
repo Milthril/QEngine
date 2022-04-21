@@ -43,7 +43,9 @@ void QWidgetListPanel::clear() {
 		if (child->widget()) {
 			child->widget()->setParent(nullptr);
 		}
+		delete child->widget();
 		delete child;
+	
 	}
 }
 
@@ -54,6 +56,7 @@ void QWidgetListPanel::addWidget(QString name, QWidget* widget) {
 		vLayout->removeWidget(item);
 		item->setParent(nullptr);
 		Q_EMIT widgetRemoved(widget);
+
 	});
 }
 

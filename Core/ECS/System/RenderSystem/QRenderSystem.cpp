@@ -1,5 +1,4 @@
 #include "QRenderSystem.h"
-#include "IRenderable.h"
 #include "private\qshaderbaker_p.h"
 #include "Renderer\RenderPass\ISceneRenderPass.h"
 
@@ -31,7 +30,6 @@ QShader QRenderSystem::createShaderFromCode(QShader::Stage stage, const char* co
 	}
 	return shader;
 }
-
 
 void QRenderSystem::init() {
 	mWindow->show();

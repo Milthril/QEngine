@@ -36,6 +36,7 @@ QEntityPanel::QEntityPanel(QEntity* entity /*= nullptr*/)
 		QPropertyPanel* compPanel = dynamic_cast<QPropertyPanel*>(w);
 		if (compPanel) {
 			mEntity->removeComponent(dynamic_cast<IComponent*>(compPanel->getObject()));
+			delete compPanel;
 		}
 	});
 	recreatePanel();

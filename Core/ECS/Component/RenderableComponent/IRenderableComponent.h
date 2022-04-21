@@ -2,7 +2,7 @@
 #define IRenderableComponent_h__
 
 #include "ECS\Component\IComponent.h"
-#include "ECS\System\RenderSystem\IRenderable.h"
+#include "ECS\System\RenderSystem\RHI\IRenderable.h"
 
 class IRenderableComponent : public IComponent,public IRenderable {
 public:
