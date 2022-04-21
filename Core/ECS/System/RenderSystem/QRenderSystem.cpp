@@ -1,20 +1,17 @@
 #include "QRenderSystem.h"
 #include "IRenderable.h"
 #include "private\qshaderbaker_p.h"
-#include "Renderer\IRenderer.h"
 #include "Renderer\RenderPass\ISceneRenderPass.h"
-#include "Renderer\DefaultRenderer\QDefaultRenderer.h"
 
 QRenderSystem::QRenderSystem()
 	: mWindow(new QRenderWindow(QRhi::Implementation::Vulkan))
-	, mRenderer(std::make_shared<QDefaultRenderer>() ){
+	, mRenderer(std::make_shared<QRenderer>()){
 }
 
 QRenderSystem* QRenderSystem::instance() {
 	static QRenderSystem ins;
 	return &ins;
 }
-
 
 QShader QRenderSystem::createShaderFromCode(QShader::Stage stage, const char* code) {
 	QShaderBaker baker;
@@ -54,24 +51,17 @@ void QRenderSystem::requestUpdate() {
 	mWindow->requestUpdate();
 }
 
-void QRenderSystem::addRenderItem(IRenderable* comp) {
-	mRenderer->mScenePass->mRenderItemList << comp;
-}
-
-void QRenderSystem::removeRenderItem(IRenderable* comp) {
-	mRenderer->mScenePass->mRenderItemList.removeOne(comp);
-}
-
 int QRenderSystem::getSceneSampleCount() {
-	return mRenderer->getScenePass()->getSampleCount();
+
+	return mRenderer->getDeferPassSampleCount();
 }
 
 QVector<QRhiGraphicsPipeline::TargetBlend> QRenderSystem::getSceneBlendStates() {
-	return mRenderer->getScenePass()->getBlendStates();
+	return mRenderer->getDeferPassBlendStates();
 }
 
 QRhiRenderPassDescriptor* QRenderSystem::getSceneRenderPassDescriptor() {
-	return mRenderer->getScenePass()->getRenderPassDescriptor();
+	return mRenderer->getDeferPassDescriptor();
 }
 
 QRenderWindow* QRenderSystem::window() {
@@ -82,7 +72,7 @@ QRhi* QRenderSystem::getRHI() {
 	return mRHI.get();
 }
 
-IRenderer* QRenderSystem::renderer() {
+QRenderer* QRenderSystem::renderer() {
 	return mRenderer.get();
 }
 

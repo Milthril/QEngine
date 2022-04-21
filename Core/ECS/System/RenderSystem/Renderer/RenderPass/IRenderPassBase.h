@@ -11,7 +11,8 @@ public:
 	}
 	virtual void compile() = 0;
 	virtual void execute(QRhiCommandBuffer* cmdBuffer) = 0;
-	virtual QRhiTexture* getOutputTexture() = 0;
+
+	virtual QRhiTexture* getOutputTexture(int slot = 0) = 0;
 
 	void setFuncSetup(std::function<void()> val) { mFuncSetup = val; }
 private:

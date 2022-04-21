@@ -51,7 +51,9 @@ public:
 		return mTransformComponent.get();
 	}
 	QMatrix4x4 calculateMatrixMVP();
+	QMatrix4x4 getMatrixVP();
 	QMatrix4x4 calculateMatrixModel();
+
 	void setMatrixModel(QMatrix4x4 mat);
 public:
 	std::shared_ptr<QTransformComponent> mTransformComponent = std::make_shared<QTransformComponent>();

@@ -27,7 +27,7 @@ void QStaticMeshComponent::setMaterial(std::shared_ptr<Asset::Material> val) {
 void QStaticMeshComponent::recreateResource() {
 	if (!mStaticMesh || !mMaterial)
 		return;
-	mUniformBuffer.reset(RHI->newBuffer(QRhiBuffer::Type::Dynamic, QRhiBuffer::UniformBuffer, sizeof(QMatrix4x4)));
+	mUniformBuffer.reset(RHI->newBuffer(QRhiBuffer::Type::Dynamic, QRhiBuffer::UniformBuffer, sizeof(UniformMatrix)));
 	mUniformBuffer->create();
 
 	mVertexBuffer.reset(RHI->newBuffer(QRhiBuffer::Type::Static, QRhiBuffer::VertexBuffer, sizeof(Asset::StaticMesh::Vertex) * mStaticMesh->getVertices().size()));
@@ -60,17 +60,22 @@ void QStaticMeshComponent::recreatePipeline() {
 	layout(location = 4) in vec2 inUV;
 
 	layout(location = 0) out vec2 vUV;
+	layout(location = 1) out vec3 vWorldPosition;
+	layout(location = 2) out mat3 vTangentBasis;
 
 	out gl_PerVertex{
 		vec4 gl_Position;
 	};
 
-	layout(std140,binding = 0) uniform buf{
-		mat4 mvp;
-	}ubuf;
+	layout(std140,binding = 0) uniform UnifromMatrix{
+		mat4 MVP;
+		mat4 M;
+	}Matrix;
 	void main(){
 		vUV = inUV;
-		gl_Position = ubuf.mvp * vec4(inPosition,1.0f);
+		vWorldPosition = vec3(Matrix.M * vec4(inPosition,1.0f));
+		vTangentBasis =  mat3(Matrix.M) * mat3(inTangent, inBitangent, inNormal);
+		gl_Position = Matrix.MVP * vec4(inPosition,1.0f);
 	}
 	)";
 
@@ -88,19 +93,34 @@ void QStaticMeshComponent::recreatePipeline() {
 	QString outputCode = mMaterial->getShadingCode();
 
 	if (TheRenderSystem->isEnableDebug()) {
-		defineCode.prepend("layout (location = 1) out vec4 CompId;\n");
-		outputCode.append(QString("CompId = %1;\n").arg(getEntityIdVec4String()));
+		defineCode.prepend("layout (location = 4) out vec4 CompId;\n");
+		outputCode.append(QString("\nCompId = %1;\n").arg(getEntityIdVec4String()));
 	}
 
 	QString fragShaderCode = QString(R"(#version 440
 	layout(location = 0) in vec2 vUV;
-	layout(location = 0) out vec4 FragColor;
+	layout(location = 1) in vec3 vWorldPosition;
+	layout(location = 2) in mat3 vTangentBasis;
+
+	layout(location = 0) out vec4 outBaseColor;
+	layout(location = 1) out vec4 outPosition;
+	layout(location = 2) out vec4 outNormal_Metalness;
+	layout(location = 3) out vec4 outTangent_Roughness;
 	%1
+	#define outNormal		(outNormal_Metalness.rgb)
+	#define outMetalness	(outNormal_Metalness.a)
+	#define outTangent		(outTangent_Roughness.rgb)
+	#define outRoughness	(outTangent_Roughness.a)
+
 	void main(){
-	    %2
+		outPosition = vec4(vWorldPosition,1.0);
+		outTangent = vTangentBasis[0];
+		outNormal = vTangentBasis[2];
+		outMetalness = 1.0f;
+		outRoughness = 1.0f;
+		%2
 	}
 	)").arg(defineCode).arg(outputCode);
-
 
 	QShader fs = QRenderSystem::createShaderFromCode(QShader::Stage::FragmentStage, fragShaderCode.toLocal8Bit());
 	if (!fs.isValid()) {
@@ -111,6 +131,7 @@ void QStaticMeshComponent::recreatePipeline() {
 	mPipeline.reset(RHI->newGraphicsPipeline());
 	
 	mPipeline->setVertexInputLayout(inputLayout);
+
 	const auto& blendStates = TheRenderSystem->getSceneBlendStates();
 	mPipeline->setTargetBlends(blendStates.begin(), blendStates.end());
 	mPipeline->setTopology(QRhiGraphicsPipeline::Topology::Triangles);
@@ -151,8 +172,13 @@ void QStaticMeshComponent::updateResourcePrePass(QRhiResourceUpdateBatch* batch)
 	if (!mStaticMesh || !mMaterial)
 		return;
 	mMaterial->getProxy()->updateResource(batch);
-	QMatrix4x4 MVP = mEntity->calculateMatrixMVP();
-	batch->updateDynamicBuffer(mUniformBuffer.get(), 0, sizeof(QMatrix4x4), MVP.constData());
+
+	UniformMatrix Matrix;
+
+	Matrix.MVP = mEntity->calculateMatrixMVP().toGenericMatrix<4, 4>();
+	Matrix.M = mEntity->calculateMatrixModel().toGenericMatrix<4,4>();
+
+	batch->updateDynamicBuffer(mUniformBuffer.get(), 0, sizeof(UniformMatrix), &Matrix);
 }
 
 void QStaticMeshComponent::renderInPass(QRhiCommandBuffer* cmdBuffer, const QRhiViewport& viewport) {
@@ -165,4 +191,3 @@ void QStaticMeshComponent::renderInPass(QRhiCommandBuffer* cmdBuffer, const QRhi
 	cmdBuffer->setVertexInput(0, 1, &VertexInput, mIndexBuffer.get(), 0, QRhiCommandBuffer::IndexUInt32);
 	cmdBuffer->drawIndexed(mStaticMesh->getIndices().size());
 }
-

@@ -11,9 +11,13 @@ public:
 	void setupDebugTexture(QRhiTexture* texture);
 	void setupTexture(QRhiTexture* texture);
 	void setupSwapChain(QRhiSwapChain* swapchain);
+
 	virtual void compile() override;
 	virtual void execute(QRhiCommandBuffer* cmdBuffer) override;
-	virtual QRhiTexture* getOutputTexture() override;
+
+	virtual QRhiTexture* getOutputTexture(int slot = 0) {
+		return nullptr;
+	}
 protected:
 	QRhiTexture* mTexture;
 	QRhiSwapChain* mSwapChain;

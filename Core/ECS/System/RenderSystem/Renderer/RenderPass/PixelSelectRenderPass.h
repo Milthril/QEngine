@@ -6,12 +6,24 @@
 class PixelSelectRenderPass :public IRenderPassBase{
 public:
 	PixelSelectRenderPass();
+
 	void setupSelectCode(QByteArray code);
 	void setupInputTexture(QRhiTexture* texture);
 	void setDownSamplerCount(int count);
+
 	virtual void compile() override;
 	virtual void execute(QRhiCommandBuffer* cmdBuffer) override;
-	virtual QRhiTexture* getOutputTexture() override { return mRT.colorAttachment.get(); }
+
+	enum OutputTextureSlot {
+		SelectResult = 0,
+	};
+	virtual QRhiTexture* getOutputTexture(int slot = 0) {
+		switch ((OutputTextureSlot)slot) {
+		case SelectResult:
+			return mRT.colorAttachment.get();
+		}
+		return nullptr;
+	}
 
 private:
 	struct RTResource {

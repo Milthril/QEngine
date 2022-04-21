@@ -92,10 +92,11 @@ std::shared_ptr<Asset::Material> createMaterialFromAssimpMaterial(aiMaterial* ma
 	}
 	int hasDiffuseTexture = material->GetTextureCount(aiTextureType_DIFFUSE);
 	if (hasDiffuseTexture > 0) {
-		qMaterial->setShadingCode("FragColor = texture(Diffuse,vUV); ");
+
+		qMaterial->setShadingCode("outBaseColor = texture(Diffuse,vUV); ");
 	}
 	else {
-		qMaterial->setShadingCode("FragColor = vec4(1.0); ");
+		qMaterial->setShadingCode("outBaseColor = vec4(1.0); ");
 	}
 	return qMaterial;
 }
@@ -112,7 +113,7 @@ std::shared_ptr<Asset::Skeleton::ModelNode> processSkeletonModelNode(aiNode* nod
 
 void ImporterModelTask::executable() {
 	Assimp::Importer importer;
-	const aiScene* scene = importer.ReadFile(mFilePath.toUtf8().constData(), aiProcess_Triangulate | aiProcess_FlipUVs);
+	const aiScene* scene = importer.ReadFile(mFilePath.toUtf8().constData(), aiProcess_Triangulate | aiProcess_FlipUVs| aiProcess_GenNormals| aiProcess_CalcTangentSpace);
 	if (!scene) {
 		return;
 	}

@@ -3,7 +3,7 @@
 
 #include "RHI/QRhiDefine.h"
 
-class IRenderable{
+class IRenderable {
 public:
 	virtual void recreateResource() {}
 	virtual void recreatePipeline() {}

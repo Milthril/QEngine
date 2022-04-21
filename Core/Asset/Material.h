@@ -18,7 +18,7 @@ public:
 	void serialize(QDataStream& out) override;
 	void deserialize(QDataStream& in) override;
 private:
-	QByteArray mShadingCode = "FragColor = vec4(1);";
+	QByteArray mShadingCode = "outBaseColor = vec4(1);";
 };
 }
 //Q_DECLARE_METATYPE(Asset::Material);

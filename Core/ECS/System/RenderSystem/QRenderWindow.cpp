@@ -1,7 +1,5 @@
 #include "QRenderWindow.h"
 #include "QRenderSystem.h"
-#include "Renderer/IRenderer.h"
-
 QRenderWindow::QRenderWindow(QRhi::Implementation backend)
 	: QRhiWindow(backend)
 {
@@ -11,6 +9,8 @@ void QRenderWindow::customInitEvent() {
 	TheRenderSystem->setupRHI(this->mRhi);
 	if (TheRenderSystem->renderer()) {
 		TheRenderSystem->renderer()->buildFrameGraph();
+		TheRenderSystem->renderer()->resize(mSwapChain->currentPixelSize());
+
 	}
 	mDurationMs = 0;
 	mLastTimeMs = 0;
@@ -33,6 +33,6 @@ void QRenderWindow::customRenderEvent(QRhiSwapChain* swapchain) {
 
 void QRenderWindow::customResizeEvent() {
 	if (TheRenderSystem->renderer()) {
-		TheRenderSystem->renderer()->rebuild();
+		TheRenderSystem->renderer()->resize(mSwapChain->currentPixelSize());
 	}
 }

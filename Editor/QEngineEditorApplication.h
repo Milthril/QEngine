@@ -24,18 +24,19 @@ public:
 		EditorWindow::preInitConfig();
 		mEditorWindow = new EditorWindow;
 		mEditorWindow->show();
-		qInstallMessageHandler(QEngineMessageHandler);
+		//qInstallMessageHandler(QEngineMessageHandler);
 	}
 protected:
 	virtual void customInit() override {
 		QEntity* entity = world()->createEntity("Test Entity");
-		auto staitcMeshAsset = TheAssetMgr->load<Asset::StaticMesh>("Genji Shim.QStaticMesh");
+		entity->getTransformComponent()->setPosition(QVector3D(500, 0, 0));
+		auto staitcMeshAsset = TheAssetMgr->load<Asset::StaticMesh>("Cerberus00_Fixed.QStaticMesh");
 		QStaticMeshComponent* staitcMesh = entity->addComponent<QStaticMeshComponent>();
 		staitcMesh->setStaticMesh(staitcMeshAsset);
 
-		auto skyboxAsset = TheAssetMgr->load<Asset::SkyBox>("sky.QSkyBox");
-		QSkyBoxComponent* skybox = entity->addComponent<QSkyBoxComponent>();
-		skybox->setSkyBox(skyboxAsset);
+		//auto skyboxAsset = TheAssetMgr->load<Asset::SkyBox>("sky.QSkyBox");
+		//QSkyBoxComponent* skybox = entity->addComponent<QSkyBoxComponent>();
+		//skybox->setSkyBox(skyboxAsset);
 
 		//auto it = TheAssetMgr->load<Asset::Skeleton>(assetDir().filePath("Genji Shim.QStaticMesh"));
 	}

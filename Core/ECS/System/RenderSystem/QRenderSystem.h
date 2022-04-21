@@ -3,13 +3,12 @@
 
 #include <QObject>
 #include "QRenderWindow.h"
+#include "Renderer\QRenderer.h"
 
 #define TheRenderSystem (QRenderSystem::instance())
 #define RHI (TheRenderSystem->getRHI())
 
-class IRenderer;
 class IRenderable;
-class ISceneRenderPass;
 
 class QRenderSystem: public QObject {
 	friend class ISceneRenderPass;
@@ -21,18 +20,16 @@ public:
 	void shutdown();
 	bool hasRequestQuit();
 	void requestUpdate();
-	void addRenderItem(IRenderable* comp);
-	void removeRenderItem(IRenderable* comp);
 
 	int getSceneSampleCount();
-	QVector<QRhiGraphicsPipeline::TargetBlend>  getSceneBlendStates();
+	QVector<QRhiGraphicsPipeline::TargetBlend> getSceneBlendStates();
 	QRhiRenderPassDescriptor* getSceneRenderPassDescriptor();
 	QRenderWindow* window();
 
 	QRhi* getRHI();
 	void setupRHI(std::shared_ptr<QRhi> val) { mRHI = val; }
 
-	IRenderer* renderer();
+	QRenderer* renderer();
 	bool isEnableDebug();
 	void setEnableDebug(bool var) { mEnableDebug = var; }
 
@@ -42,7 +39,7 @@ private:
 private:
 	QRenderWindow* mWindow;
 	std::shared_ptr<QRhi> mRHI;
-	std::shared_ptr<IRenderer> mRenderer;
+	std::shared_ptr<QRenderer> mRenderer;
 	bool mEnableDebug = false;
 };
 

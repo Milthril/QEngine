@@ -17,7 +17,16 @@ public:
 	int getBoommIter() const { return mBoommIter; }
 	QRhiTextureRenderTarget* getInputRenderTaget() { return mBloomRT[0].renderTarget.get(); }
 
-	QRhiTexture* getOutputTexture() override { return mBloomRT[0].colorAttachment.get(); }
+	enum OutputTextureSlot {
+		BlurResult = 0,
+	};
+	virtual QRhiTexture* getOutputTexture(int slot = 0) {
+		switch ((OutputTextureSlot)slot) {
+		case BlurResult:
+			return mBloomRT[0].colorAttachment.get();	
+		}
+		return nullptr;
+	}
 private:
 	QRhiSPtr<QRhiSampler> mSampler;
 	QRhiSPtr<QRhiBuffer> mUniformBuffer;

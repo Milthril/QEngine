@@ -44,7 +44,3 @@ void SwapChainRenderPass::execute(QRhiCommandBuffer* cmdBuffer)
 	mDebugPainter.paint(cmdBuffer, mSwapChain->currentFrameRenderTarget());
 	cmdBuffer->endPass();
 }
-
-QRhiTexture* SwapChainRenderPass::getOutputTexture() {
-	return nullptr;
-}
