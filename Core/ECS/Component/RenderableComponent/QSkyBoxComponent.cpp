@@ -79,12 +79,12 @@ void QSkyBoxComponent::recreatePipeline() {
 	if (!mSkyBox)
 		return;
 	mPipeline.reset(RHI->newGraphicsPipeline());
-	const auto& blendStates = QRenderSystem::instance()->getSceneBlendStates();
+	const auto& blendStates = TheRenderSystem->getSceneBlendStates();
 	mPipeline->setTargetBlends(blendStates.begin(), blendStates.end());
 	mPipeline->setTopology(QRhiGraphicsPipeline::Triangles);
 	mPipeline->setDepthTest(false);
 	mPipeline->setDepthWrite(false);
-	mPipeline->setSampleCount(QRenderSystem::instance()->getSceneSampleCount());
+	mPipeline->setSampleCount(TheRenderSystem->getSceneSampleCount());
 
 	QVector<QRhiVertexInputBinding> inputBindings;
 	inputBindings << QRhiVertexInputBinding{ sizeof(float) * 3 };
@@ -126,7 +126,7 @@ void QSkyBoxComponent::recreatePipeline() {
 		%2
 	}
 	)");
-	if (QRenderSystem::instance()->isEnableDebug()) {
+	if (TheRenderSystem->isEnableDebug()) {
 		fragShaderCode = fragShaderCode
 			.arg("layout (location = 1) out vec4 CompId;\n")
 			.arg("CompId =  vec4(255,255,255,255);");
@@ -153,7 +153,7 @@ void QSkyBoxComponent::recreatePipeline() {
 
 	mPipeline->setShaderResourceBindings(mShaderResourceBindings.get());
 
-	mPipeline->setRenderPassDescriptor(QRenderSystem::instance()->getSceneRenderPassDescriptor());
+	mPipeline->setRenderPassDescriptor(TheRenderSystem->getSceneRenderPassDescriptor());
 
 	mPipeline->create();
 }
@@ -190,7 +190,7 @@ void QSkyBoxComponent::updateResourcePrePass(QRhiResourceUpdateBatch* batch) {
 	if (!mSkyBox)
 		return;
 	QMatrix4x4 MVP = mEntity->calculateMatrixMVP();
-	MVP.scale(1000);
+	MVP.scale(10000);
 	batch->updateDynamicBuffer(mUniformBuffer.get(), 0, sizeof(QMatrix4x4), MVP.constData());
 }
 

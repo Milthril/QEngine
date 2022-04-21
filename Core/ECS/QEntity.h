@@ -16,10 +16,10 @@ public:
 		this->metaObject()->metaType().id();
 		return mWorld;
 	}
-
 	using ID = uint32_t;
 
 	template<typename Component>
+
 	Component* addComponent() {
 		if (mComponentHash.contains(Component::staticMetaObject.metaType().id())) {
 			return nullptr;

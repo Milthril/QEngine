@@ -29,11 +29,11 @@ public:
 protected:
 	virtual void customInit() override {
 		QEntity* entity = world()->createEntity("Test Entity");
-		auto staitcMeshAsset = TheAssetMgr->load<Asset::StaticMesh>(assetDir().filePath("Genji Shim.QStaticMesh"));
+		auto staitcMeshAsset = TheAssetMgr->load<Asset::StaticMesh>("Genji Shim.QStaticMesh");
 		QStaticMeshComponent* staitcMesh = entity->addComponent<QStaticMeshComponent>();
 		staitcMesh->setStaticMesh(staitcMeshAsset);
 
-		auto skyboxAsset = TheAssetMgr->load<Asset::SkyBox>(assetDir().filePath("sky.QSkyBox"));
+		auto skyboxAsset = TheAssetMgr->load<Asset::SkyBox>("sky.QSkyBox");
 		QSkyBoxComponent* skybox = entity->addComponent<QSkyBoxComponent>();
 		skybox->setSkyBox(skyboxAsset);
 

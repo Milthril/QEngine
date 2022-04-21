@@ -3,15 +3,17 @@
 #include "ECS/Component/QCameraComponent.h"
 #include "QEngineCoreApplication.h"
 #include "qevent.h"
+#include <GraphEditor.h>
 
 DebugPainter::DebugPainter() {
 }
 
 void DebugPainter::paintImgui() {
 	auto& io = ImGui::GetIO();
-	ImGui::GetBackgroundDrawList()->AddText(ImGui::GetFont(), ImGui::GetFontSize(), ImVec2(1, 1), ImColor(0, 255, 0, 255), QString("FPS: %1").arg(QRenderSystem::instance()->window()->getFPS()).toLocal8Bit().data());
+	ImGui::GetBackgroundDrawList()->AddText(ImGui::GetFont(), ImGui::GetFontSize(), ImVec2(1, 1), ImColor(0, 255, 0, 255), QString("FPS: %1").arg(TheRenderSystem->window()->getFPS()).toLocal8Bit().data());
 	ImGuizmo::BeginFrame();
 	ImGuizmo::SetRect(0, 0, io.DisplaySize.x, io.DisplaySize.y);
+
 	QCameraComponent* camera = TheEngine->world()->getCurrentCamera();
 	if (camera) {
 		QEntity* currentEntiy = TheEngine->world()->getCurrentEntity();
@@ -28,7 +30,7 @@ void DebugPainter::paintImgui() {
 
 			currentEntiy->setMatrixModel(Model);
 
-	/*		if (NewLocal != Local) {
+			/*if (NewLocal != Local) {
 				Engine->requestUpdatePropertyPanel();
 			}*/
 		}

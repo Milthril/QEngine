@@ -87,7 +87,7 @@ void QStaticMeshComponent::recreatePipeline() {
 
 	QString outputCode = mMaterial->getShadingCode();
 
-	if (QRenderSystem::instance()->isEnableDebug()) {
+	if (TheRenderSystem->isEnableDebug()) {
 		defineCode.prepend("layout (location = 1) out vec4 CompId;\n");
 		outputCode.append(QString("CompId = %1;\n").arg(getEntityIdVec4String()));
 	}
@@ -111,13 +111,13 @@ void QStaticMeshComponent::recreatePipeline() {
 	mPipeline.reset(RHI->newGraphicsPipeline());
 	
 	mPipeline->setVertexInputLayout(inputLayout);
-	const auto& blendStates = QRenderSystem::instance()->getSceneBlendStates();
+	const auto& blendStates = TheRenderSystem->getSceneBlendStates();
 	mPipeline->setTargetBlends(blendStates.begin(), blendStates.end());
 	mPipeline->setTopology(QRhiGraphicsPipeline::Topology::Triangles);
 	mPipeline->setDepthOp(QRhiGraphicsPipeline::LessOrEqual);
 	mPipeline->setDepthTest(true);
 	mPipeline->setDepthWrite(true);
-	mPipeline->setSampleCount(QRenderSystem::instance()->getSceneSampleCount());
+	mPipeline->setSampleCount(TheRenderSystem->getSceneSampleCount());
 
 	mPipeline->setShaderStages({
 		{ QRhiShaderStage::Vertex, vs },
@@ -132,7 +132,7 @@ void QStaticMeshComponent::recreatePipeline() {
 
 	mPipeline->setShaderResourceBindings(mShaderResourceBindings.get());
 
-	mPipeline->setRenderPassDescriptor(QRenderSystem::instance()->getSceneRenderPassDescriptor());
+	mPipeline->setRenderPassDescriptor(TheRenderSystem->getSceneRenderPassDescriptor());
 
 	mPipeline->create();
 }

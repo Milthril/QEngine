@@ -18,9 +18,7 @@ class QEngineCoreApplication :public QApplication
 public:
 	QEngineCoreApplication(int argc, char** argv, bool enableDebug = false);
 	const std::shared_ptr<QWorld>& world();
-	const QDir& assetDir() const { return mAssetDir;}
 	void execGame();
-
 	void processEvents();
 protected:
 	virtual void customInit();
@@ -28,7 +26,6 @@ protected:
 	virtual void customRelease();
 private:
 	std::shared_ptr<QWorld> mWorld;
-	QDir mAssetDir;
 	int64_t mLastTime;
 	QElapsedTimer mTimer;
 };

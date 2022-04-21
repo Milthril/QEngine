@@ -4,7 +4,8 @@
 #include <QObject>
 #include "QRenderWindow.h"
 
-#define RHI (QRenderSystem::instance()->getRHI())
+#define TheRenderSystem (QRenderSystem::instance())
+#define RHI (TheRenderSystem->getRHI())
 
 class IRenderer;
 class IRenderable;

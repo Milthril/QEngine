@@ -8,9 +8,9 @@ QRenderWindow::QRenderWindow(QRhi::Implementation backend)
 }
 
 void QRenderWindow::customInitEvent() {
-	QRenderSystem::instance()->setupRHI(this->mRhi);
-	if (QRenderSystem::instance()->renderer()) {
-		QRenderSystem::instance()->renderer()->buildFrameGraph();
+	TheRenderSystem->setupRHI(this->mRhi);
+	if (TheRenderSystem->renderer()) {
+		TheRenderSystem->renderer()->buildFrameGraph();
 	}
 	mDurationMs = 0;
 	mLastTimeMs = 0;
@@ -19,10 +19,10 @@ void QRenderWindow::customInitEvent() {
 
 void QRenderWindow::customRenderEvent(QRhiSwapChain* swapchain) {
 
-	if (QRenderSystem::instance()->renderer()) {
+	if (TheRenderSystem->renderer()) {
 		if (mRhi->beginFrame(swapchain) == QRhi::FrameOpSuccess) {
 			swapchain->currentFrameRenderTarget()->setRenderPassDescriptor(swapchain->renderPassDescriptor());
-			QRenderSystem::instance()->renderer()->render(swapchain->currentFrameCommandBuffer());
+			TheRenderSystem->renderer()->render(swapchain->currentFrameCommandBuffer());
 			mRhi->endFrame(swapchain);
 		}
 	}
@@ -32,7 +32,7 @@ void QRenderWindow::customRenderEvent(QRhiSwapChain* swapchain) {
 }
 
 void QRenderWindow::customResizeEvent() {
-	if (QRenderSystem::instance()->renderer()) {
-		QRenderSystem::instance()->renderer()->rebuild();
+	if (TheRenderSystem->renderer()) {
+		TheRenderSystem->renderer()->rebuild();
 	}
 }

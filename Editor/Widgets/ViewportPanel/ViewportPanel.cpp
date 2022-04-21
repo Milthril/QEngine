@@ -12,13 +12,13 @@
 #include "ECS/Component/RenderableComponent/QParticleSystemComponent.h"
 
 ViewportPanel::ViewportPanel() {
-	mViewportContainter = QWidget::createWindowContainer(QRenderSystem::instance()->window());
+	mViewportContainter = QWidget::createWindowContainer(TheRenderSystem->window());
 	mViewportContainter->setMinimumSize(400, 300);
 	QHBoxLayout* h = new QHBoxLayout(this);
 	h->addWidget(mViewportContainter);
 	h->setContentsMargins(2, 2, 2, 2);
 	setAcceptDrops(true);
-	QRenderSystem::instance()->window()->installEventFilter(this);
+	TheRenderSystem->window()->installEventFilter(this);
 }
 
 

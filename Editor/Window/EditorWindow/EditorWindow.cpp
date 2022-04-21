@@ -9,11 +9,12 @@
 #include "Toolkit/QAeroWindowMaker.h"
 #include "ECS/System/RenderSystem/QRenderSystem.h"
 #include "QEngineCoreApplication.h"
+#include "Asset/GAssetMgr.h"
 
 EditorWindow::EditorWindow()
 	: KDDockWidgets::FloatingWindowWidget({})
 	, mMainWindow(KDDockWidgets::MainWindow("QEngine Editor"))
-	, mAssetPanel(TheEngine->assetDir().path())
+	, mAssetPanel(TheAssetMgr->assetDir().path())
 	, mFile("File")
 	, mEdit("Edit")
 	, mWindow("Window")

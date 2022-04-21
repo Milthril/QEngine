@@ -20,6 +20,9 @@ void GAssetMgr::import(QString filePath, QDir destDir) {
 }
 
 std::shared_ptr<IAsset> GAssetMgr::load(QString path, IAsset::Type type /*= IAsset::None*/) {
+	if (QFileInfo(path).isRelative()) {
+		path = mAssetDir.filePath(path);
+	}
 	if (type == IAsset::None) {
 		for (auto& assetType : IAsset::AssetExtName.keys()) {
 			if (path.endsWith(IAsset::AssetExtName[assetType])) {
@@ -149,7 +152,14 @@ QByteArray GAssetMgr::getSHA256(QString path) {
 	return {};
 }
 
+void GAssetMgr::shutdown() {
+	mAssetCache.clear();
+}
+
 GAssetMgr::GAssetMgr() {
+	if (QDir(QEngineCoreApplication_ASSET_DIR).exists()) {
+		mAssetDir = QDir(QEngineCoreApplication_ASSET_DIR);
+	}
 	QFile file("Assets.SHA256");
 	if (file.open(QFile::ReadOnly)) {
 		QDataStream stream(&file);

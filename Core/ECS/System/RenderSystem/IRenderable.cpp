@@ -2,9 +2,9 @@
 #include "IRenderable.h"
 
 void IRenderable::active() {
-	QRenderSystem::instance()->addRenderItem(this);
+	TheRenderSystem->addRenderItem(this);
 }
 
 void IRenderable::deactive() {
-	QRenderSystem::instance()->removeRenderItem(this);
+	TheRenderSystem->removeRenderItem(this);
 }

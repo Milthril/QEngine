@@ -14,7 +14,9 @@ public:
 	virtual void setupEntity(QEntity* entity) {
 		mEntity = entity;
 	}
+
 	QString getEntityIdVec4String() const;
+
 protected:
 	QEntity* mEntity = nullptr;
 };

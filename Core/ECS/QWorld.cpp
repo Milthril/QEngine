@@ -5,7 +5,7 @@
 QWorld::QWorld()
 	: mCameraEntity(std::make_shared<QEntity>(this)){
 	mCamera = mCameraEntity->addComponent<QCameraComponent>();
-	mCamera->setupWindow(QRenderSystem::instance()->window());
+	mCamera->setupWindow(TheRenderSystem->window());
 }
 
 QWorld::~QWorld() {

@@ -17,7 +17,6 @@ protected:
 	bool eventFilter(QObject* watched, QEvent* event) override;
 private:
 	QRhiTexture* mDebugTexture = nullptr;
-
 	ImGuizmo::OPERATION mOpt = ImGuizmo::OPERATION::TRANSLATE;
 	QRhiReadbackResult mReadReult;
 	QRhiReadbackDescription mReadDesc;

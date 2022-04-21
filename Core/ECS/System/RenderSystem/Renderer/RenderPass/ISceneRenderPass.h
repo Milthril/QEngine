@@ -18,7 +18,7 @@ public:
 	void setupSceneFrameSize(QSize size);
 	void setupSampleCount(int count);
 
-	int getSampleCount() {
+	virtual int getSampleCount() {
 		return mSampleCount;
 	}
 	QRhiRenderPassDescriptor* getRenderPassDescriptor() {

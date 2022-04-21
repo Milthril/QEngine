@@ -15,6 +15,7 @@ QRenderSystem* QRenderSystem::instance() {
 	return &ins;
 }
 
+
 QShader QRenderSystem::createShaderFromCode(QShader::Stage stage, const char* code) {
 	QShaderBaker baker;
 	baker.setGeneratedShaderVariants({ QShader::StandardShader });

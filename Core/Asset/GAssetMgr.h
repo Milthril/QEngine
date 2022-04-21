@@ -18,6 +18,9 @@ public:
 
 	template<typename AssetType>
 	std::shared_ptr<AssetType> load(QString path) {
+		if (QFileInfo(path).isRelative()) {
+			path = mAssetDir.filePath(path);
+		}
 		if (mAssetCache.contains(path)) {
 			qInfo() << "Load Asset From Cache:" << path;
 			return std::dynamic_pointer_cast<AssetType>(mAssetCache[path]);
@@ -39,10 +42,14 @@ public:
 	void updateSHA256(QString path, QByteArray sha256);
 	void cacheAsset(QString path, std::shared_ptr<IAsset> asset);
 	QByteArray getSHA256(QString path);
+	const QDir& assetDir() const { return mAssetDir; }
+
+	void shutdown();
 private:
 	GAssetMgr();
 	~GAssetMgr();
 private:
+	QDir mAssetDir;
 	QAssetImpoerter mImporter;
 	using AssetPath = QString;
 	QHash<AssetPath, QByteArray> mAssetSHA256Cache;;

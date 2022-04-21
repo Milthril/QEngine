@@ -76,7 +76,7 @@ void SkeletonModelComponentSubMesh::recreatePipeline() {
 
 	QString defineCode = materialInfo.uniformDefineCode;
 	QString outputCode = mMaterial->getShadingCode();
-	if (QRenderSystem::instance()->isEnableDebug()) {
+	if (TheRenderSystem->isEnableDebug()) {
 		defineCode.prepend("layout (location = 1) out vec4 CompId;\n");
 		outputCode.append(QString("CompId = %1;\n").arg(mModel->getEntityIdVec4String()));
 	}
@@ -113,12 +113,12 @@ void SkeletonModelComponentSubMesh::recreatePipeline() {
 	inputLayout.setAttributes(attributeList.begin(), attributeList.end());
 
 	mPipeline.reset(RHI->newGraphicsPipeline());
-	const auto& blendStates = QRenderSystem::instance()->getSceneBlendStates();
+	const auto& blendStates = TheRenderSystem->getSceneBlendStates();
 	mPipeline->setTargetBlends(blendStates.begin(), blendStates.end());
 	mPipeline->setTopology(QRhiGraphicsPipeline::Topology::Triangles);
 	mPipeline->setDepthTest(true);
 	mPipeline->setDepthWrite(true);
-	mPipeline->setSampleCount(QRenderSystem::instance()->getSceneSampleCount());
+	mPipeline->setSampleCount(TheRenderSystem->getSceneSampleCount());
 	mPipeline->setVertexInputLayout(inputLayout);
 
 	mPipeline->setShaderStages({
@@ -135,7 +135,7 @@ void SkeletonModelComponentSubMesh::recreatePipeline() {
 
 	mPipeline->setShaderResourceBindings(mShaderResourceBindings.get());
 
-	mPipeline->setRenderPassDescriptor(QRenderSystem::instance()->getSceneRenderPassDescriptor());
+	mPipeline->setRenderPassDescriptor(TheRenderSystem->getSceneRenderPassDescriptor());
 
 	mPipeline->create();
 }

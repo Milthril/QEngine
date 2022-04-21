@@ -33,10 +33,9 @@ AssetBox::AssetBox(std::shared_ptr<IAsset> asset, IAsset::Type type, QWidget* pa
 		mName.setText(asset->getName());
 	}
 	connect(&btOpenFile, &QPushButton::clicked, this, [this]() {
-		auto filePath = QFileDialog::getOpenFileName(nullptr, QString(), TheEngine->assetDir().path(), QString("*.%1").arg(IAsset::AssetExtName[mType]));
+		auto filePath = QFileDialog::getOpenFileName(nullptr, QString(), TheAssetMgr->assetDir().path(), QString("*.%1").arg(IAsset::AssetExtName[mType]));
 		if (filePath.isEmpty() || !QFile::exists(filePath))
 			return;
-		
 		setValue(QVariant::fromValue(TheAssetMgr->load(filePath)));
 	});
 
@@ -121,11 +120,13 @@ void AssetBox::updateDropState() {
 }
 
 void AssetBox::paintEvent(QPaintEvent* event) {
-	Adjuster::paintEvent(event);
 	if (canDrop()) {
 		QPainter painter(this);
-		painter.setPen(QPen(QColor(100, 200, 100), 6,Qt::PenStyle::SolidLine,Qt::PenCapStyle::RoundCap));
-		painter.drawRoundedRect(rect(), 5, 5);
+		painter.setRenderHint(QPainter::Antialiasing);
+		painter.setPen(Qt::NoPen);
+		painter.setBrush(QColor(100, 200, 100));
+		painter.drawRoundedRect(rect(), 2, 2);
 	}
+	Adjuster::paintEvent(event);
 }
 

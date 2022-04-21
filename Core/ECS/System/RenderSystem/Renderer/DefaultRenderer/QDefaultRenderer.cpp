@@ -28,7 +28,7 @@ void QDefaultRenderer::buildFrameGraph() {
 		->node("Scene", mScenePass,
 			   [self = mScenePass.get(),renderer = this]() {
 					self->setupSampleCount(4);
-					self->setupSceneFrameSize(QRenderSystem::instance()->window()->getSwapChain()->currentPixelSize());
+					self->setupSceneFrameSize(TheRenderSystem->window()->getSwapChain()->currentPixelSize());
 				})
 		->node("BloomPixelSelector", bloomPixelSelectPass,
 			   [self = bloomPixelSelectPass.get(), scene = mScenePass.get()]() {
@@ -59,7 +59,7 @@ void QDefaultRenderer::buildFrameGraph() {
 			->dependency({ "Scene","BloomBlurPass"})
 		->node("Swapchain", swapChainPass,
 			   [self = swapChainPass.get(), bloom = bloomMeragePass.get(), scene = mScenePass.get()]() {
-					self->setupSwapChain(QRenderSystem::instance()->window()->getSwapChain());
+					self->setupSwapChain(TheRenderSystem->window()->getSwapChain());
 					self->setupTexture(bloom->getOutputTexture());
 					self->setupDebugTexture(scene->getDebugTexutre());
 				})

@@ -25,7 +25,7 @@ void QDefaultSceneRenderPass::compile() {		//创建默认的RT
 	QRhiGraphicsPipeline::TargetBlend blendState;
 	blendState.enable = false;
 	mBlendStates << blendState;
-	if (QRenderSystem::instance()->isEnableDebug()) {
+	if (TheRenderSystem->isEnableDebug()) {
 		mBlendStates << blendState;
 		QRhiColorAttachment debugAttachment;
 		mRT.debugTexture.reset(RHI->newTexture(QRhiTexture::RGBA8, mSceneFrameSize, 1, QRhiTexture::RenderTarget | QRhiTexture::UsedAsTransferSource));

@@ -12,6 +12,7 @@
 #include "QRegularExpression"
 #include "Toolkit\QWidgetShadowMaker.h"
 #include "QEngineCoreApplication.h"
+#include "Asset\GAssetMgr.h"
 
 EditorAttributeMgr::EditorAttributeMgr()
 {
@@ -30,7 +31,7 @@ QDir EditorAttributeMgr::getLayoutDir() {
 }
 
 QDir EditorAttributeMgr::getStyleSheetDir() {
-	return TheEngine->assetDir().filePath("EditorStyle");
+	return TheAssetMgr->assetDir().filePath("EditorStyle");
 }
 
 void EditorAttributeMgr::initDefaultAttribute() {

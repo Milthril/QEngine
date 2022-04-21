@@ -21,7 +21,6 @@ public:
 
 	Q_INVOKABLE bool getSolid() const { return mSolid; }
 	Q_INVOKABLE void setSolid(bool val) { mSolid = val; }
-
 private:
 	float mRadius = 10;
 	bool mSolid = true;

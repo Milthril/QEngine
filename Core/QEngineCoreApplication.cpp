@@ -1,16 +1,14 @@
 #include "QEngineCoreApplication.h"
 #include "EventHandler\QTickEventHandler.h"
 #include "ECS\System\RenderSystem\QRenderSystem.h"
+#include "Asset\GAssetMgr.h"
 
 
 QEngineCoreApplication::QEngineCoreApplication(int argc, char** argv, bool enableDebug /*= false*/)
 	: QApplication(argc, argv)
 	, mWorld(std::make_shared<QWorld>())
 {
-	if (QDir(QEngineCoreApplication_ASSET_DIR).exists()) {
-		mAssetDir = QDir(QEngineCoreApplication_ASSET_DIR);
-	}
-	QRenderSystem::instance()->setEnableDebug(enableDebug);
+	TheRenderSystem->setEnableDebug(enableDebug);
 }
 
 void QEngineCoreApplication::customInit() {
@@ -32,17 +30,18 @@ const std::shared_ptr<QWorld>& QEngineCoreApplication::world()
 
 void QEngineCoreApplication::execGame()
 {
-	QRenderSystem::instance()->init();
+	TheRenderSystem->init();
 	customInit();
 
 	mLastTime = mTimer.elapsed();
 
-	while (!QRenderSystem::instance()->hasRequestQuit()) {
+	while (!TheRenderSystem->hasRequestQuit()) {
 		processEvents();
 	}
 	mWorld.reset();
 	customRelease();
-	QRenderSystem::instance()->shutdown();
+	TheAssetMgr->shutdown();
+	TheRenderSystem->shutdown();
 }
 
 void QEngineCoreApplication::processEvents() {
@@ -53,5 +52,5 @@ void QEngineCoreApplication::processEvents() {
 	customUpdate();
 	QGuiApplication::processEvents();
 	QTickEventHandler::processEvent(deltaSeconds);
-	QRenderSystem::instance()->requestUpdate();
+	TheRenderSystem->requestUpdate();
 }

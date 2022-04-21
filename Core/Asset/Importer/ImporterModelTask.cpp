@@ -56,37 +56,42 @@ std::shared_ptr<Asset::StaticMesh> createStaticMeshFromAssimpMesh(aiMesh* mesh) 
 
 std::shared_ptr<Asset::Material> createMaterialFromAssimpMaterial(aiMaterial* material, const aiScene* scene, QDir dir) {
 	auto qMaterial = std::make_shared<Asset::Material>();
-	int diffuseCount = material->GetTextureCount(aiTextureType_DIFFUSE);
-	for (int j = 0; j < diffuseCount; j++) {
-		aiString path;
-		material->GetTexture(aiTextureType_DIFFUSE, j, &path);
-		QString name = material->GetName().C_Str();
-		if (name.startsWith('/')) {
-			QString newPath = dir.filePath(name.mid(1,name.lastIndexOf('/')-1));
-			dir.setPath(newPath);
-		}
+	for (int i = aiTextureType_DIFFUSE ; i < AI_TEXTURE_TYPE_MAX; i++) {
+		int count = material->GetTextureCount(aiTextureType(i));
+		for (int j = 0; j < count; j++) {
+			aiString path;
+			material->GetTexture(aiTextureType(i), j, &path);
+			QString name = material->GetName().C_Str();
+			if (name.startsWith('/')) {
+				QString newPath = dir.filePath(name.mid(1, name.lastIndexOf('/') - 1));
+				dir.setPath(newPath);
+			}
+			QString realPath = dir.filePath(path.C_Str());
 
-		QString realPath = dir.filePath(path.C_Str());
-
-		QImage image;
-		if (QFile::exists(realPath)) {
-			image.load(realPath);
-		}
-		else {
-			const aiTexture* embTexture = scene->GetEmbeddedTexture(path.C_Str());
-			if (embTexture != nullptr) {
-				if (embTexture->mHeight == 0) {
-					image.loadFromData((uchar*)embTexture->pcData, embTexture->mWidth, embTexture->achFormatHint);
-				}
-				else {
-					image = QImage((uchar*)embTexture->pcData, embTexture->mWidth, embTexture->mHeight, QImage::Format_ARGB32);
+			QImage image;
+			if (QFile::exists(realPath)) {
+				image.load(realPath);
+			}
+			else {
+				const aiTexture* embTexture = scene->GetEmbeddedTexture(path.C_Str());
+				if (embTexture != nullptr) {
+					if (embTexture->mHeight == 0) {
+						image.loadFromData((uchar*)embTexture->pcData, embTexture->mWidth, embTexture->achFormatHint);
+					}
+					else {
+						image = QImage((uchar*)embTexture->pcData, embTexture->mWidth, embTexture->mHeight, QImage::Format_ARGB32);
+					}
 				}
 			}
-
+			QString textureName = ImporterModelTask::mTextureNameMap[i];
+			if (j != 0) {
+				textureName += QString::number(j);
+			}
+			qMaterial->addTextureSampler(textureName, image);
 		}
-		qMaterial->addTextureSampler("Diffuse", image);
 	}
-	if (diffuseCount) {
+	int hasDiffuseTexture = material->GetTextureCount(aiTextureType_DIFFUSE);
+	if (hasDiffuseTexture > 0) {
 		qMaterial->setShadingCode("FragColor = texture(Diffuse,vUV); ");
 	}
 	else {
@@ -132,7 +137,6 @@ void ImporterModelTask::executable() {
 		for (unsigned int i = 0; i < node.first->mNumMeshes; i++) {
 			aiMesh* mesh = scene->mMeshes[node.first->mMeshes[i]];
 			std::shared_ptr<Asset::StaticMesh> staticMesh = createStaticMeshFromAssimpMesh(mesh);
-			qDebug() << mesh->mMaterialIndex;
 			staticMesh->setMaterialPath(mMaterialPathList[mesh->mMaterialIndex]);
 			QString vaildPath = FileUtils::getVaildPath(mDestDir.filePath(QString("%1.%2").arg(mesh->mName.C_Str()).arg(staticMesh->getExtName())));
 			staticMesh->setRefPath(vaildPath);
