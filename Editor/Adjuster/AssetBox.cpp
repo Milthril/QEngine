@@ -42,13 +42,6 @@ AssetBox::AssetBox(std::shared_ptr<IAsset> asset, IAsset::Type type, QWidget* pa
 	connect(&btReset, &QPushButton::clicked, this, [this]() {
 		setValue(QVariant::fromValue(mDefaultAsset));
 	});
-	count++;
-	qDebug() << "Create " << count;
-}
-
-AssetBox::~AssetBox() {
-	count--;
-	qDebug() << "Release " << count;
 }
 
 QVariant AssetBox::getValue()

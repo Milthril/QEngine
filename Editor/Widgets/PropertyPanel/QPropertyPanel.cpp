@@ -22,7 +22,6 @@ QPropertyPanel::QPropertyPanel(QObject* object /*= nullptr*/) {
 }
 
 QPropertyPanel::~QPropertyPanel() {
-	qDebug() << "release Panel";
 }
 
 QObject* QPropertyPanel::getObject() const

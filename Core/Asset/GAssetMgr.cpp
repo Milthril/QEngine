@@ -153,7 +153,6 @@ QByteArray GAssetMgr::getSHA256(QString path) {
 }
 
 void GAssetMgr::shutdown() {
-	auto it = mAssetCache.values();
 	mAssetCache.clear();
 }
 

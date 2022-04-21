@@ -45,7 +45,6 @@ void QWidgetListPanel::clear() {
 		}
 		delete child->widget();
 		delete child;
-	
 	}
 }
 
