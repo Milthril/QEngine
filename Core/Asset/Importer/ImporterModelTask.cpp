@@ -87,17 +87,10 @@ std::shared_ptr<Asset::Material> createMaterialFromAssimpMaterial(aiMaterial* ma
 			if (j != 0) {
 				textureName += QString::number(j);
 			}
-			qMaterial->addTextureSampler(textureName, image);
+			qMaterial->setTexture2D(textureName, image);
 		}
 	}
-	int hasDiffuseTexture = material->GetTextureCount(aiTextureType_DIFFUSE);
-	if (hasDiffuseTexture > 0) {
-
-		qMaterial->setShadingCode("outBaseColor = texture(Diffuse,vUV); ");
-	}
-	else {
-		qMaterial->setShadingCode("outBaseColor = vec4(1.0); ");
-	}
+	qMaterial->generateDefualtShadingCode();
 	return qMaterial;
 }
 
@@ -142,7 +135,6 @@ void ImporterModelTask::executable() {
 			QString vaildPath = FileUtils::getVaildPath(mDestDir.filePath(QString("%1.%2").arg(mesh->mName.C_Str()).arg(staticMesh->getExtName())));
 			staticMesh->setRefPath(vaildPath);
 			staticMesh->save(vaildPath);
-
 			if (mesh->HasBones()) {
 				hasBone = true;
 			}
@@ -237,7 +229,6 @@ void ImporterModelTask::executable() {
 		mSkeletonModel->setRefPath(mDestDir.filePath("%1.%2").arg(QFileInfo(mFilePath).baseName()).arg(mSkeletonModel->getExtName()));
 		mSkeletonModel->setMaterialPathList(std::move(mMaterialPathList));
 		mSkeletonModel->save(mSkeletonModel->getRefPath());
-
 	}
 
 	for (uint i = 0; i < scene->mNumAnimations; i++) {

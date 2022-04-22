@@ -24,8 +24,8 @@ void QScenePanel::createUI() {
 	connect(this, &QTreeWidget::currentItemChanged, this, [this](QTreeWidgetItem* current, QTreeWidgetItem*) {
 		if (current) {
 			QEntity* oPtr = current->data(1, 0).value<QEntity*>();
+			mWorld->setCurrentEntity(oPtr);
 			Q_EMIT entityChanged(oPtr);
-			//mScene->setCurrent(dynamic_cast<QSceneComponent*>(oPtr));
 		}
 	});
 	//connect(this->model(), &QAbstractItemModel::rowsAboutToBeMoved, this, [this](const QModelIndex& sourceParent, int sourceStart, int sourceEnd, const QModelIndex& destinationParent, int destinationRow) {

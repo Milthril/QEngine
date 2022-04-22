@@ -18,7 +18,7 @@ QStringList QLocalLuaAPI() {
 template<>
 void QLuaRegister<QRhiUniform>(sol::state& lua) {
 	lua.new_usertype<QRhiUniform>("QRhiUniform"
-								  , "setData", sol::overload(&QRhiUniform::setData<float>, &QRhiUniform::setData<QVector2D>, &QRhiUniform::setData<QVector3D>, &QRhiUniform::setData<QVector4D>)
+								  , "setData", sol::overload(&QRhiUniform::setDataFloat, &QRhiUniform::setDataVec2, &QRhiUniform::setDataVec3, &QRhiUniform::setDataVec4)
 								  , "getData", sol::overload(&QRhiUniform::getData<float>, &QRhiUniform::getData<QVector2D>, &QRhiUniform::getData<QVector3D>, &QRhiUniform::getData<QVector4D>)
 								  );
 }

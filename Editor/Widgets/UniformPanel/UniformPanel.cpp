@@ -62,23 +62,23 @@ UniformPanel::UniformPanel()
 			return;
 		QMenu menu;
 		menu.addAction("Float", [this]() {
-			mUniform->addDataFloat("Float", 0.0f);
+			mUniform->setDataFloat("Float", 0.0f);
 			updateParamPanel();
 		});
 		menu.addAction("Vec2", [this]() {
-			mUniform->addDataVec2("Vec2", QVector2D());
+			mUniform->setDataVec2("Vec2", QVector2D());
 			updateParamPanel();
 		});
 		menu.addAction("Vec3", [this]() {
-			mUniform->addDataVec3("Vec3", QVector3D());
+			mUniform->setDataVec3("Vec3", QVector3D());
 			updateParamPanel();
 		});
 		menu.addAction("Vec4", [this]() {
-			mUniform->addDataVec4("Vec4", QVector4D());
+			mUniform->setDataVec4("Vec4", QVector4D());
 			updateParamPanel();
 		});
 		menu.addAction("Sampler2D", [this]() {
-			mUniform->addTextureSampler("Texture", QImage());
+			mUniform->setTexture2D("Texture", QImage());
 			updateParamPanel();
 		});
 		menu.exec(QCursor::pos());
@@ -93,7 +93,7 @@ void UniformPanel::setUniform(std::shared_ptr<QRhiUniform> uniform)
 
 void UniformPanel::updateParamPanel() {
 	mParamsPanel->clear();
-	auto params = mUniform->getParamsDesc();
+	auto params = mUniform->getParamList();
 	for (auto param : params) {
 		QTreeWidgetItem* item = new QTreeWidgetItem();
 		item->setText(1, param->name);
@@ -143,14 +143,13 @@ void UniformPanel::updateParamPanel() {
 		case QRhiUniform::ParamDescBase::Type::Mat4:
 			break;
 		case QRhiUniform::ParamDescBase::Type::Sampler2D: {
-			auto texDesc = std::dynamic_pointer_cast<QRhiUniform::TextureDesc>(mUniform->getParamDesc(param->name));;
+			auto texDesc = std::dynamic_pointer_cast<QRhiUniform::TextureDesc>(param);;
 			adjuster = new ImageLoader(texDesc->image);
 			connect(adjuster, &Adjuster::valueChanged, this, [this, param](QVariant var) {
-				mUniform->setTextureSampler(param->name, var.value<QImage>());
+				mUniform->setTexture2D(param->name, var.value<QImage>());
 			});
 			break;
 		}
-
 		default:
 			break;
 		}

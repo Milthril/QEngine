@@ -7,6 +7,7 @@
 #include "ECS\System\RenderSystem\Renderer\RenderPass\LightingRenderPass.h"
 #include "ECS\System\RenderSystem\QRenderSystem.h"
 #include "RenderPass\DeferRenderPass.h"
+#include "..\RHI\IRenderable.h"
 
 QRenderer::QRenderer(){}
 
@@ -98,6 +99,24 @@ void QRenderer::addLightItem(ILightComponent* item) {
 
 void QRenderer::removeLightItem(ILightComponent* item) {
 	mLightingRenderPass->removeLightItem(item);
+}
+
+QList<IRenderable*> QRenderer::getDeferItemList() {
+	QList<IRenderable*> deferList;
+	for (auto& item : mRenderableItemList) {
+		if (item->isDefer())
+			deferList << item;
+	}
+	return deferList;
+}
+
+QList<IRenderable*> QRenderer::getForwardItemList() {
+	QList<IRenderable*> forwardList;
+	for (auto& item : mRenderableItemList) {
+		if (!item->isDefer())
+			forwardList << item;
+	}
+	return forwardList;
 }
 
 int QRenderer::getDeferPassSampleCount() {

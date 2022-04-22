@@ -45,13 +45,16 @@ void SkeletonModelComponentSubMesh::recreatePipeline() {
 			layout(location = 6) in vec4 boneWeight;
 
 			layout(location = 0) out vec2 vUV;
+			layout(location = 1) out vec3 vWorldPosition;
+			layout(location = 2) out mat3 vTangentBasis;
 
 			out gl_PerVertex{
 				vec4 gl_Position;
 			};
 
 			layout(std140,binding = 0) uniform buf{
-				mat4 mvp;
+				mat4 MVP;
+				mat4 M;
 				mat4 boneMatrix[%1];
 			}ubuf;
 
@@ -60,9 +63,12 @@ void SkeletonModelComponentSubMesh::recreatePipeline() {
 					 BoneTransform += ubuf.boneMatrix[boneIndex[1]]*boneWeight[1];
 					 BoneTransform += ubuf.boneMatrix[boneIndex[2]]*boneWeight[2];
 					 BoneTransform += ubuf.boneMatrix[boneIndex[3]]*boneWeight[3];
-
+					
 				vUV = inUV;
-				gl_Position = ubuf.mvp * BoneTransform * vec4(inPosition,1.0f);
+				vec4 pos = BoneTransform * vec4(inPosition,1.0f);
+				vWorldPosition = vec3(ubuf.M * pos);
+				vTangentBasis =  mat3(ubuf.M) * mat3(inTangent, inBitangent, inNormal);
+				gl_Position = ubuf.MVP * pos;
 			}
 		)").arg(mModel->mSkeleton->getBoneOffsetMatrix().size());
 
@@ -72,20 +78,33 @@ void SkeletonModelComponentSubMesh::recreatePipeline() {
 		return;
 	}
 
-	const QRhiUniformProxy::UniformInfo& materialInfo = mMaterial->getProxy()->getUniformInfo(1);
+	const QRhiUniform::UniformInfo& materialInfo = mMaterial->getUniformInfo(1);
 
 	QString defineCode = materialInfo.uniformDefineCode;
 	QString outputCode = mMaterial->getShadingCode();
 	if (TheRenderSystem->isEnableDebug()) {
-		defineCode.prepend("layout (location = 1) out vec4 CompId;\n");
+		defineCode.prepend("layout (location = 4) out vec4 CompId;\n");
 		outputCode.append(QString("CompId = %1;\n").arg(mModel->getEntityIdVec4String()));
 	}
 
 	QString fragShaderCode = QString(R"(#version 440
 		layout(location = 0) in vec2 vUV;
+		layout(location = 1) in vec3 vWorldPosition;
+		layout(location = 2) in mat3 vTangentBasis;
+
 		layout(location = 0) out vec4 outBaseColor;
+		layout(location = 1) out vec4 outPosition;
+		layout(location = 2) out vec4 outNormal_Metalness;
+		layout(location = 3) out vec4 outTangent_Roughness;
 		%1
+		#define outNormal		(outNormal_Metalness.rgb)
+		#define outMetalness	(outNormal_Metalness.a)
+		#define outTangent		(outTangent_Roughness.rgb)
+		#define outRoughness	(outTangent_Roughness.a)
 		void main(){
+			outPosition = vec4(vWorldPosition,1.0);
+			outTangent = vTangentBasis[0];
+			outNormal = vTangentBasis[2];
 			%2
 		}
 		)").arg(defineCode).arg(outputCode);
@@ -95,7 +114,6 @@ void SkeletonModelComponentSubMesh::recreatePipeline() {
 		mPipeline.reset(nullptr);
 		return;
 	}
-
 
 	QVector<QRhiVertexInputBinding> inputBindings;
 	inputBindings << QRhiVertexInputBinding{ sizeof(Asset::SkeletonModel::Vertex) };
@@ -175,7 +193,7 @@ void QSkeletonModelComponent::recreateResource() {
 		subMesh->recreateResource();
 	}
 
-	mBoneMatBuffer.reset(RHI->newBuffer(QRhiBuffer::Type::Dynamic, QRhiBuffer::UniformBuffer, sizeof(float) * 16 + mSkeleton->getBoneOffsetMatrix().size() * sizeof(Asset::Skeleton::Mat4)));
+	mBoneMatBuffer.reset(RHI->newBuffer(QRhiBuffer::Type::Dynamic, QRhiBuffer::UniformBuffer, sizeof(float) * 16 * 2 + mSkeleton->getBoneOffsetMatrix().size() * sizeof(Asset::Skeleton::Mat4)));
 	mBoneMatBuffer->create();
 }
 
@@ -200,7 +218,7 @@ void QSkeletonModelComponent::updateResourcePrePass(QRhiResourceUpdateBatch* bat
 	if (!mSkeletonModel || !mSkeleton || mMaterialList.isEmpty())
 		return;
 	for (auto& material : mMaterialList) {
-		material->getProxy()->updateResource(batch);
+		material->updateResource(batch);
 	}
 	for (auto& subMesh : mSkeletonSubMeshList) {
 		subMesh->updateResourcePrePass(batch);
@@ -211,9 +229,11 @@ void QSkeletonModelComponent::updateResourcePrePass(QRhiResourceUpdateBatch* bat
 	}
 
 	QMatrix4x4 MVP = mEntity->calculateMatrixMVP();
+	QMatrix4x4 M = mEntity->calculateMatrixModel();
 	batch->updateDynamicBuffer(mBoneMatBuffer.get(), 0, sizeof(float) * 16, MVP.constData());
+	batch->updateDynamicBuffer(mBoneMatBuffer.get(), sizeof(float) * 16, sizeof(float) * 16, M.constData());
 	const auto& posesMatrix = mSkeleton->getCurrentPosesMatrix();
-	batch->updateDynamicBuffer(mBoneMatBuffer.get(), sizeof(float) * 16, sizeof(Asset::Skeleton::Mat4) * posesMatrix.size(), posesMatrix.constData());
+	batch->updateDynamicBuffer(mBoneMatBuffer.get(), sizeof(float) * 16 * 2, sizeof(Asset::Skeleton::Mat4) * posesMatrix.size(), posesMatrix.constData());
 }
 
 void QSkeletonModelComponent::renderInPass(QRhiCommandBuffer* cmdBuffer, const QRhiViewport& viewport) {
@@ -259,4 +279,8 @@ void QSkeletonModelComponent::setMaterialList(QVector<std::shared_ptr<Asset::Mat
 	for (auto& subMesh : mSkeletonSubMeshList) {
 		subMesh->updateMaterial();
 	}
+}
+
+bool QSkeletonModelComponent::isDefer() {
+	return true;
 }

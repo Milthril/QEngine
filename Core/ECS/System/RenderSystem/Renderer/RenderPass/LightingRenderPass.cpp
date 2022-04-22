@@ -72,8 +72,9 @@ void LightingRenderPass::rebuildLight() {
 	uint8_t bindingOffset = 5;
 	for (int i = 0; i < mLightItemList.size(); i++) {
 		auto& lightItem = mLightItemList[i];
+
 		QString name = QString("Light%1").arg(i);
-		const auto& lightInfo = lightItem->getProxy()->getUniformInfo(bindingOffset, name);
+		const auto& lightInfo = lightItem->getUniformInfo(bindingOffset, name);
 
 		lightDefineCode += lightInfo.uniformDefineCode;
 		lightingCode += lightItem->getLightingCode(name);
@@ -152,7 +153,6 @@ void main() {
 	float roughness =	texture(uTangent_RoughnessTexture, vUV).a;
 	vec3 position =		texture(uPositionTexture, vUV).rgb;
 	vec3 N =			normalize(texture(uNormal_MetalnessTexture, vUV).rgb);
-	baseColor = vec3(roughness);
 
 	vec3 Lo = normalize(UBO.eyePosition - position);
 	
@@ -185,7 +185,7 @@ void main() {
 void LightingRenderPass::execute(QRhiCommandBuffer* cmdBuffer) {
 	QRhiResourceUpdateBatch* resUpdateBatch = RHI->nextResourceUpdateBatch();
 	for (auto& lightItem : mLightItemList) {
-		lightItem->getProxy()->updateResource(resUpdateBatch);
+		lightItem->updateResource(resUpdateBatch);
 	}
 	UniformBlock block;
 	block.eyePosition = TheEngine->world()->getCurrentCamera()->getPosition();

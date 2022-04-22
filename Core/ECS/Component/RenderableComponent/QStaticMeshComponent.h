@@ -26,6 +26,7 @@ public:
 	virtual void updatePrePass(QRhiCommandBuffer* cmdBuffer) override;
 	virtual void updateResourcePrePass(QRhiResourceUpdateBatch* batch) override;
 	virtual void renderInPass(QRhiCommandBuffer* cmdBuffer, const QRhiViewport& viewport) override;
+	virtual bool isDefer() override;
 
 private:
 	std::shared_ptr<Asset::StaticMesh> mStaticMesh;

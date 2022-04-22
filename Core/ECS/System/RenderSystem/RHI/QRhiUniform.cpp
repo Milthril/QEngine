@@ -1,154 +1,69 @@
 ﻿#include "QRhiUniform.h"
 #include "Script\QLuaScriptFactory.h"
 #include "ECS\System\RenderSystem\RHI\IRenderable.h"
+#include "ECS\System\RenderSystem\QRenderSystem.h"
 
 QRhiUniform::QRhiUniform()
-	: mProxy(std::make_shared<QRhiUniformProxy>(this))
-	, mScript(QLuaScriptFactory::instance()->createUniformScript(this)) {
+	: mScript(QLuaScriptFactory::instance()->createUniformScript(this)) {
 	bNeedRecreate.active();
 }
 
-QRhiUniform::~QRhiUniform()
-{
+void QRhiUniform::setDataFloat(QString name, float var) {
+	auto param = getOrCreateParam(name, ParamDescBase::Float);
+	auto data = std::dynamic_pointer_cast<DataDesc>(param);
+	data->var = var;
+	data->bNeedUpdate.active();
 }
 
-void QRhiUniform::addDataFloat(const QString& name, float var)
-{
-	addDataParam(name, static_cast<void*>(&var), sizeof(float), ParamDescBase::Float);
+void QRhiUniform::setDataVec2(QString name, QVector2D var) {
+	auto param = getOrCreateParam(name, ParamDescBase::Vec2);
+	auto data = std::dynamic_pointer_cast<DataDesc>(param);
+	data->var = var;
+	data->bNeedUpdate.active();
 }
 
-void QRhiUniform::addDataVec2(const QString& name, QVector2D vec2)
-{
-	addDataParam(name, static_cast<void*>(&vec2), sizeof(QVector2D), ParamDescBase::Vec2);
+void QRhiUniform::setDataVec3(QString name, QVector3D var) {
+	auto param = getOrCreateParam(name, ParamDescBase::Vec3);
+	auto data = std::dynamic_pointer_cast<DataDesc>(param);
+	data->var = var;
+	data->bNeedUpdate.active();
 }
 
-void QRhiUniform::addDataVec3(const QString& name, QVector3D vec3)
-{
-	addDataParam(name, static_cast<void*>(&vec3), sizeof(QVector3D), ParamDescBase::Vec3);
+void QRhiUniform::setDataVec4(QString name, QVector4D var) {
+	auto param = getOrCreateParam(name, ParamDescBase::Vec4);
+	auto data = std::dynamic_pointer_cast<DataDesc>(param);
+	data->var = var;
+	data->bNeedUpdate.active();
 }
 
-void QRhiUniform::addDataVec4(const QString& name, QVector4D vec4)
-{
-	addDataParam(name, static_cast<void*>(&vec4), sizeof(QVector4D), ParamDescBase::Vec4);
-}
-
-void QRhiUniform::addDataMat4(const QString& name, QMatrix4x4 mat4)
-{
-	addDataParam(name, static_cast<void*>(mat4.data()), sizeof(float) * 16, ParamDescBase::Mat4);
+void QRhiUniform::setTexture2D(const QString& name, const QImage& image) {
+	auto param = getOrCreateParam(name, ParamDescBase::Sampler2D);
+	auto texture = std::dynamic_pointer_cast<TextureDesc>(param);
+	texture->image = image;
+	texture->bNeedUpdate.active();
 }
 
 void QRhiUniform::removeParam(const QString& name)
 {
-	std::shared_ptr<ParamDescBase> paramDesc = getParamDesc(name);
-	if (!paramDesc)
-		return;
-	std::shared_ptr<DataDesc> dataDesc = std::dynamic_pointer_cast<DataDesc>(paramDesc);
-	if (dataDesc) {
-		int index = mParams.indexOf(paramDesc);
-		for (int i = index + 1; i < mParams.size(); i++) {
-			std::shared_ptr<DataDesc> nextData = std::dynamic_pointer_cast<DataDesc>(mParams[i]);
-			if (nextData) {
-				nextData->offsetInByte -= dataDesc->sizeInByteAligned;
-				nextData->bNeedUpdate.active();
-			}
-		}
-		for (int i = dataDesc->offsetInByte; i < mData.size() - dataDesc->sizeInByteAligned; i++) {
-			mData[i] = mData[i + dataDesc->sizeInByteAligned];
-		}
-		mData.resize(mData.size() - dataDesc->sizeInByteAligned);
-		mDataParamList.removeOne(std::dynamic_pointer_cast<DataDesc>(paramDesc));
+	auto iter = mParamNameMap.find(name);
+	if (iter != mParamNameMap.end()) {
+		mTextureList.removeOne(*iter);
+		mDataList.removeOne(*iter);
+		mParamNameMap.remove(name);
+		updateLayout();
 	}
-	else {
-		mTextureParamList.removeOne(std::dynamic_pointer_cast<TextureDesc>(paramDesc));
-	}
-	mParams.removeOne(paramDesc);
-	bNeedRecreate.active();
 }
 
 bool QRhiUniform::renameParma(const QString& src, const QString& dst)
 {
-	if (dst == src)
-		return false;
-	auto param = getParamDesc(src);
-	if (param) {
-		param->name = getVaildName(dst);
-		bNeedRecreate.active();
+	if (mParamNameMap.contains(src)) {
+		auto param = mParamNameMap.take(src);
+		param->name = dst;
+		mParamNameMap[dst] = param;
+		updateLayout();
 		return true;
 	}
 	return false;
-}
-
-QString QRhiUniform::getVaildName(QString name)
-{
-	bool flag = true;
-	while (flag) {
-		flag = false;
-		for (auto& param : mParams) {
-			if (param->name == name) {
-				flag = true;
-				name += "1";
-				break;;
-			}
-		}
-	}
-	return name;
-}
-
-void QRhiUniform::setTextureSampler(const QString& name, const QImage& image)
-{
-	auto texture = getParamDesc(name);
-	if (texture && texture->type == QRhiUniform::ParamDescBase::Sampler2D) {
-		std::shared_ptr<QRhiUniform::TextureDesc> ptr = std::dynamic_pointer_cast<QRhiUniform::TextureDesc>(texture);
-		ptr->image = image;
-		ptr->bNeedUpdate.active();
-	}
-}
-
-void QRhiUniform::addTextureSampler(const QString& name, const QImage& image)
-{
-	std::shared_ptr<TextureDesc> texture = std::make_shared<TextureDesc>();
-	texture->name = getVaildName(name);
-	texture->type = QRhiUniform::TextureDesc::Sampler2D;
-	texture->image = image.convertToFormat(QImage::Format::Format_RGBA8888);
-	texture->bNeedUpdate.active();
-	mParams << texture;
-	mTextureParamList << texture;
-	bNeedRecreate.active();
-}
-
-void QRhiUniform::addDataParam(const QString& name, void* data, uint16_t size, ParamDescBase::Type type)
-{
-	std::shared_ptr<DataDesc> paramDesc = std::make_shared<DataDesc>();
-	paramDesc->type = type;
-	paramDesc->name = getVaildName(name);
-	paramDesc->offsetInByte = mData.size();
-	paramDesc->sizeInByte = size;
-	paramDesc->sizeInByteAligned = (size + 15) & ~(15);	//十六字节对齐
-	paramDesc->bNeedUpdate.active();
-	mData.resize(mData.size() + paramDesc->sizeInByteAligned);
-	memcpy(mData.data() + paramDesc->offsetInByte, data, size);
-	mParams << paramDesc;
-	mDataParamList << paramDesc;
-	bNeedRecreate.active();
-}
-
-std::shared_ptr<QRhiUniform::ParamDescBase> QRhiUniform::getParamDesc(const QString& name)
-{
-	for (auto it = mParams.begin(); it != mParams.end(); ++it) {
-		if ((*it)->name == name) {
-			return *it;
-		}
-	}
-	return nullptr;
-}
-
-
-const QVector<std::shared_ptr<QRhiUniform::DataDesc>>& QRhiUniform::getAllDataDesc() {
-	return mDataParamList;
-}
-
-const QVector<std::shared_ptr<QRhiUniform::TextureDesc>>& QRhiUniform::getAllTextureDesc() {
-	return mTextureParamList;
 }
 
 void QRhiUniform::addRef(IRenderable* comp)
@@ -156,46 +71,44 @@ void QRhiUniform::addRef(IRenderable* comp)
 	mRef << comp;
 }
 
-void QRhiUniform::removeRef(IRenderable* comp)
-{
+void QRhiUniform::removeRef(IRenderable* comp){
 	mRef.removeOne(comp);
 }
 
 void QRhiUniform::serialize(QDataStream& out) {
-	out << mDataParamList.size();
-	for (auto& data : mDataParamList) {
+	out << mDataList.size();
+	for (auto& data : mDataList) {
 		out << data->name
+			<< data->var
 			<< data->type
 			<< data->offsetInByte
 			<< data->sizeInByte
 			<< data->sizeInByteAligned;
 	}
-	out << mTextureParamList.size();
-	for (auto& texture : mTextureParamList) {
+	out << mTextureList.size();
+	for (auto& texture : mTextureList) {
 		out << texture->name
 			<< texture->type
 			<< texture->image;
 	}
-	out << mData;
 }
 
 void QRhiUniform::deserialize(QDataStream& in) {
-	mDataParamList.clear();
-	mTextureParamList.clear();
-	mParams.clear();
-
+	mDataList.clear();
+	mTextureList.clear();
+	mParamNameMap.clear();
 	qsizetype numOfData = 0;
 	in >> numOfData;
 	for (int i = 0; i < numOfData; i++) {
 		std::shared_ptr<DataDesc> data = std::make_shared<DataDesc>();
 		in >> data->name
+			>> data->var
 			>> data->type
 			>> data->offsetInByte
 			>> data->sizeInByte
 			>> data->sizeInByteAligned;
-
-		mDataParamList << data;
-		mParams << data;
+		mDataList << data;
+		mParamNameMap[data->name] = data;
 	}
 
 	qsizetype numOfTexture = 0;
@@ -206,13 +119,11 @@ void QRhiUniform::deserialize(QDataStream& in) {
 			>> texture->type
 			>> texture->image;
 		texture->image = texture->image.convertToFormat(QImage::Format::Format_RGBA8888);
-		mTextureParamList << texture;
-		mParams << texture;
+		mTextureList << texture;
+		mParamNameMap[texture->name] = texture;
 	}
-	in >> mData;
 	bNeedRecreate.active();
 }
-
 
 QString QRhiUniform::ParamDescBase::getTypeName()
 {
@@ -234,4 +145,154 @@ QString QRhiUniform::ParamDescBase::getTypeName()
 		break;
 	}
 	return "";
+}
+
+std::shared_ptr<QRhiUniform::ParamDescBase> QRhiUniform::getOrCreateParam(QString name, ParamDescBase::Type type) {
+	auto Iter = mParamNameMap.find(name);
+	if (Iter != mParamNameMap.end()) {
+		return *Iter;
+	}
+	else {
+		std::shared_ptr<QRhiUniform::ParamDescBase> param;
+		if (type != ParamDescBase::Type::Sampler2D) {
+			mDataList << std::make_shared<QRhiUniform::DataDesc>();
+			param = mDataList.back();
+		}
+		else {
+			mTextureList << std::make_shared<QRhiUniform::TextureDesc>();;
+			param = mTextureList.back();
+		}
+		param->type = type;
+		param->name = getVaildName(name);
+		mParamNameMap[param->name] = param;
+		updateLayout();
+		return param;
+	}
+}
+
+QString QRhiUniform::getVaildName(QString name) {
+	QString newName = name;
+	int index = 0;
+	while (mParamNameMap.contains(newName)) {
+		newName = name + QString::number(index);
+	}
+	return newName;
+}
+
+int getByteSize(QRhiUniform::ParamDescBase::Type type) {
+	switch (type) {
+	case QRhiUniform::ParamDescBase::Float:
+		return sizeof(float);
+	case QRhiUniform::ParamDescBase::Vec2:
+		return sizeof(float) * 2;
+	case QRhiUniform::ParamDescBase::Vec3:
+		return sizeof(float) * 3;
+	case QRhiUniform::ParamDescBase::Vec4:
+		return sizeof(float) * 4;
+	case QRhiUniform::ParamDescBase::Mat4:
+		return sizeof(float) * 16;
+	}
+}
+
+int getAlign(QRhiUniform::ParamDescBase::Type type) {
+	switch (type) {
+	case QRhiUniform::ParamDescBase::Float:
+		return sizeof(float);
+	case QRhiUniform::ParamDescBase::Vec2:
+		return sizeof(float) * 2;
+	case QRhiUniform::ParamDescBase::Vec3:
+		return sizeof(float) * 4;
+	case QRhiUniform::ParamDescBase::Vec4:
+		return sizeof(float) * 4;
+	case QRhiUniform::ParamDescBase::Mat4:
+		return sizeof(float) * 16;
+	}
+}
+
+int align(int size, int alignSize) {
+	if (size == alignSize)
+		return size;
+	return (size + alignSize - 1) & ~(alignSize - 1);
+}
+
+void QRhiUniform::updateLayout() {
+	mDataSize = 0;
+	for (int i = 0; i < mDataList.size(); i++) {
+		auto& data = mDataList[i];
+		data->offsetInByte = align(mDataSize,getAlign(data->type));
+		data->sizeInByte = getByteSize(data->type);
+		data->sizeInByteAligned = data->sizeInByte;	//16字节对齐
+		data->bNeedUpdate.active();
+		mDataSize = data->offsetInByte+data->sizeInByteAligned;
+	}
+	bNeedRecreate.active();
+}
+
+void QRhiUniform::recreateResource() {
+	mUniformBlock.reset(RHI->newBuffer(QRhiBuffer::Type::Dynamic, QRhiBuffer::UniformBuffer,mDataSize));
+	mUniformBlock->create();
+
+	mSampler.reset(RHI->newSampler(QRhiSampler::Linear,
+				   QRhiSampler::Linear,
+				   QRhiSampler::None,
+				   QRhiSampler::ClampToEdge,
+				   QRhiSampler::ClampToEdge));
+	mSampler->create();
+
+	for (auto& textureItem : mTextureList) {
+		textureItem->texture.reset(RHI->newTexture(QRhiTexture::RGBA8, textureItem->image.size(), 1));
+		textureItem->texture->create();
+		textureItem->bNeedUpdate.active();
+	}
+
+	for (auto& dataParam : mDataList) {
+		dataParam->bNeedUpdate.active();
+	}
+}
+
+void QRhiUniform::updateResource(QRhiResourceUpdateBatch* batch) {
+	if (bNeedRecreate.receive()) {
+		recreateResource();
+		for (auto& ref : mRef) {
+			ref->bNeedRecreatePipeline.active();
+		}
+	}
+
+	for (auto& dataParam : mDataList) {
+		if (dataParam->bNeedUpdate.receive()) {
+			batch->updateDynamicBuffer(mUniformBlock.get(), dataParam->offsetInByte, dataParam->sizeInByte, dataParam->var.data());
+		}
+	}
+
+	for (auto& textureParam : mTextureList) {
+		if (textureParam->bNeedUpdate.receive()) {
+			batch->uploadTexture(textureParam->texture.get(), textureParam->image);
+		}
+	}
+}
+
+QList<std::shared_ptr<QRhiUniform::ParamDescBase>> QRhiUniform::getParamList() {
+	return mParamNameMap.values();
+}
+
+QRhiUniform::UniformInfo QRhiUniform::getUniformInfo(uint8_t bindingOffset /*= 0*/, QString blockName /*= "UBO"*/, QRhiShaderResourceBinding::StageFlag stage /*= QRhiShaderResourceBinding::FragmentStage*/) {
+	QRhiUniform::UniformInfo info;
+	QString uniformCode;
+	if (!mDataList.isEmpty()) {
+		info.bindings << QRhiShaderResourceBinding::uniformBuffer(bindingOffset, stage, mUniformBlock.get());
+		uniformCode = "layout(binding = " + QString::number(bindingOffset) + ") uniform " + blockName + "Block { \n";
+		for (auto& param : mDataList) {
+			uniformCode += QString("    %1 %2;\n").arg(param->getTypeName()).arg(param->name);
+		}
+		uniformCode += "}" + blockName + ";\n";
+		bindingOffset++;
+	}
+	for (auto& texture : mTextureList) {
+		info.bindings << QRhiShaderResourceBinding::sampledTexture(bindingOffset, stage, texture->texture.get(), mSampler.get());
+		uniformCode += QString("layout (binding = %1) uniform %2 %3;\n").arg(bindingOffset).arg("sampler2D").arg(texture->name);
+		bindingOffset++;
+	}
+	info.uniformDefineCode = uniformCode.toLocal8Bit();
+	info.bindingOffset = bindingOffset;
+	return info;
 }

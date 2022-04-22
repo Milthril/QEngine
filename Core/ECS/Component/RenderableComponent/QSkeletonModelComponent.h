@@ -56,6 +56,9 @@ public:
 	const QVector<std::shared_ptr<Asset::Material>>& getMaterialList() const;
 	void setMaterialList(QVector<std::shared_ptr<Asset::Material>> val);
 
+
+	virtual bool isDefer() override;
+
 private:
 	std::shared_ptr<Asset::Skeleton> mSkeleton;
 	std::shared_ptr<Asset::SkeletonModel> mSkeletonModel;

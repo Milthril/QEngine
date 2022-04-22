@@ -7,14 +7,15 @@
 namespace Asset {
 
 class Material:public IAsset,public QRhiUniform {
-
 public:
+	Material();
 	virtual IAsset::Type type() override {
 		return IAsset::Material;
 	}
 	QByteArray getShadingCode() const { return mShadingCode; }
 	void setShadingCode(QByteArray val);
 
+	void generateDefualtShadingCode();
 	void serialize(QDataStream& out) override;
 	void deserialize(QDataStream& in) override;
 private:

@@ -126,7 +126,7 @@ void QParticleSystemComponent::recreatePipeline() {
 		mPipeline.reset(nullptr);
 		return;
 	}
-	const QRhiUniformProxy::UniformInfo& materialInfo = mMaterial->getProxy()->getUniformInfo(1);
+	const QRhiUniform::UniformInfo& materialInfo = mMaterial->getUniformInfo(1);
 	QString defineCode = materialInfo.uniformDefineCode;
 
 	QString outputCode = mMaterial->getShadingCode();
@@ -180,7 +180,7 @@ void QParticleSystemComponent::recreatePipeline() {
 
 	mPipeline->create();
 
-	QRhiUniformProxy::UniformInfo uniformInfo = mParticleSystem->getUpdater()->getProxy()->getUniformInfo(3,"UBO", QRhiShaderResourceBinding::ComputeStage);
+	const QRhiUniform::UniformInfo& uniformInfo = mParticleSystem->getUpdater()->getUniformInfo(3,"UBO", QRhiShaderResourceBinding::ComputeStage);
 
 	QString particleRunCode = QString(R"(#version 450
 	%1
@@ -359,10 +359,10 @@ void QParticleSystemComponent::updatePrePass(QRhiCommandBuffer* cmdBuffer) {
 void QParticleSystemComponent::updateResourcePrePass(QRhiResourceUpdateBatch* batch) {
 	if (!mStaticMesh || mStaticMesh->getVertices().isEmpty() || !mMaterial || !mParticleSystem || !mParticleSystem->getUpdater() || !mParticleSystem->getEmitter())
 		return;
-	mMaterial->getProxy()->updateResource(batch);
+	mMaterial->updateResource(batch);
 	QMatrix4x4 MVP = mEntity->calculateMatrixMVP();
 	batch->updateDynamicBuffer(mUniformBuffer.get(), 0, sizeof(QMatrix4x4), MVP.constData());
-	mParticleSystem->getUpdater()->getProxy()->updateResource(batch);
+	mParticleSystem->getUpdater()->updateResource(batch);
 }
 
 void QParticleSystemComponent::renderInPass(QRhiCommandBuffer* cmdBuffer, const QRhiViewport& viewport) {

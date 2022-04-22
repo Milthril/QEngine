@@ -1,14 +1,13 @@
 #ifndef QRhiUniform_h__
 #define QRhiUniform_h__
 
-#include "private\qrhi_p.h"
+#include "QRhiDefine.h"
 #include "Script\QLuaScript.h"
-#include "QRhiUniformProxy.h"
+#include <QVariant>
 
 class IRenderable;
 
 class QRhiUniform {
-	friend class QRhiUniformProxy;
 	friend class IRenderer;
 public:
 	struct ParamDescBase {
@@ -27,77 +26,86 @@ public:
 		virtual ~ParamDescBase() {}
 	};
 
-	struct DataDesc : public ParamDescBase {
+	struct DataDesc: public ParamDescBase {
+		QVariant var;
 		uint32_t offsetInByte;
 		uint32_t sizeInByte;
 		uint32_t sizeInByteAligned;
 	};
+
 	struct TextureDesc :public ParamDescBase {
 		QImage image;
+		QRhiSPtr<QRhiTexture> texture;
 	};
 
 	QRhiUniform();
-	virtual ~QRhiUniform();
-	template<typename _Ty>
-	void setData(const QString& name, const _Ty& data) {
-		auto paramDescIter = getParamDesc(name);
-		std::shared_ptr<QRhiUniform::DataDesc> ptr = std::dynamic_pointer_cast<QRhiUniform::DataDesc>(paramDescIter);
-		if (ptr) {
-			Q_ASSERT(sizeof(data) == ptr->sizeInByte);
-			memcpy(mData.data() + ptr->offsetInByte, &data, sizeof(data));
-			ptr->bNeedUpdate.active();
+
+	void setDataFloat(QString name, float var);
+	void setDataVec2(QString name, QVector2D var);
+	void setDataVec3(QString name, QVector3D var);
+	void setDataVec4(QString name, QVector4D var);
+
+	template <typename _Ty>
+	void setData(QString name,_Ty var) {
+		for (auto& dataDesc : mDataList) {
+			if (dataDesc->name == name) {
+				dataDesc->var = var;
+				dataDesc->bNeedUpdate.active();
+				return;
+			}
 		}
 	}
 
-	template<typename _Ty>
-	_Ty getData(const QString& name) {
-		auto paramDescIter = getParamDesc(name);
-		_Ty param = {};
-		std::shared_ptr<QRhiUniform::DataDesc> ptr = std::dynamic_pointer_cast<QRhiUniform::DataDesc>(paramDescIter);
-		if (ptr) {
-			memcpy(&param, mData.data() + ptr->offsetInByte, sizeof(_Ty));
+	template <typename _Ty>
+	_Ty getData(QString name) {
+		for (auto& dataDesc : mDataList) {
+			if (dataDesc->name == name)
+				return dataDesc->var.value<_Ty>();
 		}
-		return param;
+		return _Ty();
 	}
-	void addDataFloat(const QString& name, float var);
-	void addDataVec2(const QString& name, QVector2D vec2);
-	void addDataVec3(const QString& name, QVector3D vec3);
-	void addDataVec4(const QString& name, QVector4D vec4);
-	void addDataMat4(const QString& name, QMatrix4x4 mat4);
 
-	void removeParam(const QString& name);
-	bool renameParma(const QString& src, const QString& dst);
-
-	QString getVaildName(QString name);
-
-	void setTextureSampler(const QString& name, const QImage& image);
-	void addTextureSampler(const QString& name, const QImage& image);
-
-	std::shared_ptr<QRhiUniformProxy> getProxy() const { return mProxy; }
-	const QVector<std::shared_ptr<QRhiUniform::ParamDescBase>>& getParamsDesc() const { return mParams; }
-	std::shared_ptr<ParamDescBase> getParamDesc(const QString& name);
-
-	const QVector<std::shared_ptr<DataDesc>>& getAllDataDesc();
-	const QVector<std::shared_ptr<TextureDesc>>& getAllTextureDesc();
+	void setTexture2D(const QString& name, const QImage& image);
 
 	std::shared_ptr<QLuaScript> getScript() const { return mScript; }
 
+	bool renameParma(const QString& src, const QString& dst);
+	void removeParam(const QString& name);
+
 	void addRef(IRenderable* comp);
 	void removeRef(IRenderable* comp);
-	QRhiSignal bNeedRecreate;
 
 	void serialize(QDataStream& out);
 	void deserialize(QDataStream& in);
 
+	struct UniformInfo {
+		QVector<QRhiShaderResourceBinding> bindings;
+		QByteArray uniformDefineCode;
+		uint8_t bindingOffset;
+	};
+
+	UniformInfo getUniformInfo(uint8_t bindingOffset = 0, QString blockName = "UBO", QRhiShaderResourceBinding::StageFlag stage = QRhiShaderResourceBinding::FragmentStage);
+	void recreateResource();
+	virtual void updateResource(QRhiResourceUpdateBatch* batch);
+
+	QList<std::shared_ptr<ParamDescBase>> getParamList();
+
 protected:
-	void addDataParam(const QString& name, void* data, uint16_t size, ParamDescBase::Type type);
+	Q_DISABLE_COPY(QRhiUniform)
+	std::shared_ptr<ParamDescBase> getOrCreateParam(QString name, ParamDescBase::Type type);
+	QString getVaildName(QString name);
+	void updateLayout();
 protected:
-	QVector<std::shared_ptr<ParamDescBase>> mParams;
-	QVector<std::shared_ptr<DataDesc>> mDataParamList;
-	QVector<std::shared_ptr<TextureDesc>> mTextureParamList;
-	QVector<int8_t> mData;
-	std::shared_ptr<QRhiUniformProxy> mProxy;
+	QList<std::shared_ptr<DataDesc>> mDataList;
+	QList<std::shared_ptr<TextureDesc>> mTextureList;
+	QHash<QString, std::shared_ptr<ParamDescBase>> mParamNameMap;
+	uint32_t mDataSize;
 	QVector<IRenderable*> mRef;
+
 	std::shared_ptr<QLuaScript> mScript;
+
+	QRhiSignal bNeedRecreate;
+	QRhiSPtr<QRhiBuffer> mUniformBlock;
+	QRhiSPtr<QRhiSampler> mSampler;
 };
 #endif // QRhiUniform_h_

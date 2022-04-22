@@ -24,7 +24,9 @@ public:
 	void removeLightItem(ILightComponent* item);
 
 	QSize getFrameSize() const { return mFrameSize; }
-	const QList<IRenderable*>& getRenderableItemList() const { return mRenderableItemList; }
+
+	QList<IRenderable*> getDeferItemList();
+	QList<IRenderable*> getForwardItemList();
 
 	int getDeferPassSampleCount();
 	QVector<QRhiGraphicsPipeline::TargetBlend> getDeferPassBlendStates();

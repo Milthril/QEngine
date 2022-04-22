@@ -87,7 +87,7 @@ void QStaticMeshComponent::recreatePipeline() {
 		mPipeline.reset(nullptr);
 		return;
 	}
-	const QRhiUniformProxy::UniformInfo& materialInfo = mMaterial->getProxy()->getUniformInfo(1);
+	const QRhiUniform::UniformInfo& materialInfo = mMaterial->getUniformInfo(1);
 	QString defineCode = materialInfo.uniformDefineCode;
 
 	QString outputCode = mMaterial->getShadingCode();
@@ -96,6 +96,8 @@ void QStaticMeshComponent::recreatePipeline() {
 		defineCode.prepend("layout (location = 4) out vec4 CompId;\n");
 		outputCode.append(QString("\nCompId = %1;\n").arg(getEntityIdVec4String()));
 	}
+
+
 
 	QString fragShaderCode = QString(R"(#version 440
 	layout(location = 0) in vec2 vUV;
@@ -116,8 +118,6 @@ void QStaticMeshComponent::recreatePipeline() {
 		outPosition = vec4(vWorldPosition,1.0);
 		outTangent = vTangentBasis[0];
 		outNormal = vTangentBasis[2];
-		outMetalness = 1.0f;
-		outRoughness = 1.0f;
 		%2
 	}
 	)").arg(defineCode).arg(outputCode);
@@ -171,10 +171,9 @@ void QStaticMeshComponent::updatePrePass(QRhiCommandBuffer* cmdBuffer) {
 void QStaticMeshComponent::updateResourcePrePass(QRhiResourceUpdateBatch* batch) {
 	if (!mStaticMesh || !mMaterial)
 		return;
-	mMaterial->getProxy()->updateResource(batch);
+	mMaterial->updateResource(batch);
 
 	UniformMatrix Matrix;
-
 	Matrix.MVP = mEntity->calculateMatrixMVP().toGenericMatrix<4, 4>();
 	Matrix.M = mEntity->calculateMatrixModel().toGenericMatrix<4,4>();
 
@@ -190,4 +189,8 @@ void QStaticMeshComponent::renderInPass(QRhiCommandBuffer* cmdBuffer, const QRhi
 	const QRhiCommandBuffer::VertexInput VertexInput(mVertexBuffer.get(), 0);
 	cmdBuffer->setVertexInput(0, 1, &VertexInput, mIndexBuffer.get(), 0, QRhiCommandBuffer::IndexUInt32);
 	cmdBuffer->drawIndexed(mStaticMesh->getIndices().size());
+}
+
+bool QStaticMeshComponent::isDefer() {
+	return true;
 }

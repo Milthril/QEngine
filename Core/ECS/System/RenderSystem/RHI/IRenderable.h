@@ -11,7 +11,7 @@ public:
 	virtual void updatePrePass(QRhiCommandBuffer* cmdBuffer) {}
 	virtual void updateResourcePrePass(QRhiResourceUpdateBatch* batch) {}
 	virtual void renderInPass(QRhiCommandBuffer* cmdBuffer, const QRhiViewport& viewport) = 0;
-
+	virtual bool isDefer() { return false; }
 	QRhiSignal bNeedRecreateResource;
 	QRhiSignal bNeedRecreatePipeline;
 

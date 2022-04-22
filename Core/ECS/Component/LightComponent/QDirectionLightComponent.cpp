@@ -1,10 +1,10 @@
 #include "QDirectionLightComponent.h"
 
 QDirectionLightComponent::QDirectionLightComponent() {
-	addDataVec3("Direction", QVector3D(1, 0, 1));
-	addDataVec3("Radiance", QVector3D(1, 1, 1));
+	setDataVec3("Direction", QVector3D(1, 0, 1));
+	setDataVec3("Radiance", QVector3D(1, 1, 1));
 	if (bNeedRecreate.receive()) {
-		getProxy()->recreateResource();
+		recreateResource();
 	}
 }
 

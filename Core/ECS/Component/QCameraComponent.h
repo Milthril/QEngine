@@ -42,16 +42,16 @@ private:
 
 	float mFov = 45.0f;
 	float mAspectRatio = 1.0;
-	float mNearPlane = 0.1f;
-	float mFarPlane = 2000.0f;
+	float mNearPlane = 1.0f;
+	float mFarPlane = 10000.0f;
 
 	QVector3D mCameraDirection;
 	QVector3D mCameraUp;
 	QVector3D mCameraRight;
 
 	QSet<int> mKeySet;					     //记录当前被按下按键的集合
-	int64_t mDeltaTimeMs = 0;						 //当前帧与上一帧的时间差
-	int64_t mLastFrameTimeMs = 0;					 //上一帧的时间
+	int64_t mDeltaTimeMs = 0;				 //当前帧与上一帧的时间差
+	int64_t mLastFrameTimeMs = 0;			 //上一帧的时间
 	float mRotationSpeed = 0.003f;			 //鼠标灵敏度
 	float mMoveSpeed = 0.1f;				 //控制移动速度
 };

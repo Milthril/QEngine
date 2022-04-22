@@ -8,7 +8,6 @@ class ILightComponent :public IComponent, public QRhiUniform{
 public:
 	virtual void setupEntity(QEntity* entity) override;
 	virtual ~ILightComponent();
-
 	virtual QByteArray getLightingCode(QString lightBlockName) = 0;
 };
 
