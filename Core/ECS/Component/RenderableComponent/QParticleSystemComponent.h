@@ -30,7 +30,7 @@ public:
 	virtual void updatePrePass(QRhiCommandBuffer* cmdBuffer) override;
 	virtual void updateResourcePrePass(QRhiResourceUpdateBatch* batch) override;
 	virtual void renderInPass(QRhiCommandBuffer* cmdBuffer, const QRhiViewport& viewport) override;
-
+	virtual bool isDefer() override;
 private:
 	std::shared_ptr<Asset::StaticMesh> mStaticMesh;
 	std::shared_ptr<Asset::Material> mMaterial;
@@ -48,6 +48,7 @@ private:
 		float duration = 0;
 		float lifetime = 0;
 	};
+
 	QRhiSPtr<QRhiBuffer> mParticlesBuffer[2];
 	QRhiSPtr<QRhiBuffer> mParticleCounterBuffer;
 	QRhiSPtr<QRhiComputePipeline> mComputePipeline;
@@ -63,6 +64,7 @@ private:
 	int mOutputIndex = 1;
 	float mDuration;
 	float mLastSecond;
+
 };
 
 #endif // QParticleSystemComponent_h__

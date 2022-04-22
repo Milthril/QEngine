@@ -44,5 +44,6 @@ QByteArray QDirectionLightComponent::getLightingCode(QString lightBlockName) {
 		vec3 specularBRDF = (F * D * G) / max(Epsilon, 4.0 * cosLi * cosLo);
 
 		directLighting += (diffuseBRDF + specularBRDF) * Lradiance * cosLi;
+
 	})").arg(lightBlockName).toLocal8Bit();
 }
