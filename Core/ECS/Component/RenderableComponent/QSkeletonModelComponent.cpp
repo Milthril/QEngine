@@ -83,7 +83,7 @@ void SkeletonModelComponentSubMesh::recreatePipeline() {
 
 	QString fragShaderCode = QString(R"(#version 440
 		layout(location = 0) in vec2 vUV;
-		layout(location = 0) out vec4 FragColor;
+		layout(location = 0) out vec4 outBaseColor;
 		%1
 		void main(){
 			%2

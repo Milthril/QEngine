@@ -12,12 +12,14 @@ class QCameraComponent :public IComponent {
 public:
 	QCameraComponent();
 	virtual QMatrix4x4 getViewMatrix();
+
 	float getYaw();
 	float getPitch();
 	float getRoll();
 
 	void setPosition(const QVector3D& newPosition);
 	void setRotation(const QVector3D& newRotation);
+	QVector3D getPosition();
 
 	void setAspectRatio(float val);
 

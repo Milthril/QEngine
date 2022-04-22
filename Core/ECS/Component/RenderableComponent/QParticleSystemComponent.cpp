@@ -138,7 +138,7 @@ void QParticleSystemComponent::recreatePipeline() {
 
 	QString fragShaderCode = QString(R"(#version 440
 	layout(location = 0) in vec2 vUV;
-	layout(location = 0) out vec4 FragColor;
+	layout(location = 0) out vec4 outBaseColor;
 	%1
 	void main(){
 	    %2
@@ -180,7 +180,7 @@ void QParticleSystemComponent::recreatePipeline() {
 
 	mPipeline->create();
 
-	QRhiUniformProxy::UniformInfo uniformInfo = mParticleSystem->getUpdater()->getProxy()->getUniformInfo(3, QRhiShaderResourceBinding::ComputeStage);
+	QRhiUniformProxy::UniformInfo uniformInfo = mParticleSystem->getUpdater()->getProxy()->getUniformInfo(3,"UBO", QRhiShaderResourceBinding::ComputeStage);
 
 	QString particleRunCode = QString(R"(#version 450
 	%1

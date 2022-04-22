@@ -14,8 +14,8 @@ void QRenderer::buildFrameGraph() {
 	QFrameGraphBuilder builder;
 
 	mDeferRenderPass = std::make_shared<DeferRenderPass>();
+	mLightingRenderPass = std::make_shared<LightingRenderPass>();
 
-	std::shared_ptr<LightingRenderPass> lightingPass = std::make_shared<LightingRenderPass>();
 	std::shared_ptr<PixelSelectRenderPass> bloomPixelSelectPass = std::make_shared<PixelSelectRenderPass>();
 	std::shared_ptr<BlurRenderPass> bloomBlurPass = std::make_shared<BlurRenderPass>();
 	std::shared_ptr<BloomMerageRenderPass> bloomMeragePass = std::make_shared<BloomMerageRenderPass>();
@@ -26,13 +26,10 @@ void QRenderer::buildFrameGraph() {
 	//	                 |									        V
 	//					 ---------------------------------> BloomMeragePass ----> Swapchain( Scene + ImguiDebugDraw )
 
-	mFrameGraph = builder.begin()			
-		->node("Defer", mDeferRenderPass,
-			   [self = mDeferRenderPass.get(),this]() {
-					self->setupRenderer(this);
-			   })
-		->node("Lighting", lightingPass,
-			   [self = lightingPass.get(), scene = mDeferRenderPass.get()]() {
+	mFrameGraph = builder.begin(this)			
+		->node("Defer", mDeferRenderPass,[]() {})
+		->node("Lighting", mLightingRenderPass,
+			   [self = mLightingRenderPass.get(), scene = mDeferRenderPass.get()]() {
 					self->setupBaseColorTexutre(scene->getOutputTexture(DeferRenderPass::OutputTextureSlot::BaseColor));
 					self->setupPositionTexutre(scene->getOutputTexture(DeferRenderPass::OutputTextureSlot::Position));
 					self->setupNormalMetalnessTexutre(scene->getOutputTexture(DeferRenderPass::OutputTextureSlot::NormalMetalness));
@@ -40,7 +37,7 @@ void QRenderer::buildFrameGraph() {
 				})
 		->dependency({ "Defer" })
 		->node("BloomPixelSelector", bloomPixelSelectPass,
-			   [self = bloomPixelSelectPass.get(), lighting = lightingPass.get()]() {
+			   [self = bloomPixelSelectPass.get(), lighting = mLightingRenderPass.get()]() {
 					self->setDownSamplerCount(4);
 					self->setupSelectCode(R"(
 						void main() {
@@ -61,7 +58,7 @@ void QRenderer::buildFrameGraph() {
 			->dependency({ "BloomPixelSelector" })
 
 		->node("BloomMeragePass", bloomMeragePass,
-				[self = bloomMeragePass.get(), lighting = lightingPass.get(),blur = bloomBlurPass]() {
+				[self = bloomMeragePass.get(), lighting = mLightingRenderPass.get(),blur = bloomBlurPass]() {
 					self->setupBloomTexutre(blur->getOutputTexture(BlurRenderPass::OutputTextureSlot::BlurResult));
 					self->setupSrcTexutre(lighting->getOutputTexture(LightingRenderPass::OutputTextureSlot::LightingResult));
 				})
@@ -93,6 +90,14 @@ void QRenderer::addRenderItem(IRenderable* comp) {
 
 void QRenderer::removeRenderItem(IRenderable* comp) {
 	mRenderableItemList.removeOne(comp);
+}
+
+void QRenderer::addLightItem(ILightComponent* item) {
+	mLightingRenderPass->addLightItem(item);
+}
+
+void QRenderer::removeLightItem(ILightComponent* item) {
+	mLightingRenderPass->removeLightItem(item);
 }
 
 int QRenderer::getDeferPassSampleCount() {

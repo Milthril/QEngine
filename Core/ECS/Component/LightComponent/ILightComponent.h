@@ -9,7 +9,7 @@ public:
 	virtual void setupEntity(QEntity* entity) override;
 	virtual ~ILightComponent();
 
-	virtual QByteArray getLightingCode() = 0;
+	virtual QByteArray getLightingCode(QString lightBlockName) = 0;
 };
 
 

@@ -42,6 +42,10 @@ void QCameraComponent::setRotation(const QVector3D& newRotation)
 	calculateViewMatrix();
 }
 
+QVector3D QCameraComponent::getPosition() {
+	return mEntity->getTransformComponent()->getPosition();
+}
+
 void QCameraComponent::setAspectRatio(float val)
 {
 	mAspectRatio = val;

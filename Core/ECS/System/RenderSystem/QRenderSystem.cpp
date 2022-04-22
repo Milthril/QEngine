@@ -1,6 +1,5 @@
 #include "QRenderSystem.h"
 #include "private\qshaderbaker_p.h"
-#include "Renderer\RenderPass\ISceneRenderPass.h"
 
 QRenderSystem::QRenderSystem()
 	: mWindow(new QRenderWindow(QRhi::Implementation::Vulkan))

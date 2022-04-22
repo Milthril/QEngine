@@ -3,7 +3,10 @@
 
 #include "ECS/System/RenderSystem/RHI/QRhiDefine.h"
 
+class QRenderer;
+
 class IRenderPassBase {
+	friend class QFrameGraphBuilder;
 public:
 	void setup() {
 		if(mFuncSetup)
@@ -17,6 +20,8 @@ public:
 	void setFuncSetup(std::function<void()> val) { mFuncSetup = val; }
 private:
 	std::function<void()> mFuncSetup;
+protected:
+	QRenderer* mRenderer = nullptr;
 };
 
 #endif // IRenderPassBase_h__

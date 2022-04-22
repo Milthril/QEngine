@@ -7,6 +7,7 @@
 class DeferRenderPass;
 class ILightComponent;
 class IRenderable;
+class LightingRenderPass;
 
 class QRenderer {
 	friend class QRenderSystem;
@@ -19,6 +20,9 @@ public:
 	void addRenderItem(IRenderable* comp);
 	void removeRenderItem(IRenderable* comp);
 
+	void addLightItem(ILightComponent* item);
+	void removeLightItem(ILightComponent* item);
+
 	QSize getFrameSize() const { return mFrameSize; }
 	const QList<IRenderable*>& getRenderableItemList() const { return mRenderableItemList; }
 
@@ -27,10 +31,10 @@ public:
 	QRhiRenderPassDescriptor* getDeferPassDescriptor();
 
 protected:
+	QList<IRenderable*> mRenderableItemList;
 	std::shared_ptr<QFrameGraph> mFrameGraph;
 	std::shared_ptr<DeferRenderPass> mDeferRenderPass;
-	QList<IRenderable*> mRenderableItemList;
-	QList<ILightComponent*> mLightItemList;
+	std::shared_ptr<LightingRenderPass> mLightingRenderPass;
 	QSize mFrameSize;
 };
 

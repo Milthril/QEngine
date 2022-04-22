@@ -3,6 +3,8 @@
 
 #include "RenderPass\IRenderPassBase.h"
 
+class QRenderer;
+
 class QFrameGraphNode {
 	friend class QFrameGraph;
 private:
@@ -27,7 +29,7 @@ private:
 
 class QFrameGraphBuilder {
 public:
-	QFrameGraphBuilder* begin();
+	QFrameGraphBuilder* begin(QRenderer* renderer);
 	QFrameGraphBuilder* node(QString name, std::shared_ptr<IRenderPassBase> renderPass, std::function<void()> funcSetup);
 	QFrameGraphBuilder* dependency(QStringList dependencyList);
 	std::shared_ptr<QFrameGraph> end();
@@ -35,6 +37,7 @@ private:
 	std::shared_ptr<QFrameGraph> mFrameGraph;
 	QString mCurrentNodeName;
 	QList<std::shared_ptr<IRenderPassBase>> mRenderPassNodeList;
+	QRenderer* mRenderer = nullptr;
 };
 
 #endif // QFrameGraphBuilder_h__

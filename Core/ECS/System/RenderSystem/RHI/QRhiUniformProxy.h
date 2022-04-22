@@ -11,11 +11,12 @@ public:
 	struct UniformInfo {
 		QVector<QRhiShaderResourceBinding> bindings;
 		QByteArray uniformDefineCode;
+		uint8_t bindingOffset;
 	};
 	QRhiUniformProxy(QRhiUniform* material);
 	void recreateResource();
 	void updateResource(QRhiResourceUpdateBatch* batch);
-	UniformInfo getUniformInfo(uint8_t bindingOffset = 0, QRhiShaderResourceBinding::StageFlag stage = QRhiShaderResourceBinding::FragmentStage);
+	UniformInfo getUniformInfo(uint8_t bindingOffset = 0, QString blockName = "UBO", QRhiShaderResourceBinding::StageFlag stage = QRhiShaderResourceBinding::FragmentStage);
 protected:
 	QRhiUniform* mMaterial;
 	QRhiSPtr<QRhiBuffer> mUniformBlock;

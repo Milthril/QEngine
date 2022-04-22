@@ -51,18 +51,17 @@ void QRhiUniformProxy::updateResource(QRhiResourceUpdateBatch* batch)
 	}
 }
 
-QRhiUniformProxy::UniformInfo QRhiUniformProxy::getUniformInfo(uint8_t bindingOffset /*= 0*/, QRhiShaderResourceBinding::StageFlag stage /*= QRhiShaderResourceBinding::FragmentStage*/)
-{
+QRhiUniformProxy::UniformInfo QRhiUniformProxy::getUniformInfo(uint8_t bindingOffset /*= 0*/, QString blockName /*= "UBO"*/, QRhiShaderResourceBinding::StageFlag stage /*= QRhiShaderResourceBinding::FragmentStage*/) {
 	QRhiUniformProxy::UniformInfo info;
 	QString uniformCode;
 	auto dataDesc = mMaterial->getAllDataDesc();
 	if (!dataDesc.isEmpty()) {
 		info.bindings << QRhiShaderResourceBinding::uniformBuffer(bindingOffset, stage, mUniformBlock.get());
-		uniformCode = "layout(binding = " + QString::number(bindingOffset) + ") uniform UniformBlock{ \n";
+		uniformCode = "layout(binding = " + QString::number(bindingOffset) + ") uniform "+ blockName +"Block { \n";
 		for (auto& param : dataDesc) {
 			uniformCode += QString("    %1 %2;\n").arg(param->getTypeName()).arg(param->name);
 		}
-		uniformCode += "}UBO;\n";
+		uniformCode += "}"+ blockName +";\n";
 		bindingOffset++;
 	}
 	for (auto& key : mTextureMap.keys()) {
@@ -71,5 +70,6 @@ QRhiUniformProxy::UniformInfo QRhiUniformProxy::getUniformInfo(uint8_t bindingOf
 		bindingOffset++;
 	}
 	info.uniformDefineCode = uniformCode.toLocal8Bit();
+	info.bindingOffset = bindingOffset;
 	return info;
 }

@@ -10,8 +10,6 @@ class DeferRenderPass :public IRenderPassBase {
 public:
 	DeferRenderPass();
 
-	void setupRenderer(QRenderer* renderer);
-
 	virtual void compile() override;
 
 	enum OutputTextureSlot {
@@ -41,8 +39,6 @@ private:
 	};
 	RTResource mRT;
 	QVector<QRhiGraphicsPipeline::TargetBlend> mBlendStates;
-
-	QRenderer* mRenderer = nullptr;
 };
 
 #endif // DeferRenderPass_h__

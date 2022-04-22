@@ -25,12 +25,12 @@ void DeferRenderPass::compile() {		//创建默认的RT
 	mBlendStates << blendState;
 	mColorAttachmentList << QRhiColorAttachment(mRT.atPosition.get());
 
-	mRT.atNormal_Metalness.reset(RHI->newTexture(QRhiTexture::RGBA8, frameSize, 1, QRhiTexture::RenderTarget | QRhiTexture::UsedAsTransferSource));
+	mRT.atNormal_Metalness.reset(RHI->newTexture(QRhiTexture::RGBA32F, frameSize, 1, QRhiTexture::RenderTarget | QRhiTexture::UsedAsTransferSource));
 	mRT.atNormal_Metalness->create();
 	mBlendStates << blendState;
 	mColorAttachmentList << QRhiColorAttachment(mRT.atNormal_Metalness.get());
 
-	mRT.atTangent_Roughness.reset(RHI->newTexture(QRhiTexture::RGBA8, frameSize, 1, QRhiTexture::RenderTarget | QRhiTexture::UsedAsTransferSource));
+	mRT.atTangent_Roughness.reset(RHI->newTexture(QRhiTexture::RGBA32F, frameSize, 1, QRhiTexture::RenderTarget | QRhiTexture::UsedAsTransferSource));
 	mRT.atTangent_Roughness->create();
 	mBlendStates << blendState;
 	mColorAttachmentList << QRhiColorAttachment(mRT.atTangent_Roughness.get());
@@ -56,10 +56,6 @@ void DeferRenderPass::compile() {		//创建默认的RT
 }
 
 DeferRenderPass::DeferRenderPass() {
-}
-
-void DeferRenderPass::setupRenderer(QRenderer* renderer) {
-	mRenderer = renderer;
 }
 
 QRhiTexture* DeferRenderPass::getOutputTexture(int slot /*= 0*/) {
@@ -98,7 +94,7 @@ void DeferRenderPass::execute(QRhiCommandBuffer* cmdBuffer) {
 			item->recreatePipeline();
 		}
 	}
-	cmdBuffer->beginPass(getRenderTarget(), QColor::fromRgbF(0.0f, 0.0f, 0.0f, 1.0f), { 1.0f, 0 }, resUpdateBatch);
+	cmdBuffer->beginPass(getRenderTarget(), QColor::fromRgbF(0.0f, 0.0f, 0.0f, 0.0f), { 1.0f, 0 }, resUpdateBatch);
 	QRhiViewport viewport(0, 0, getRenderTarget()->pixelSize().width(), getRenderTarget()->pixelSize().height());
 	for (auto& item : mRenderer->getRenderableItemList()) {
 		if (item->bNeedRecreatePipeline.receive()) {

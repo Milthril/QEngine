@@ -1,5 +1,6 @@
 ﻿#include "QFrameGraph.h"
 #include "QQueue"
+#include "QRenderer.h"
 
 void QFrameGraphNode::tryCompile() {
 	bool canSetup = true;
@@ -30,8 +31,9 @@ void QFrameGraph::executable(QRhiCommandBuffer* cmdBuffer) {
 	}
 }
 
-QFrameGraphBuilder* QFrameGraphBuilder::begin() {
+QFrameGraphBuilder* QFrameGraphBuilder::begin(QRenderer* renderer) {
 	mFrameGraph = std::make_shared<QFrameGraph>();
+	mRenderer = renderer;
 	return this;
 }
 
@@ -40,6 +42,7 @@ QFrameGraphBuilder* QFrameGraphBuilder::node(QString name, std::shared_ptr<IRend
 	node.reset(new QFrameGraphNode);
 	node->mName = name;
 	node->mRenderPass = renderPass;
+	node->mRenderPass->mRenderer = mRenderer;
 	node->mRenderPass->setFuncSetup(funcSetup);
 	mCurrentNodeName = name;
 	mFrameGraph->mRenderQueue << node;
