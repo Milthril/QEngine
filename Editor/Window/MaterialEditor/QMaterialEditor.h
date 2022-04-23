@@ -3,7 +3,9 @@
 
 #include "KDDockWidgets\DockWidget.h"
 
-class QMaterial;
+namespace Asset{
+class Material;
+}
 class GLSLEditor;
 class UniformPanel;
 class QPushButton;
@@ -13,12 +15,13 @@ class QMaterialEditor :public KDDockWidgets::DockWidget {
 	Q_OBJECT
 public:
 	static QMaterialEditor* instance();
-	void edit(std::shared_ptr<QMaterial> material);
+	void edit(std::shared_ptr<Asset::Material> material);
 private:
 	QMaterialEditor();
+	void closeEvent(QCloseEvent*) override;
 private:
-	std::shared_ptr<QMaterial> mMaterial;
-private:
+	std::shared_ptr<Asset::Material> mMaterial;
+
 	UniformPanel* mUniformPanel;
 	LuaEditor* luaEditor;
 	GLSLEditor* glslEditor;

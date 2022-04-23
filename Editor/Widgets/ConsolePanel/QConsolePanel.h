@@ -4,6 +4,9 @@
 #include <QTextBrowser>
 
 class QConsolePanel :public QTextBrowser {
+public:
+	QConsolePanel();
+	void addMessage(QtMsgType, const QMessageLogContext&, const QString&);
 };
 
 #endif // QConsolePanel_h__

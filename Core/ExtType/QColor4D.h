@@ -8,6 +8,7 @@
 class QColor4D :public QVector4D {
 public:
 	QColor4D(QColor color = Qt::black);
+	QColor4D(QVector4D vec4);
 	QColor4D(QRgb rgb);
 	QColor4D(Qt::GlobalColor color);
 	QColor4D(float r, float g, float b, float a = 1.0);

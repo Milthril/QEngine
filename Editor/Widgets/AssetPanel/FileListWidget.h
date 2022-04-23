@@ -4,44 +4,20 @@
 #include "QListWidget"
 #include "QDir"
 #include "QFuture"
+#include "QFileSystemWatcher"
 
 class FileListWidget;
 
-class FileListWidegtThreadTask :public QObject {
-	Q_OBJECT
-public:
-	FileListWidegtThreadTask(FileListWidget* widget);
-	~FileListWidegtThreadTask();
-	void search(const QString& keyword);
-	void updateFileItems();
-	void clearIconCache();
-	QIcon getIcon(const QString& filePath);
-private:
-	Q_INVOKABLE void searchInternal(const QString& keyword);
-	Q_INVOKABLE void updateFileItemInternal();
-	Q_INVOKABLE void cacheIcon(const QString filePath);
-	void addCacheFile(const QFileInfo& info);
-	void submitCache();
-Q_SIGNALS:
-	void fileSearched(QFileInfo fileInfo);
-private:
-	QMutex mutex;
-	QThread* thread_;
-	FileListWidget* widget_;
-	QList<QFileInfo> cacheList_;
-	QHash<QString, QIcon> iconCacheMap_;
-	const int cacheSize = 10;
-	const int searchLimited = 5000000;
-};
 
 class FileListWidget :public QListWidget {
 	Q_OBJECT
 public:
-	friend class FileListWidegtThreadTask;
+	friend class FileTaskThread;
 	FileListWidget();
 	~FileListWidget();
 	void setCurrentDir(QString dir);
 	void setCurrentDirAndSearch(QString dir, QString keyword);
+	void updateCurrentItem();
 	void addElideItem();
 	void searchFile(const QString& keyword);
 	void submitItemCount();
@@ -49,7 +25,12 @@ Q_SIGNALS:
 	void newMessage(QString);
 private:
 	QDir currentDir_;
-	FileListWidegtThreadTask threadTask_;
+	QFileSystemWatcher fileWatcher_;
+protected:
+	virtual void dragEnterEvent(QDragEnterEvent* event) override;
+	virtual void dragMoveEvent(QDragMoveEvent* e) override;
+	virtual void dropEvent(QDropEvent* event) override;
+	virtual void startDrag(Qt::DropActions supportedActions) override;
 };
 
 #endif // FileListWidget_h__

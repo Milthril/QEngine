@@ -3,23 +3,29 @@
 #include <kddockwidgets/Config.h>
 #include <kddockwidgets/private/TitleBar_p.h>
 #include <QMenuBar>
-#include "QApplication"
-#include "QStyleFactory"
-#include "QEngine.h"
+#include <QApplication>
+#include <QScreen>
+#include <QStyleFactory>
 #include "Toolkit/QAeroWindowMaker.h"
-
+#include "ECS/System/RenderSystem/QRenderSystem.h"
+#include "QEngineCoreApplication.h"
+#include "Asset/GAssetMgr.h"
 
 EditorWindow::EditorWindow()
 	: KDDockWidgets::FloatingWindowWidget({})
 	, mMainWindow(KDDockWidgets::MainWindow("QEngine Editor"))
-	, mAssetPanel(Engine->assetDir().path())
+	, mAssetPanel(TheAssetMgr->assetDir().path())
 	, mFile("File")
 	, mEdit("Edit")
 	, mWindow("Window")
-	, mQScenePanel(Engine->scene())
+	, mScenePanel(TheEngine->world().get())
 {
 	createUI();
 	connectUI();
+}
+
+
+EditorWindow::~EditorWindow() {
 }
 
 void EditorWindow::preInitConfig()
@@ -40,6 +46,7 @@ void EditorWindow::preInitConfig()
 
 	KDDockWidgets::Config::self().setFlags(flags);
 	KDDockWidgets::Config::self().setFrameworkWidgetFactory(new WindowStyleFactory);
+	
 }
 
 void EditorWindow::createUI()
@@ -77,31 +84,36 @@ void EditorWindow::createUI()
 	dockAssetPanel->setWidget(&mAssetPanel);
 	mMainWindow.addDockWidget(dockAssetPanel, KDDockWidgets::Location::Location_OnBottom);
 
-	auto dockScene = new KDDockWidgets::DockWidget("Scene", KDDockWidgets::DockWidget::Option_None, layoutSaverOptions);
-	dockScene->setAffinities(mMainWindow.affinities());
-	dockScene->setWidget(&mQScenePanel);
-	mMainWindow.addDockWidget(dockScene, KDDockWidgets::Location::Location_OnTop);
+	auto dockConsolePanel = new KDDockWidgets::DockWidget("Console", KDDockWidgets::DockWidget::Option_None, layoutSaverOptions);
+	dockConsolePanel->setAffinities(mMainWindow.affinities());
+	dockConsolePanel->setWidget(&mConsolePanel);
+	mMainWindow.addDockWidget(dockConsolePanel, KDDockWidgets::Location::Location_OnRight, nullptr,KDDockWidgets::InitialOption(QSize(180, 180)));
 
-	auto dockProperty = new KDDockWidgets::DockWidget("Property", KDDockWidgets::DockWidget::Option_None, layoutSaverOptions);
-	dockProperty->setAffinities(mMainWindow.affinities());
-	dockProperty->setWidget(&mPropertyPanel);
-	mMainWindow.addDockWidget(dockProperty, KDDockWidgets::Location::Location_OnRight);
+	auto dockScene = new KDDockWidgets::DockWidget("World", KDDockWidgets::DockWidget::Option_None, layoutSaverOptions);
+	dockScene->setAffinities(mMainWindow.affinities());
+	dockScene->setWidget(&mScenePanel);
+	mMainWindow.addDockWidget(dockScene, KDDockWidgets::Location::Location_OnTop,nullptr, KDDockWidgets::InitialOption(QSize(800, 800)));
+
+	auto dockEntity = new KDDockWidgets::DockWidget("Inspector", KDDockWidgets::DockWidget::Option_None, layoutSaverOptions);
+	dockEntity->setAffinities(mMainWindow.affinities());
+	dockEntity->setWidget(&mEntityPanel);
+	mMainWindow.addDockWidget(dockEntity, KDDockWidgets::Location::Location_OnRight, dockScene, KDDockWidgets::InitialOption(QSize(120, 600)));
 
 	auto dockViewport = new KDDockWidgets::DockWidget("Viewport", KDDockWidgets::DockWidget::Option_None, layoutSaverOptions);
 	dockViewport->setAffinities(mMainWindow.affinities());
-	mMainWindow.addDockWidget(dockViewport, KDDockWidgets::Location::Location_OnRight, dockScene);
-	auto viewportContainter = QWidget::createWindowContainer(Engine->window().get());
-	viewportContainter->setMinimumSize(400, 300);
-	dockViewport->setWidget(viewportContainter);
+	mMainWindow.addDockWidget(dockViewport, KDDockWidgets::Location::Location_OnRight, dockScene, KDDockWidgets::InitialOption(QSize(900, 800)));
+	dockViewport->setWidget(&mViewportPanel);
 
 	mWindowLayoutMgr.loadAllLayout();
 	mWindowLayoutMgr.tryCreateDefaultLayout();
+
+	QRect rect(0, 0, 1200, 800);
+	rect.moveCenter(qApp->primaryScreen()->geometry().center());
+	setGeometry(rect);
 }
 
-void EditorWindow::connectUI()
-{
-	connect(&mQScenePanel, &QScenePanel::objectChanged, &mPropertyPanel, &QPropertyPanel::setObject);
-	connect(Engine, &QEngine::requestUpdatePropertyPanel, &mPropertyPanel, &QPropertyPanel::updatePanel);
+void EditorWindow::connectUI(){
+	connect(&mScenePanel, &QScenePanel::entityChanged, &mEntityPanel, &QEntityPanel::setEntity);
 }
 
 void EditorWindow::showEvent(QShowEvent* event)

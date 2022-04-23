@@ -84,14 +84,10 @@ void DirTreeWidget::processDir(QDir dir, QTreeWidgetItem* item) {
 }
 
 void DirTreeWidget::intiDirectories() {
-	for (auto& subDir : rootDir_.entryInfoList(QDir::Filter::Dirs | QDir::Filter::NoDotAndDotDot)) {
-		if (subDir.isDir()) {
-			QTreeWidgetItem* item = new QTreeWidgetItem({ subDir.fileName() });
-			item->setBackground(0, Qt::transparent);
-			item->setData(0, Qt::ToolTipRole, subDir.filePath());
-			itemMap_[subDir.filePath()] = item;
-			addTopLevelItem(item);
-			processDir(subDir.filePath(), item);
-		}
-	}
+	QTreeWidgetItem* item = new QTreeWidgetItem({ rootDir_.dirName() });
+	itemMap_[rootDir_.path()] = item;
+	item->setBackground(0, Qt::transparent);
+	item->setData(0, Qt::ToolTipRole, rootDir_.path());
+	addTopLevelItem(item);
+	processDir(rootDir_, item);
 }

@@ -49,7 +49,6 @@ QGradientSlider::QGradientSlider(QString name /*= ""*/, float var /*= 0.0f*/, fl
 	connect(numberEditer_, &QLineEdit::returnPressed, this, [this]() {
 		float num = this->number();
 		setNumber(num);
-		Q_EMIT valueChanged(var_);
 	});
 }
 
@@ -75,6 +74,7 @@ void QGradientSlider::setNumber(float num) {
 	if (text[index] == '.')
 		index++;
 	numberEditer_->setText(text.mid(0, index + 1));
+	Q_EMIT valueChanged(var_);
 	update();
 }
 

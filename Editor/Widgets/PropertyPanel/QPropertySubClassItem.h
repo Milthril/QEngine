@@ -8,6 +8,7 @@
 #include <QComboBox>
 #include <QHBoxLayout>
 #include "QPropertyPanel.h"
+#include "QPropertyItemFactory.h"
 
 template<typename _Ty>
 class QPropertySubClassItem : public QPropertyItem
@@ -47,7 +48,23 @@ public:
 	virtual void createWidgetOrSubItem()
 	{
 		treeWidget()->setItemWidget(this, 0, mItemWidget);
-		QPropertyPanel::setupObjectToItem(this, mSubClass.get());
+		if (mSubClass == nullptr)
+			return;
+		for (int i = 1; i < mSubClass->metaObject()->propertyCount(); i++) {
+			QMetaProperty property = mSubClass->metaObject()->property(i);
+			if (!property.isDesignable())
+				continue;
+			QPropertyItem* item = QPropertyItemFactory::instance()->createItem(property.metaType(),
+																			   property.name(),
+																			   [this, property]() {return property.read(mSubClass.get()); },
+																			   [this, property](QVariant var) { property.write(mSubClass.get(), var); }
+			);
+			if (item) {
+				addChild(item);
+				item->createWidgetOrSubItem();
+			}
+		}
+
 	}
 
 protected:

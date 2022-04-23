@@ -15,7 +15,7 @@ find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Core Core5Compat Widgets OpenGL Sh
 
 file(GLOB_RECURSE PROJECT_SOURCE FILES *.h *.cpp)
 
-set(LUA_API_DIR $ENV{USERPROFILE}/QEngine/LuaAPI)
+set(LUA_API_DIR $ENV{USERPROFILE}/QEngineCoreApplication/LuaAPI)
 string(REPLACE "\\" "/" LUA_API_DIR ${LUA_API_DIR})
 
 set(CMAKE_AUTOMOC_MOC_OPTIONS --output-lua-api ${LUA_API_DIR})        #开启moc的json生成
@@ -58,7 +58,7 @@ endfunction()
 
 target_include_directories(Core PUBLIC  .)
 
-set(QENGINE_ASSET_DIR "${CMAKE_SOURCE_DIR}/Asset")
+set(QEngineCoreApplication_ASSET_DIR "${CMAKE_SOURCE_DIR}/Asset")
 
-target_compile_definitions(Core PUBLIC QENGINE_ASSET_DIR="${QENGINE_ASSET_DIR}")
+target_compile_definitions(Core PUBLIC QEngineCoreApplication_ASSET_DIR="${QEngineCoreApplication_ASSET_DIR}")
 

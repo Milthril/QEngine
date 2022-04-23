@@ -2,23 +2,25 @@
 #define QScenePanel_h__
 
 #include "QTreeWidget"
-#include "Scene\QScene.h"
+#include "ECS\QWorld.h"
 
 class QScenePanel :public QTreeWidget {
 	Q_OBJECT
 public:
-	QScenePanel(std::shared_ptr<QScene> scene);
+	QScenePanel(QWorld* world);
 private:
 	void createUI();
 	void updateUI();
 private:
-	std::shared_ptr<QScene> mScene;
-	QTreeWidgetItem* mRoot;
+	QWorld* mWorld;
 Q_SIGNALS:
-	void objectChanged(QObject* obejct);
+	void entityChanged(QEntity* obejct);
+private:
+	QPoint mClickPos;
 protected:
 	void showEvent(QShowEvent* event) override;
-
+	virtual void mousePressEvent(QMouseEvent* event) override;
+	virtual void mouseReleaseEvent(QMouseEvent* event) override;
 };
 
 #endif // QScenePanel_h__

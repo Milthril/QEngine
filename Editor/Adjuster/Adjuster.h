@@ -4,6 +4,8 @@
 #include <QWidget>
 #include <QVariant>
 
+class QPropertyAdjusterItem;
+
 class Adjuster :public QWidget {
 	Q_OBJECT
 public:
@@ -15,6 +17,10 @@ public:
 			setValue(var);
 		}
 	}
+	QPropertyAdjusterItem* getItem() const { return mItem; }
+	void setItem(QPropertyAdjusterItem* val) { mItem = val; }
+protected:
+	QPropertyAdjusterItem* mItem = nullptr;
 Q_SIGNALS:
 	void valueChanged(QVariant);
 };
