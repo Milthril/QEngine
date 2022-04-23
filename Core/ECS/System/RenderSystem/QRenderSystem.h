@@ -21,9 +21,7 @@ public:
 	bool hasRequestQuit();
 	void requestUpdate();
 
-	int getSceneSampleCount();
-	QVector<QRhiGraphicsPipeline::TargetBlend> getSceneBlendStates();
-	QRhiRenderPassDescriptor* getSceneRenderPassDescriptor();
+
 	QRenderWindow* window();
 
 	QRhi* getRHI();
@@ -42,6 +40,5 @@ private:
 	std::shared_ptr<QRenderer> mRenderer;
 	bool mEnableDebug = false;
 };
-
 
 #endif // QRenderSystem_h__

@@ -105,6 +105,7 @@ void GAssetMgr::createNewAsset(QDir destDir, IAsset::Type type /*= IAsset::None*
 		break;
 	case IAsset::Material: {
 		std::shared_ptr<Asset::Material> material = std::make_shared<Asset::Material>();
+		material->generateDefualtShadingCode();
 		material->save(destDir.filePath("Material." + material->getExtName()), false);
 		break;
 	}

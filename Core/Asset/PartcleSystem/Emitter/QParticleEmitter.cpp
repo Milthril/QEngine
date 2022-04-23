@@ -3,7 +3,6 @@
 
 QParticleEmitter::QParticleEmitter()
 {
-	mPositionGenerator.setSubClass<QCubeGenerator>();
 }
 
 QVector<QParticleEmitter::Particle> QParticleEmitter::update()
@@ -13,5 +12,6 @@ QVector<QParticleEmitter::Particle> QParticleEmitter::update()
 		particle.scaling = mScaling.toVector4D();
 	}
 	mPositionGenerator->generate(particles);
+	mVelocityGenerator->generate(particles);
 	return particles;
 }

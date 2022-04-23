@@ -8,6 +8,8 @@
 #include "ECS\Component\RenderableComponent\QStaticMeshComponent.h"
 #include "Window\EditorWindow\EditorWindow.h"
 #include "Asset\SkeletonModel\Skeleton.h"
+#include "Window\ParticlesEditor\QParticlesEditor.h"
+#include "Window\MaterialEditor\QMaterialEditor.h"
 
 void QEngineMessageHandler(QtMsgType, const QMessageLogContext&, const QString&);
 
@@ -24,7 +26,7 @@ public:
 		EditorWindow::preInitConfig();
 		mEditorWindow = new EditorWindow;
 		mEditorWindow->show();
-		//qInstallMessageHandler(QEngineMessageHandler);
+		qInstallMessageHandler(QEngineMessageHandler);
 	}
 protected:
 	virtual void customInit() override {
@@ -44,7 +46,10 @@ protected:
 
 	}
 	virtual void customRelease() override {
+		qInstallMessageHandler(nullptr);
 		delete mEditorWindow;
+		QParticlesEditor::instance()->close();
+		QMaterialEditor::instance()->close();
 	}
 public:
 	EditorWindow* getEditorWindow() const { return mEditorWindow; }

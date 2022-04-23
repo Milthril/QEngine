@@ -79,12 +79,12 @@ void QSkyBoxComponent::recreatePipeline() {
 	if (!mSkyBox)
 		return;
 	mPipeline.reset(RHI->newGraphicsPipeline());
-	const auto& blendStates = TheRenderSystem->getSceneBlendStates();
+	const auto& blendStates = TheRenderSystem->renderer()->getForwardPassBlendStates();
 	mPipeline->setTargetBlends(blendStates.begin(), blendStates.end());
 	mPipeline->setTopology(QRhiGraphicsPipeline::Triangles);
-	mPipeline->setDepthTest(false);
+	mPipeline->setDepthTest(true);
 	mPipeline->setDepthWrite(false);
-	mPipeline->setSampleCount(TheRenderSystem->getSceneSampleCount());
+	mPipeline->setSampleCount(TheRenderSystem->renderer()->getForwardSampleCount());
 
 	QVector<QRhiVertexInputBinding> inputBindings;
 	inputBindings << QRhiVertexInputBinding{ sizeof(float) * 3 };
@@ -153,7 +153,7 @@ void QSkyBoxComponent::recreatePipeline() {
 
 	mPipeline->setShaderResourceBindings(mShaderResourceBindings.get());
 
-	mPipeline->setRenderPassDescriptor(TheRenderSystem->getSceneRenderPassDescriptor());
+	mPipeline->setRenderPassDescriptor(TheRenderSystem->renderer()->getForwardRenderPassDescriptor());
 
 	mPipeline->create();
 }

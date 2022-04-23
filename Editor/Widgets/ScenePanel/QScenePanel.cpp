@@ -4,6 +4,7 @@
 #include <QQueue>
 #include <QMouseEvent>
 #include <QMenu>
+#include "QTreeWidgetItemIterator"
 
 QScenePanel::QScenePanel(QWorld* world)
 	:mWorld(world)
@@ -16,8 +17,8 @@ void QScenePanel::createUI() {
 	setIndentation(8);
 	setHeaderHidden(true);
 	setContextMenuPolicy(Qt::CustomContextMenu);
+	setSelectionMode(QAbstractItemView::ExtendedSelection);
 	setColumnWidth(0, 120);
-	setSelectionMode(QAbstractItemView::SingleSelection);
 	setFrameStyle(QFrame::NoFrame);
 	//setDragDropMode(QAbstractItemView::InternalMove);
 	//setDefaultDropAction(Qt::DropAction::MoveAction);
@@ -35,9 +36,22 @@ void QScenePanel::createUI() {
 	//	qDebug() << parent << first << last;
 	//});
 
-	//connect(mScene.get(),&QScene::currentChanged, this, [this](QSceneComponent* comp) {
-	//	Q_EMIT objectChanged(comp);
-	//});
+	connect(mWorld,&QWorld::currentEntityChanged, this, [this]() {
+		if (this->currentItem()) {
+			QEntity* entity = currentItem()->data(1, 0).value<QEntity*>();
+			if (entity == mWorld->getCurrentEntity())
+				return;
+		}
+		QTreeWidgetItemIterator iter(this);
+		while (*iter) {
+			QEntity* entity = (*iter)->data(1, 0).value<QEntity*>();
+			if (entity&& entity == mWorld->getCurrentEntity()) {
+				setCurrentItem(*iter);
+				return;
+			}
+			iter++;
+		}
+	});
 
 	connect(this, &QTreeWidget::itemPressed, this, [this](QTreeWidgetItem* item, int column) {
 		if (qApp->mouseButtons() & Qt::RightButton) {
@@ -45,11 +59,17 @@ void QScenePanel::createUI() {
 			menu.addAction("Rename", [this, item, column]() {
 				this->editItem(item, column);
 			});
-			menu.addAction("Remove", [this,item,column]() {
-				mWorld->removeEntity(item->data(1, 0).value<QEntity*>());
-				if (currentItem() == item) {
-					Q_EMIT entityChanged(nullptr);
+			menu.addAction("Remove", [this,column]() {
+				const auto& items = this->selectedItems();
+				mWorld->blockSignals(true);
+				for (auto& item : items) {
+					if (currentItem() == item) {
+						Q_EMIT entityChanged(nullptr);
+					}
+					mWorld->removeEntity(item->data(1, 0).value<QEntity*>());
 				}
+				mWorld->blockSignals(false);
+				Q_EMIT mWorld->worldChanged();
 			});
 			menu.exec(QCursor::pos());
 		}
@@ -71,6 +91,8 @@ void QScenePanel::updateUI()
 		QPair<QEntity*, QTreeWidgetItem*> parent = qObject.takeFirst();
 		if (parent.first) {
 			QTreeWidgetItem* item = new QTreeWidgetItem({ parent.first->objectName() });
+			parent.first->disconnect();
+
 			item->setData(1, 0, QVariant::fromValue(parent.first));
 			if (parent.second == nullptr) {
 				addTopLevelItem(item);

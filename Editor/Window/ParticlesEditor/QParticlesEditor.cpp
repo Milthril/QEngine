@@ -51,3 +51,8 @@ QParticlesEditor::QParticlesEditor()
 		mSystem->getUpdater()->setUpdateCode(editor->text().toLocal8Bit());
 	});
 }
+
+void QParticlesEditor::closeEvent(QCloseEvent*e) {
+	mSystem.reset();
+	KDDockWidgets::DockWidget::closeEvent(e);
+}

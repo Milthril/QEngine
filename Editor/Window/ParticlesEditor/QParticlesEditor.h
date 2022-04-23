@@ -22,6 +22,9 @@ private:
 	UniformPanel* mUniformPanel;
 	GLSLEditor* editor;
 	QPushButton* btCompile;
+protected:
+	void closeEvent(QCloseEvent*) override;
+
 };
 
 #endif // QParticlesEditor_h__

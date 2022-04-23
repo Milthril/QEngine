@@ -175,13 +175,13 @@ void QParticleSystemComponent::recreatePipeline() {
 	mPipeline.reset(RHI->newGraphicsPipeline());
 	
 	mPipeline->setVertexInputLayout(inputLayout);
-	const auto& blendStates = TheRenderSystem->getSceneBlendStates();
+	const auto& blendStates = TheRenderSystem->renderer()->getDeferPassBlendStates();
 	mPipeline->setTargetBlends(blendStates.begin(), blendStates.end());
 	mPipeline->setTopology(QRhiGraphicsPipeline::Topology::Triangles);
 	mPipeline->setDepthOp(QRhiGraphicsPipeline::LessOrEqual);
 	mPipeline->setDepthTest(true);
 	mPipeline->setDepthWrite(true);
-	mPipeline->setSampleCount(TheRenderSystem->getSceneSampleCount());
+	mPipeline->setSampleCount(TheRenderSystem->renderer()->getDeferPassSampleCount());
 
 	mPipeline->setShaderStages({
 		{ QRhiShaderStage::Vertex, vs },
@@ -196,7 +196,7 @@ void QParticleSystemComponent::recreatePipeline() {
 
 	mPipeline->setShaderResourceBindings(mShaderResourceBindings.get());
 
-	mPipeline->setRenderPassDescriptor(TheRenderSystem->getSceneRenderPassDescriptor());
+	mPipeline->setRenderPassDescriptor(TheRenderSystem->renderer()->getDeferPassDescriptor());
 
 	mPipeline->create();
 

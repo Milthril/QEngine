@@ -45,6 +45,7 @@ void main() {
 	outFragColor = vec4(texture(samplerColor, vUV).rgb,1.0f);
 }
 )");
+
 	mPipeline->setShaderStages({
 		{ QRhiShaderStage::Vertex, vs },
 		{ QRhiShaderStage::Fragment, fs }

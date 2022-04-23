@@ -56,19 +56,6 @@ void QPropertyPanel::recreatePanel() {
 		}
 	}
 	this->expandAll();
-
-	//for (auto& dpName : mObject->dynamicPropertyNames()) {
-	//	QDynamicPropertyItem* item = new QDynamicPropertyItem(mObject, dpName);
-	//	item->setUp(this);
-	//	QVariant var = mObject->property(dpName);
-	//	const QMetaObject* meta = var.metaType().metaObject();
-	//	if (meta != nullptr && meta->inherits(&QObject::staticMetaObject)) {
-	//		QObject* obj = var.value<QObject*>();
-	//		if (obj != nullptr) {
-	//			setupItemInternal(obj, item);
-	//		}
-	//	}
-	//}
 }
 
 void QPropertyPanel::updatePanel()

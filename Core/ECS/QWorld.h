@@ -24,11 +24,13 @@ public:
 	QCameraComponent* getCurrentCamera() const { return mCamera; }
 
 	QEntity* getCurrentEntity() const { return mCurrentEntity; }
-	void setCurrentEntity(QEntity* val) { mCurrentEntity = val; }
+	void setCurrentEntity(QEntity* val);
+	
 private:
 	QString getVaildEntityName(const QString& name);
 Q_SIGNALS:
 	void worldChanged();
+	void currentEntityChanged();
 private:
 	QHash<QEntity::ID, QEntity*> mEntityHash;
 	std::shared_ptr<QEntity> mCameraEntity;

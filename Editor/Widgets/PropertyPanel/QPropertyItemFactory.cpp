@@ -38,6 +38,7 @@
 #include "Asset\SkeletonModel\SkeletonModel.h"
 #include "Asset\SkeletonModel\SkeletonAnimation.h"
 #include "Asset\PartcleSystem\Emitter\PositionGenerator\IPositionGenerator.h"
+#include "Asset\PartcleSystem\Emitter\VelocityGenerator\IVelocityGenerator.h"
 
 #define REGISTER_ADJUSTER_ITEM(Type,AdjusterType)\
 		mCreatorMap[QMetaTypeId2<Type>::qt_metatype_id()] = [](QString name, Getter getter, Setter setter) { \
@@ -93,8 +94,11 @@ QPropertyItemFactory::QPropertyItemFactory()
 	REGISTER_ASSET_ITEM(Asset::SkeletonModel);
 	REGISTER_ASSET_ITEM(Asset::SkeletonAnimation);
 
-	mCreatorMap[QMetaTypeId2<IPositionGenerator*>::qt_metatype_id()] = [](QString name, Getter getter, Setter setter) {
+	mCreatorMap[QMetaTypeId2<QSubClass<IPositionGenerator> >::qt_metatype_id()] = [](QString name, Getter getter, Setter setter) {
 		return new QPropertySubClassItem<QSubClass<IPositionGenerator>>(name, getter, setter);
+	};
+	mCreatorMap[QMetaTypeId2<QSubClass<IVelocityGenerator> >::qt_metatype_id()] = [](QString name, Getter getter, Setter setter) {
+		return new QPropertySubClassItem<QSubClass<IVelocityGenerator>>(name, getter, setter);
 	};
 
 	mCreatorMap[QMetaTypeId2<QVector<std::shared_ptr<Asset::Material>>>::qt_metatype_id()] = [](QString name, Getter getter, Setter setter) {
@@ -104,22 +108,8 @@ QPropertyItemFactory::QPropertyItemFactory()
 
 QPropertyItem* QPropertyItemFactory::createItem(QMetaType metaType, QString name, Getter getter, Setter setter) {
 	auto creator = mCreatorMap.find(metaType.id());
-
 	if (creator != mCreatorMap.end()) {
 		return (*creator)(name, getter, setter);
-	}
-
-	if (QMetaType::canConvert(metaType, QMetaType::fromType<QObject*>())) {		//处理Object*属性
-		QObject* obj = getter().value<QObject*>();
-		if (obj != nullptr) {
-			return nullptr;
-		}
-	}
-
-	if (QMetaType::canConvert(metaType, QMetaType::fromType<QVariantList>())) {	//处理数组类型
-		QTreeWidgetItem* item = new QTreeWidgetItem;
-		QVariantList varList = getter().toList();
-		return nullptr;
 	}
 	return nullptr;
 }

@@ -79,7 +79,7 @@ FileListWidget::FileListWidget()  {
 	setMovement(QListView::Static);
 	setFrameShape(QFrame::NoFrame);
 	setViewMode(QListView::IconMode);
-	setSelectionMode(QAbstractItemView::ContiguousSelection);
+	setSelectionMode(QAbstractItemView::ExtendedSelection);
 	setUniformItemSizes(true);
 	FileListItemDelegate* itemDelegate = new FileListItemDelegate;
 	setItemDelegate(itemDelegate);
@@ -97,6 +97,7 @@ FileListWidget::FileListWidget()  {
 	connect(this, &QListWidget::itemPressed, this, [this](QListWidgetItem* item) {
 		if (qApp->mouseButtons() & Qt::RightButton) {
 			QString path = item->data(Qt::ToolTipRole).toString();
+
 			QMenu menu;
 			menu.addAction("Rename", [this,item]() {
 				this->editItem(item);
@@ -105,12 +106,14 @@ FileListWidget::FileListWidget()  {
 			menu.addAction("Show In Folder", [path]() {
 				FileUtils::showInFolder(path);
 			});
-			if (QFileInfo(path).isFile()) {
-				menu.addAction("Remove", [path, this]() {
+			menu.addAction("Remove", [path, this]() {
+				const auto& items = this->selectedItems();
+				for (auto& item : items) {
+					QString path = item->data(Qt::ToolTipRole).toString();
 					QFile file(path);
 					file.remove();
+				}
 			});
-			}
 			menu.exec(QCursor::pos());
 		}
 	});

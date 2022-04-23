@@ -21,6 +21,8 @@ QColor4D::QColor4D(QRgb rgb)
 	: QColor4D(QColor(rgb)) {
 }
 
+QColor4D::QColor4D(QVector4D vec4):QVector4D(vec4){}
+
 ushort QColor4D::red()const
 {
 	return redF() * 255;

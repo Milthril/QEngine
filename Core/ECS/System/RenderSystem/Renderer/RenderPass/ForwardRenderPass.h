@@ -10,13 +10,15 @@ class ForwardRenderPass :public IRenderPassBase {
 public:
 	ForwardRenderPass();
 
-	void setupDeferColorTexture(QRhiTexture* texture);
-	void setupDeferDepthTexture(QRhiTexture* texture);
+	void setupInputColorTexture(QRhiTexture* texture);
+	void setupInputDepthTexture(QRhiTexture* texture);
+	void setupInputDebugIdTexture(QRhiTexture* texture);
 
 	virtual void compile() override;
 
 	enum OutputTextureSlot {
-		Output
+		Output = 0,
+		DebugId
 	};
 
 	virtual QRhiTexture* getOutputTexture(int slot = 0);
@@ -24,16 +26,22 @@ public:
 	QRhiRenderTarget* getRenderTarget();
 	void execute(QRhiCommandBuffer* cmdBuffer) override;
 private:
+	QRhiTexture* mInputColorTexture = nullptr;
+	QRhiTexture* mInputDepthTexture = nullptr;
+	QRhiTexture* mInputDebugIdTexture = nullptr;
+
+	QRhiSPtr<QRhiGraphicsPipeline> mCopyPipeline;
+	QRhiSPtr<QRhiSampler> mSampler;
+	QRhiSPtr<QRhiShaderResourceBindings> mBindings;
+
 	struct RTResource {
 		QRhiSPtr<QRhiTexture> atBaseColor;
+		QRhiSPtr<QRhiRenderBuffer> atDepth;
 		QRhiSPtr<QRhiTexture> atDebugId;
-		QRhiSPtr<QRhiRenderBuffer> atDepthStencil;
 		QRhiSPtr<QRhiTextureRenderTarget> renderTarget;
 		QRhiSPtr<QRhiRenderPassDescriptor> renderPassDesc;
 	};
 	RTResource mRT;
-	QRhiTexture* mDeferColorResult;
-	QRhiTexture* mDeferDepthResult;
 	QVector<QRhiGraphicsPipeline::TargetBlend> mBlendStates;
 };
 

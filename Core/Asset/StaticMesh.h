@@ -27,6 +27,7 @@ public:
 			return in;
 		}
 	};
+
 	using Index = uint32_t;
 
 	const QVector<Asset::StaticMesh::Vertex>& getVertices() const { return mVertices; }

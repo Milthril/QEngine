@@ -17,7 +17,8 @@ public:
 		Position,
 		NormalMetalness,
 		TangentRoughness,
-		DebugId
+		Depth,
+		DebugId,
 	};
 	virtual QRhiTexture* getOutputTexture(int slot = 0);
 
@@ -32,7 +33,7 @@ private:
 		QRhiSPtr<QRhiTexture> atTangent_Roughness;
 		QRhiSPtr<QRhiTexture> atDebugId;
 
-		QRhiSPtr<QRhiRenderBuffer> atDepthStencil;
+		QRhiSPtr<QRhiTexture> atDepthStencil;
 		QRhiSPtr<QRhiTextureRenderTarget> renderTarget;
 		QRhiSPtr<QRhiRenderPassDescriptor> renderPassDesc;
 

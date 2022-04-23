@@ -46,13 +46,14 @@ void DeferRenderPass::compile() {		//创建默认的RT
 
 	QRhiTextureRenderTargetDescription RTDesc;
 	RTDesc.setColorAttachments(mColorAttachmentList.begin(), mColorAttachmentList.end());
-	mRT.atDepthStencil.reset(RHI->newRenderBuffer(QRhiRenderBuffer::DepthStencil, frameSize, 1, {},QRhiTexture::Format::D32F));
+	mRT.atDepthStencil.reset(RHI->newTexture(QRhiTexture::Format::D32F, frameSize,1, QRhiTexture::RenderTarget | QRhiTexture::UsedAsTransferSource));
 	mRT.atDepthStencil->create();
-	RTDesc.setDepthStencilBuffer(mRT.atDepthStencil.get());
+	RTDesc.setDepthTexture(mRT.atDepthStencil.get());
 	mRT.renderTarget.reset(RHI->newTextureRenderTarget(RTDesc));
 	mRT.renderPassDesc.reset(mRT.renderTarget->newCompatibleRenderPassDescriptor());
 	mRT.renderTarget->setRenderPassDescriptor(mRT.renderPassDesc.get());
 	mRT.renderTarget->create();
+	qDebug() << "new " << mRT.atBaseColor.get() << mRT.atDepthStencil.get() << mRT.atDebugId.get();
 }
 
 DeferRenderPass::DeferRenderPass() {
@@ -64,6 +65,7 @@ QRhiTexture* DeferRenderPass::getOutputTexture(int slot /*= 0*/) {
 	case Position: return mRT.atPosition.get();
 	case NormalMetalness: return mRT.atNormal_Metalness.get();
 	case TangentRoughness: return mRT.atTangent_Roughness.get();
+	case Depth: return mRT.atDepthStencil.get();
 	case DebugId: return mRT.atDebugId.get();
 	}
 	return nullptr;

@@ -13,6 +13,7 @@ class QColor4DDialog :public QDialog {
 	Q_OBJECT
 public:
 	QColor4DDialog();
+	void setColor(QColor4D color);
 	int exec(QColor4D color);
 private:
 	void createUI();

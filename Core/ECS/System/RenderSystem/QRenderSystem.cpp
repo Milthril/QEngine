@@ -48,19 +48,6 @@ void QRenderSystem::requestUpdate() {
 	mWindow->requestUpdate();
 }
 
-int QRenderSystem::getSceneSampleCount() {
-
-	return mRenderer->getDeferPassSampleCount();
-}
-
-QVector<QRhiGraphicsPipeline::TargetBlend> QRenderSystem::getSceneBlendStates() {
-	return mRenderer->getDeferPassBlendStates();
-}
-
-QRhiRenderPassDescriptor* QRenderSystem::getSceneRenderPassDescriptor() {
-	return mRenderer->getDeferPassDescriptor();
-}
-
 QRenderWindow* QRenderSystem::window() {
 	return mWindow;
 }

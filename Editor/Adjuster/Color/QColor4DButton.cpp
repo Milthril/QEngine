@@ -3,20 +3,24 @@
 #include "ColorDialog.hpp"
 #include <QPainter>
 #include "QColor4DDialog.hpp"
+#include "kddockwidgets/DockWidget.h"
 
 QColor4DButton::QColor4DButton(QColor4D color)
-	: color_(color)
-{
+	: color_(color){
 	setMinimumWidth(100);
 	setFixedHeight(20);
 	setColor(color);
 	QObject::connect(this, &Button::clicked, this, [&]() {
-		QColor4DDialog dialog;
-		QObject::connect(&dialog, &QColor4DDialog::colorChanged, this, [&](const QColor4D& color) {
+		auto dockWidget = new KDDockWidgets::DockWidget("World", KDDockWidgets::DockWidget::Option_None);
+		auto dialog = new QColor4DDialog;
+		dialog->setColor(color_);
+		connect(dialog, &QColor4DDialog::colorChanged, this, [this](QColor4D color) {
 			setColor(color);
-			Q_EMIT valueChanged(QVariant::fromValue(color_));
+			Q_EMIT valueChanged(QVariant::fromValue(color));
 		});
-		dialog.exec(color_);
+		dockWidget->setWidget(dialog);
+		dockWidget->setAttribute(Qt::WA_DeleteOnClose);
+		dockWidget->show();
 	});
 }
 

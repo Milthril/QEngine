@@ -40,6 +40,12 @@ QEntityPanel::QEntityPanel(QEntity* entity /*= nullptr*/)
 		}
 	});
 	recreatePanel();
+
+	connect(&lbName, &QLineEdit::returnPressed, this, [this]() {
+		mEntity->setObjectName(lbName.text());
+		
+	});
+	recreatePanel();
 }
 
 QEntity* QEntityPanel::getEntity() const {

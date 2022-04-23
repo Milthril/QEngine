@@ -72,3 +72,8 @@ QMaterialEditor::QMaterialEditor()
 		mMaterial->setShadingCode(glslEditor->text().toLocal8Bit());
 	});
 }
+
+void QMaterialEditor::closeEvent(QCloseEvent*e) {
+	mMaterial.reset();
+	KDDockWidgets::DockWidget::closeEvent(e);
+}

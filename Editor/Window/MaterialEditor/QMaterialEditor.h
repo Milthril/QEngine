@@ -18,9 +18,10 @@ public:
 	void edit(std::shared_ptr<Asset::Material> material);
 private:
 	QMaterialEditor();
+	void closeEvent(QCloseEvent*) override;
 private:
 	std::shared_ptr<Asset::Material> mMaterial;
-private:
+
 	UniformPanel* mUniformPanel;
 	LuaEditor* luaEditor;
 	GLSLEditor* glslEditor;

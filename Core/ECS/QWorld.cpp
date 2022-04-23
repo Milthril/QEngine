@@ -26,7 +26,6 @@ QEntity* QWorld::createEntity(const QString& name) {
 			mEntityHash.remove(entity->GetId());
 		}
 	});
-	mCurrentEntity = entity;
 	Q_EMIT worldChanged();
 	return entity;
 }
@@ -62,6 +61,14 @@ bool QWorld::removeEntity(QEntity* entity) {
 		return true;
 	}
 	return false;
+}
+
+
+void QWorld::setCurrentEntity(QEntity* val) {
+	if (val != mCurrentEntity) {
+		mCurrentEntity = val;
+		Q_EMIT currentEntityChanged();
+	}
 }
 
 QString QWorld::getVaildEntityName(const QString& name) {

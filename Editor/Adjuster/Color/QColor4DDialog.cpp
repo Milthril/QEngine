@@ -19,6 +19,12 @@ QColor4DDialog::QColor4DDialog()
 	connectUI();
 }
 
+void QColor4DDialog::setColor(QColor4D color) {
+	pre = color;
+	preview->setComparisonColor(color);
+	setCurrentColorInternal(color);
+}
+
 int QColor4DDialog::exec(QColor4D color)
 {
 	pre = color;

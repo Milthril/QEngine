@@ -10,6 +10,7 @@
 #include "ECS/Component/RenderableComponent/QStaticMeshComponent.h"
 #include "ECS/Component/RenderableComponent/QSkeletonModelComponent.h"
 #include "ECS/Component/RenderableComponent/QParticleSystemComponent.h"
+#include "ECS/Component/RenderableComponent/QSkyBoxComponent.h"
 
 ViewportPanel::ViewportPanel() {
 	mViewportContainter = QWidget::createWindowContainer(TheRenderSystem->window());
@@ -84,6 +85,10 @@ bool ViewportPanel::eventFilter(QObject* watched, QEvent* event) {
 					else if (asset->type() == IAsset::ParticleSystem) {
 						QParticleSystemComponent* comp = entity->addComponent<QParticleSystemComponent>();
 						comp->setParticleSystem(std::dynamic_pointer_cast<Asset::ParticleSystem>(asset));
+					}
+					else if (asset->type() == IAsset::SkyBox) {
+						QSkyBoxComponent* comp = entity->addComponent<QSkyBoxComponent>();
+						comp->setSkyBox(std::dynamic_pointer_cast<Asset::SkyBox>(asset));
 					}
 				}
 				TheEngine->processEvents();

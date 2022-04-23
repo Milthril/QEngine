@@ -4,6 +4,7 @@
 #include "QRhiDefine.h"
 #include "Script\QLuaScript.h"
 #include <QVariant>
+#include "ExtType\QColor4D.h"
 
 class IRenderable;
 
@@ -17,8 +18,8 @@ public:
 			Vec2,
 			Vec3,
 			Vec4,
+			Color4,
 			Mat4,
-
 			Sampler2D
 		}type;
 		QString getTypeName();
@@ -44,6 +45,7 @@ public:
 	void setDataVec2(QString name, QVector2D var);
 	void setDataVec3(QString name, QVector3D var);
 	void setDataVec4(QString name, QVector4D var);
+	void setDataColor4(QString name, QColor4D var);
 
 	template <typename _Ty>
 	void setData(QString name,_Ty var) {
@@ -59,8 +61,10 @@ public:
 	template <typename _Ty>
 	_Ty getData(QString name) {
 		for (auto& dataDesc : mDataList) {
-			if (dataDesc->name == name)
-				return dataDesc->var.value<_Ty>();
+			if (dataDesc->name == name) {
+				_Ty var = dataDesc->var.value<_Ty>();
+				return var;
+			}
 		}
 		return _Ty();
 	}

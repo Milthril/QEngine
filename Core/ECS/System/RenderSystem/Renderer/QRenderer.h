@@ -8,6 +8,7 @@ class DeferRenderPass;
 class ILightComponent;
 class IRenderable;
 class LightingRenderPass;
+class ForwardRenderPass;
 
 class QRenderer {
 	friend class QRenderSystem;
@@ -32,10 +33,16 @@ public:
 	QVector<QRhiGraphicsPipeline::TargetBlend> getDeferPassBlendStates();
 	QRhiRenderPassDescriptor* getDeferPassDescriptor();
 
+
+	int getForwardSampleCount();
+	QVector<QRhiGraphicsPipeline::TargetBlend> getForwardPassBlendStates();
+	QRhiRenderPassDescriptor* getForwardRenderPassDescriptor();
+
 protected:
 	QList<IRenderable*> mRenderableItemList;
 	std::shared_ptr<QFrameGraph> mFrameGraph;
 	std::shared_ptr<DeferRenderPass> mDeferRenderPass;
+	std::shared_ptr<ForwardRenderPass> mForwardRenderPass;
 	std::shared_ptr<LightingRenderPass> mLightingRenderPass;
 	QSize mFrameSize;
 };

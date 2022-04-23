@@ -9,8 +9,6 @@ void QRenderWindow::customInitEvent() {
 	TheRenderSystem->setupRHI(this->mRhi);
 	if (TheRenderSystem->renderer()) {
 		TheRenderSystem->renderer()->buildFrameGraph();
-		TheRenderSystem->renderer()->resize(mSwapChain->currentPixelSize());
-
 	}
 	mDurationMs = 0;
 	mLastTimeMs = 0;

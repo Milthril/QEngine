@@ -85,9 +85,8 @@ void QRhiWindow::initInternal()
 	mSwapChain->setDepthStencil(mDepthStencilFrameBuffer.get());
 	mRenderPassDesciptor.reset(mSwapChain->newCompatibleRenderPassDescriptor());
 	mSwapChain->setRenderPassDescriptor(mRenderPassDesciptor.get());
-	resizeSwapChain();
 	customInitEvent();
-
+	resizeSwapChain();
 }
 
 void QRhiWindow::renderInternal()
@@ -116,10 +115,9 @@ void QRhiWindow::renderInternal()
 
 void QRhiWindow::resizeSwapChain()
 {
-	QSize lastSize = mSwapChain->currentPixelSize();
-	mHasSwapChain = mSwapChain->createOrResize();
-	QSize currentSize = mSwapChain->currentPixelSize();
-	if (lastSize!=currentSize) {
+
+	if (mSwapChain->currentPixelSize() != mSwapChain->surfacePixelSize()) {
+		mHasSwapChain = mSwapChain->createOrResize();
 		customResizeEvent();
 	}
 	mFrameCount = 0;

@@ -122,7 +122,7 @@ void SkeletonModelComponentSubMesh::recreatePipeline() {
 	attributeList << QRhiVertexInputAttribute{ 0, 1, QRhiVertexInputAttribute::Float3, offsetof(Asset::SkeletonModel::Vertex,normal) };
 	attributeList << QRhiVertexInputAttribute{ 0, 2, QRhiVertexInputAttribute::Float3, offsetof(Asset::SkeletonModel::Vertex,tangent) };
 	attributeList << QRhiVertexInputAttribute{ 0, 3, QRhiVertexInputAttribute::Float3, offsetof(Asset::SkeletonModel::Vertex,bitangent) };
-	attributeList << QRhiVertexInputAttribute{ 0, 4, QRhiVertexInputAttribute::Float3, offsetof(Asset::SkeletonModel::Vertex,texCoord) };
+	attributeList << QRhiVertexInputAttribute{ 0, 4, QRhiVertexInputAttribute::Float2, offsetof(Asset::SkeletonModel::Vertex,texCoord) };
 	attributeList << QRhiVertexInputAttribute{ 0, 5, QRhiVertexInputAttribute::UInt4 , offsetof(Asset::SkeletonModel::Vertex,boneIndex) };
 	attributeList << QRhiVertexInputAttribute{ 0, 6, QRhiVertexInputAttribute::Float4, offsetof(Asset::SkeletonModel::Vertex,boneWeight) };
 
@@ -131,12 +131,12 @@ void SkeletonModelComponentSubMesh::recreatePipeline() {
 	inputLayout.setAttributes(attributeList.begin(), attributeList.end());
 
 	mPipeline.reset(RHI->newGraphicsPipeline());
-	const auto& blendStates = TheRenderSystem->getSceneBlendStates();
+	const auto& blendStates = TheRenderSystem->renderer()->getDeferPassBlendStates();
 	mPipeline->setTargetBlends(blendStates.begin(), blendStates.end());
 	mPipeline->setTopology(QRhiGraphicsPipeline::Topology::Triangles);
 	mPipeline->setDepthTest(true);
 	mPipeline->setDepthWrite(true);
-	mPipeline->setSampleCount(TheRenderSystem->getSceneSampleCount());
+	mPipeline->setSampleCount(TheRenderSystem->renderer()->getDeferPassSampleCount());
 	mPipeline->setVertexInputLayout(inputLayout);
 
 	mPipeline->setShaderStages({
@@ -153,7 +153,7 @@ void SkeletonModelComponentSubMesh::recreatePipeline() {
 
 	mPipeline->setShaderResourceBindings(mShaderResourceBindings.get());
 
-	mPipeline->setRenderPassDescriptor(TheRenderSystem->getSceneRenderPassDescriptor());
+	mPipeline->setRenderPassDescriptor(TheRenderSystem->renderer()->getDeferPassDescriptor());
 
 	mPipeline->create();
 }
@@ -180,7 +180,6 @@ void SkeletonModelComponentSubMesh::renderInPass(QRhiCommandBuffer* cmdBuffer, c
 	cmdBuffer->drawIndexed(mMesh->mIndices.size());
 }
 
-
 void QSkeletonModelComponent::recreateResource() {
 	if (!mSkeletonModel || !mSkeleton || mMaterialList.isEmpty())
 		return;
@@ -192,8 +191,8 @@ void QSkeletonModelComponent::recreateResource() {
 	for (auto& subMesh : mSkeletonSubMeshList){
 		subMesh->recreateResource();
 	}
-
-	mBoneMatBuffer.reset(RHI->newBuffer(QRhiBuffer::Type::Dynamic, QRhiBuffer::UniformBuffer, sizeof(float) * 16 * 2 + mSkeleton->getBoneOffsetMatrix().size() * sizeof(Asset::Skeleton::Mat4)));
+	uint64_t size = sizeof(UniformMatrix) + mSkeleton->getBoneOffsetMatrix().size() * sizeof(Asset::Skeleton::Mat4);
+	mBoneMatBuffer.reset(RHI->newBuffer(QRhiBuffer::Type::Dynamic, QRhiBuffer::UniformBuffer, sizeof(UniformMatrix) + mSkeleton->getBoneOffsetMatrix().size() * sizeof(Asset::Skeleton::Mat4)));
 	mBoneMatBuffer->create();
 }
 

@@ -1,56 +1,100 @@
-#include "QStaticMeshComponent.h"
+#include "IShapeComponent.h"
 #include "ECS\System\RenderSystem\QRenderSystem.h"
 #include "ECS\QEntity.h"
-#include "Asset\GAssetMgr.h"
 
-void QStaticMeshComponent::setStaticMesh(std::shared_ptr<Asset::StaticMesh> val) {
-	mStaticMesh = val;
-	if (mStaticMesh) {
-		setMaterial(TheAssetMgr->load<Asset::Material>(mStaticMesh->getMaterialPath()));
-	}
-	bNeedRecreatePipeline.active();
-	bNeedRecreateResource.active();
+void IShapeComponent::setVertices(const QVector<Vertex>&& val) {
+	if (mVertices.size() != val.size()) 
+		bNeedRecreateResource.active();
+	bNeedUpdateVertices.active();
+	mVertices = val;
 }
 
-void QStaticMeshComponent::setMaterial(std::shared_ptr<Asset::Material> val) {
+void IShapeComponent::setIndices(const QVector<Index>&& val) {
+	if (mIndices.size() == val.size()) 
+		bNeedUpdateIndices.active();
+	else 
+		bNeedRecreateResource.active();
+	mIndices = val;
+}
+
+void IShapeComponent::setSimpleVertex(const QVector<SimpleVertex>& val) {
+	QVector<Vertex> vertices(val.size());
+	for (int i = 0; i < val.size(); i++) {
+		vertices[i].position = val[i].position;
+		vertices[i].texCoord = val[i].texCoord;
+	}
+
+	QVector<Index> indices(vertices.size());
+	for (int i = 0; i < vertices.size(); i++) 
+		indices[i] = i;
+	
+	for (int i = 0; i < vertices.size() - 3; i+=3) {
+		QVector3D v = vertices[i + 1].position - vertices[i].position;
+		QVector3D w = vertices[i + 2].position - vertices[i].position;
+
+		QVector3D normal = QVector3D::crossProduct(v, w).normalized();
+
+		float sx = vertices[i + 1].texCoord.x() - vertices[i].texCoord.x(), sy = vertices[i + 1].texCoord.y() - vertices[i].texCoord.y();
+		float tx = vertices[i + 2].texCoord.x() - vertices[i].texCoord.x(), ty = vertices[i + 2].texCoord.y() - vertices[i].texCoord.y();
+		float dirCorrection = (tx * sy - ty * sx) < 0.0f ? -1.0f : 1.0f;
+		if (sx * ty == sy * tx) {
+			sx = 0.0;
+			sy = 1.0;
+			tx = 1.0;
+			ty = 0.0;
+		}
+		QVector3D tangent, bitangent;
+		tangent.setX((w.x() * sy - v.x() * ty) * dirCorrection);
+		tangent.setY((w.y() * sy - v.y() * ty) * dirCorrection);
+		tangent.setZ((w.z() * sy - v.z() * ty) * dirCorrection);
+		bitangent.setX((-w.x() * sx + v.x() * tx) * dirCorrection);
+		bitangent.setY((-w.y() * sx + v.y() * tx) * dirCorrection);
+		bitangent.setZ((-w.z() * sx + v.z() * tx) * dirCorrection);
+
+		vertices[i].normal = vertices[i + 1].normal = vertices[i + 2].normal = normal;
+		vertices[i].tangent = vertices[i + 1].tangent = vertices[i + 2].tangent = tangent;
+		vertices[i].bitangent = vertices[i + 1].bitangent = vertices[i + 2].bitangent = normal;
+	}
+	setIndices(std::move(indices));
+	setVertices(std::move(vertices));
+}
+
+void IShapeComponent::setMaterial(std::shared_ptr<Asset::Material> val) {
 	if (mMaterial) {
 		mMaterial->removeRef(this);
 	}
 	mMaterial = val;
-	if (val&&mStaticMesh) {
-		mStaticMesh->setMaterialPath(val->getRefPath());
+	if (val) {
 		val->addRef(this);
 	}
 	bNeedRecreatePipeline.active();
 }
 
-void QStaticMeshComponent::recreateResource() {
-	if (!mStaticMesh || !mMaterial)
+
+void IShapeComponent::recreateResource() {
+	if (mVertices.isEmpty() || mIndices.isEmpty() || !mMaterial)
 		return;
 	mUniformBuffer.reset(RHI->newBuffer(QRhiBuffer::Type::Dynamic, QRhiBuffer::UniformBuffer, sizeof(UniformMatrix)));
 	mUniformBuffer->create();
 
-	mVertexBuffer.reset(RHI->newBuffer(QRhiBuffer::Type::Static, QRhiBuffer::VertexBuffer, sizeof(Asset::StaticMesh::Vertex) * mStaticMesh->getVertices().size()));
+	mVertexBuffer.reset(RHI->newBuffer(QRhiBuffer::Type::Dynamic, QRhiBuffer::VertexBuffer, sizeof(Vertex) * mVertices.size()));
 	mVertexBuffer->create();
 
-	mIndexBuffer.reset(RHI->newBuffer(QRhiBuffer::Type::Static, QRhiBuffer::IndexBuffer, sizeof(Asset::StaticMesh::Index) * mStaticMesh->getIndices().size()));
+	mIndexBuffer.reset(RHI->newBuffer(QRhiBuffer::Type::Dynamic, QRhiBuffer::IndexBuffer, sizeof(Index) * mIndices.size()));
 	mIndexBuffer->create();
 }
 
-void QStaticMeshComponent::recreatePipeline() {
-	if (!mStaticMesh||!mMaterial)
+void IShapeComponent::recreatePipeline() {
+	if (mVertices.isEmpty() || mIndices.isEmpty() || !mMaterial)
 		return;
-	if (mStaticMesh->getVertices().size() == 0) {
-		return;
-	}
 	QVector<QRhiVertexInputBinding> inputBindings;
-	inputBindings << QRhiVertexInputBinding{ sizeof(Asset::StaticMesh::Vertex) };
+	inputBindings << QRhiVertexInputBinding{ sizeof(Vertex) };
 	QVector<QRhiVertexInputAttribute> attributeList;
-	attributeList << QRhiVertexInputAttribute{ 0, 0, QRhiVertexInputAttribute::Float3, offsetof(Asset::StaticMesh::Vertex, position) };
-	attributeList << QRhiVertexInputAttribute{ 0, 1, QRhiVertexInputAttribute::Float3, offsetof(Asset::StaticMesh::Vertex,normal) };
-	attributeList << QRhiVertexInputAttribute{ 0, 2, QRhiVertexInputAttribute::Float3, offsetof(Asset::StaticMesh::Vertex,tangent) };
-	attributeList << QRhiVertexInputAttribute{ 0, 3, QRhiVertexInputAttribute::Float3, offsetof(Asset::StaticMesh::Vertex,bitangent) };
-	attributeList << QRhiVertexInputAttribute{ 0, 4, QRhiVertexInputAttribute::Float2, offsetof(Asset::StaticMesh::Vertex,texCoord) };
+	attributeList << QRhiVertexInputAttribute{ 0, 0, QRhiVertexInputAttribute::Float3, offsetof(Vertex, position) };
+	attributeList << QRhiVertexInputAttribute{ 0, 1, QRhiVertexInputAttribute::Float3, offsetof(Vertex,normal) };
+	attributeList << QRhiVertexInputAttribute{ 0, 2, QRhiVertexInputAttribute::Float3, offsetof(Vertex,tangent) };
+	attributeList << QRhiVertexInputAttribute{ 0, 3, QRhiVertexInputAttribute::Float3, offsetof(Vertex,bitangent) };
+	attributeList << QRhiVertexInputAttribute{ 0, 4, QRhiVertexInputAttribute::Float2, offsetof(Vertex,texCoord) };
 
 	QString vertexShaderCode = R"(#version 440
 	layout(location = 0) in vec3 inPosition;
@@ -96,8 +140,6 @@ void QStaticMeshComponent::recreatePipeline() {
 		defineCode.prepend("layout (location = 4) out vec4 CompId;\n");
 		outputCode.append(QString("\nCompId = %1;\n").arg(getEntityIdVec4String()));
 	}
-
-
 
 	QString fragShaderCode = QString(R"(#version 440
 	layout(location = 0) in vec2 vUV;
@@ -158,29 +200,31 @@ void QStaticMeshComponent::recreatePipeline() {
 	mPipeline->create();
 }
 
-void QStaticMeshComponent::uploadResource(QRhiResourceUpdateBatch* batch) {
-	if (!mStaticMesh || !mMaterial)
-		return;
-	batch->uploadStaticBuffer(mVertexBuffer.get(), mStaticMesh->getVertices().constData());
-	batch->uploadStaticBuffer(mIndexBuffer.get(), mStaticMesh->getIndices().constData());
+void IShapeComponent::uploadResource(QRhiResourceUpdateBatch* batch) {
+
 }
 
-void QStaticMeshComponent::updatePrePass(QRhiCommandBuffer* cmdBuffer) {
+void IShapeComponent::updatePrePass(QRhiCommandBuffer* cmdBuffer) {
+
 }
 
-void QStaticMeshComponent::updateResourcePrePass(QRhiResourceUpdateBatch* batch) {
-	if (!mStaticMesh || !mMaterial)
+void IShapeComponent::updateResourcePrePass(QRhiResourceUpdateBatch* batch) {
+	if (mVertices.isEmpty() || mIndices.isEmpty()|| !mMaterial)
 		return;
-	mMaterial->updateResource(batch);
-
+	if (bNeedUpdateVertices.receive()) {
+		batch->updateDynamicBuffer(mVertexBuffer.get(), 0, sizeof(Vertex) * mVertices.size(), mVertices.data());
+	}
+	if (bNeedUpdateIndices.receive()) {
+		batch->updateDynamicBuffer(mIndexBuffer.get(), 0, sizeof(Index) * mIndices.size(), mIndices.data());
+	}
 	UniformMatrix Matrix;
 	Matrix.MVP = mEntity->calculateMatrixMVP().toGenericMatrix<4, 4>();
 	Matrix.M = mEntity->calculateMatrixModel().toGenericMatrix<4,4>();
-
+	mMaterial->updateResource(batch);
 	batch->updateDynamicBuffer(mUniformBuffer.get(), 0, sizeof(UniformMatrix), &Matrix);
 }
 
-void QStaticMeshComponent::renderInPass(QRhiCommandBuffer* cmdBuffer, const QRhiViewport& viewport) {
+void IShapeComponent::renderInPass(QRhiCommandBuffer* cmdBuffer, const QRhiViewport& viewport) {
 	if (!mPipeline)
 		return;
 	cmdBuffer->setGraphicsPipeline(mPipeline.get());
@@ -188,9 +232,9 @@ void QStaticMeshComponent::renderInPass(QRhiCommandBuffer* cmdBuffer, const QRhi
 	cmdBuffer->setShaderResources();
 	const QRhiCommandBuffer::VertexInput VertexInput(mVertexBuffer.get(), 0);
 	cmdBuffer->setVertexInput(0, 1, &VertexInput, mIndexBuffer.get(), 0, QRhiCommandBuffer::IndexUInt32);
-	cmdBuffer->drawIndexed(mStaticMesh->getIndices().size());
+	cmdBuffer->drawIndexed(mIndices.size());
 }
 
-bool QStaticMeshComponent::isDefer() {
+bool IShapeComponent::isDefer() {
 	return true;
 }

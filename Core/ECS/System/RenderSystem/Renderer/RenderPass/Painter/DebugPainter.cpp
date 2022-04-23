@@ -53,7 +53,106 @@ void DebugPainter::resourceUpdate(QRhiResourceUpdateBatch* batch) {
 		batch->readBackTexture(mReadDesc,&mReadReult);
 		RHI->finish();
 	}
+	QEntity* currentEntiy = TheEngine->world()->getCurrentEntity();
+	QVector4D id(-1,-1,-1,-1);
+	if (currentEntiy) {
+		QEntity::ID mId = currentEntiy->GetId();
+		int r = (mId & 0x000000FF) >> 0;
+		int g = (mId & 0x0000FF00) >> 8;
+		int b = (mId & 0x00FF0000) >> 16;
+		int a = (mId & 0xFF000000) >> 24;
+		id = QVector4D(r, g, b, a) / 255.0f;;
+	}		
+	batch->updateDynamicBuffer(mUniformBuffer.get(), 0, sizeof(QVector4D), &id);
 	ImGuiPainter::resourceUpdate(batch);
+}
+
+void DebugPainter::compile() {
+	ImGuiPainter::compile();
+
+	mUniformBuffer.reset(RHI->newBuffer(QRhiBuffer::Type::Dynamic, QRhiBuffer::UniformBuffer, sizeof(QVector4D)));
+	mUniformBuffer->create();
+
+	mOutlineSampler.reset(RHI->newSampler(QRhiSampler::Nearest,
+				   QRhiSampler::Nearest,
+				   QRhiSampler::None,
+				   QRhiSampler::ClampToEdge,
+				   QRhiSampler::ClampToEdge));
+	mOutlineSampler->create();
+	mOutlinePipeline.reset(RHI->newGraphicsPipeline());
+	QRhiGraphicsPipeline::TargetBlend blendState;
+	blendState.enable = true;
+	mOutlinePipeline->setTargetBlends({ blendState });
+	mOutlinePipeline->setSampleCount(mSampleCount);
+
+	QString vsCode = R"(#version 450
+layout (location = 0) out vec2 vUV;
+out gl_PerVertex{
+	vec4 gl_Position;
+};
+void main() {
+	vUV = vec2((gl_VertexIndex << 1) & 2, gl_VertexIndex & 2);
+	gl_Position = vec4(vUV * 2.0f - 1.0f, 0.0f, 1.0f);
+	%1
+}
+)";
+	QShader vs = QRenderSystem::createShaderFromCode(QShader::VertexStage, vsCode.arg(RHI->isYUpInNDC() ? "	vUV.y = 1 - vUV.y;" : "").toLocal8Bit());
+
+	QShader fs = QRenderSystem::createShaderFromCode(QShader::FragmentStage, R"(#version 450
+layout (location = 0) in vec2 vUV;
+layout (location = 0) out vec4 outFragColor;
+
+layout (binding = 0) uniform sampler2D uDebugId;
+layout (binding = 1) uniform DebugID{
+	vec4 ID;
+}Current;
+
+void main() {
+	vec2 texOffset = 1.0 / textureSize(uDebugId, 0);		// gets size of single texel
+	
+	int count = 0;
+
+	count += (texture(uDebugId,vUV) == Current.ID ? 1 : 0 );		//±ßÔµ¼ì²â
+	count += (texture(uDebugId,vUV+vec2(texOffset.x,0)) == Current.ID ? 1 : 0 );
+	count += (texture(uDebugId,vUV-vec2(texOffset.x,0)) == Current.ID ? 1 : 0 );
+	count += (texture(uDebugId,vUV+vec2(0,texOffset.y)) == Current.ID ? 1 : 0 );
+	count += (texture(uDebugId,vUV-vec2(0,texOffset.y)) == Current.ID ? 1 : 0 );
+
+	if(count>0&&count<5){
+		outFragColor = vec4(1.0,0.8,0.4,1.0);
+	}
+	else{
+		outFragColor = vec4(0);
+	}
+}
+)");
+	mOutlinePipeline->setShaderStages({
+		{ QRhiShaderStage::Vertex, vs },
+		{ QRhiShaderStage::Fragment, fs }
+							   });
+	QRhiVertexInputLayout inputLayout;
+
+	mOutlineBindings.reset(RHI->newShaderResourceBindings());
+
+	mOutlineBindings->setBindings({
+		QRhiShaderResourceBinding::sampledTexture(0,QRhiShaderResourceBinding::FragmentStage,mDebugTexture,mOutlineSampler.get()),
+		QRhiShaderResourceBinding::uniformBuffer(1,QRhiShaderResourceBinding::FragmentStage,mUniformBuffer.get())
+	 });
+
+	mOutlineBindings->create();
+	mOutlinePipeline->setVertexInputLayout(inputLayout);
+	mOutlinePipeline->setShaderResourceBindings(mOutlineBindings.get());
+	mOutlinePipeline->setRenderPassDescriptor(mRenderPassDesc);
+	mOutlinePipeline->create();
+}
+
+void DebugPainter::paint(QRhiCommandBuffer* cmdBuffer, QRhiRenderTarget* renderTarget) {
+	cmdBuffer->setGraphicsPipeline(mOutlinePipeline.get());
+	cmdBuffer->setViewport(QRhiViewport(0, 0, renderTarget->pixelSize().width(), renderTarget->pixelSize().height()));
+	cmdBuffer->setShaderResources(mOutlineBindings.get());
+	cmdBuffer->draw(4);
+
+	ImGuiPainter::paint(cmdBuffer, renderTarget);
 }
 
 bool DebugPainter::eventFilter(QObject* watched, QEvent* event) {

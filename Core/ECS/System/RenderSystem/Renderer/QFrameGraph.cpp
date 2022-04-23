@@ -3,6 +3,8 @@
 #include "QRenderer.h"
 
 void QFrameGraphNode::tryCompile() {
+	if (isCompiled)
+		return;
 	bool canSetup = true;
 	for (auto& dep : mDependencyList) {
 		if (!dep->isCompiled) {
@@ -20,6 +22,10 @@ void QFrameGraphNode::tryCompile() {
 }
 
 void QFrameGraph::compile() {
+	for (auto& node : mGraphNodeMap) {
+		node->isCompiled = false;
+	}
+
 	for (auto& node : mGraphNodeMap) {
 		node->tryCompile();
 	}

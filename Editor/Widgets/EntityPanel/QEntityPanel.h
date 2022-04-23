@@ -3,6 +3,7 @@
 
 #include <QPushButton>
 #include <QLabel>
+#include "QLineEdit"
 
 class QEntity;
 class QWidgetListPanel;
@@ -16,7 +17,7 @@ private:
 	void recreatePanel();
 private:
 	QEntity* mEntity = nullptr;
-	QLabel lbName;
+	QLineEdit lbName;
 	QWidgetListPanel* mWidgetPanel;
 	QPushButton btAddComponent;
 protected:

@@ -36,6 +36,13 @@ void QRhiUniform::setDataVec4(QString name, QVector4D var) {
 	data->bNeedUpdate.active();
 }
 
+void QRhiUniform::setDataColor4(QString name, QColor4D var) {
+	auto param = getOrCreateParam(name, ParamDescBase::Color4);
+	auto data = std::dynamic_pointer_cast<DataDesc>(param);
+	data->var = var;
+	data->bNeedUpdate.active();
+}
+
 void QRhiUniform::setTexture2D(const QString& name, const QImage& image) {
 	auto param = getOrCreateParam(name, ParamDescBase::Sampler2D);
 	auto texture = std::dynamic_pointer_cast<TextureDesc>(param);
@@ -122,6 +129,7 @@ void QRhiUniform::deserialize(QDataStream& in) {
 		mTextureList << texture;
 		mParamNameMap[texture->name] = texture;
 	}
+	updateLayout();
 	bNeedRecreate.active();
 }
 
@@ -136,6 +144,7 @@ QString QRhiUniform::ParamDescBase::getTypeName()
 	case QRhiUniform::ParamDescBase::Vec3:
 		return "vec3";
 	case QRhiUniform::ParamDescBase::Vec4:
+	case QRhiUniform::ParamDescBase::Color4:
 		return "vec4";
 	case QRhiUniform::ParamDescBase::Mat4:
 		return "mat4";
@@ -188,6 +197,7 @@ int getByteSize(QRhiUniform::ParamDescBase::Type type) {
 	case QRhiUniform::ParamDescBase::Vec3:
 		return sizeof(float) * 3;
 	case QRhiUniform::ParamDescBase::Vec4:
+	case QRhiUniform::ParamDescBase::Color4:
 		return sizeof(float) * 4;
 	case QRhiUniform::ParamDescBase::Mat4:
 		return sizeof(float) * 16;

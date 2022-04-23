@@ -13,6 +13,7 @@
 #include "QClipboard"
 #include "Window/ScriptEditor/QScriptEditor.h"
 #include "ECS/System/RenderSystem/RHI/QRhiUniform.h"
+#include "Adjuster/Color/QColor4DButton.hpp"
 
 UniformPanel::UniformPanel()
 	: mParamsPanel(new QTreeWidget)
@@ -77,6 +78,10 @@ UniformPanel::UniformPanel()
 			mUniform->setDataVec4("Vec4", QVector4D());
 			updateParamPanel();
 		});
+		menu.addAction("Color4", [this]() {
+			mUniform->setDataColor4("Color", QColor4D(1,1,1,1));
+			updateParamPanel();
+	});
 		menu.addAction("Sampler2D", [this]() {
 			mUniform->setTexture2D("Texture", QImage());
 			updateParamPanel();
@@ -140,6 +145,14 @@ void UniformPanel::updateParamPanel() {
 			});
 			break;
 		}
+		case QRhiUniform::ParamDescBase::Type::Color4: {
+			adjuster = new QColor4DButton(QColor4D(mUniform->getData<QVector4D>(param->name)));
+			connect(adjuster, &Adjuster::valueChanged, this, [this, param](QVariant var) {
+				mUniform->setData<QColor4D>(param->name, var.value<QColor4D>());
+		});
+			break;
+		}
+
 		case QRhiUniform::ParamDescBase::Type::Mat4:
 			break;
 		case QRhiUniform::ParamDescBase::Type::Sampler2D: {

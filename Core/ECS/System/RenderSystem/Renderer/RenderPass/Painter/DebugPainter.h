@@ -12,7 +12,11 @@ public:
 		mDebugTexture = texture;
 	}
 	void paintImgui() override;
+
 	virtual void resourceUpdate(QRhiResourceUpdateBatch* batch) override;
+	virtual void compile() override;
+	virtual void paint(QRhiCommandBuffer* cmdBuffer, QRhiRenderTarget* renderTarget) override;
+
 protected:
 	bool eventFilter(QObject* watched, QEvent* event) override;
 private:
@@ -21,6 +25,11 @@ private:
 	QRhiReadbackResult mReadReult;
 	QRhiReadbackDescription mReadDesc;
 	QPoint mReadPoint;
+
+	QRhiSPtr<QRhiGraphicsPipeline> mOutlinePipeline;
+	QRhiSPtr<QRhiSampler> mOutlineSampler;
+	QRhiSPtr<QRhiShaderResourceBindings> mOutlineBindings;
+	QRhiSPtr<QRhiBuffer> mUniformBuffer;
 };
 
 #endif // DebugPainter_h__
