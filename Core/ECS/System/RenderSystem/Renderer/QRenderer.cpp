@@ -16,18 +16,18 @@ void QRenderer::buildFrameGraph() {
 	QFrameGraphBuilder builder;
 
 	mDeferRenderPass = std::make_shared<DeferRenderPass>();
-	mForwardRenderPass = std::make_shared<ForwardRenderPass>();
 	mLightingRenderPass = std::make_shared<LightingRenderPass>();
+	mForwardRenderPass = std::make_shared<ForwardRenderPass>();
 
 	std::shared_ptr<PixelSelectRenderPass> bloomPixelSelectPass = std::make_shared<PixelSelectRenderPass>();
 	std::shared_ptr<BlurRenderPass> bloomBlurPass = std::make_shared<BlurRenderPass>();
 	std::shared_ptr<BloomMerageRenderPass> bloomMeragePass = std::make_shared<BloomMerageRenderPass>();
 	std::shared_ptr<SwapChainRenderPass> swapChainPass = std::make_shared<SwapChainRenderPass>();
 
-	//	ScenePass -> LightingPass -> BloomPixelSeletorPass -> BloomBlurPass
-	//	                 |									        |
-	//	                 |									        V
-	//					 ---------------------------------> BloomMeragePass ----> Swapchain( Scene + ImguiDebugDraw )
+	//	ScenePass -> LightingPass ->ForwardPass -->BloomPixelSeletorPass -> BloomBlurPass
+	//	                 |														 |
+	//	                 |														 V
+	//					 -----------------------------------------------> BloomMeragePass ----> Swapchain( Scene + ImguiDebugDraw )
 
 	mFrameGraph = builder.begin(this)			
 		->node("Defer", mDeferRenderPass,[]() {})

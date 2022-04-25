@@ -22,6 +22,7 @@ class QFrameGraph {
 public:
 	void compile();
 	void executable(QRhiCommandBuffer* cmdBuffer);
+	const QHash<QString, std::shared_ptr<QFrameGraphNode>>& getGraphNodeMap() const { return mGraphNodeMap; }
 private:
 	QHash<QString, std::shared_ptr<QFrameGraphNode>> mGraphNodeMap;
 	QList<std::shared_ptr<QFrameGraphNode>> mRenderQueue;

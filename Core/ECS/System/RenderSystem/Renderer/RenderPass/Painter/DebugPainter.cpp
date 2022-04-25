@@ -3,7 +3,95 @@
 #include "ECS/Component/QCameraComponent.h"
 #include "QEngineCoreApplication.h"
 #include "qevent.h"
-#include <GraphEditor.h>
+
+void FrameGraphDelegate::UpdateGraph() {
+	mNodes.clear();
+	mLinks.clear();
+	std::shared_ptr<QFrameGraph> frameGraph = TheRenderSystem->renderer()->getFrameGraph();
+	const QHash<QString, std::shared_ptr<QFrameGraphNode>>& nodeMap = frameGraph->getGraphNodeMap();
+	QHash<QString, int> indexMap;
+
+	for (auto Iter = nodeMap.begin(); Iter != nodeMap.end(); ++Iter) {
+		Node node;
+		node.mName = Iter.key().toLocal8Bit();
+		node.x = mNodes.size() * 100;
+		node.y = mNodes.size() * 0;
+		node.mSelected = false;
+		node.templateIndex = 0;
+		indexMap[Iter.key()] = mNodes.size();
+		mNodes.emplace_back(std::move(node));
+	}
+	for (auto Iter = nodeMap.begin(); Iter != nodeMap.end(); ++Iter) {
+		for (auto sub : Iter.value()->mSubPassList) {
+			GraphEditor::Link link;
+			link.mInputNodeIndex = indexMap[Iter.key()];
+			link.mInputSlotIndex = 0;
+			link.mOutputNodeIndex = indexMap[sub->mName];
+			link.mOutputSlotIndex = 0;
+			mLinks.emplace_back(std::move(link));
+		}
+	}
+}
+
+bool FrameGraphDelegate::AllowedLink(GraphEditor::NodeIndex from, GraphEditor::NodeIndex to) {
+	return false;
+}
+
+void FrameGraphDelegate::SelectNode(GraphEditor::NodeIndex nodeIndex, bool selected) {
+	mNodes[nodeIndex].mSelected = selected;
+}
+
+void FrameGraphDelegate::MoveSelectedNodes(const ImVec2 delta) {
+
+}
+
+void FrameGraphDelegate::RightClick(GraphEditor::NodeIndex nodeIndex, GraphEditor::SlotIndex slotIndexInput, GraphEditor::SlotIndex slotIndexOutput) {
+
+}
+
+void FrameGraphDelegate::AddLink(GraphEditor::NodeIndex inputNodeIndex, GraphEditor::SlotIndex inputSlotIndex, GraphEditor::NodeIndex outputNodeIndex, GraphEditor::SlotIndex outputSlotIndex) {
+	mLinks.push_back({ inputNodeIndex, inputSlotIndex, outputNodeIndex, outputSlotIndex });
+}
+
+void FrameGraphDelegate::DelLink(GraphEditor::LinkIndex linkIndex) {
+	mLinks.erase(mLinks.begin() + linkIndex);
+}
+
+void FrameGraphDelegate::CustomDraw(ImDrawList* drawList, ImRect rectangle, GraphEditor::NodeIndex nodeIndex) {
+	drawList->AddLine(rectangle.Min, rectangle.Max, IM_COL32(0, 0, 0, 255));
+	drawList->AddText(rectangle.Min, IM_COL32(255, 128, 64, 255), "Draw");
+}
+
+const size_t FrameGraphDelegate::GetTemplateCount() {
+	return sizeof(mTemplates) / sizeof(GraphEditor::Template);
+}
+
+const GraphEditor::Template FrameGraphDelegate::GetTemplate(GraphEditor::TemplateIndex index) {
+	return mTemplates[index];
+}
+
+const size_t FrameGraphDelegate::GetNodeCount() {
+	return mNodes.size();
+}
+
+const GraphEditor::Node FrameGraphDelegate::GetNode(GraphEditor::NodeIndex index) {
+	const auto& myNode = mNodes[index];
+	return GraphEditor::Node
+	{
+		myNode.mName.data(),
+		myNode.templateIndex,
+		ImRect(ImVec2(myNode.x, myNode.y), ImVec2(myNode.x + 100, myNode.y + 100)),
+		myNode.mSelected
+	};
+}
+
+const size_t FrameGraphDelegate::GetLinkCount() {
+	return mLinks.size();
+}
+
+const GraphEditor::Link FrameGraphDelegate::GetLink(GraphEditor::LinkIndex index) {
+	return mLinks[index];
+}
 
 DebugPainter::DebugPainter() {
 }
@@ -11,6 +99,23 @@ DebugPainter::DebugPainter() {
 void DebugPainter::paintImgui() {
 	auto& io = ImGui::GetIO();
 	ImGui::GetBackgroundDrawList()->AddText(ImGui::GetFont(), ImGui::GetFontSize(), ImVec2(1, 1), ImColor(0, 255, 0, 255), QString("FPS: %1").arg(TheRenderSystem->window()->getFPS()).toLocal8Bit().data());
+	static GraphEditor::Options options;
+	static GraphEditor::ViewState viewState;
+	static GraphEditor::FitOnScreen fit = GraphEditor::Fit_None;
+
+	ImGui::SetNextWindowSize(ImVec2(400, 400));
+
+	ImGui::Begin("Graph Editor", NULL, 0);
+	if (ImGui::Button("Fit all nodes")) {
+		fit = GraphEditor::Fit_AllNodes;
+	}
+	ImGui::SameLine();
+	if (ImGui::Button("Fit selected nodes")) {
+		fit = GraphEditor::Fit_SelectedNodes;
+	}
+	GraphEditor::Show(mFrameGraphDelegate, options, viewState, true, &fit);
+	ImGui::End();
+
 	ImGuizmo::BeginFrame();
 	ImGuizmo::SetRect(0, 0, io.DisplaySize.x, io.DisplaySize.y);
 
@@ -86,7 +191,7 @@ void DebugPainter::compile() {
 	mOutlinePipeline->setSampleCount(mSampleCount);
 
 	QString vsCode = R"(#version 450
-layout (location = 0) out vec2 vUV;
+layout (location = 0 ) out vec2 vUV;
 out gl_PerVertex{
 	vec4 gl_Position;
 };
@@ -144,6 +249,8 @@ void main() {
 	mOutlinePipeline->setShaderResourceBindings(mOutlineBindings.get());
 	mOutlinePipeline->setRenderPassDescriptor(mRenderPassDesc);
 	mOutlinePipeline->create();
+
+	mFrameGraphDelegate.UpdateGraph();
 }
 
 void DebugPainter::paint(QRhiCommandBuffer* cmdBuffer, QRhiRenderTarget* renderTarget) {
@@ -199,3 +306,4 @@ bool DebugPainter::eventFilter(QObject* watched, QEvent* event) {
 	}
 	return ImGuiPainter::eventFilter(watched, event);
 }
+

@@ -144,12 +144,11 @@ void main(){
 		{ QRhiShaderStage::Vertex, vs },
 		{ QRhiShaderStage::Fragment, fs }
 	});
-
 	mBindings.reset(RHI->newShaderResourceBindings());
 	mBindings->setBindings({
 		QRhiShaderResourceBinding::uniformBuffer(0,QRhiShaderResourceBinding::VertexStage,mUniformBuffer.get()),
 		QRhiShaderResourceBinding::sampledTexture(1,QRhiShaderResourceBinding::FragmentStage,mFontTexture.get(),mSampler.get())
-						   });
+	});
 	mBindings->create();
 
 	QRhiVertexInputLayout inputLayout;

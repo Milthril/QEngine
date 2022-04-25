@@ -27,6 +27,7 @@ void QAssetImpoerter::import(QString path, QDir destDir) {
 		|| suffix.compare(("MMD"), Qt::CaseInsensitive) == 0
 		|| suffix.compare(("OBJ"), Qt::CaseInsensitive) == 0
 		|| suffix.compare(("PMX"), Qt::CaseInsensitive) == 0
+		|| suffix.compare(("GLB"), Qt::CaseInsensitive) == 0
 		) {
 		task = std::make_shared<ImporterModelTask>();
 	}

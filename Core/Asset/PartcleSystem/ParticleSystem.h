@@ -8,21 +8,6 @@
 class QParticleEmitter;
 
 namespace Asset {
-inline const char* getParticleDefine() {
-	return R"(
-#extension GL_ARB_separate_shader_objects : enable
-#define LOCAL_SIZE 256
-#define PARTICLE_MAX_SIZE 1000000
-layout (local_size_x = LOCAL_SIZE) in;
-struct Particle {
-	vec3 position;
-	vec3 rotation;
-	vec3 scaling;
-	vec3 velocity;
-	float life;
-};
-)";
-}
 
 class ParticleSystem: public IAsset {
 public:

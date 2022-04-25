@@ -33,14 +33,15 @@ public:
 	QVector<QRhiGraphicsPipeline::TargetBlend> getDeferPassBlendStates();
 	QRhiRenderPassDescriptor* getDeferPassDescriptor();
 
-
 	int getForwardSampleCount();
 	QVector<QRhiGraphicsPipeline::TargetBlend> getForwardPassBlendStates();
 	QRhiRenderPassDescriptor* getForwardRenderPassDescriptor();
 
+	std::shared_ptr<QFrameGraph> getFrameGraph() const { return mFrameGraph; }
 protected:
 	QList<IRenderable*> mRenderableItemList;
 	std::shared_ptr<QFrameGraph> mFrameGraph;
+
 	std::shared_ptr<DeferRenderPass> mDeferRenderPass;
 	std::shared_ptr<ForwardRenderPass> mForwardRenderPass;
 	std::shared_ptr<LightingRenderPass> mLightingRenderPass;

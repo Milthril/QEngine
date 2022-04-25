@@ -186,7 +186,7 @@ void QParticleSystemComponent::recreatePipeline() {
 	mPipeline->setShaderStages({
 		{ QRhiShaderStage::Vertex, vs },
 		{ QRhiShaderStage::Fragment, fs }
-							   });
+	});
 	mShaderResourceBindings.reset(RHI->newShaderResourceBindings());
 	QVector<QRhiShaderResourceBinding> shaderBindings;
 	shaderBindings << QRhiShaderResourceBinding::uniformBuffer(0, QRhiShaderResourceBinding::VertexStage, mUniformBuffer.get());
@@ -203,7 +203,17 @@ void QParticleSystemComponent::recreatePipeline() {
 	const QRhiUniform::UniformInfo& uniformInfo = mParticleSystem->getUpdater()->getUniformInfo(3,"UBO", QRhiShaderResourceBinding::ComputeStage);
 
 	QString particleRunCode = QString(R"(#version 450
-	%1
+	#extension GL_ARB_separate_shader_objects : enable
+	#define LOCAL_SIZE 256
+	#define PARTICLE_MAX_SIZE 1000000
+	layout (local_size_x = LOCAL_SIZE) in;
+	struct Particle {
+		vec3 position;
+		vec3 rotation;
+		vec3 scaling;
+		vec3 velocity;
+		float life;
+	};
 	layout(std140,binding = 0) buffer InputParticlesBuffer{
 		Particle inputParticles[PARTICLE_MAX_SIZE];
 	};
@@ -229,7 +239,7 @@ void QParticleSystemComponent::recreatePipeline() {
 		outParticle.life = inParticle.life + duration;
 		%3
 	}
-	)").arg(Asset::getParticleDefine(), uniformInfo.uniformDefineCode, mParticleSystem->getUpdater()->getUpdateCode());
+	)").arg(uniformInfo.uniformDefineCode, mParticleSystem->getUpdater()->getUpdateCode());
 	QShader computeUpdater = QRenderSystem::createShaderFromCode(QShader::ComputeStage, particleRunCode.toLocal8Bit());
 	if (!computeUpdater.isValid()) {
 		mComputePipeline.reset(nullptr);

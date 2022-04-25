@@ -43,6 +43,7 @@ void QStaticMeshComponent::recreatePipeline() {
 	if (mStaticMesh->getVertices().size() == 0) {
 		return;
 	}
+
 	QVector<QRhiVertexInputBinding> inputBindings;
 	inputBindings << QRhiVertexInputBinding{ sizeof(Asset::StaticMesh::Vertex) };
 	QVector<QRhiVertexInputAttribute> attributeList;
