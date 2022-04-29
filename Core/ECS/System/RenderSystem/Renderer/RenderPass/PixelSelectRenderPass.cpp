@@ -9,16 +9,13 @@ void PixelSelectRenderPass::setupSelectCode(QByteArray code) {
 	mSelectCode = code;
 }
 
-void PixelSelectRenderPass::setupInputTexture(QRhiTexture* texture) {
-	mInputTexture = texture;
-}
 
 void PixelSelectRenderPass::setDownSamplerCount(int count) {
 	mDownSamplerCount = qBound(1, count, 16);
 }
 
 void PixelSelectRenderPass::compile() {
-	mRT.colorAttachment.reset(RHI->newTexture(QRhiTexture::RGBA32F, mInputTexture->pixelSize()/mDownSamplerCount, 1, QRhiTexture::RenderTarget | QRhiTexture::UsedAsTransferSource));
+	mRT.colorAttachment.reset(RHI->newTexture(QRhiTexture::RGBA32F, mInputTextures[InputTextureSlot::Color]->pixelSize()/mDownSamplerCount, 1, QRhiTexture::RenderTarget | QRhiTexture::UsedAsTransferSource));
 	mRT.colorAttachment->create();
 	mRT.renderTarget.reset(RHI->newTextureRenderTarget({ mRT.colorAttachment.get() }));
 	mRT.renderPassDesc.reset(mRT.renderTarget->newCompatibleRenderPassDescriptor());
@@ -64,13 +61,14 @@ layout (location = 0) out vec4 outFragColor;
 
 	mBindings.reset(RHI->newShaderResourceBindings());
 	mBindings->setBindings({
-		QRhiShaderResourceBinding::sampledTexture(0,QRhiShaderResourceBinding::FragmentStage,mInputTexture,mSampler.get())
+		QRhiShaderResourceBinding::sampledTexture(0,QRhiShaderResourceBinding::FragmentStage, mInputTextures[InputTextureSlot::Color], mSampler.get())
 						   });
 	mBindings->create();
 	mPipeline->setVertexInputLayout(inputLayout);
 	mPipeline->setShaderResourceBindings(mBindings.get());
 	mPipeline->setRenderPassDescriptor(mRT.renderTarget->renderPassDescriptor());
 	mPipeline->create();
+	mOutputTextures[OutputTextureSlot::SelectResult] = mRT.colorAttachment.get();
 }
 
 void PixelSelectRenderPass::execute(QRhiCommandBuffer* cmdBuffer) {

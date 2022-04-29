@@ -202,6 +202,7 @@ int getByteSize(QRhiUniform::ParamDescBase::Type type) {
 	case QRhiUniform::ParamDescBase::Mat4:
 		return sizeof(float) * 16;
 	}
+	return 0;
 }
 
 int getAlign(QRhiUniform::ParamDescBase::Type type) {
@@ -217,6 +218,7 @@ int getAlign(QRhiUniform::ParamDescBase::Type type) {
 	case QRhiUniform::ParamDescBase::Mat4:
 		return sizeof(float) * 16;
 	}
+	return 0;
 }
 
 int align(int size, int alignSize) {

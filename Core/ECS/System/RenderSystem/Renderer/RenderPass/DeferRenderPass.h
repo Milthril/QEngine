@@ -20,7 +20,6 @@ public:
 		Depth,
 		DebugId,
 	};
-	virtual QRhiTexture* getOutputTexture(int slot = 0);
 
 	QVector<QRhiGraphicsPipeline::TargetBlend> getBlendStates() ;
 	QRhiRenderTarget* getRenderTarget();

@@ -3,17 +3,8 @@
 
 BloomMerageRenderPass::BloomMerageRenderPass(){}
 
-
-void BloomMerageRenderPass::setupSrcTexutre(QRhiTexture* texture) {
-	mSrcTexture = texture;
-}
-
-void BloomMerageRenderPass::setupBloomTexutre(QRhiTexture* texture) {
-	mBloomTexture = texture;
-}
-
 void BloomMerageRenderPass::compile() {
-	mRT.colorAttachment.reset(RHI->newTexture(QRhiTexture::RGBA32F, mSrcTexture->pixelSize(), 1, QRhiTexture::RenderTarget | QRhiTexture::UsedAsTransferSource));
+	mRT.colorAttachment.reset(RHI->newTexture(QRhiTexture::RGBA32F, mInputTextures[InputTextureSlot::Src]->pixelSize(), 1, QRhiTexture::RenderTarget | QRhiTexture::UsedAsTransferSource));
 	mRT.colorAttachment->create();
 	mRT.renderTarget.reset(RHI->newTextureRenderTarget({ mRT.colorAttachment.get() }));
 	mRT.renderPassDesc.reset(mRT.renderTarget->newCompatibleRenderPassDescriptor());
@@ -70,8 +61,8 @@ void main() {
 
 	mBindings.reset(RHI->newShaderResourceBindings());
 	mBindings->setBindings({
-		QRhiShaderResourceBinding::sampledTexture(0,QRhiShaderResourceBinding::FragmentStage,mSrcTexture,mSampler.get()),
-		QRhiShaderResourceBinding::sampledTexture(1,QRhiShaderResourceBinding::FragmentStage,mBloomTexture,mSampler.get())
+		QRhiShaderResourceBinding::sampledTexture(0,QRhiShaderResourceBinding::FragmentStage,mInputTextures[InputTextureSlot::Src],mSampler.get()),
+		QRhiShaderResourceBinding::sampledTexture(1,QRhiShaderResourceBinding::FragmentStage,mInputTextures[InputTextureSlot::Bloom],mSampler.get())
 						   });
 
 	mBindings->create();
@@ -79,6 +70,8 @@ void main() {
 	mPipeline->setShaderResourceBindings(mBindings.get());
 	mPipeline->setRenderPassDescriptor(mRT.renderTarget->renderPassDescriptor());
 	mPipeline->create();
+
+	mOutputTextures[OutputTextureSlot::BloomMerageResult] = mRT.colorAttachment.get();
 }
 
 void BloomMerageRenderPass::execute(QRhiCommandBuffer* cmdBuffer) {

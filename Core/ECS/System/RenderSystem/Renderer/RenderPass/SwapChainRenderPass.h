@@ -8,18 +8,18 @@
 class SwapChainRenderPass :public IRenderPassBase {
 public:
 	SwapChainRenderPass();
-	void setupDebugTexture(QRhiTexture* texture);
-	void setupTexture(QRhiTexture* texture);
+
 	void setupSwapChain(QRhiSwapChain* swapchain);
 
 	virtual void compile() override;
 	virtual void execute(QRhiCommandBuffer* cmdBuffer) override;
 
-	virtual QRhiTexture* getOutputTexture(int slot = 0) {
-		return nullptr;
-	}
+	enum InputTextureSlot {
+		Color = 0,
+		DebugId,
+	};
+
 protected:
-	QRhiTexture* mTexture;
 	QRhiSwapChain* mSwapChain;
 
 	TexturePainter mTexturePainter;

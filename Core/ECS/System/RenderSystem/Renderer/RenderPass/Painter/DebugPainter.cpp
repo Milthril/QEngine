@@ -4,11 +4,15 @@
 #include "QEngineCoreApplication.h"
 #include "qevent.h"
 
+const ImVec2 TextureSize(100, 100);
+
 void FrameGraphDelegate::UpdateGraph() {
 	mNodes.clear();
 	mLinks.clear();
+	mTemplates.clear();
 	std::shared_ptr<QFrameGraph> frameGraph = TheRenderSystem->renderer()->getFrameGraph();
 	const QHash<QString, std::shared_ptr<QFrameGraphNode>>& nodeMap = frameGraph->getGraphNodeMap();
+
 	QHash<QString, int> indexMap;
 
 	for (auto Iter = nodeMap.begin(); Iter != nodeMap.end(); ++Iter) {
@@ -17,20 +21,85 @@ void FrameGraphDelegate::UpdateGraph() {
 		node.x = mNodes.size() * 100;
 		node.y = mNodes.size() * 0;
 		node.mSelected = false;
-		node.templateIndex = 0;
+		node.templateIndex = mTemplates.size();
+		node.mRenderPass = Iter.value()->mRenderPass.get();
+		for (auto& inputTex : Iter.value()->mRenderPass->getInputTextures().values()) {
+			node.mInputSlot << inputTex->name();
+			node.mInputNameCStr << node.mInputSlot.back().data();
+		}
+		for (auto& outputTex : Iter.value()->mRenderPass->getOutputTextures().values()) {
+			node.mOutputSlot << outputTex->name();
+			node.mOnputNameCStr << node.mOutputSlot.back().data();
+		}
+
 		indexMap[Iter.key()] = mNodes.size();
+
+		GraphEditor::Template temp;
+		temp.mHeaderColor = IM_COL32(160, 160, 180, 255);
+		temp.mBackgroundColor = IM_COL32(100, 100, 140, 255);
+		temp.mBackgroundColorOver = IM_COL32(110, 110, 150, 255);
+		temp.mInputNames = node.mInputNameCStr.data();
+		temp.mInputCount = node.mInputNameCStr.size();
+		temp.mInputColors = nullptr;
+
+		temp.mOutputNames = node.mOnputNameCStr.data();
+		temp.mOutputCount = node.mOnputNameCStr.size();
+		temp.mOutputColors = nullptr;
 		mNodes.emplace_back(std::move(node));
+		mTemplates.emplace_back(std::move(temp));
 	}
+
 	for (auto Iter = nodeMap.begin(); Iter != nodeMap.end(); ++Iter) {
 		for (auto sub : Iter.value()->mSubPassList) {
-			GraphEditor::Link link;
-			link.mInputNodeIndex = indexMap[Iter.key()];
-			link.mInputSlotIndex = 0;
-			link.mOutputNodeIndex = indexMap[sub->mName];
-			link.mOutputSlotIndex = 0;
-			mLinks.emplace_back(std::move(link));
+			auto& outputList = Iter.value()->mRenderPass->getOutputTextures();
+			auto& inputList = sub->mRenderPass->getInputTextures();
+			for (int i = 0; i < outputList.size(); i++) {
+				for (int j = 0; j < inputList.size(); j++) {
+					if (outputList[i] == inputList[j]&& inputList[j]!=nullptr) {
+						GraphEditor::Link link;
+						link.mInputNodeIndex = indexMap[Iter.key()];
+						link.mInputSlotIndex = i;
+						link.mOutputNodeIndex = indexMap[sub->mName];
+						link.mOutputSlotIndex = j;
+						mLinks.emplace_back(std::move(link));
+					}
+				}
+			}
 		}
 	}
+
+	QHash<QString, bool> visited;
+	int count = mNodes.size();
+	int level = 0;;
+	while (count) {
+		QStringList levelList;
+		for (auto Iter = nodeMap.begin(); Iter != nodeMap.end(); ++Iter) {
+			if(visited[Iter.key()])
+				continue;
+			bool flag = true;
+			for (auto dep : Iter.value()->mDependencyList) {
+				if (!visited[dep->mName]) {
+					flag = false;
+				}
+			}
+			if (flag) {
+				for (auto& node : mNodes) {
+					if (node.mName == Iter.key()) {
+						node.x = level * 150;
+						node.y = level * 50 + levelList.size() * 150;
+						break;
+					}
+				}
+				levelList << Iter.key();
+				count--;
+			}
+		}
+		for (auto& level : levelList) {
+			visited[level] = true;
+		}
+		level++;
+	}
+
 }
 
 bool FrameGraphDelegate::AllowedLink(GraphEditor::NodeIndex from, GraphEditor::NodeIndex to) {
@@ -50,20 +119,26 @@ void FrameGraphDelegate::RightClick(GraphEditor::NodeIndex nodeIndex, GraphEdito
 }
 
 void FrameGraphDelegate::AddLink(GraphEditor::NodeIndex inputNodeIndex, GraphEditor::SlotIndex inputSlotIndex, GraphEditor::NodeIndex outputNodeIndex, GraphEditor::SlotIndex outputSlotIndex) {
-	mLinks.push_back({ inputNodeIndex, inputSlotIndex, outputNodeIndex, outputSlotIndex });
 }
 
 void FrameGraphDelegate::DelLink(GraphEditor::LinkIndex linkIndex) {
-	mLinks.erase(mLinks.begin() + linkIndex);
 }
 
 void FrameGraphDelegate::CustomDraw(ImDrawList* drawList, ImRect rectangle, GraphEditor::NodeIndex nodeIndex) {
-	drawList->AddLine(rectangle.Min, rectangle.Max, IM_COL32(0, 0, 0, 255));
-	drawList->AddText(rectangle.Min, IM_COL32(255, 128, 64, 255), "Draw");
+	float scaleFactor = rectangle.GetWidth() / TextureSize.x;
+	for (int i = 0; i < mNodes[nodeIndex].mOutputSlot.size(); i++) {
+		ImVec2 pos(rectangle.Min.x, rectangle.Min.y + TextureSize.y* scaleFactor * i);
+		if (mNodes[nodeIndex].mRenderPass) {
+			QRhiTexture* tex = mNodes[nodeIndex].mRenderPass->getOutputTextures()[i];
+			if (tex) {
+				drawList->AddImage((ImTextureID)tex, pos, ImVec2(pos.x + TextureSize.x * scaleFactor, pos.y + TextureSize.y * scaleFactor));
+			}
+		}
+	}
 }
 
 const size_t FrameGraphDelegate::GetTemplateCount() {
-	return sizeof(mTemplates) / sizeof(GraphEditor::Template);
+	return mTemplates.size();
 }
 
 const GraphEditor::Template FrameGraphDelegate::GetTemplate(GraphEditor::TemplateIndex index) {
@@ -80,7 +155,7 @@ const GraphEditor::Node FrameGraphDelegate::GetNode(GraphEditor::NodeIndex index
 	{
 		myNode.mName.data(),
 		myNode.templateIndex,
-		ImRect(ImVec2(myNode.x, myNode.y), ImVec2(myNode.x + 100, myNode.y + 100)),
+		ImRect(ImVec2(myNode.x, myNode.y), ImVec2(myNode.x + TextureSize.x, myNode.y + myNode.mOutputSlot.size() * TextureSize.y + 20)),
 		myNode.mSelected
 	};
 }
@@ -94,18 +169,32 @@ const GraphEditor::Link FrameGraphDelegate::GetLink(GraphEditor::LinkIndex index
 }
 
 DebugPainter::DebugPainter() {
+	mFrameGraphOption.mRenderGrid = false;
+	mFrameGraphOption.mDisplayLinksAsCurves = false;
+	mFrameGraphOption.mBackgroundColor = ImColor(0, 0, 0, 0);
+	mFrameGraphOption.mGridColor = ImColor(0, 0, 0, 0);
+	mFrameGraphOption.mGridColor2 = ImColor(0, 0, 0, 0);
+	mFrameGraphOption.mQuadSelection = ImColor(0, 0, 0, 0);
+	mFrameGraphOption.mQuadSelectionBorder = ImColor(0, 0, 0, 0);
+	mFrameGraphOption.mFrameFocus = ImColor(0, 0, 0, 0);
 }
 
 void DebugPainter::paintImgui() {
 	auto& io = ImGui::GetIO();
-	ImGui::GetBackgroundDrawList()->AddText(ImGui::GetFont(), ImGui::GetFontSize(), ImVec2(1, 1), ImColor(0, 255, 0, 255), QString("FPS: %1").arg(TheRenderSystem->window()->getFPS()).toLocal8Bit().data());
-	static GraphEditor::Options options;
-	static GraphEditor::ViewState viewState;
+
 	static GraphEditor::FitOnScreen fit = GraphEditor::Fit_None;
 
-	ImGui::SetNextWindowSize(ImVec2(400, 400));
+	ImGui::GetBackgroundDrawList()->AddText(ImGui::GetFont(), ImGui::GetFontSize(), ImVec2(0, mDebugTexture->pixelSize().height() - ImGui::GetFontSize()), ImColor(0, 255, 0, 255), QString("FPS: %1").arg(TheRenderSystem->window()->getFPS()).toLocal8Bit().data());
 
-	ImGui::Begin("Graph Editor", NULL, 0);
+	ImGui::SetNextWindowPos(ImVec2(0, 0));
+	ImGui::SetNextWindowSize(ImVec2(mDebugTexture->pixelSize().width(), mDebugTexture->pixelSize().height()));
+
+	ImGuiWindowFlags windowFlags = 0;
+	windowFlags |= ImGuiWindowFlags_NoMove;
+	windowFlags |= ImGuiWindowFlags_NoResize;
+	windowFlags |= ImGuiWindowFlags_NoBackground;
+
+	ImGui::Begin("Frame Graph", NULL, windowFlags);
 	if (ImGui::Button("Fit all nodes")) {
 		fit = GraphEditor::Fit_AllNodes;
 	}
@@ -113,7 +202,8 @@ void DebugPainter::paintImgui() {
 	if (ImGui::Button("Fit selected nodes")) {
 		fit = GraphEditor::Fit_SelectedNodes;
 	}
-	GraphEditor::Show(mFrameGraphDelegate, options, viewState, true, &fit);
+	GraphEditor::Show(mFrameGraphDelegate, mFrameGraphOption, mFrameGraphViewState, true, &fit);
+
 	ImGui::End();
 
 	ImGuizmo::BeginFrame();

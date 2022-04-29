@@ -7,7 +7,8 @@
 #include "ECS\System\RenderSystem\QRenderSystem.h"
 
 
-const int64_t IMGUI_BUFFER_SIZE = 10000;
+const int64_t IMGUI_VERTEX_BUFFER_SIZE = 50000;
+const int64_t IMGUI_INDEX_BUFFER_SIZE = 50000;
 
 const QHash<int, ImGuiKey> keyMap = {
 	{ Qt::Key_Tab, ImGuiKey_Tab },
@@ -79,10 +80,10 @@ void ImGuiPainter::setupWindow(QWindow* window)
 
 
 void ImGuiPainter::compile() {
-	mVertexBuffer.reset(RHI->newBuffer(QRhiBuffer::Dynamic, QRhiBuffer::VertexBuffer, sizeof(ImDrawVert) * IMGUI_BUFFER_SIZE));
+	mVertexBuffer.reset(RHI->newBuffer(QRhiBuffer::Dynamic, QRhiBuffer::VertexBuffer, sizeof(ImDrawVert) * IMGUI_VERTEX_BUFFER_SIZE));
 	mVertexBuffer->create();
 
-	mIndexBuffer.reset(RHI->newBuffer(QRhiBuffer::Dynamic, QRhiBuffer::IndexBuffer, sizeof(ImDrawIdx) * IMGUI_BUFFER_SIZE));
+	mIndexBuffer.reset(RHI->newBuffer(QRhiBuffer::Dynamic, QRhiBuffer::IndexBuffer, sizeof(ImDrawIdx) * IMGUI_INDEX_BUFFER_SIZE));
 	mIndexBuffer->create();
 
 	mUniformBuffer.reset(RHI->newBuffer(QRhiBuffer::Type::Dynamic, QRhiBuffer::UniformBuffer, sizeof(QMatrix4x4)));
@@ -236,8 +237,6 @@ void ImGuiPainter::resourceUpdate(QRhiResourceUpdateBatch* batch) {
 	}
 }
 
-
-
 void ImGuiPainter::paint(QRhiCommandBuffer* cmdBuffer, QRhiRenderTarget* renderTarget) {
 	ImDrawData* draw_data = ImGui::GetDrawData();
 	int64_t vertexBufferOffset = 0;
@@ -246,13 +245,29 @@ void ImGuiPainter::paint(QRhiCommandBuffer* cmdBuffer, QRhiRenderTarget* renderT
 		const ImDrawList* cmd_list = draw_data->CmdLists[i];
 		cmdBuffer->setGraphicsPipeline(mPipeline.get());
 		cmdBuffer->setViewport(QRhiViewport(0, 0, renderTarget->pixelSize().width(), renderTarget->pixelSize().height()));
-		cmdBuffer->setShaderResources();
+
 		const QRhiCommandBuffer::VertexInput VertexInput(mVertexBuffer.get(), vertexBufferOffset);
 		cmdBuffer->setVertexInput(0, 1, &VertexInput, mIndexBuffer.get(), indexBufferOffset, sizeof(ImDrawIdx) == 2 ? QRhiCommandBuffer::IndexUInt16 : QRhiCommandBuffer::IndexUInt32);
 		vertexBufferOffset += cmd_list->VtxBuffer.size_in_bytes();
 		indexBufferOffset += cmd_list->IdxBuffer.size_in_bytes();
 		for (int cmd_i = 0; cmd_i < cmd_list->CmdBuffer.Size; cmd_i++) {
 			const ImDrawCmd* pcmd = &cmd_list->CmdBuffer[cmd_i];
+			QRhiTexture * texPtr = static_cast<QRhiTexture*>(pcmd->GetTexID());
+			if (texPtr) {
+				mBindings->setBindings({
+					QRhiShaderResourceBinding::uniformBuffer(0,QRhiShaderResourceBinding::VertexStage,mUniformBuffer.get()),
+					QRhiShaderResourceBinding::sampledTexture(1,QRhiShaderResourceBinding::FragmentStage,texPtr,mSampler.get())
+									   });
+				mBindings->create();
+			}
+			else {
+				mBindings->setBindings({
+					QRhiShaderResourceBinding::uniformBuffer(0,QRhiShaderResourceBinding::VertexStage,mUniformBuffer.get()),
+					QRhiShaderResourceBinding::sampledTexture(1,QRhiShaderResourceBinding::FragmentStage,mFontTexture.get(),mSampler.get())
+									   });
+				mBindings->create();
+			}
+			cmdBuffer->setShaderResources();
 			if (pcmd->UserCallback) {
 				pcmd->UserCallback(cmd_list, pcmd);
 			}

@@ -7,7 +7,6 @@ class BlurRenderPass: public IRenderPassBase {
 public:
 	BlurRenderPass();
 
-	void setupInputTexture(QRhiTexture* inputTexture);
 	void setupBloomSize(int size);
 	void setupBoommIter(int val) { mBoommIter = val; }
 
@@ -17,16 +16,13 @@ public:
 	int getBoommIter() const { return mBoommIter; }
 	QRhiTextureRenderTarget* getInputRenderTaget() { return mBloomRT[0].renderTarget.get(); }
 
+	enum InputTextureSlot {
+		Color = 0,
+	};
+
 	enum OutputTextureSlot {
 		BlurResult = 0,
 	};
-	virtual QRhiTexture* getOutputTexture(int slot = 0) {
-		switch ((OutputTextureSlot)slot) {
-		case BlurResult:
-			return mBloomRT[0].colorAttachment.get();	
-		}
-		return nullptr;
-	}
 private:
 	QRhiSPtr<QRhiSampler> mSampler;
 	QRhiSPtr<QRhiBuffer> mUniformBuffer;
@@ -40,14 +36,12 @@ private:
 	QRhiSPtr<QRhiGraphicsPipeline> mPipelineV;
 	QRhiSPtr<QRhiShaderResourceBindings> mBindingsH;
 	QRhiSPtr<QRhiShaderResourceBindings> mBindingsV;
-	QRhiTexture* mInputTexture;
 	struct BloomState {
 		uint32_t size = 0;
 		uint32_t padding[3];
 		float weight[40] = { 0 };
 	}mBloomState;
 	int mBoommIter = 2;
-
 	QRhiSignal bNeedUpdateBloomState;
 };
 

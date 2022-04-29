@@ -5,15 +5,6 @@ SwapChainRenderPass::SwapChainRenderPass()
 {
 }
 
-void SwapChainRenderPass::setupDebugTexture(QRhiTexture* texture) {
-	mDebugPainter.setupDebugTexture(texture);
-}
-
-void SwapChainRenderPass::setupTexture(QRhiTexture* texture)
-{
-	mTexture = texture;
-}
-
 void SwapChainRenderPass::setupSwapChain(QRhiSwapChain* swapchain)
 {
 	mSwapChain = swapchain;
@@ -21,7 +12,7 @@ void SwapChainRenderPass::setupSwapChain(QRhiSwapChain* swapchain)
 
 void SwapChainRenderPass::compile()
 {
-	mTexturePainter.setupTexture(mTexture);
+	mTexturePainter.setupTexture(mInputTextures[InputTextureSlot::Color]);
 	mTexturePainter.setupRenderPassDesc(mSwapChain->renderPassDescriptor());
 	mTexturePainter.setupSampleCount(mSwapChain->sampleCount());
 	mTexturePainter.compile();
@@ -29,6 +20,7 @@ void SwapChainRenderPass::compile()
 	mDebugPainter.setupRenderPassDesc(mSwapChain->renderPassDescriptor());
 	mDebugPainter.setupSampleCount(mSwapChain->sampleCount());
 	mDebugPainter.setupWindow(mSwapChain->window());
+	mDebugPainter.setupDebugTexture(mInputTextures[InputTextureSlot::DebugId]);
 	mDebugPainter.compile();
 }
 

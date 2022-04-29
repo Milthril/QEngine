@@ -33,17 +33,17 @@ void QRenderer::buildFrameGraph() {
 		->node("Defer", mDeferRenderPass,[]() {})
 		->node("Lighting", mLightingRenderPass,
 			   [self = mLightingRenderPass.get(), defer = mDeferRenderPass.get()]() {
-					self->setupBaseColorTexutre(defer->getOutputTexture(DeferRenderPass::OutputTextureSlot::BaseColor));
-					self->setupPositionTexutre(defer->getOutputTexture(DeferRenderPass::OutputTextureSlot::Position));
-					self->setupNormalMetalnessTexutre(defer->getOutputTexture(DeferRenderPass::OutputTextureSlot::NormalMetalness));
-					self->setupTangentRoughnessTexutre(defer->getOutputTexture(DeferRenderPass::OutputTextureSlot::TangentRoughness));
+					self->setupInputTexture(LightingRenderPass::InputTextureSlot::Color, defer->getOutputTexture(DeferRenderPass::OutputTextureSlot::BaseColor));
+					self->setupInputTexture(LightingRenderPass::InputTextureSlot::Position, defer->getOutputTexture(DeferRenderPass::OutputTextureSlot::Position));
+					self->setupInputTexture(LightingRenderPass::InputTextureSlot::Normal_MetalnessTexture, defer->getOutputTexture(DeferRenderPass::OutputTextureSlot::NormalMetalness));
+					self->setupInputTexture(LightingRenderPass::InputTextureSlot::Tangent_RoughnessTexture, defer->getOutputTexture(DeferRenderPass::OutputTextureSlot::TangentRoughness));
 				})
 		->dependency({ "Defer" })
 		->node("Forward", mForwardRenderPass,
 				[self = mForwardRenderPass.get(), lighting = mLightingRenderPass.get(), defer = mDeferRenderPass.get()]() {
-					self->setupInputColorTexture(lighting->getOutputTexture(LightingRenderPass::OutputTextureSlot::LightingResult));
-					self->setupInputDepthTexture(defer->getOutputTexture(DeferRenderPass::OutputTextureSlot::Depth));
-					self->setupInputDebugIdTexture(defer->getOutputTexture(DeferRenderPass::OutputTextureSlot::DebugId));
+					self->setupInputTexture(ForwardRenderPass::InputTextureSlot::Color, lighting->getOutputTexture(LightingRenderPass::OutputTextureSlot::LightingResult));
+					self->setupInputTexture(ForwardRenderPass::InputTextureSlot::Depth, defer->getOutputTexture(DeferRenderPass::OutputTextureSlot::Depth));
+					self->setupInputTexture(ForwardRenderPass::InputTextureSlot::DeferDebugId, defer->getOutputTexture(DeferRenderPass::OutputTextureSlot::DebugId));
 				})
 		->dependency({ "Lighting","Defer"})
 		->node("BloomPixelSelector", bloomPixelSelectPass,
@@ -56,27 +56,27 @@ void QRenderer::buildFrameGraph() {
 							outFragColor = (1-step(value,1.0f)) * color;
 						}
 						)");
-					self->setupInputTexture(forward->getOutputTexture(ForwardRenderPass::OutputTextureSlot::Output));
+					self->setupInputTexture(PixelSelectRenderPass::InputTextureSlot::Color,  forward->getOutputTexture(ForwardRenderPass::OutputTextureSlot::Output));
 				})
-			->dependency({ "Lighting" })
+			->dependency({ "Forward" })
 		->node("BloomBlurPass", bloomBlurPass,
 				[self = bloomBlurPass.get(), pixel = bloomPixelSelectPass.get()]() {
-					self->setupInputTexture(pixel->getOutputTexture(PixelSelectRenderPass::OutputTextureSlot::SelectResult));
+					self->setupInputTexture(BlurRenderPass::InputTextureSlot::Color, pixel->getOutputTexture(PixelSelectRenderPass::OutputTextureSlot::SelectResult));
 					self->setupBloomSize(20);
 					self->setupBoommIter(2);
 				})
 			->dependency({ "BloomPixelSelector" })
 		->node("BloomMeragePass", bloomMeragePass,
 				[self = bloomMeragePass.get(), forward = mForwardRenderPass.get(), blur = bloomBlurPass]() {
-					self->setupBloomTexutre(blur->getOutputTexture(BlurRenderPass::OutputTextureSlot::BlurResult));
-					self->setupSrcTexutre(forward->getOutputTexture(ForwardRenderPass::OutputTextureSlot::Output));
+					self->setupInputTexture(BloomMerageRenderPass::InputTextureSlot::Bloom, blur->getOutputTexture(BlurRenderPass::OutputTextureSlot::BlurResult));
+					self->setupInputTexture(BloomMerageRenderPass::InputTextureSlot::Src, forward->getOutputTexture(ForwardRenderPass::OutputTextureSlot::Output));
 				})
 			->dependency({ "Forward","BloomBlurPass" })
 		->node("Swapchain", swapChainPass,
 			   [self = swapChainPass.get(), bloom = bloomMeragePass.get(), defer = mDeferRenderPass.get(), forward = mForwardRenderPass.get()]() {
 					self->setupSwapChain(TheRenderSystem->window()->getSwapChain());
-					self->setupTexture(bloom->getOutputTexture(BloomMerageRenderPass::OutputTextureSlot::BloomMerageResult));
-					self->setupDebugTexture(forward->getOutputTexture(ForwardRenderPass::OutputTextureSlot::DebugId));
+					self->setupInputTexture(SwapChainRenderPass::InputTextureSlot::Color, bloom->getOutputTexture(BloomMerageRenderPass::OutputTextureSlot::BloomMerageResult));
+					self->setupInputTexture(SwapChainRenderPass::InputTextureSlot::DebugId, forward->getOutputTexture(ForwardRenderPass::OutputTextureSlot::DebugId));
 				})
 			->dependency({ "BloomMeragePass","Forward"})
 		->end();

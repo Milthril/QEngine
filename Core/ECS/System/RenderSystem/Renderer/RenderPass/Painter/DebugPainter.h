@@ -5,6 +5,8 @@
 #include "ImGuizmo.h"
 #include <GraphEditor.h>
 
+class IRenderPassBase;
+
 template <typename T, std::size_t N>
 struct Array {
 	T data[N];
@@ -38,31 +40,25 @@ struct FrameGraphDelegate : public GraphEditor::Delegate {
 	const size_t GetLinkCount() override;
 	const GraphEditor::Link GetLink(GraphEditor::LinkIndex index) override;
 	// Graph datas
-	static const inline GraphEditor::Template mTemplates[] = {
-		{
-			IM_COL32(160, 160, 180, 255),
-			IM_COL32(100, 100, 140, 255),
-			IM_COL32(110, 110, 150, 255),
-			1,
-			Array{"Input"},
-			nullptr,
-			1,
-			Array{"Output"},
-			nullptr
-		},
-	};
 
+public:
 	struct Node {
 		QByteArray mName;
 		GraphEditor::TemplateIndex templateIndex;
 		float x, y;
 		bool mSelected;
+		QByteArrayList mInputSlot;
+		QByteArrayList mOutputSlot;
+
+		QVector<const char*> mInputNameCStr;
+		QVector<const char*> mOnputNameCStr;
+		IRenderPassBase* mRenderPass;
 	};
 
 	std::vector<Node> mNodes;
 	std::vector<GraphEditor::Link> mLinks;;
+	std::vector<GraphEditor::Template> mTemplates;
 };
-
 
 class DebugPainter :public ImGuiPainter {
 	Q_OBJECT
@@ -76,7 +72,6 @@ public:
 	virtual void resourceUpdate(QRhiResourceUpdateBatch* batch) override;
 	virtual void compile() override;
 	virtual void paint(QRhiCommandBuffer* cmdBuffer, QRhiRenderTarget* renderTarget) override;
-
 protected:
 	bool eventFilter(QObject* watched, QEvent* event) override;
 private:

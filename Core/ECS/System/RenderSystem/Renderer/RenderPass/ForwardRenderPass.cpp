@@ -80,10 +80,10 @@ void main() {
 }
 )";
 	QList<QRhiShaderResourceBinding> mBindingList;
-	mBindingList << QRhiShaderResourceBinding::sampledTexture(0, QRhiShaderResourceBinding::FragmentStage, mInputColorTexture, mSampler.get());
-	mBindingList << QRhiShaderResourceBinding::sampledTexture(1, QRhiShaderResourceBinding::FragmentStage, mInputDepthTexture, mSampler.get());
+	mBindingList << QRhiShaderResourceBinding::sampledTexture(0, QRhiShaderResourceBinding::FragmentStage, mInputTextures[InputTextureSlot::Color], mSampler.get());
+	mBindingList << QRhiShaderResourceBinding::sampledTexture(1, QRhiShaderResourceBinding::FragmentStage, mInputTextures[InputTextureSlot::Depth], mSampler.get());
 	if (TheRenderSystem->isEnableDebug()) {
-		mBindingList << QRhiShaderResourceBinding::sampledTexture(2, QRhiShaderResourceBinding::FragmentStage, mInputDebugIdTexture, mSampler.get());
+		mBindingList << QRhiShaderResourceBinding::sampledTexture(2, QRhiShaderResourceBinding::FragmentStage, mInputTextures[InputTextureSlot::DeferDebugId], mSampler.get());
 		fsCode = fsCode
 			.arg("layout(binding = 2) uniform sampler2D uDebugId;")
 			.arg("layout(location = 1) out vec4 outDebugId;")
@@ -108,29 +108,12 @@ void main() {
 	mCopyPipeline->setShaderResourceBindings(mBindings.get());
 	mCopyPipeline->setRenderPassDescriptor(mRT.renderPassDesc.get());
 	mCopyPipeline->create();
+
+	mOutputTextures[OutputTextureSlot::Output] = mRT.atBaseColor.get();
+	mOutputTextures[OutputTextureSlot::DebugId] = mRT.atDebugId.get();
 }
 
 ForwardRenderPass::ForwardRenderPass() {
-}
-
-void ForwardRenderPass::setupInputColorTexture(QRhiTexture* texture) {
-	mInputColorTexture = texture;
-}
-
-void ForwardRenderPass::setupInputDepthTexture(QRhiTexture* texture) {
-	mInputDepthTexture = texture;
-}
-
-void ForwardRenderPass::setupInputDebugIdTexture(QRhiTexture* texture) {
-	mInputDebugIdTexture = texture;
-}
-
-QRhiTexture* ForwardRenderPass::getOutputTexture(int slot /*= 0*/) {
-	switch ((OutputTextureSlot)slot) {
-	case Output: return mRT.atBaseColor.get();
-	case DebugId: return mRT.atDebugId.get();
-	}
-	return nullptr;
 }
 
 QVector<QRhiGraphicsPipeline::TargetBlend> ForwardRenderPass::getBlendStates()

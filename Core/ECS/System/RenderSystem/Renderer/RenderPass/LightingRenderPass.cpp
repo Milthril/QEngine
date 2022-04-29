@@ -6,22 +6,6 @@
 
 LightingRenderPass::LightingRenderPass(){}
 
-void LightingRenderPass::setupBaseColorTexutre(QRhiTexture* texture) {
-	mBaseColorTexture = texture;
-}
-
-void LightingRenderPass::setupPositionTexutre(QRhiTexture* texture) {
-	mPositionTexture = texture;
-}
-
-void LightingRenderPass::setupNormalMetalnessTexutre(QRhiTexture* texture) {
-	mNormal_MetalnessTexture = texture;
-}
-
-void LightingRenderPass::setupTangentRoughnessTexutre(QRhiTexture* texture) {
-	mTangent_RoughnessTexture = texture;
-}
-
 void LightingRenderPass::addLightItem(ILightComponent* item) {
 	mLightItemList << item;
 	rebuildLight();
@@ -33,7 +17,7 @@ void LightingRenderPass::removeLightItem(ILightComponent* item) {
 }
 
 void LightingRenderPass::compile() {
-	mRT.colorAttachment.reset(RHI->newTexture(QRhiTexture::RGBA32F, mBaseColorTexture->pixelSize(), 1, QRhiTexture::RenderTarget | QRhiTexture::UsedAsTransferSource));
+	mRT.colorAttachment.reset(RHI->newTexture(QRhiTexture::RGBA32F, mInputTextures[InputTextureSlot::Color]->pixelSize(), 1, QRhiTexture::RenderTarget | QRhiTexture::UsedAsTransferSource));
 	mRT.colorAttachment->create();
 	mRT.renderTarget.reset(RHI->newTextureRenderTarget({ mRT.colorAttachment.get() }));
 	mRT.renderPassDesc.reset(mRT.renderTarget->newCompatibleRenderPassDescriptor());
@@ -49,6 +33,7 @@ void LightingRenderPass::compile() {
 	mUniformBuffer.reset(RHI->newBuffer(QRhiBuffer::Dynamic, QRhiBuffer::UniformBuffer, sizeof(UniformBlock)));
 	mUniformBuffer->create();
 	rebuildLight();
+	mOutputTextures[OutputTextureSlot::LightingResult] = mRT.colorAttachment.get();
 }
 
 void LightingRenderPass::rebuildLight() {
@@ -60,10 +45,10 @@ void LightingRenderPass::rebuildLight() {
 
 	mBindings.reset(RHI->newShaderResourceBindings());
 	QVector<QRhiShaderResourceBinding> shaderBindings;
-	shaderBindings << QRhiShaderResourceBinding::sampledTexture(0, QRhiShaderResourceBinding::FragmentStage, mBaseColorTexture, mSampler.get());
-	shaderBindings << QRhiShaderResourceBinding::sampledTexture(1, QRhiShaderResourceBinding::FragmentStage, mPositionTexture, mSampler.get());
-	shaderBindings << QRhiShaderResourceBinding::sampledTexture(2, QRhiShaderResourceBinding::FragmentStage, mNormal_MetalnessTexture, mSampler.get());
-	shaderBindings << QRhiShaderResourceBinding::sampledTexture(3, QRhiShaderResourceBinding::FragmentStage, mTangent_RoughnessTexture, mSampler.get());
+	shaderBindings << QRhiShaderResourceBinding::sampledTexture(0, QRhiShaderResourceBinding::FragmentStage, mInputTextures[InputTextureSlot::Color], mSampler.get());
+	shaderBindings << QRhiShaderResourceBinding::sampledTexture(1, QRhiShaderResourceBinding::FragmentStage, mInputTextures[InputTextureSlot::Position], mSampler.get());
+	shaderBindings << QRhiShaderResourceBinding::sampledTexture(2, QRhiShaderResourceBinding::FragmentStage, mInputTextures[InputTextureSlot::Normal_MetalnessTexture], mSampler.get());
+	shaderBindings << QRhiShaderResourceBinding::sampledTexture(3, QRhiShaderResourceBinding::FragmentStage, mInputTextures[InputTextureSlot::Tangent_RoughnessTexture], mSampler.get());
 	shaderBindings << QRhiShaderResourceBinding::uniformBuffer(4, QRhiShaderResourceBinding::FragmentStage, mUniformBuffer.get(), 0, sizeof(UniformBlock));
 
 	QByteArray lightDefineCode;

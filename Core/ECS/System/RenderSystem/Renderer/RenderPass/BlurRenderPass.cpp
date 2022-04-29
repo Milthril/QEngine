@@ -4,9 +4,6 @@
 BlurRenderPass::BlurRenderPass() {
 }
 
-void BlurRenderPass::setupInputTexture(QRhiTexture* inputTexture) {
-	mInputTexture = inputTexture;
-}
 
 void BlurRenderPass::setupBloomSize(int size) {
 	if (size <= 0 || size == mBloomState.size || size >= std::size(mBloomState.weight))
@@ -29,7 +26,7 @@ void BlurRenderPass::setupBloomSize(int size) {
 void BlurRenderPass::compile() {
 
 	for (int i = 0; i < 2; i++) {
-		mBloomRT[i].colorAttachment.reset(RHI->newTexture(QRhiTexture::RGBA32F, mInputTexture->pixelSize(), 1, QRhiTexture::RenderTarget | QRhiTexture::UsedAsTransferSource));
+		mBloomRT[i].colorAttachment.reset(RHI->newTexture(QRhiTexture::RGBA32F, mInputTextures[InputTextureSlot::Color]->pixelSize(), 1, QRhiTexture::RenderTarget | QRhiTexture::UsedAsTransferSource));
 		mBloomRT[i].colorAttachment->create();
 		mBloomRT[i].renderTarget.reset(RHI->newTextureRenderTarget({ mBloomRT[i].colorAttachment.get() }));
 	}
@@ -152,11 +149,13 @@ void main(){
 	mPipelineV->setRenderPassDescriptor(renderPassDesc.get());
 	mPipelineV->create();
 	bNeedUpdateBloomState.active();
+
+	mOutputTextures[OutputTextureSlot::BlurResult] = mBloomRT[0].colorAttachment.get();
 }
 
 void BlurRenderPass::execute(QRhiCommandBuffer* cmdBuffer) {
 	QRhiResourceUpdateBatch* copyBatch = RHI->nextResourceUpdateBatch();
-	copyBatch->copyTexture(mBloomRT[0].colorAttachment.get(), mInputTexture);
+	copyBatch->copyTexture(mBloomRT[0].colorAttachment.get(), mInputTextures[InputTextureSlot::Color]);
 	if (bNeedUpdateBloomState.receive()) {
 		copyBatch->updateDynamicBuffer(mUniformBuffer.get(), 0, sizeof(BloomState), &mBloomState);
 	}
@@ -165,14 +164,14 @@ void BlurRenderPass::execute(QRhiCommandBuffer* cmdBuffer) {
 		cmdBuffer->beginPass(mBloomRT[1].renderTarget.get(), QColor::fromRgbF(0.0f, 0.0f, 0.0f, 0.0f), { 1.0f, 0 });
 		cmdBuffer->setGraphicsPipeline(mPipelineH.get());
 		cmdBuffer->setShaderResources(mBindingsH.get());
-		cmdBuffer->setViewport(QRhiViewport(0, 0, mInputTexture->pixelSize().width(), mInputTexture->pixelSize().height()));
+		cmdBuffer->setViewport(QRhiViewport(0, 0, mInputTextures[InputTextureSlot::Color]->pixelSize().width(), mInputTextures[InputTextureSlot::Color]->pixelSize().height()));
 		cmdBuffer->draw(4);
 		cmdBuffer->endPass();
 
 		cmdBuffer->beginPass(mBloomRT[0].renderTarget.get(), QColor::fromRgbF(0.0f, 0.0f, 0.0f, 0.0f), { 1.0f, 0 });
 		cmdBuffer->setGraphicsPipeline(mPipelineV.get());
 		cmdBuffer->setShaderResources(mBindingsV.get());
-		cmdBuffer->setViewport(QRhiViewport(0, 0, mInputTexture->pixelSize().width(), mInputTexture->pixelSize().height()));
+		cmdBuffer->setViewport(QRhiViewport(0, 0, mInputTextures[InputTextureSlot::Color]->pixelSize().width(), mInputTextures[InputTextureSlot::Color]->pixelSize().height()));
 		cmdBuffer->draw(4);
 		cmdBuffer->endPass();
 	}

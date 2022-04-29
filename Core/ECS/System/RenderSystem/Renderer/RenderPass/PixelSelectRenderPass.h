@@ -8,22 +8,18 @@ public:
 	PixelSelectRenderPass();
 
 	void setupSelectCode(QByteArray code);
-	void setupInputTexture(QRhiTexture* texture);
 	void setDownSamplerCount(int count);
 
 	virtual void compile() override;
 	virtual void execute(QRhiCommandBuffer* cmdBuffer) override;
 
+	enum InputTextureSlot {
+		Color = 0,
+	};
+
 	enum OutputTextureSlot {
 		SelectResult = 0,
 	};
-	virtual QRhiTexture* getOutputTexture(int slot = 0) {
-		switch ((OutputTextureSlot)slot) {
-		case SelectResult:
-			return mRT.colorAttachment.get();
-		}
-		return nullptr;
-	}
 
 private:
 	struct RTResource {
@@ -35,7 +31,7 @@ private:
 	QRhiSPtr<QRhiGraphicsPipeline> mPipeline;
 	QRhiSPtr<QRhiSampler> mSampler;
 	QRhiSPtr<QRhiShaderResourceBindings> mBindings;
-	QRhiTexture* mInputTexture;
+
 	QByteArray mSelectCode;
 	uint32_t mDownSamplerCount = 1;
 };
