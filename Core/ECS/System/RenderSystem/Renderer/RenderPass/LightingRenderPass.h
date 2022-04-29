@@ -29,7 +29,8 @@ public:
 	enum OutputTextureSlot {
 		LightingResult
 	};
-
+private:
+	void buildIBL(QRhiCommandBuffer* cmdBuffer);
 private:
 	struct RTResource {
 		QRhiSPtr<QRhiTexture> colorAttachment;
@@ -47,6 +48,21 @@ private:
 	QRhiSPtr<QRhiShaderResourceBindings> mBindings;
 
 	QList<ILightComponent*> mLightItemList;
+
+	QRhiTexture* mSkyCube;
+
+	QRhiSPtr<QRhiComputePipeline> spmapPipeline;
+	QRhiSPtr<QRhiShaderResourceBindings> spmapShaderBindings;
+	QRhiSPtr<QRhiBuffer> spmapUniform;
+	QRhiSPtr<QRhiTexture> spmapTexture;
+
+	QRhiSPtr<QRhiComputePipeline> irmapPipeline;
+	QRhiSPtr<QRhiShaderResourceBindings> irmapShaderBindings;
+	QRhiSPtr<QRhiTexture> irmapTexture;
+
+	QRhiSPtr<QRhiComputePipeline> BRDFPipeline;
+	QRhiSPtr<QRhiShaderResourceBindings> BRDFShaderBindings;
+	QRhiSPtr<QRhiTexture> BRDFTexture;
 };
 
 #endif // LightingRenderPass_h__

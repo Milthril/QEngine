@@ -1,6 +1,7 @@
 #include "QWorld.h"
 #include "System\RenderSystem\QRenderSystem.h"
 #include "Component\QCameraComponent.h"
+#include "Component\RenderableComponent\QSkyBoxComponent.h"
 
 QWorld::QWorld()
 	: mCameraEntity(std::make_shared<QEntity>(this)){

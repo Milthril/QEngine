@@ -5,9 +5,9 @@
 #include "QEntity.h"
 #include "QHash"
 
-
 class QRenderSystem;
 class QCameraComponent;
+class QSkyBoxComponent;
 
 class QWorld: public QObject {
 	Q_OBJECT
@@ -25,7 +25,10 @@ public:
 
 	QEntity* getCurrentEntity() const { return mCurrentEntity; }
 	void setCurrentEntity(QEntity* val);
-	
+
+	QSkyBoxComponent* getCurrentSkyBox() const { return mCurrentSkyBox; }
+	void setCurrentSkyBox(QSkyBoxComponent* val) { mCurrentSkyBox = val; }
+
 private:
 	QString getVaildEntityName(const QString& name);
 Q_SIGNALS:
@@ -36,7 +39,7 @@ private:
 	std::shared_ptr<QEntity> mCameraEntity;
 	QCameraComponent* mCamera = nullptr;
 	QEntity* mCurrentEntity = nullptr;
-
+	QSkyBoxComponent* mCurrentSkyBox = nullptr;
 };
 
 

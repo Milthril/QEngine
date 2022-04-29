@@ -177,6 +177,9 @@ DebugPainter::DebugPainter() {
 	mFrameGraphOption.mQuadSelection = ImColor(0, 0, 0, 0);
 	mFrameGraphOption.mQuadSelectionBorder = ImColor(0, 0, 0, 0);
 	mFrameGraphOption.mFrameFocus = ImColor(0, 0, 0, 0);
+	mFrameGraphOption.mNodeSlotRadius = 1;
+	mFrameGraphOption.mMinZoom = 0.1f;
+	mFrameGraphOption.mMaxZoom = 10.0f;;
 }
 
 void DebugPainter::paintImgui() {

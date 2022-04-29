@@ -1,6 +1,7 @@
 #include "QSkyBoxComponent.h"
 #include "ECS\System\RenderSystem\QRenderSystem.h"
 #include "ECS\QEntity.h"
+#include "ECS\QWorld.h"
 
 static float cubeData[] = { // Y up, front = CCW
 		// positions
@@ -46,6 +47,19 @@ static float cubeData[] = { // Y up, front = CCW
 		-1.0f, -1.0f,  1.0f,
 		 1.0f, -1.0f,  1.0f
 };
+
+QSkyBoxComponent::~QSkyBoxComponent() {
+	if (mEntity) {
+		mEntity->World()->setCurrentSkyBox(nullptr);
+	}
+}
+
+void QSkyBoxComponent::setupEntity(QEntity* entity) {
+	IRenderableComponent::setupEntity(entity);
+	if (mEntity) {
+		mEntity->World()->setCurrentSkyBox(this);
+	}
+}
 
 void QSkyBoxComponent::setSkyBox(std::shared_ptr<Asset::SkyBox> val) {
 	mSkyBox = val;
