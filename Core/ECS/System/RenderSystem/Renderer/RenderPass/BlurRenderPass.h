@@ -4,17 +4,21 @@
 #include "IRenderPassBase.h"
 
 class BlurRenderPass: public IRenderPassBase {
+	Q_OBJECT
+		Q_PROPERTY(int BlurIterations READ getBlurIter WRITE setupBlurIter)
+		Q_PROPERTY(int BlurSize READ getBlurSize WRITE setupBlurSize)
 public:
 	BlurRenderPass();
 
-	void setupBloomSize(int size);
-	void setupBoommIter(int val) { mBoommIter = val; }
+	void setupBlurSize(int size);
+	void setupBlurIter(int val);
 
 	virtual void compile() override;
 	virtual void execute(QRhiCommandBuffer* cmdBuffer) override;
 
-	int getBoommIter() const { return mBoommIter; }
-	QRhiTextureRenderTarget* getInputRenderTaget() { return mBloomRT[0].renderTarget.get(); }
+	int getBlurIter() const { return mBlurIter; }
+	int getBlurSize() const { return mBlurState.size; }
+	QRhiTextureRenderTarget* getInputRenderTaget() { return mBlurRT[0].renderTarget.get(); }
 
 	enum InputTextureSlot {
 		Color = 0,
@@ -26,23 +30,23 @@ public:
 private:
 	QRhiSPtr<QRhiSampler> mSampler;
 	QRhiSPtr<QRhiBuffer> mUniformBuffer;
-	struct BloomRT {
+	struct BlurRT {
 		QRhiSPtr<QRhiTexture> colorAttachment;
 		QRhiSPtr<QRhiTextureRenderTarget> renderTarget;
 	};
-	BloomRT mBloomRT[2];
+	BlurRT mBlurRT[2];
 	QRhiSPtr<QRhiRenderPassDescriptor> renderPassDesc;
 	QRhiSPtr<QRhiGraphicsPipeline> mPipelineH;
 	QRhiSPtr<QRhiGraphicsPipeline> mPipelineV;
 	QRhiSPtr<QRhiShaderResourceBindings> mBindingsH;
 	QRhiSPtr<QRhiShaderResourceBindings> mBindingsV;
-	struct BloomState {
+	struct BlurState {
 		uint32_t size = 0;
 		uint32_t padding[3];
 		float weight[40] = { 0 };
-	}mBloomState;
-	int mBoommIter = 2;
-	QRhiSignal bNeedUpdateBloomState;
+	}mBlurState;
+	int mBlurIter = 2;
+	QRhiSignal bNeedUpdateBlurState;
 };
 
 #endif // BlurRenderPass_h__

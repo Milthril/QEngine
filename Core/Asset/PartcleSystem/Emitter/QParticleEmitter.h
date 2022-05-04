@@ -38,7 +38,7 @@ protected:
 	int mNumOfTick = 100;
 	QSubClass<IPositionGenerator> mPositionGenerator;
 	QSubClass<IVelocityGenerator> mVelocityGenerator;
-	QVector3D mScaling = QVector3D(0.1f, 0.1f, 0.1f);
+	QVector3D mScaling = QVector3D(0.01f, 0.01f, 0.01f);
 };
 
 #endif // QParticleEmitter_h__

@@ -15,8 +15,10 @@ QDataStream& operator<<(QDataStream& out, const Asset::SkeletonModel::Vertex& ve
 }
 
 QDataStream& operator<<(QDataStream& out, const Asset::SkeletonModel::Mesh& mesh) {
-	out << mesh.mVertices;
-	out << mesh.mIndices;
+	out << mesh.mVerticesOffset;
+	out << mesh.mVerticesRange;
+	out << mesh.mIndicesOffset;
+	out << mesh.mIndicesRange;
 	out << mesh.mMaterialIndex;
 	return out;
 }
@@ -33,8 +35,10 @@ QDataStream& operator>>(QDataStream& in, Asset::SkeletonModel::Vertex& vertex) {
 }
 
 QDataStream& operator>>(QDataStream& in, Asset::SkeletonModel::Mesh& mesh) {
-	in >> mesh.mVertices;
-	in >> mesh.mIndices;
+	in >> mesh.mVerticesOffset;
+	in >> mesh.mVerticesRange;
+	in >> mesh.mIndicesOffset;
+	in >> mesh.mIndicesRange;
 	in >> mesh.mMaterialIndex;
 	return in;
 }
@@ -44,6 +48,8 @@ void SkeletonModel::deserialize(QDataStream& in) {
 	in >> mMeshList;
 	in >> mMaterialPathList;
 	in >> mSkeletonPath;
+	in >> mVertices;
+	in >> mIndices;
 }
 
 void SkeletonModel::serialize(QDataStream& out) {
@@ -51,6 +57,8 @@ void SkeletonModel::serialize(QDataStream& out) {
 	out << mMeshList;
 	out << mMaterialPathList;
 	out << mSkeletonPath;
+	out << mVertices;
+	out << mIndices;
 }
 
 }

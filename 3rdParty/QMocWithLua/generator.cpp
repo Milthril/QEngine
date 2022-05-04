@@ -693,10 +693,10 @@ void Generator::generateCode()
 void Generator::generateLuaCode()
 {
 	if (cdef->hasQLua) {
-		fprintf(out, "void %s::registerLua(sol::state &lua){ \n", cdef->classname.constData());
-		fprintf(out, "    lua.new_usertype<%s>(\"%s\"\n", cdef->classname.constData(), cdef->classname.constData());
+		fprintf(out, "void %s::registerLua(sol::state &lua){ \n", cdef->qualified.constData());
+		fprintf(out, "    lua.new_usertype<%s>(\"%s\"\n", cdef->qualified.constData(), cdef->qualified.constData());
 		for (auto& property : cdef->propertyList) {
-			fprintf(out, "        ,\"%s\",sol::property(&%s::%s,&%s::%s)\n", property.name.constData(), cdef->classname.constData(), property.read.constData(), cdef->classname.constData(), property.write.constData());
+			fprintf(out, "        ,\"%s\",sol::property(&%s::%s,&%s::%s)\n", property.name.constData(), cdef->qualified.constData(), property.read.constData(), cdef->qualified.constData(), property.write.constData());
 		}
 		fprintf(out, "    );\n");
 		fprintf(out, "}\n");

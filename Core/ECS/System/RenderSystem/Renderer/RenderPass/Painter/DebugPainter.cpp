@@ -108,6 +108,8 @@ bool FrameGraphDelegate::AllowedLink(GraphEditor::NodeIndex from, GraphEditor::N
 
 void FrameGraphDelegate::SelectNode(GraphEditor::NodeIndex nodeIndex, bool selected) {
 	mNodes[nodeIndex].mSelected = selected;
+	if(selected)
+		TheRenderSystem->renderer()->setCurrentRenderPass(mNodes[nodeIndex].mRenderPass);
 }
 
 void FrameGraphDelegate::MoveSelectedNodes(const ImVec2 delta) {
@@ -185,7 +187,7 @@ DebugPainter::DebugPainter() {
 void DebugPainter::paintImgui() {
 	auto& io = ImGui::GetIO();
 
-	static GraphEditor::FitOnScreen fit = GraphEditor::Fit_None;
+	static GraphEditor::FitOnScreen fit = GraphEditor::Fit_AllNodes;
 
 	ImGui::GetBackgroundDrawList()->AddText(ImGui::GetFont(), ImGui::GetFontSize(), ImVec2(0, mDebugTexture->pixelSize().height() - ImGui::GetFontSize()), ImColor(0, 255, 0, 255), QString("FPS: %1").arg(TheRenderSystem->window()->getFPS()).toLocal8Bit().data());
 

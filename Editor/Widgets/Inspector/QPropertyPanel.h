@@ -13,8 +13,6 @@ public:
 	void recreatePanel();
 private:
 	QObject* mObject = nullptr;
-protected:
-	void showEvent(QShowEvent* event) override;
 };
 
 #endif // QPropertyPanel_h__

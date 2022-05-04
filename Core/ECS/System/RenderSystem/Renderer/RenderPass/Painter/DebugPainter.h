@@ -24,7 +24,6 @@ template <typename T, typename ... U> Array(T, U...)->Array<T, 1 + sizeof...(U)>
 
 
 struct FrameGraphDelegate : public GraphEditor::Delegate {
-
 	void UpdateGraph();
 	bool AllowedLink(GraphEditor::NodeIndex from, GraphEditor::NodeIndex to) override;
 	void SelectNode(GraphEditor::NodeIndex nodeIndex, bool selected) override;

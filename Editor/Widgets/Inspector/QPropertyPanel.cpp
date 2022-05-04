@@ -6,7 +6,6 @@
 #include "QPropertyItemFactory.h"
 
 QPropertyPanel::QPropertyPanel(QObject* object /*= nullptr*/) {
-	setObject(object);
 	setColumnCount(1);
 	setIndentation(8);
 	setHeaderHidden(true);
@@ -19,9 +18,11 @@ QPropertyPanel::QPropertyPanel(QObject* object /*= nullptr*/) {
 			/*show menu*/
 		}
 	});
+	setObject(object);
 }
 
 QPropertyPanel::~QPropertyPanel() {
+
 }
 
 QObject* QPropertyPanel::getObject() const
@@ -32,8 +33,7 @@ QObject* QPropertyPanel::getObject() const
 void QPropertyPanel::setObject(QObject* val) {
 	if (val != mObject) {
 		mObject = val;
-		if (isVisible())
-			recreatePanel();
+		recreatePanel();
 	}
 }
 
@@ -68,10 +68,4 @@ void QPropertyPanel::updatePanel()
 		}
 		iter++;
 	}
-}
-
-void QPropertyPanel::showEvent(QShowEvent* event)
-{
-	QTreeWidget::showEvent(event);
-	recreatePanel();
 }

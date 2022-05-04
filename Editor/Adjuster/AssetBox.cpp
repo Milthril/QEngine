@@ -6,7 +6,7 @@
 #include <QPainter>
 
 #include "AssetBox.h"
-#include "Widgets/PropertyPanel/QPropertyAdjusterItem.h"
+#include "Widgets/Inspector/QPropertyAdjusterItem.h"
 #include "Window/MaterialEditor/QMaterialEditor.h"
 #include "Asset/Material.h"
 #include "Window/ParticlesEditor/QParticlesEditor.h"

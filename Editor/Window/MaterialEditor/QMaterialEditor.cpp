@@ -19,10 +19,19 @@ void QMaterialEditor::edit(std::shared_ptr<Asset::Material> material)
 	mUniformPanel->setUniform(std::dynamic_pointer_cast<QRhiUniform>(material));
 	glslEditor->setText(mMaterial->getShadingCode());
 	luaEditor->setText(mMaterial->getScript()->getCode());
-	if (!isVisible())
+	if (!isVisible()) {
+		resize(1000, 700);
 		show();
+	}
 	activateWindow();
 	setFocus();
+}
+
+void QMaterialEditor::shutdown() {
+	mMaterial.reset();
+	mUniformPanel->setUniform(nullptr);
+	close();
+	deleteLater();
 }
 
 QMaterialEditor::QMaterialEditor()

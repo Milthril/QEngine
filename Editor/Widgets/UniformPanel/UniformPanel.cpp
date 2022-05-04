@@ -98,6 +98,8 @@ void UniformPanel::setUniform(std::shared_ptr<QRhiUniform> uniform)
 
 void UniformPanel::updateParamPanel() {
 	mParamsPanel->clear();
+	if (mUniform == nullptr)
+		return;
 	auto params = mUniform->getParamList();
 	for (auto param : params) {
 		QTreeWidgetItem* item = new QTreeWidgetItem();
@@ -152,7 +154,6 @@ void UniformPanel::updateParamPanel() {
 		});
 			break;
 		}
-
 		case QRhiUniform::ParamDescBase::Type::Mat4:
 			break;
 		case QRhiUniform::ParamDescBase::Type::Sampler2D: {

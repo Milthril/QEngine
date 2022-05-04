@@ -49,7 +49,7 @@ private:
 
 	QList<ILightComponent*> mLightItemList;
 
-	QRhiTexture* mSkyCube;
+	QRhiTexture* mSkyCube = nullptr;
 
 	QRhiSPtr<QRhiComputePipeline> spmapPipeline;
 	QRhiSPtr<QRhiShaderResourceBindings> spmapShaderBindings;

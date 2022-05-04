@@ -19,8 +19,8 @@ public:
 			Vec3,
 			Vec4,
 			Color4,
+			Sampler2D,
 			Mat4,
-			Sampler2D
 		}type;
 		QString getTypeName();
 		QRhiSignal bNeedUpdate;

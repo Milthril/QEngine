@@ -20,8 +20,6 @@ private:
 	QLineEdit lbName;
 	QWidgetListPanel* mWidgetPanel;
 	QPushButton btAddComponent;
-protected:
-	void showEvent(QShowEvent* event) override;
 };
 
 #endif // QEntityPanel_h__

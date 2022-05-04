@@ -1,11 +1,11 @@
-﻿#include "QSphererGenerator.h"
+﻿#include "Sphere.h"
 
-QSphereGenerator::QSphereGenerator()
-{
+namespace QPositionGenerator {
+
+Sphere::Sphere() {
 }
 
-void QSphereGenerator::generate(QVector<Asset::ParticleSystem::Particle>& particles)
-{
+void Sphere::generate(QVector<Asset::ParticleSystem::Particle>& particles) {
 	float radius = mRadius;
 	if (mSolid) {
 		radius = radius * mRandom.bounded(1.0);
@@ -16,3 +16,6 @@ void QSphereGenerator::generate(QVector<Asset::ParticleSystem::Particle>& partic
 		particle.position = QVector3D(radius * qSin(a) * qCos(b), radius * qSin(a) * qSin(b), radius * qCos(a)).toVector4D();
 	}
 }
+
+}
+

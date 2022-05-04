@@ -96,7 +96,7 @@ void EditorWindow::createUI()
 
 	auto dockEntity = new KDDockWidgets::DockWidget("Inspector", KDDockWidgets::DockWidget::Option_None, layoutSaverOptions);
 	dockEntity->setAffinities(mMainWindow.affinities());
-	dockEntity->setWidget(&mEntityPanel);
+	dockEntity->setWidget(&mInspector);
 	mMainWindow.addDockWidget(dockEntity, KDDockWidgets::Location::Location_OnRight, dockScene, KDDockWidgets::InitialOption(QSize(120, 600)));
 
 	auto dockViewport = new KDDockWidgets::DockWidget("Viewport", KDDockWidgets::DockWidget::Option_None, layoutSaverOptions);
@@ -113,7 +113,8 @@ void EditorWindow::createUI()
 }
 
 void EditorWindow::connectUI(){
-	connect(&mScenePanel, &QScenePanel::entityChanged, &mEntityPanel, &QEntityPanel::setEntity);
+	connect(&mScenePanel, &QScenePanel::entityChanged, &mInspector, &QInspector::setObject);
+	connect(TheRenderSystem->renderer(), &QRenderer::currentRenderPassChanged,&mInspector, &QInspector::setObject);
 }
 
 void EditorWindow::showEvent(QShowEvent* event)

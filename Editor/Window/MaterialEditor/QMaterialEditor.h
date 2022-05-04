@@ -16,6 +16,7 @@ class QMaterialEditor :public KDDockWidgets::DockWidget {
 public:
 	static QMaterialEditor* instance();
 	void edit(std::shared_ptr<Asset::Material> material);
+	void shutdown();
 private:
 	QMaterialEditor();
 	void closeEvent(QCloseEvent*) override;

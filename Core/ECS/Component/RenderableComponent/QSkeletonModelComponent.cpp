@@ -28,9 +28,9 @@ void SkeletonModelComponentSubMesh::updateMaterial() {
 void SkeletonModelComponentSubMesh::recreateResource() {
 	if (!mMesh || !mMaterial|| !mModel)
 		return;
-	mVertexBuffer.reset(RHI->newBuffer(QRhiBuffer::Type::Static, QRhiBuffer::VertexBuffer, sizeof(Asset::SkeletonModel::Vertex) * mMesh->mVertices.size()));
+	mVertexBuffer.reset(RHI->newBuffer(QRhiBuffer::Type::Static, QRhiBuffer::VertexBuffer, sizeof(Asset::SkeletonModel::Vertex) * mMesh->mVerticesRange));
 	mVertexBuffer->create();
-	mIndexBuffer.reset(RHI->newBuffer(QRhiBuffer::Type::Static, QRhiBuffer::IndexBuffer, sizeof(Asset::SkeletonModel::Index) * mMesh->mIndices.size()));
+	mIndexBuffer.reset(RHI->newBuffer(QRhiBuffer::Type::Static, QRhiBuffer::IndexBuffer, sizeof(Asset::SkeletonModel::Index) * mMesh->mIndicesRange));
 	mIndexBuffer->create();
 }
 
@@ -59,10 +59,10 @@ void SkeletonModelComponentSubMesh::recreatePipeline() {
 			}ubuf;
 
 			void main(){
-				mat4 BoneTransform =  ubuf.boneMatrix[boneIndex[0]]*boneWeight[0];
-					 BoneTransform += ubuf.boneMatrix[boneIndex[1]]*boneWeight[1];
-					 BoneTransform += ubuf.boneMatrix[boneIndex[2]]*boneWeight[2];
-					 BoneTransform += ubuf.boneMatrix[boneIndex[3]]*boneWeight[3];
+				mat4 BoneTransform =  ubuf.boneMatrix[boneIndex[0]] * boneWeight[0];
+					 BoneTransform += ubuf.boneMatrix[boneIndex[1]] * boneWeight[1];
+					 BoneTransform += ubuf.boneMatrix[boneIndex[2]] * boneWeight[2];
+					 BoneTransform += ubuf.boneMatrix[boneIndex[3]] * boneWeight[3];
 					
 				vUV = inUV;
 				vec4 pos = BoneTransform * vec4(inPosition,1.0f);
@@ -159,8 +159,9 @@ void SkeletonModelComponentSubMesh::recreatePipeline() {
 }
 
 void SkeletonModelComponentSubMesh::uploadResource(QRhiResourceUpdateBatch* batch) {
-	batch->uploadStaticBuffer(mVertexBuffer.get(),0 , sizeof(Asset::SkeletonModel::Vertex) * mMesh->mVertices.size(), mMesh->mVertices.data());
-	batch->uploadStaticBuffer(mIndexBuffer.get(), 0, sizeof(Asset::SkeletonModel::Index) * mMesh->mIndices.size(), mMesh->mIndices.data());
+
+	batch->uploadStaticBuffer(mVertexBuffer.get(), 0, sizeof(Asset::SkeletonModel::Vertex) * mMesh->mVerticesRange, mModel->getSkeletonModel()->getVertices().data() + sizeof(Asset::SkeletonModel::Vertex) * mMesh->mVerticesOffset);
+	batch->uploadStaticBuffer(mIndexBuffer.get(), 0, sizeof(Asset::SkeletonModel::Index) * mMesh->mIndicesRange, mModel->getSkeletonModel()->getIndices().data() + sizeof(Asset::SkeletonModel::Index) * mMesh->mIndicesOffset);
 }
 
 void SkeletonModelComponentSubMesh::updateResourcePrePass(QRhiResourceUpdateBatch* batch) {
@@ -177,7 +178,7 @@ void SkeletonModelComponentSubMesh::renderInPass(QRhiCommandBuffer* cmdBuffer, c
 	cmdBuffer->setShaderResources();
 	QRhiCommandBuffer::VertexInput VertexInput(mVertexBuffer.get(), 0);
 	cmdBuffer->setVertexInput(0, 1, &VertexInput, mIndexBuffer.get(), 0, QRhiCommandBuffer::IndexUInt32);
-	cmdBuffer->drawIndexed(mMesh->mIndices.size());
+	cmdBuffer->drawIndexed(mMesh->mIndicesRange);
 }
 
 void QSkeletonModelComponent::recreateResource() {
@@ -205,7 +206,6 @@ void QSkeletonModelComponent::recreatePipeline() {
 }
 
 void QSkeletonModelComponent::uploadResource(QRhiResourceUpdateBatch* batch) {
-
 	if (!mSkeletonModel || !mSkeleton || mMaterialList.isEmpty())
 		return;
 	for (auto& subMesh : mSkeletonSubMeshList) {
