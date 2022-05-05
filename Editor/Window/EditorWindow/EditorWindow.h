@@ -4,12 +4,12 @@
 #include "EditorAttributeMgr.h"
 #include "Widgets/AssetPanel/AssetPanel.h"
 #include "Widgets/ScenePanel/QScenePanel.h"
-#include "Widgets/EntityPanel/QEntityPanel.h"
 #include <kddockwidgets/DockWidget.h>
 #include <kddockwidgets/MainWindow.h>
 #include "kddockwidgets/private/widgets/FloatingWindowWidget_p.h"
 #include "Widgets/ViewportPanel/ViewportPanel.h"
 #include "Widgets/ConsolePanel/QConsolePanel.h"
+#include "Widgets/Inspector/QInspector.h"
 
 class EditorWindow : public KDDockWidgets::FloatingWindowWidget{
 	Q_OBJECT
@@ -24,7 +24,7 @@ protected:
 public:
 	KDDockWidgets::MainWindow mMainWindow;
 	QScenePanel mScenePanel;
-	QEntityPanel mEntityPanel;
+	QInspector mInspector;
 	QConsolePanel mConsolePanel;
 	AssetPanel mAssetPanel;
 	ViewportPanel mViewportPanel;

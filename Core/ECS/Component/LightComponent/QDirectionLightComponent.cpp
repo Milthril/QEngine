@@ -2,7 +2,7 @@
 
 QDirectionLightComponent::QDirectionLightComponent() {
 	setDataVec3("Direction", QVector3D(1, 0, 1));
-	setDataVec3("Radiance", QVector3D(1, 1, 1));
+	setDataVec3("Radiance", QVector3D(100, 100, 100));
 	if (bNeedRecreate.receive()) {
 		recreateResource();
 	}

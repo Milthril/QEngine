@@ -4,8 +4,8 @@
 #include "QSplitter"
 #include "Widgets\CodeEditor\GLSL\GLSLEditor.h"
 #include "Widgets\UniformPanel\UniformPanel.h"
-#include "Widgets\PropertyPanel\QPropertyPanel.h"
 #include "Asset\PartcleSystem\Emitter\QParticleEmitter.h"
+#include "Widgets\Inspector\QPropertyPanel.h"
 
 QParticlesEditor* QParticlesEditor::QParticlesEditor::instance()
 {
@@ -19,10 +19,19 @@ void QParticlesEditor::edit(std::shared_ptr<Asset::ParticleSystem> system)
 	mUniformPanel->setUniform(std::dynamic_pointer_cast<QRhiUniform>(system->getUpdater()));
 	mEmitterPanel->setObject(system->getEmitter().get());
 	editor->setText(mSystem->getUpdater()->getUpdateCode());
-	if (!isVisible())
+	if (!isVisible()) {
+		resize(1000, 700);
 		show();
+	}
 	activateWindow();
 	setFocus();
+}
+
+void QParticlesEditor::shutdown() {
+	mSystem.reset();
+	mUniformPanel->setUniform(nullptr);
+	close();
+	deleteLater();
 }
 
 QParticlesEditor::QParticlesEditor()
@@ -50,9 +59,4 @@ QParticlesEditor::QParticlesEditor()
 	connect(btCompile, &QPushButton::clicked, this, [this]() {
 		mSystem->getUpdater()->setUpdateCode(editor->text().toLocal8Bit());
 	});
-}
-
-void QParticlesEditor::closeEvent(QCloseEvent*e) {
-	mSystem.reset();
-	KDDockWidgets::DockWidget::closeEvent(e);
 }

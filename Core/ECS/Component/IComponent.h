@@ -17,6 +17,7 @@ public:
 
 	QString getEntityIdVec4String() const;
 
+	QEntity* getEntity() const { return mEntity; }
 protected:
 	QEntity* mEntity = nullptr;
 };

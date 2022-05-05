@@ -1,5 +1,4 @@
 ﻿#include "QParticleEmitter.h"
-#include "PositionGenerator\QCubeGenerator.h"
 
 QParticleEmitter::QParticleEmitter()
 {

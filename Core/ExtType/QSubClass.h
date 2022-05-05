@@ -59,7 +59,7 @@ public:
 	bool setSubClass(const QString& name) {
 		const QSubClassMgr::Info& info = QSubClassMgr::instance()->getInfo(_Ty::staticMetaObject.className());
 		for (auto& meta : info.children) {
-			if (meta->className() == name) {
+			if (QString(meta->className()).contains(name)) {
 				this->reset(dynamic_cast<_Ty*>(meta->newInstance()));
 				return this->get()!=nullptr;
 			}

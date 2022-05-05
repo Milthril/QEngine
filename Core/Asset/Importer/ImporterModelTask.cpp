@@ -150,16 +150,21 @@ void ImporterModelTask::executable() {
 		QHash<QString, std::shared_ptr<Asset::Skeleton::BoneNode>> mBoneMap;
 		QVector<Asset::Skeleton::Mat4> mBoneOffsetMatrix;
 		QVector<Asset::Skeleton::Mat4> mCurrentPosesMatrix;
-
 		qNode.push_back({ scene->mRootNode ,aiMatrix4x4() });
+
+		QVector<Asset::SkeletonModel::Vertex> mVertices;
+		QVector<Asset::SkeletonModel::Index> mIndices;
+
 		while (!qNode.isEmpty()) {
 			QPair<aiNode*, aiMatrix4x4> node = qNode.takeFirst();
 			for (unsigned int i = 0; i < node.first->mNumMeshes; i++) {
 				aiMesh* mesh = scene->mMeshes[node.first->mMeshes[i]];
 				Asset::SkeletonModel::Mesh mMesh;
-				mMesh.mVertices.resize(mesh->mNumVertices);
+				mMesh.mVerticesOffset = mVertices.size();
+				mMesh.mVerticesRange = mesh->mNumVertices;
+				mVertices.resize(mMesh.mVerticesOffset + mMesh.mVerticesRange);
 				for (unsigned int i = 0; i < mesh->mNumVertices; i++) {
-					Asset::SkeletonModel::Vertex& vertex = mMesh.mVertices[i];
+					Asset::SkeletonModel::Vertex& vertex = mVertices[mMesh.mVerticesOffset + i];
 					vertex.position = converter(mesh->mVertices[i]);
 					if (mesh->mNormals)
 						vertex.normal = converter(mesh->mNormals[i]);
@@ -173,10 +178,13 @@ void ImporterModelTask::executable() {
 						vertex.bitangent = converter(mesh->mBitangents[i]);
 				}
 
+				mMesh.mIndicesOffset = mIndices.size();
+				mMesh.mIndicesRange = 0;
 				for (unsigned int i = 0; i < mesh->mNumFaces; i++) {
 					aiFace face = mesh->mFaces[i];
 					for (unsigned int j = 0; j < face.mNumIndices; j++) {
-						mMesh.mIndices.push_back(face.mIndices[j]);
+						mIndices.push_back(face.mIndices[j]);
+						mMesh.mIndicesRange++;
 					}
 				}
 
@@ -196,12 +204,13 @@ void ImporterModelTask::executable() {
 							mBoneMap[boneNode->name] = boneNode;
 						}
 						int slot = 0;
-						while (slot < std::size(mMesh.mVertices[vertexId].boneIndex) && (mMesh.mVertices[vertexId].boneWeight[slot] > 0.000001)) {
+						Asset::SkeletonModel::Vertex& vertex = mVertices[mMesh.mVerticesOffset + vertexId];
+						while (slot < std::size(vertex.boneIndex) && (vertex.boneWeight[slot] > 0.000001)) {
 							slot++;
 						}
-						if (slot < std::size(mMesh.mVertices[vertexId].boneIndex)) {
-							mMesh.mVertices[vertexId].boneIndex[slot] = boneNode->index;
-							mMesh.mVertices[vertexId].boneWeight[slot] = mesh->mBones[i]->mWeights[j].mWeight;;
+						if (slot < std::size(vertex.boneIndex)) {
+							vertex.boneIndex[slot] = boneNode->index;
+							vertex.boneWeight[slot] = mesh->mBones[i]->mWeights[j].mWeight;;
 						}
 						else {
 							qWarning("Lack of slot");
@@ -228,6 +237,8 @@ void ImporterModelTask::executable() {
 		mSkeletonModel->setSkeletonPath(mSkeleton->getRefPath());
 		mSkeletonModel->setRefPath(mDestDir.filePath("%1.%2").arg(QFileInfo(mFilePath).baseName()).arg(mSkeletonModel->getExtName()));
 		mSkeletonModel->setMaterialPathList(std::move(mMaterialPathList));
+		mSkeletonModel->mVertices = std::move(mVertices);
+		mSkeletonModel->mIndices = std::move(mIndices);
 		mSkeletonModel->save(mSkeletonModel->getRefPath());
 	}
 

@@ -9,6 +9,7 @@
 #include "RenderPass\DeferRenderPass.h"
 #include "RenderPass\ForwardRenderPass.h"
 #include "ECS\System\RenderSystem\RHI\IRenderable.h"
+#include "RenderPass\ColorGradingRenderPass.h"
 
 QRenderer::QRenderer(){}
 
@@ -18,11 +19,13 @@ void QRenderer::buildFrameGraph() {
 	mDeferRenderPass = std::make_shared<DeferRenderPass>();
 	mLightingRenderPass = std::make_shared<LightingRenderPass>();
 	mForwardRenderPass = std::make_shared<ForwardRenderPass>();
+	mSwapChainPass = std::make_shared<SwapChainRenderPass>();
 
 	std::shared_ptr<PixelSelectRenderPass> bloomPixelSelectPass = std::make_shared<PixelSelectRenderPass>();
 	std::shared_ptr<BlurRenderPass> bloomBlurPass = std::make_shared<BlurRenderPass>();
 	std::shared_ptr<BloomMerageRenderPass> bloomMeragePass = std::make_shared<BloomMerageRenderPass>();
-	std::shared_ptr<SwapChainRenderPass> swapChainPass = std::make_shared<SwapChainRenderPass>();
+	std::shared_ptr<ColorGradingRenderPass> colorGradingPass = std::make_shared<ColorGradingRenderPass>();
+
 
 	//	ScenePass -> LightingPass ->ForwardPass -->BloomPixelSeletorPass -> BloomBlurPass
 	//	                 |														 |
@@ -62,23 +65,28 @@ void QRenderer::buildFrameGraph() {
 		->node("BloomBlurPass", bloomBlurPass,
 				[self = bloomBlurPass.get(), pixel = bloomPixelSelectPass.get()]() {
 					self->setupInputTexture(BlurRenderPass::InputTextureSlot::Color, pixel->getOutputTexture(PixelSelectRenderPass::OutputTextureSlot::SelectResult));
-					self->setupBloomSize(20);
-					self->setupBoommIter(2);
+					self->setupBlurSize(20);
+					self->setupBlurIter(2);
 				})
 			->dependency({ "BloomPixelSelector" })
-		->node("BloomMeragePass", bloomMeragePass,
+		->node("ToneMapping", bloomMeragePass,
 				[self = bloomMeragePass.get(), forward = mForwardRenderPass.get(), blur = bloomBlurPass]() {
 					self->setupInputTexture(BloomMerageRenderPass::InputTextureSlot::Bloom, blur->getOutputTexture(BlurRenderPass::OutputTextureSlot::BlurResult));
 					self->setupInputTexture(BloomMerageRenderPass::InputTextureSlot::Src, forward->getOutputTexture(ForwardRenderPass::OutputTextureSlot::Output));
 				})
 			->dependency({ "Forward","BloomBlurPass" })
-		->node("Swapchain", swapChainPass,
-			   [self = swapChainPass.get(), bloom = bloomMeragePass.get(), defer = mDeferRenderPass.get(), forward = mForwardRenderPass.get()]() {
+		->node("ColorGrading", colorGradingPass,
+				[self = colorGradingPass.get(), toneMaping = bloomMeragePass.get()]() {
+					self->setupInputTexture(ColorGradingRenderPass::InputTextureSlot::Color, toneMaping->getOutputTexture(BloomMerageRenderPass::OutputTextureSlot::BloomMerageResult));
+				})
+			->dependency({ "ToneMapping"})
+		->node("Swapchain", mSwapChainPass,
+			   [self = mSwapChainPass.get(), colorGrading = colorGradingPass.get(),  forward = mForwardRenderPass.get()]() {
 					self->setupSwapChain(TheRenderSystem->window()->getSwapChain());
-					self->setupInputTexture(SwapChainRenderPass::InputTextureSlot::Color, bloom->getOutputTexture(BloomMerageRenderPass::OutputTextureSlot::BloomMerageResult));
+					self->setupInputTexture(SwapChainRenderPass::InputTextureSlot::Color, colorGrading->getOutputTexture(ColorGradingRenderPass::OutputTextureSlot::Result));
 					self->setupInputTexture(SwapChainRenderPass::InputTextureSlot::DebugId, forward->getOutputTexture(ForwardRenderPass::OutputTextureSlot::DebugId));
 				})
-			->dependency({ "BloomMeragePass","Forward"})
+			->dependency({ "ColorGrading","Forward"})
 		->end();
 }
 
@@ -150,4 +158,11 @@ QVector<QRhiGraphicsPipeline::TargetBlend> QRenderer::getForwardPassBlendStates(
 
 QRhiRenderPassDescriptor* QRenderer::getForwardRenderPassDescriptor() {
 	return mForwardRenderPass->getRenderTarget()->renderPassDescriptor();
+}
+
+void QRenderer::setCurrentRenderPass(IRenderPassBase* val) {
+	if (mCurrentRenderPass != val) {
+		mCurrentRenderPass = val;
+		Q_EMIT currentRenderPassChanged(val);
+	}
 }

@@ -3,8 +3,8 @@
 
 QPointLightComponent::QPointLightComponent() {
 	setDataVec3("Position", QVector3D(0, 0, 0));
-	setDataVec3("Radiance", QVector3D(1, 1, 1));
-	setDistance(50);
+	setDataVec3("Radiance", QVector3D(100, 100, 100));
+	setDistance(1000);
 	if (bNeedRecreate.receive()) {
 		recreateResource();
 	}

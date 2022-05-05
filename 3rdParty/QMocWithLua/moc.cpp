@@ -1139,14 +1139,14 @@ void Moc::generate(FILE* out, FILE* jsonOutput)
 	for (const QByteArray& qtContainer : qtContainers)
 		fprintf(out, "#include <QtCore/%s>\n", qtContainer.constData());
 
-	fprintf(out, "#if !defined(Q_MOC_OUTPUT_REVISION)\n"
-			"#error \"The header file '%s' doesn't include <QObject>.\"\n", fn.constData());
-	fprintf(out, "#elif Q_MOC_OUTPUT_REVISION != %d\n", mocOutputRevision);
-	fprintf(out, "#error \"This file was generated using the moc from %s."
-			" It\"\n#error \"cannot be used with the include files from"
-			" this version of Qt.\"\n#error \"(The moc has changed too"
-			" much.)\"\n", QT_VERSION_STR);
-	fprintf(out, "#endif\n\n");
+	//fprintf(out, "#if !defined(Q_MOC_OUTPUT_REVISION)\n"
+	//		"#error \"The header file '%s' doesn't include <QObject>.\"\n", fn.constData());
+	//fprintf(out, "#elif Q_MOC_OUTPUT_REVISION != %d\n", mocOutputRevision);
+	//fprintf(out, "#error \"This file was generated using the moc from %s."
+	//		" It\"\n#error \"cannot be used with the include files from"
+	//		" this version of Qt.\"\n#error \"(The moc has changed too"
+	//		" much.)\"\n", QT_VERSION_STR);
+	//fprintf(out, "#endif\n\n");
 
 	fprintf(out, "QT_BEGIN_MOC_NAMESPACE\n");
 	fprintf(out, "QT_WARNING_PUSH\n");

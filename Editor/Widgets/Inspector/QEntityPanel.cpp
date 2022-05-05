@@ -7,8 +7,8 @@
 #include "ECS/QEntity.h"
 #include "ECS/Component/IComponent.h"
 #include "Toolkit/QWidgetShadowMaker.h"
-#include "Widgets/PropertyPanel/QPropertyPanel.h"
 #include "QWidgetListPanel.h"
+#include "QPropertyPanel.h"
 
 QEntityPanel::QEntityPanel(QEntity* entity /*= nullptr*/) 
 	: mEntity(entity)
@@ -30,6 +30,7 @@ QEntityPanel::QEntityPanel(QEntity* entity /*= nullptr*/)
 				recreatePanel();
 			});
 		}
+		menu.setFixedWidth(this->lbName.width());
 		menu.exec(mapToGlobal(btAddComponent.geometry().bottomLeft()));
 	});
 	connect(mWidgetPanel, &QWidgetListPanel::widgetRemoved, this, [this](QWidget* w) {
@@ -39,7 +40,6 @@ QEntityPanel::QEntityPanel(QEntity* entity /*= nullptr*/)
 			delete compPanel;
 		}
 	});
-	recreatePanel();
 
 	connect(&lbName, &QLineEdit::returnPressed, this, [this]() {
 		mEntity->setObjectName(lbName.text());
@@ -76,9 +76,4 @@ void QEntityPanel::recreatePanel() {
 		compPanel->setSizePolicy(QSizePolicy::Policy::Preferred, QSizePolicy::Policy::Minimum);
 		mWidgetPanel->addWidget(compPtr->metaObject()->className(), compPanel);
 	}
-}
-
-void QEntityPanel::showEvent(QShowEvent* event)
-{
-	QWidget::showEvent(event);
 }

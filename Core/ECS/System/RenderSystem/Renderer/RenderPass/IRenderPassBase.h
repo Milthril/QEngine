@@ -5,7 +5,7 @@
 
 class QRenderer;
 
-class IRenderPassBase {
+class IRenderPassBase: public QObject{
 	friend class QFrameGraphBuilder;
 public:
 	void setup() {
@@ -40,5 +40,6 @@ protected:
 	QHash<int, QRhiTexture*> mInputTextures;
 	QHash<int, QRhiTexture*> mOutputTextures;
 };
+
 
 #endif // IRenderPassBase_h__

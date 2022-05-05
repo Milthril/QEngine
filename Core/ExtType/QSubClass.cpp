@@ -24,7 +24,9 @@ QStringList QSubClassMgr::getSubList(const QString& parentName)
 	const QSubClassMgr::Info& info = mInfo[parentName];
 	QStringList subList;
 	for (auto& meta : info.children) {
-		subList << meta->className();
+		QString name = meta->className();
+		name = name.split("::").back();
+		subList << name;
 	}
 	return subList;
 }

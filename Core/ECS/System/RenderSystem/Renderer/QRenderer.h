@@ -3,14 +3,17 @@
 
 #include "QFrameGraph.h"
 #include "ECS/System/RenderSystem/RHI/QRhiDefine.h"
+#include "RenderPass/IRenderPassBase.h"
 
 class DeferRenderPass;
 class ILightComponent;
 class IRenderable;
 class LightingRenderPass;
 class ForwardRenderPass;
+class SwapChainRenderPass;
 
-class QRenderer {
+class QRenderer: public QObject {
+	Q_OBJECT
 	friend class QRenderSystem;
 public:
 	QRenderer();
@@ -38,13 +41,19 @@ public:
 	QRhiRenderPassDescriptor* getForwardRenderPassDescriptor();
 
 	std::shared_ptr<QFrameGraph> getFrameGraph() const { return mFrameGraph; }
+
+	IRenderPassBase* getCurrentRenderPass() const { return mCurrentRenderPass; }
+	void setCurrentRenderPass(IRenderPassBase* val);
+Q_SIGNALS:
+	void currentRenderPassChanged(IRenderPassBase*);
 protected:
 	QList<IRenderable*> mRenderableItemList;
 	std::shared_ptr<QFrameGraph> mFrameGraph;
-
 	std::shared_ptr<DeferRenderPass> mDeferRenderPass;
 	std::shared_ptr<ForwardRenderPass> mForwardRenderPass;
 	std::shared_ptr<LightingRenderPass> mLightingRenderPass;
+	std::shared_ptr<SwapChainRenderPass> mSwapChainPass;
+	IRenderPassBase* mCurrentRenderPass = nullptr;
 	QSize mFrameSize;
 };
 

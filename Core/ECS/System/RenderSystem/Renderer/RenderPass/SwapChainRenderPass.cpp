@@ -5,6 +5,8 @@ SwapChainRenderPass::SwapChainRenderPass()
 {
 }
 
+
+
 void SwapChainRenderPass::setupSwapChain(QRhiSwapChain* swapchain)
 {
 	mSwapChain = swapchain;

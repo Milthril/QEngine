@@ -8,12 +8,9 @@
 class SwapChainRenderPass :public IRenderPassBase {
 public:
 	SwapChainRenderPass();
-
 	void setupSwapChain(QRhiSwapChain* swapchain);
-
 	virtual void compile() override;
 	virtual void execute(QRhiCommandBuffer* cmdBuffer) override;
-
 	enum InputTextureSlot {
 		Color = 0,
 		DebugId,

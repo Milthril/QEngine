@@ -8,6 +8,7 @@ public:
 	PixelSelectRenderPass();
 
 	void setupSelectCode(QByteArray code);
+
 	void setDownSamplerCount(int count);
 
 	virtual void compile() override;

@@ -47,7 +47,7 @@ void QStaticMeshComponent::recreatePipeline() {
 	QVector<QRhiVertexInputBinding> inputBindings;
 	inputBindings << QRhiVertexInputBinding{ sizeof(Asset::StaticMesh::Vertex) };
 	QVector<QRhiVertexInputAttribute> attributeList;
-	attributeList << QRhiVertexInputAttribute{ 0, 0, QRhiVertexInputAttribute::Float3, offsetof(Asset::StaticMesh::Vertex, position) };
+	attributeList << QRhiVertexInputAttribute{ 0, 0, QRhiVertexInputAttribute::Float3, offsetof(Asset::StaticMesh::Vertex,position) };
 	attributeList << QRhiVertexInputAttribute{ 0, 1, QRhiVertexInputAttribute::Float3, offsetof(Asset::StaticMesh::Vertex,normal) };
 	attributeList << QRhiVertexInputAttribute{ 0, 2, QRhiVertexInputAttribute::Float3, offsetof(Asset::StaticMesh::Vertex,tangent) };
 	attributeList << QRhiVertexInputAttribute{ 0, 3, QRhiVertexInputAttribute::Float3, offsetof(Asset::StaticMesh::Vertex,bitangent) };
