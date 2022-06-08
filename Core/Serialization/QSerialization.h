@@ -42,7 +42,7 @@ template<typename T, typename std::enable_if<std::is_pointer<T>::value && QMetaT
 QDataStream& operator<<(QDataStream& out,const T& ptr) {
 	int id = -1;
 	if (ptr != nullptr) {
-		id = QMetaType::fromType<std::remove_pointer<T>::type>().id();
+		id = QMetaType::fromType<typename std::remove_pointer<T>::type>().id();
 	}
 	out << id;
 	if (ptr != nullptr) {
@@ -64,7 +64,7 @@ QDataStream& operator>>(QDataStream& in, T& ptr) {
 		return in;
 	}
 
-	QMetaType metaType = QMetaType::fromType<std::remove_pointer<T>::type>();
+	QMetaType metaType = QMetaType::fromType<typename std::remove_pointer<T>::type>();
 	Q_ASSERT(metaType.id() == id);
 	if (!metaType.isValid())
 		return in;

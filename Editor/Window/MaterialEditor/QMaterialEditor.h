@@ -14,11 +14,8 @@ class LuaEditor;
 class QMaterialEditor :public KDDockWidgets::DockWidget {
 	Q_OBJECT
 public:
-	static QMaterialEditor* instance();
-	void edit(std::shared_ptr<Asset::Material> material);
-	void shutdown();
-private:
-	QMaterialEditor();
+	QMaterialEditor(std::shared_ptr<Asset::Material> material);
+protected:
 	void closeEvent(QCloseEvent*) override;
 private:
 	std::shared_ptr<Asset::Material> mMaterial;

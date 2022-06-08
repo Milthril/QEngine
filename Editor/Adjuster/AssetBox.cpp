@@ -87,10 +87,16 @@ void AssetBox::dropEvent(QDropEvent* event) {
 
 void AssetBox::mouseDoubleClickEvent(QMouseEvent* event) {
 	if (mCurrentAsset && mType == IAsset::Material) {
-		QMaterialEditor::instance()->edit(std::dynamic_pointer_cast<Asset::Material>(mCurrentAsset));
+		QMaterialEditor* editor = new QMaterialEditor(std::dynamic_pointer_cast<Asset::Material>(mCurrentAsset));
+		editor->show();
+		editor->activateWindow();
+		editor->setFocus();
 	}
 	else if (mCurrentAsset && mType == IAsset::ParticleSystem) {
-		QParticlesEditor::instance()->edit(std::dynamic_pointer_cast<Asset::ParticleSystem>(mCurrentAsset));
+		QParticlesEditor* editor = new QParticlesEditor(std::dynamic_pointer_cast<Asset::ParticleSystem>(mCurrentAsset));
+		editor->show();
+		editor->activateWindow();
+		editor->setFocus();
 	}
 }
 

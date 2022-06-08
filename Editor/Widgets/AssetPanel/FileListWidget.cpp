@@ -121,10 +121,16 @@ FileListWidget::FileListWidget()  {
 	connect(this, &QListWidget::itemDoubleClicked, this, [this](QListWidgetItem* item) {
 		std::shared_ptr<IAsset> asset = TheAssetMgr->load(item->data(Qt::ToolTipRole).toString());
 		if (asset && asset->type() == IAsset::Material) {
-			QMaterialEditor::instance()->edit(std::dynamic_pointer_cast<Asset::Material>(asset));
+			QMaterialEditor* editor = new QMaterialEditor(std::dynamic_pointer_cast<Asset::Material>(asset));
+			editor->show();
+			editor->activateWindow();
+			editor->setFocus();
 		}
 		else if (asset && asset->type() == IAsset::ParticleSystem) {
-			QParticlesEditor::instance()->edit(std::dynamic_pointer_cast<Asset::ParticleSystem>(asset));
+		QParticlesEditor* editor = new QParticlesEditor(std::dynamic_pointer_cast<Asset::ParticleSystem>(asset));
+			editor->show();
+			editor->activateWindow();
+			editor->setFocus();
 		}
 	});
 

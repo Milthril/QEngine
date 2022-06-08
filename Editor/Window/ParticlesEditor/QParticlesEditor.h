@@ -12,11 +12,7 @@ class QPropertyPanel;
 
 class QParticlesEditor :public KDDockWidgets::DockWidget {
 public:
-	static QParticlesEditor* instance();
-	void edit(std::shared_ptr<Asset::ParticleSystem> system);
-	void shutdown();
-private:
-	QParticlesEditor();
+	QParticlesEditor(std::shared_ptr<Asset::ParticleSystem> system);
 private:
 	std::shared_ptr<Asset::ParticleSystem> mSystem;
 private:
@@ -24,6 +20,8 @@ private:
 	UniformPanel* mUniformPanel;
 	GLSLEditor* editor;
 	QPushButton* btCompile;
+protected:
+	void closeEvent(QCloseEvent*) override;
 
 };
 

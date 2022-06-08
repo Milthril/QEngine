@@ -8,40 +8,20 @@
 #include "Script\QLuaScriptFactory.h"
 #include "Asset\Material.h"
 
-QMaterialEditor* QMaterialEditor::QMaterialEditor::instance(){
-	static QMaterialEditor ins;
-	return &ins;
-}
-
-void QMaterialEditor::edit(std::shared_ptr<Asset::Material> material)
-{
-	mMaterial = material;
-	mUniformPanel->setUniform(std::dynamic_pointer_cast<QRhiUniform>(material));
-	glslEditor->setText(mMaterial->getShadingCode());
-	luaEditor->setText(mMaterial->getScript()->getCode());
-	if (!isVisible()) {
-		resize(1000, 700);
-		show();
-	}
-	activateWindow();
-	setFocus();
-}
-
-void QMaterialEditor::shutdown() {
-	mMaterial.reset();
-	mUniformPanel->setUniform(nullptr);
-	close();
-	deleteLater();
-}
-
-QMaterialEditor::QMaterialEditor()
+QMaterialEditor::QMaterialEditor(std::shared_ptr<Asset::Material> material)
 	: KDDockWidgets::DockWidget("Material Editor")
+	, mMaterial(material)
 	, luaEditor(new LuaEditor)
 	, glslEditor(new GLSLEditor)
 	, mUniformPanel(new UniformPanel())
 	, btSetupShader(new QPushButton("Setup Material"))
 	, btSetupLua(new QPushButton("Setup Script"))
 {
+	mUniformPanel->setUniform(std::dynamic_pointer_cast<QRhiUniform>(material));
+	glslEditor->setText(mMaterial->getShadingCode());
+	luaEditor->setText(mMaterial->getScript()->getCode());
+	resize(1000, 700);
+	setAttribute(Qt::WA_DeleteOnClose);
 	QsciAPIs* apis = luaEditor->getApis();
 	for (auto& api : QLuaScriptFactory::instance()->generateAPIs(QLuaScript::Uniform)) {
 		apis->add(api);
@@ -83,6 +63,8 @@ QMaterialEditor::QMaterialEditor()
 }
 
 void QMaterialEditor::closeEvent(QCloseEvent*e) {
-	mMaterial.reset();
 	KDDockWidgets::DockWidget::closeEvent(e);
+	mMaterial.reset();
+	mUniformPanel->setUniform(nullptr);
 }
+

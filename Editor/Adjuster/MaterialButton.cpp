@@ -14,7 +14,10 @@ MaterialButton::MaterialButton(std::shared_ptr<Asset::Material> material)
 	h->addWidget(btEdit);
 
 	connect(btEdit, &QPushButton::clicked, this, [this]() {
-		QMaterialEditor::instance()->edit(mMaterial);
+		QMaterialEditor* editor = new QMaterialEditor(mMaterial);
+		editor->show();
+		editor->activateWindow();
+		editor->setFocus();
 	});
 }
 

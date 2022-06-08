@@ -58,7 +58,7 @@ private:
 
 	unsigned char mBuffer[MAX_BUFFER_SIZE];
 	size_t mBufferSize = 0;
-	size_t mCacheKeepSize = 1 << 14;
+	size_t mCacheKeepSize = 1 << 13;
 
 	std::mutex mMutex;
 };

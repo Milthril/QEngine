@@ -64,7 +64,6 @@ public:
 				item->createWidgetOrSubItem();
 			}
 		}
-
 	}
 
 protected:

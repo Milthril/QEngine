@@ -63,8 +63,7 @@ protected:
 	virtual void customRelease() override {
 		//qInstallMessageHandler(nullptr);
 		delete mEditorWindow;
-		QParticlesEditor::instance()->shutdown();
-		QMaterialEditor::instance()->shutdown();
+		QApplication::closeAllWindows();
 	}
 public:
 	EditorWindow* getEditorWindow() const { return mEditorWindow; }

@@ -6,41 +6,17 @@
 #include "Widgets\UniformPanel\UniformPanel.h"
 #include "Asset\PartcleSystem\Emitter\QParticleEmitter.h"
 #include "Widgets\Inspector\QPropertyPanel.h"
+#include "QApplication"
 
-QParticlesEditor* QParticlesEditor::QParticlesEditor::instance()
-{
-	static QParticlesEditor ins;
-	return &ins;
-}
-
-void QParticlesEditor::edit(std::shared_ptr<Asset::ParticleSystem> system)
-{
-	mSystem = system;
-	mUniformPanel->setUniform(std::dynamic_pointer_cast<QRhiUniform>(system->getUpdater()));
-	mEmitterPanel->setObject(system->getEmitter().get());
-	editor->setText(mSystem->getUpdater()->getUpdateCode());
-	if (!isVisible()) {
-		resize(1000, 700);
-		show();
-	}
-	activateWindow();
-	setFocus();
-}
-
-void QParticlesEditor::shutdown() {
-	mSystem.reset();
-	mUniformPanel->setUniform(nullptr);
-	close();
-	deleteLater();
-}
-
-QParticlesEditor::QParticlesEditor()
+QParticlesEditor::QParticlesEditor(std::shared_ptr<Asset::ParticleSystem> system)
 	: KDDockWidgets::DockWidget("Particles Editor")
+	, mSystem(system)
 	, editor(new GLSLEditor)
 	, mUniformPanel(new UniformPanel())
 	, btCompile(new QPushButton("Compile"))
 	, mEmitterPanel(new QPropertyPanel)
 {
+	setAttribute(Qt::WA_DeleteOnClose);
 	QSplitter* body = new QSplitter;
 	setWidget(body);
 	QSplitter* leftPanel = new QSplitter;
@@ -58,5 +34,18 @@ QParticlesEditor::QParticlesEditor()
 	body->setStretchFactor(1, 5);
 	connect(btCompile, &QPushButton::clicked, this, [this]() {
 		mSystem->getUpdater()->setUpdateCode(editor->text().toLocal8Bit());
-	});
+		});
+
+	mUniformPanel->setUniform(std::dynamic_pointer_cast<QRhiUniform>(system->getUpdater()));
+	mEmitterPanel->setObject(system->getEmitter().get());
+	editor->setText(mSystem->getUpdater()->getUpdateCode());
+	resize(1000, 700);
+}
+
+
+void QParticlesEditor::closeEvent(QCloseEvent*e)
+{
+	KDDockWidgets::DockWidget::closeEvent(e);
+	mSystem.reset();
+	mUniformPanel->setUniform(nullptr);
 }
